@@ -10,7 +10,7 @@
     </parent>
 
     <groupId>org.openmrs.module</groupId>
-    <artifactId>mamba-etl</artifactId>
+    <artifactId>ethiohri-mamba</artifactId>
     <version>1.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>MambaETL Reference Module</name>
@@ -31,6 +31,12 @@
     </modules>
 
     <properties>
+
+            <reportingVersion>1.19.0</reportingVersion>
+            <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+            <calculationVersion>1.1</calculationVersion>
+            <serialization.xstreamVersion>0.2.11</serialization.xstreamVersion>
+            <cohortVersion>3.0.0-SNAPSHOT</cohortVersion>
         <openmrsPlatformVersion>2.0.0</openmrsPlatformVersion>
         <webservicesRestVersion>2.21.0</webservicesRestVersion>
         <legacyUIomodVersion>1.8.2</legacyUIomodVersion>
@@ -130,7 +136,12 @@
                 <version>${mambaETLCoreVersion}</version>
                 <type>jar</type>
             </dependency>
-
+            <dependency>
+                <groupId>org.openmrs.module</groupId>
+                <artifactId>reporting-api</artifactId>
+                <version>${reportingVersion}</version>
+                <scope>provided</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -269,7 +280,7 @@
                                     <argument>compile.sh</argument>
 
                                     <!-- The source database (OpenMRS database) -->
-                                    <argument>-d openmrs</argument>
+                                    <argument>-d openmrs_v2</argument>
 
                                     <!-- The target or analysis Database where the ETL data is stored -->
                                     <argument>-a analysis_db</argument>

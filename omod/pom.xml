@@ -5,11 +5,11 @@
 
     <parent>
         <groupId>org.openmrs.module</groupId>
-        <artifactId>mamba-etl</artifactId>
+        <artifactId>ethiohri-mamba</artifactId>
         <version>1.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>mamba-etl-omod</artifactId>
+    <artifactId>ethiohri-mamba-omod</artifactId>
     <packaging>jar</packaging>
     <name>MambaETL Reference module - OMOD</name>
     <description>OpenMRS MambaETL Reference module - OMOD</description>

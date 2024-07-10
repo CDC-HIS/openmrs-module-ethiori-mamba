@@ -1,11 +1,10 @@
 package org.openmrs.module.mambaetl.datasetdefinition.linelist;
 
-import org.openmrs.EncounterType;
 import org.openmrs.module.reporting.dataset.definition.BaseDataSetDefinition;
 import org.openmrs.module.reporting.definition.configuration.ConfigurationProperty;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
+import java.sql.Date;
 
 /**
  * HtsNewDataSetDefinition
@@ -19,10 +18,7 @@ public class HTSNewDataSetDefinition extends BaseDataSetDefinition {
 	@ConfigurationProperty
 	private Date endDate;
 	
-	@ConfigurationProperty
-	private EncounterType encounterType;
-	
-	public Date getStartDate() {
+	public java.sql.Date getStartDate() {
 		return startDate;
 	}
 	
@@ -36,14 +32,6 @@ public class HTSNewDataSetDefinition extends BaseDataSetDefinition {
 	
 	public void setEndDate(Date endDate) {
 		this.endDate = endDate;
-	}
-	
-	public EncounterType getEncounterType() {
-		return encounterType;
-	}
-	
-	public void setEncounterType(EncounterType encounterType) {
-		this.encounterType = encounterType;
 	}
 	
 }

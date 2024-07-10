@@ -1,0 +1,19 @@
+{
+  "report_name": "Intake A",
+  "flat_table_name": "mamba_flat_encounter_intake_a",
+  "encounter_type_uuid": "05add044-67f8-48c9-928d-79002ab19efe",
+  "table_columns": {
+    "respondent_age": "1532AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "hiv_test_result": "2e770be1-7397-4684-bea6-6632c23b00d7",
+    "respondent_gender": "1533AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "within_the_facility": "d2b461e5-dd7f-4d16-968e-354ac68cbd38",
+    "outside_the_facility": "73d76014-365e-484c-bf5b-0959add4e3f3",
+    "date_enrolled_in_care": "1ebc345c-6f09-43e1-a616-d7e52fff4c7d",
+    "reason_for_patient_referral": "5f34e705-3574-4b44-b455-d815962026a1",
+    "catchment_area_residency_status": "160637AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "challenges_with_regular_follow_up": "f93c0a7d-9578-4fb2-afd1-6a7f477a7e1a",
+    "other_entry_point_from_outside_the_": "2c30c599-1e4f-46f9-8488-5ab57cdc8ac3",
+    "other_entry_point_from_within_the_f": "a0368d36-686d-4b98-b60e-e62cb3d46c9b",
+    "who_knows_your_child_s_hiv_positive": "de8937b6-6ebe-4302-a488-2198be481839"
+  }
+}

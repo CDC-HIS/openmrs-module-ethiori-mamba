@@ -4,17 +4,21 @@
 
     <parent>
         <groupId>org.openmrs.module</groupId>
-        <artifactId>mamba-etl</artifactId>
+        <artifactId>ethiohri-mamba</artifactId>
         <version>1.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>mamba-etl-api</artifactId>
+    <artifactId>ethiohri-mamba-api</artifactId>
     <packaging>jar</packaging>
     <name>MambaETL Reference module - API</name>
     <description>OpenMRS MambaETL Reference module - API</description>
 
     <dependencies>
-
+        <dependency>
+            <groupId>org.openmrs.module</groupId>
+            <artifactId>reporting-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.openmrs.api</groupId>
             <artifactId>openmrs-api</artifactId>

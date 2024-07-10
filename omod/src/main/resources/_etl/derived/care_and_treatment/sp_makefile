@@ -6,8 +6,18 @@
 #############################################################################
 ############################ derived folder SPs  ############################
 #############################################################################
-#derived/hts/sp_mamba_data_processing_derived_hts.sql
+dimensions/dim_client_care_and_treatment/sp_dim_client_care_and_treatment.sql
+dimensions/dim_client_care_and_treatment/sp_dim_client_care_and_treatment_create.sql
+dimensions/dim_client_care_and_treatment/sp_dim_client_care_and_treatment_insert.sql
+dimensions/dim_client_care_and_treatment/sp_dim_client_care_and_treatment_update.sql
+
+facts/fact_care_and_treatment/sp_fact_encounter_care_and_treatment.sql
+facts/fact_care_and_treatment/sp_fact_encounter_care_and_treatment_create.sql
+facts/fact_care_and_treatment/sp_fact_encounter_care_and_treatment_insert.sql
+facts/fact_care_and_treatment/sp_fact_encounter_care_and_treatment_update.sql
+facts/fact_care_and_treatment/sp_fact_encounter_care_and_treatment_tx_new_query.sql
+
 #############################################################################
 ##### A single SP that CALLs all SPs inside the derived & base folders ######
 #############################################################################
-sp_mamba_data_processing_etl.sql
+sp_data_processing_derived_care_and_treatment.sql
