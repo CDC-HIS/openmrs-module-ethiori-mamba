@@ -1,6 +1,6 @@
 package org.openmrs.module.mambaetl.reports.linelist;
 
-import org.openmrs.module.mambaetl.datasetdefinition.linelist.HTSNewDataSetDefinition;
+import org.openmrs.module.mambaetl.datasetdefinition.linelist.HTSNewDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.report.ReportDesign;
@@ -8,9 +8,12 @@ import org.openmrs.module.reporting.report.ReportRequest;
 import org.openmrs.module.reporting.report.definition.ReportDefinition;
 import org.openmrs.module.reporting.report.manager.ReportManager;
 import org.openmrs.module.reporting.report.manager.ReportManagerUtil;
+import org.springframework.stereotype.Component;
+
 import java.util.Collections;
 import java.util.List;
 
+@Component
 public class TxNewReportMamba implements ReportManager {
 	
 	@Override
@@ -42,11 +45,11 @@ public class TxNewReportMamba implements ReportManager {
 		reportDefinition.setDescription(getDescription());
 		reportDefinition.setParameters(getParameters());
 		
-		HTSNewDataSetDefinition htsNewDataSetDefinition = new HTSNewDataSetDefinition();
-		htsNewDataSetDefinition.addParameters(getParameters());
+		HTSNewDataSetDefinitionMamba htsNewDataSetDefinitionMamba = new HTSNewDataSetDefinitionMamba();
+		htsNewDataSetDefinitionMamba.addParameters(getParameters());
 		
 		reportDefinition.addDataSetDefinition("List of Patients Newly Started ART",
-		    EthiOhriUtil.map(htsNewDataSetDefinition));
+		    EthiOhriUtil.map(htsNewDataSetDefinitionMamba));
 		
 		return reportDefinition;
 	}

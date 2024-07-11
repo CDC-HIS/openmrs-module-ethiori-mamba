@@ -10,7 +10,7 @@ import java.sql.Date;
  * HtsNewDataSetDefinition
  */
 @Component
-public class HTSNewDataSetDefinition extends BaseDataSetDefinition {
+public class HTSNewDataSetDefinitionMamba extends BaseDataSetDefinition {
 	
 	@ConfigurationProperty
 	private Date startDate;
@@ -18,7 +18,7 @@ public class HTSNewDataSetDefinition extends BaseDataSetDefinition {
 	@ConfigurationProperty
 	private Date endDate;
 	
-	public java.sql.Date getStartDate() {
+	public Date getStartDate() {
 		return startDate;
 	}
 	
