@@ -18,12 +18,12 @@ public class TxNewReportMamba implements ReportManager {
 	
 	@Override
 	public String getUuid() {
-		return "4d7b385f-331f-400c-8592-f539f4565d9e";
+		return "4d7b385f-331f-400c-8592-f539f45657uy";
 	} //4d7b385f-331f-400c-8592-f539f4565d9d
 	
 	@Override
 	public String getName() {
-		return "LINELIST - TX_NEW_MAMBA";
+		return "LINELIST - TX_NEW_MAMBA_V2";
 	}
 	
 	@Override
@@ -57,7 +57,7 @@ public class TxNewReportMamba implements ReportManager {
 	@Override
 	public List<ReportDesign> constructReportDesigns(ReportDefinition reportDefinition) {
 		
-		ReportDesign design = ReportManagerUtil.createExcelDesign("a4ae3c0a-bad8-4efe-8b8d-c2762c13f576", reportDefinition);
+		ReportDesign design = ReportManagerUtil.createExcelDesign("a4ae3c0a-bad8-4efe-8b8d-c2762c13f013", reportDefinition);
 		
 		return Collections.singletonList(design);
 	}
