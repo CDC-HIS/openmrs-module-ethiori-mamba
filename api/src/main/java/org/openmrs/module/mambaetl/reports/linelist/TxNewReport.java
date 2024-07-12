@@ -1,5 +1,6 @@
 package org.openmrs.module.mambaetl.reports.linelist;
 
+import org.jetbrains.annotations.NotNull;
 import org.openmrs.module.mambaetl.datasetdefinition.linelist.HTSNewDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
@@ -10,11 +11,13 @@ import org.openmrs.module.reporting.report.manager.ReportManager;
 import org.openmrs.module.reporting.report.manager.ReportManagerUtil;
 import org.springframework.stereotype.Component;
 
+import java.sql.Date;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 @Component
-public class TxNewReportMamba implements ReportManager {
+public class TxNewReport implements ReportManager {
 	
 	@Override
 	public String getUuid() {
@@ -23,7 +26,7 @@ public class TxNewReportMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "LINELIST - TX_NEW_MAMBA_V2";
+		return "LINELIST - TX_NEW_MAMBA_MAIN";
 	}
 	
 	@Override
@@ -72,15 +75,16 @@ public class TxNewReportMamba implements ReportManager {
 		return "1.0.0-SNAPSHOT";
 	}
 	
-	//    private List<Parameter> getDateRangeParameters() {
-	//        Parameter startDate = new Parameter("startDate", "Start Date", Date.class);
-	//        startDate.setRequired(true);
-	//        Parameter startDateGC = new Parameter("startDateGC", " ", Date.class);
-	//        startDateGC.setRequired(false);
-	//        Parameter endDate = new Parameter("endDate", "End Date", Date.class);
-	//        endDate.setRequired(true);
-	//        Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
-	//        endDateGC.setRequired(false);
-	//        return Arrays.asList(startDate, startDateGC, endDate, endDateGC);
-	//    }
+	@NotNull
+	private List<Parameter> getDateRangeParameters() {
+		Parameter startDate = new Parameter("startDate", "Start Date", Date.class);
+		startDate.setRequired(true);
+		Parameter startDateGC = new Parameter("startDateGC", " ", Date.class);
+		startDateGC.setRequired(false);
+		Parameter endDate = new Parameter("endDate", "End Date", Date.class);
+		endDate.setRequired(true);
+		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
+		endDateGC.setRequired(false);
+		return Arrays.asList(startDate, startDateGC, endDate, endDateGC);
+	}
 }
