@@ -14,13 +14,13 @@ import org.openmrs.module.reporting.evaluation.EvaluationContext;
 import org.openmrs.module.reporting.evaluation.EvaluationException;
 
 import javax.sql.DataSource;
-import java.sql.*;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 
 @Handler(supports = { HTSNewDataSetDefinitionMamba.class })
 public class TxNewDatasetEvaluator implements DataSetEvaluator {
@@ -32,15 +32,19 @@ public class TxNewDatasetEvaluator implements DataSetEvaluator {
 		
 		// Check start date and end date are valid
 		// If start date is greater than end date
-		if (htsNewDataSetDefinitionMamba.getStartDate() != null && htsNewDataSetDefinitionMamba.getEndDate() != null
-		        && htsNewDataSetDefinitionMamba.getStartDate().compareTo(htsNewDataSetDefinitionMamba.getEndDate()) > 0) {
-			throw new EvaluationException("Start date can not be greater than end date");
-		}
+		//		if (htsNewDataSetDefinitionMamba.getStartDate() != null && htsNewDataSetDefinitionMamba.getEndDate() != null
+		//		        && htsNewDataSetDefinitionMamba.getStartDate().compareTo(htsNewDataSetDefinitionMamba.getEndDate()) > 0) {
+		//			throw new EvaluationException("Start date can not be greater than end date");
+		//		}
 		//throw new EvaluationException("Start date cannot be greater than end date");
+		java.sql.Date sqlStartDate = new java.sql.Date(htsNewDataSetDefinitionMamba.getStartDate().getTime());
+		java.sql.Date sqlEndDate = new java.sql.Date(htsNewDataSetDefinitionMamba.getEndDate().getTime());
+		System.out.println("SQL debug startDate " + sqlStartDate);
+		System.out.println("SQL debug endDate " + sqlEndDate);
 		DataSetRow row = new DataSetRow();
-		row.addColumnValue(new DataSetColumn("Error", "Error", Integer.class),
-		    "Report start date cannot be after report end date");
-		data.addRow(row);
+		//		row.addColumnValue(new DataSetColumn("Error", "Error", Integer.class),
+		//		    "Report start date cannot be after report end date");
+		//		data.addRow(row);
 		List<TxNewData> resultSet = getEtlNew(htsNewDataSetDefinitionMamba);
 		
 		for (TxNewData txNewDate : resultSet) {
@@ -92,11 +96,10 @@ public class TxNewDatasetEvaluator implements DataSetEvaluator {
 	private List<TxNewData> getEtlNew(HTSNewDataSetDefinitionMamba htsNewDataSetDefinitionMamba) {
         List<TxNewData> txCurrList = new ArrayList<>();
         DataSource dataSource = ConnectionPoolManager.getInstance().getDataSource();
-
         try (Connection connection = dataSource.getConnection();
-             CallableStatement statement = connection.prepareCall("{call sp_fact_encounter_care_and_treatment_tx_new_query(?,?)}")) {
-            statement.setDate(1, htsNewDataSetDefinitionMamba.getStartDate());
-            statement.setDate(2, htsNewDataSetDefinitionMamba.getEndDate());
+			 CallableStatement statement = connection.prepareCall("{call sp_fact_encounter_care_and_treatment_tx_new_query(?,?)}")) {
+            statement.setDate(1,new java.sql.Date(htsNewDataSetDefinitionMamba.getStartDate().getTime()));
+            statement.setDate(2,new java.sql.Date(htsNewDataSetDefinitionMamba.getEndDate().getTime()));
             boolean hasResults = statement.execute();
 
             while (hasResults) {
@@ -121,6 +124,6 @@ public class TxNewDatasetEvaluator implements DataSetEvaluator {
 		        resultSet.getDate("hiv_confirmed_date"), resultSet.getDate("art_start_date"),
 		        resultSet.getInt("days_difference"), resultSet.getString("pregnancy_status"),
 		        resultSet.getString("regimen_at_enrollment"), resultSet.getString("arv_dose_at_enrollment"),
-		        resultSet.getString("last_follow_up_status"), resultSet.getDate("last_follow_up_date"));
+		        resultSet.getString("last_follow_up_status"), resultSet.getDate("next_visit_date"));
 	}
 }

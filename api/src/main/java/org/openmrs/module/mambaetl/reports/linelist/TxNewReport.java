@@ -1,6 +1,7 @@
 package org.openmrs.module.mambaetl.reports.linelist;
 
 import org.jetbrains.annotations.NotNull;
+import org.openmrs.api.context.Context;
 import org.openmrs.module.mambaetl.datasetdefinition.linelist.HTSNewDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
@@ -31,11 +32,12 @@ public class TxNewReport implements ReportManager {
 	
 	@Override
 	public String getDescription() {
-		return null;
+		return "TX new mamba implementation";
 	}
 	
 	@Override
 	public List<Parameter> getParameters() {
+		System.out.println("getting parameters");
 		return EthiOhriUtil.getDateRangeParameters();
 		
 	}
@@ -48,11 +50,10 @@ public class TxNewReport implements ReportManager {
 		reportDefinition.setDescription(getDescription());
 		reportDefinition.setParameters(getParameters());
 		
-		HTSNewDataSetDefinitionMamba htsNewDataSetDefinitionMamba = new HTSNewDataSetDefinitionMamba();
-		htsNewDataSetDefinitionMamba.addParameters(getParameters());
-		
+		HTSNewDataSetDefinitionMamba htsNewDataSetDefinition = new HTSNewDataSetDefinitionMamba();
+		htsNewDataSetDefinition.addParameters(getParameters());
 		reportDefinition.addDataSetDefinition("List of Patients Newly Started ART",
-		    EthiOhriUtil.map(htsNewDataSetDefinitionMamba));
+		    EthiOhriUtil.map(htsNewDataSetDefinition));
 		
 		return reportDefinition;
 	}
@@ -75,16 +76,16 @@ public class TxNewReport implements ReportManager {
 		return "1.0.0-SNAPSHOT";
 	}
 	
-	@NotNull
-	private List<Parameter> getDateRangeParameters() {
-		Parameter startDate = new Parameter("startDate", "Start Date", Date.class);
-		startDate.setRequired(true);
-		Parameter startDateGC = new Parameter("startDateGC", " ", Date.class);
-		startDateGC.setRequired(false);
-		Parameter endDate = new Parameter("endDate", "End Date", Date.class);
-		endDate.setRequired(true);
-		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
-		endDateGC.setRequired(false);
-		return Arrays.asList(startDate, startDateGC, endDate, endDateGC);
-	}
+	//	@NotNull
+	//	private List<Parameter> getDateRangeParameters() {
+	//		Parameter startDate = new Parameter("startDate", "Start Date", Date.class);
+	//		startDate.setRequired(true);
+	//		Parameter startDateGC = new Parameter("startDateGC", " ", Date.class);
+	//		startDateGC.setRequired(false);
+	//		Parameter endDate = new Parameter("endDate", "End Date", Date.class);
+	//		endDate.setRequired(true);
+	//		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
+	//		endDateGC.setRequired(false);
+	//		return Arrays.asList(startDate, startDateGC, endDate, endDateGC);
+	//	}
 }

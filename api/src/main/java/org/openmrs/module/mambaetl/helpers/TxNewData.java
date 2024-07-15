@@ -1,40 +1,40 @@
 package org.openmrs.module.mambaetl.helpers;
 
-import java.sql.Date;
+import java.util.Date;
 
 public class TxNewData {
 	
-	private String patientName;
+	private final String patientName;
 	
-	private String mrn;
+	private final String mrn;
 	
-	private String uan;
+	private final String uan;
 	
-	private int ageAtEnrollment;
+	private final int ageAtEnrollment;
 	
-	private int currentAge;
+	private final int currentAge;
 	
-	private String sex;
+	private final String sex;
 	
-	private String mobileNumber;
+	private final String mobileNumber;
 	
-	private Date enrollmentDate;
+	private final Date enrollmentDate;
 	
-	private Date hivConfirmedDate;
+	private final Date hivConfirmedDate;
 	
-	private Date artStartDate;
+	private final Date artStartDate;
 	
-	private int daysDifference;
+	private final int daysDifference;
 	
-	private String pregnancyStatus;
+	private final String pregnancyStatus;
 	
-	private String regimenAtEnrollment;
+	private final String regimenAtEnrollment;
 	
-	private String arvDoseAtEnrollment;
+	private final String arvDoseAtEnrollment;
 	
-	private String lastFollowUpStatus;
+	private final String lastFollowUpStatus;
 	
-	private Date nextVisitDate;
+	private final Date nextVisitDate;
 	
 	public TxNewData(String patientName, String mrn, String uan, int ageAtEnrollment, int currentAge, String sex,
 	    String mobileNumber, Date enrollmentDate, Date hivConfirmedDate, Date artStartDate, int daysDifference,

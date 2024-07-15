@@ -1,5 +1,7 @@
 package org.openmrs.module.mambaetl.helpers;
 
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.openmrs.module.mambaetl.helpers.EthiopianDate;
 import org.openmrs.module.mambaetl.helpers.EthiopianDateConverter;
 import org.openmrs.module.reporting.evaluation.parameter.Mapped;
@@ -18,21 +20,23 @@ public class EthiOhriUtil {
 	public static List<Parameter> getDateRangeParameters() {
 		Parameter startDate = new Parameter("startDate", "Start Date", Date.class);
 		startDate.setRequired(true);
-		Parameter startDateGC = new Parameter("startDateGC", " ", Date.class);
-		startDateGC.setRequired(false);
+		//		Parameter startDateGC = new Parameter("startDateGC", " ", Date.class);
+		//		startDateGC.setRequired(false);
 		Parameter endDate = new Parameter("endDate", "End Date", Date.class);
 		endDate.setRequired(true);
-		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
-		endDateGC.setRequired(false);
-		return Arrays.asList(startDate, startDateGC, endDate, endDateGC);
+		//		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
+		//		endDateGC.setRequired(false);
+		return Arrays.asList(startDate, endDate);
 	}
 	
+	@NotNull
+	@Contract("null -> fail; !null -> new")
 	public static <T extends Parameterizable> Mapped<T> map(T parameterizable) {
 		if (parameterizable == null) {
 			throw new IllegalArgumentException("Parameterizable cannot be null");
 		}
 		
-		String mappings = "startDate=${startDateGC},endDate=${endDateGC}";
+		String mappings = "startDate=${startDate},endDate=${endDate}";
 		return new Mapped<T>(parameterizable, ParameterizableUtil.createParameterMappings(mappings));
 	}
 	
@@ -41,7 +45,7 @@ public class EthiOhriUtil {
 			throw new IllegalArgumentException("Parameterizable cannot be null");
 		}
 		
-		String mappings = "endDate=${endDateGC}";
+		String mappings = "endDate=${endDate}";
 		return new Mapped<T>(parameterizable, ParameterizableUtil.createParameterMappings(mappings));
 	}
 	
@@ -50,7 +54,7 @@ public class EthiOhriUtil {
 			throw new IllegalArgumentException("Parameterizable cannot be null");
 		}
 		
-		String mappings = "endDate=${endDateGC}";
+		String mappings = "endDate=${endDate}";
 		return new Mapped<T>(parameterizable, ParameterizableUtil.createParameterMappings(mappings));
 	}
 	
@@ -59,7 +63,7 @@ public class EthiOhriUtil {
 			throw new IllegalArgumentException("Parameterizable cannot be null");
 		}
 		
-		String mappings = "startDate=${startDateGC},endDate=${endDateGC}";
+		String mappings = "startDate=${startDate},endDate=${endDate}";
 		
 		if (!Objects.isNull(_map) && !_map.isEmpty())
 			mappings = _map + "," + mappings;
