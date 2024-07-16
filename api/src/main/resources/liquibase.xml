@@ -13,7 +13,6 @@
 
         <sqlFile splitStatements="true" stripComments="true" endDelimiter="~"
                  path="mamba/liquibase_create_stored_procedures.sql"/>
-
     </changeSet>
 
 </databaseChangeLog>

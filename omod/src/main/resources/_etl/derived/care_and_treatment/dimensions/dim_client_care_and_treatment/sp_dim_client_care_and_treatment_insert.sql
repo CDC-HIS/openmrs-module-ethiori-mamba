@@ -26,7 +26,7 @@ SELECT DISTINCT
      WHERE pid.patient_id = person.person_id AND pid_type.name = 'UAN'
      LIMIT 1) AS 'UAN',
     DATEDIFF(CURRENT_DATE(), person.birthdate) / 365 AS current_age,
-    'mobile_no',
+    p_attr.value,
     person.birthdate,
     CASE
         WHEN person.gender = 'F' THEN 'FEMALE'
@@ -37,6 +37,8 @@ END AS gender,
     p_add.city_village
 FROM
     mamba_dim_person person
-    INNER JOIN mamba_flat_encounter_follow_up enc_follow_up ON person.person_id = enc_follow_up.client_id
-    INNER JOIN mamba_dim_person_address p_add ON person.person_id = p_add.person_id;
+    LEFT JOIN mamba_dim_person_address p_add ON person.person_id = p_add.person_id
+    LEFT JOIN mamba_dim_person_attribute p_attr ON person.person_id = p_attr.person_id
+    LEFT JOIN mamba_dim_person_attribute_type p_attr_type ON p_attr.person_attribute_type_id = p_attr_type.person_attribute_type_id
+    WHERE p_attr_type.id=9;
 -- $END
