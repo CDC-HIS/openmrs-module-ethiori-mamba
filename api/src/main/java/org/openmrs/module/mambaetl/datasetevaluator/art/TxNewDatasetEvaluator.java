@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static org.hibernate.search.util.AnalyzerUtils.log;
+
 @Handler(supports = { HTSNewDataSetDefinitionMamba.class })
 public class TxNewDatasetEvaluator implements DataSetEvaluator {
 	
@@ -29,22 +31,18 @@ public class TxNewDatasetEvaluator implements DataSetEvaluator {
 	public DataSet evaluate(DataSetDefinition dataSetDefinition, EvaluationContext evalContext) throws EvaluationException {
 		HTSNewDataSetDefinitionMamba htsNewDataSetDefinitionMamba = (HTSNewDataSetDefinitionMamba) dataSetDefinition;
 		SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
-		
+		DataSetRow row = new DataSetRow();
 		// Check start date and end date are valid
 		// If start date is greater than end date
-		//		if (htsNewDataSetDefinitionMamba.getStartDate() != null && htsNewDataSetDefinitionMamba.getEndDate() != null
-		//		        && htsNewDataSetDefinitionMamba.getStartDate().compareTo(htsNewDataSetDefinitionMamba.getEndDate()) > 0) {
-		//			throw new EvaluationException("Start date can not be greater than end date");
-		//		}
+		if (htsNewDataSetDefinitionMamba.getStartDate() != null && htsNewDataSetDefinitionMamba.getEndDate() != null
+		        && htsNewDataSetDefinitionMamba.getStartDate().compareTo(htsNewDataSetDefinitionMamba.getEndDate()) > 0) {
+			
+			row.addColumnValue(new DataSetColumn("Error", "Error", Integer.class),
+			    "Report start date cannot be after report end date");
+			data.addRow(row);
+			throw new EvaluationException("Start date can not be greater than end date");
+		}
 		//throw new EvaluationException("Start date cannot be greater than end date");
-		java.sql.Date sqlStartDate = new java.sql.Date(htsNewDataSetDefinitionMamba.getStartDate().getTime());
-		java.sql.Date sqlEndDate = new java.sql.Date(htsNewDataSetDefinitionMamba.getEndDate().getTime());
-		System.out.println("SQL debug startDate " + sqlStartDate);
-		System.out.println("SQL debug endDate " + sqlEndDate);
-		DataSetRow row = new DataSetRow();
-		//		row.addColumnValue(new DataSetColumn("Error", "Error", Integer.class),
-		//		    "Report start date cannot be after report end date");
-		//		data.addRow(row);
 		List<TxNewData> resultSet = getEtlNew(htsNewDataSetDefinitionMamba);
 		
 		for (TxNewData txNewDate : resultSet) {
@@ -85,7 +83,7 @@ public class TxNewDatasetEvaluator implements DataSetEvaluator {
 				
 			}
 			catch (Exception e) {
-				e.printStackTrace();
+				log.info("Exception mapping user dataset definition " + e.getMessage());
 			}
 			
 		}
