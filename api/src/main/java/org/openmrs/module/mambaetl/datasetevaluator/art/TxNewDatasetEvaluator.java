@@ -110,7 +110,7 @@ public class TxNewDatasetEvaluator implements DataSetEvaluator {
                 hasResults = statement.getMoreResults(); // Check if there are more result sets
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+			log.info(e);
         }
         return txCurrList;
     }
