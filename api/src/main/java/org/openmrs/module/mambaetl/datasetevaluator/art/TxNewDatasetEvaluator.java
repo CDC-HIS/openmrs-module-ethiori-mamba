@@ -54,30 +54,50 @@ public class TxNewDatasetEvaluator implements DataSetEvaluator {
 				    txNewDate.getPatientName());
 				row.addColumnValue(new DataSetColumn("mrn", "MRN", String.class), txNewDate.getMrn());
 				row.addColumnValue(new DataSetColumn("uan", "UAN", String.class), txNewDate.getUan());
-				row.addColumnValue(new DataSetColumn("ageAtEnrollment", "Age At Enrollment", Integer.class),
-				    txNewDate.getAgeAtEnrollment());
 				row.addColumnValue(new DataSetColumn("currentAge", "Current Age", Integer.class), txNewDate.getCurrentAge());
 				row.addColumnValue(new DataSetColumn("sex", "Sex", String.class), txNewDate.getSex());
 				row.addColumnValue(new DataSetColumn("mobileNumber", "Mobile Number", String.class),
 				    txNewDate.getMobileNumber());
+				row.addColumnValue(new DataSetColumn("weightInKg", "Weight In KG", Integer.class), txNewDate.getWeightInKg());
+				row.addColumnValue(new DataSetColumn("cd4Count", "CD4 Count", Integer.class), txNewDate.getCd4Count());
+				row.addColumnValue(new DataSetColumn("currentWhoHivStage", "Current WHO HIV Stage", String.class),
+				    txNewDate.getCurrentWhoHivStage());
+				row.addColumnValue(new DataSetColumn("nutritionalStatus", "Nutritional Status", String.class),
+				    txNewDate.getNutritionalStatus());
+				row.addColumnValue(new DataSetColumn("tbScreeningResult", "TB Screening Result", String.class),
+				    txNewDate.getTbScreeningResult());
 				row.addColumnValue(new DataSetColumn("enrollmentDate", "Enrollment Date", Date.class),
 				    txNewDate.getEnrollmentDate());
 				row.addColumnValue(new DataSetColumn("hivConfirmedDate", "HIV Confirmed Date", Date.class),
 				    txNewDate.getHivConfirmedDate());
 				row.addColumnValue(new DataSetColumn("artStartDate", "ART Start Date", Date.class),
 				    txNewDate.getArtStartDate());
-				row.addColumnValue(new DataSetColumn("daysDifference", "Days Difference", Integer.class),
+				row.addColumnValue(new DataSetColumn("daysDifference", "Days difference", Integer.class),
 				    txNewDate.getDaysDifference());
+				row.addColumnValue(new DataSetColumn("followupDate", "Followup Date", Date.class),
+				    txNewDate.getFollowupDate());
+				row.addColumnValue(new DataSetColumn("regimen", "Regimen", String.class), txNewDate.getRegimen());
+				row.addColumnValue(new DataSetColumn("arvDoseDays", "ARV Dose Days", String.class),
+				    txNewDate.getArvDoseDays());
 				row.addColumnValue(new DataSetColumn("pregnancyStatus", "Pregnancy Status", String.class),
 				    txNewDate.getPregnancyStatus());
-				row.addColumnValue(new DataSetColumn("regimenAtEnrollment", "Regiment At Enrollment", String.class),
-				    txNewDate.getRegimenAtEnrollment());
-				row.addColumnValue(new DataSetColumn("arvDoseAtEnrollment", "ARV dose at enrollment", String.class),
-				    txNewDate.getArvDoseAtEnrollment());
-				row.addColumnValue(new DataSetColumn("lastFollowUpStatus", "Last followup status", String.class),
-				    txNewDate.getLastFollowUpStatus());
+				row.addColumnValue(new DataSetColumn("breastFeedingStatus", "Breast Feeding Status", String.class),
+				    txNewDate.getBreastFeedingStatus());
+				row.addColumnValue(new DataSetColumn("followUpStatus", "Followup Status", String.class),
+				    txNewDate.getFollowUpStatus());
+				row.addColumnValue(new DataSetColumn("ti", "TI", String.class), txNewDate.getTi());
+				row.addColumnValue(new DataSetColumn("treatmentEndDate", "Treatment End Date", Date.class),
+				    txNewDate.getTreatmentEndDate());
 				row.addColumnValue(new DataSetColumn("nextVisitDate", "Next Visit Date", Date.class),
 				    txNewDate.getNextVisitDate());
+				row.addColumnValue(new DataSetColumn("latestFollowupDate", "Latest Followup Date", Date.class),
+				    txNewDate.getLatestFollowupDate());
+				row.addColumnValue(new DataSetColumn("latestFollowupStatus", "Latest Followup Status", String.class),
+				    txNewDate.getLatestFollowupStatus());
+				row.addColumnValue(new DataSetColumn("latestRegimen", "Latest Regimen", String.class),
+				    txNewDate.getLatestRegimen());
+				row.addColumnValue(new DataSetColumn("latestArvDoseDays", "Latest ARV Dose Days", String.class),
+				    txNewDate.getLatestArvDoseDays());
 				
 				data.addRow(row);
 				
@@ -95,9 +115,9 @@ public class TxNewDatasetEvaluator implements DataSetEvaluator {
         List<TxNewData> txCurrList = new ArrayList<>();
         DataSource dataSource = ConnectionPoolManager.getInstance().getDataSource();
         try (Connection connection = dataSource.getConnection();
-			 CallableStatement statement = connection.prepareCall("{call sp_fact_encounter_care_and_treatment_tx_new_query(?,?)}")) {
-            statement.setDate(1,new java.sql.Date(htsNewDataSetDefinitionMamba.getStartDate().getTime()));
-            statement.setDate(2,new java.sql.Date(htsNewDataSetDefinitionMamba.getEndDate().getTime()));
+             CallableStatement statement = connection.prepareCall("{call sp_fact_encounter_care_and_treatment_tx_new_query(?,?)}")) {
+            statement.setDate(1, new java.sql.Date(htsNewDataSetDefinitionMamba.getStartDate().getTime()));
+            statement.setDate(2, new java.sql.Date(htsNewDataSetDefinitionMamba.getEndDate().getTime()));
             boolean hasResults = statement.execute();
 
             while (hasResults) {
@@ -110,18 +130,25 @@ public class TxNewDatasetEvaluator implements DataSetEvaluator {
                 hasResults = statement.getMoreResults(); // Check if there are more result sets
             }
         } catch (SQLException e) {
-			log.info(e);
+            log.info(e);
         }
         return txCurrList;
     }
 	
 	private TxNewData mapRowToTxNewData(ResultSet resultSet) throws SQLException {
 		return new TxNewData(resultSet.getString("patient_name"), resultSet.getString("mrn"), resultSet.getString("uan"),
-		        resultSet.getInt("age_at_enrollment"), resultSet.getInt("current_age"), resultSet.getString("sex"),
-		        resultSet.getString("mobile_no"), resultSet.getDate("enrollment_date"),
+		        resultSet.getInt("current_age"), resultSet.getString("sex"), resultSet.getString("mobile_no"),
+		        resultSet.getInt("weight_in_kg"), resultSet.getInt("cd4_count"),
+		        resultSet.getString("current_who_hiv_stage"), resultSet.getString("nutritional_status"),
+		        resultSet.getString("tb_screening_result"), resultSet.getDate("enrollment_date"),
 		        resultSet.getDate("hiv_confirmed_date"), resultSet.getDate("art_start_date"),
-		        resultSet.getInt("days_difference"), resultSet.getString("pregnancy_status"),
-		        resultSet.getString("regimen_at_enrollment"), resultSet.getString("arv_dose_at_enrollment"),
-		        resultSet.getString("last_follow_up_status"), resultSet.getDate("next_visit_date"));
+		        resultSet.getInt("days_difference"), resultSet.getDate("followup_date"), resultSet.getString("regimen"),
+		        resultSet.getString("arv_dose_days"), resultSet.getString("pregnancy_status"),
+		        resultSet.getString("breast_feeding_status"), resultSet.getString("follow_up_status"),
+		        resultSet.getString("ti"), resultSet.getDate("treatment_end_date"), resultSet.getDate("next_visit_date"),
+		        resultSet.getDate("latest_followup_date"), resultSet.getString("latest_followup_status"),
+		        resultSet.getString("latest_regimen"), resultSet.getString("latest_arv_dose_days")
+		
+		);
 	}
 }
