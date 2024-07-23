@@ -36,7 +36,8 @@ FROM mamba_fact_care_and_treatment fact_ct
          INNER JOIN mamba_dim_client_care_and_treatment as dim_ct
                     on fact_ct.client_id = dim_ct.client_id
 
-WHERE fact_ct.art_start_date BETWEEN  CAST(REPORT_START_DATE as DATE) AND CAST(REPORT_END_DATE as DATE);
+WHERE fact_ct.art_start_date BETWEEN  CAST(REPORT_START_DATE as DATE) AND CAST(REPORT_END_DATE as DATE)
+  and dim_ct.mrn is not null and fact_ct.follow_up_status in ('Alive', 'Restart');
 END //
 
 DELIMITER ;

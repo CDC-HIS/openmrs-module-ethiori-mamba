@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS mamba_dim_client_care_and_treatment
     id                INT AUTO_INCREMENT,
     client_id         INT           NOT NULL,
     patient_name      NVARCHAR(255) NOT NULL,
-    mrn               NVARCHAR(50) NOT NULL,
+    mrn               NVARCHAR(50)  NULL,
     uan               NVARCHAR(50)  NULL,
     current_age       INT,
     mobile_no         NVARCHAR(50),
