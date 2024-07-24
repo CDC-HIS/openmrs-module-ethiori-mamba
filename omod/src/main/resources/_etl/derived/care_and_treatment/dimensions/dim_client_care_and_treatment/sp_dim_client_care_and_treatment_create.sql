@@ -13,6 +13,8 @@ CREATE TABLE IF NOT EXISTS mamba_dim_client_care_and_treatment
     state_province    NVARCHAR(255) NULL,
     county_district   NVARCHAR(255) NULL,
     city_village      NVARCHAR(255) NULL,
+    coarse_age_group  NVARCHAR(255) NULL,
+    fine_age_group    NVARCHAR(255) NULL,
     PRIMARY KEY (id)
 );
 CREATE INDEX mamba_dim_client_care_and_treatment_client_id_index ON mamba_dim_client_care_and_treatment (client_id);

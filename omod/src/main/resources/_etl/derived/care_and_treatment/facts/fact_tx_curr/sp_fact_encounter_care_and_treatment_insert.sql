@@ -61,15 +61,13 @@ FROM (SELECT enc_follow_up_1.client_id,
              follow_up_status,
              treatment_end_date,
              return_visit_date,
-             why_eligible_for_hiv_test_,
              ROW_NUMBER() OVER (PARTITION BY enc_follow_up_1.client_id ORDER BY follow_up_date_followup_ )     AS rn_asc,
              ROW_NUMBER() OVER (PARTITION BY enc_follow_up_1.client_id ORDER BY follow_up_date_followup_ DESC) AS rn_desc
       FROM mamba_flat_encounter_follow_up
-               JOIN mamba_flat_encounter_follow_up_1 enc_follow_up_1 on enc_follow_up_1.encounter_id=mamba_flat_encounter_follow_up.encounter_id
-      where art_antiretroviral_start_date is not null
-        and (why_eligible_for_hiv_test_ != 'Transfer in' or why_eligible_for_hiv_test_ is null)
-     ) AS subquery
+      JOIN mamba_flat_encounter_follow_up_1 enc_follow_up_1 on enc_follow_up_1.encounter_id=mamba_flat_encounter_follow_up.encounter_id
+      where art_antiretroviral_start_date is not null and mamba_flat_encounter_follow_up.regimen is not null) AS subquery
          LEFT JOIN mamba_flat_encounter_intake_a int_a on subquery.client_id=int_a.client_id
-WHERE (rn_asc = 1 OR rn_desc = 1)
+WHERE rn_asc = 1
+   OR rn_desc = 1
 GROUP BY subquery.client_id;
 -- $END
