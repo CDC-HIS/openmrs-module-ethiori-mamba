@@ -25,7 +25,7 @@ SELECT
      FROM mamba_dim_patient_identifier pid
      WHERE pid.patient_id = person.person_id AND pid.identifier_type = 6
      LIMIT 1) AS 'UAN',
-    TIMESTAMPDIFF (YEAR, birthdate, CURDATE()) AS current_age,
+    fn_mamba_age_calculator(birthdate,null) AS current_age,
     (select p_attr.value as mobile_no from mamba_dim_person_attribute p_attr
      where person.person_id = p_attr.person_id and p_attr.person_attribute_type_id=9 LIMIT 1),
     person.birthdate,
@@ -36,8 +36,8 @@ SELECT
     p_add.state_province,
     p_add.county_district,
     p_add.city_village,
-    (SELECT datim_agegroup from mamba_dim_agegroup where age=TIMESTAMPDIFF (YEAR, birthdate, CURDATE())) as coarse_age_group,
-    (SELECT normal_agegroup from mamba_dim_agegroup where age=TIMESTAMPDIFF (YEAR, birthdate, CURDATE())) as fine_age_group
+    (SELECT datim_agegroup from mamba_dim_agegroup where age=fn_mamba_age_calculator(birthdate,null)) as coarse_age_group,
+    (SELECT normal_agegroup from mamba_dim_agegroup where age= fn_mamba_age_calculator(birthdate,null)) as fine_age_group
 FROM
     mamba_dim_person person
         LEFT JOIN mamba_dim_person_address p_add ON person.person_id = p_add.person_id;
