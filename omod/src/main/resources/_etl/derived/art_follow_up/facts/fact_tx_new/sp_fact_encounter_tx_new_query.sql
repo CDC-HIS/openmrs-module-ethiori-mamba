@@ -2,7 +2,7 @@ DELIMITER //
 
 DROP PROCEDURE IF EXISTS sp_fact_encounter_care_and_treatment_tx_new_query;
 
-CREATE PROCEDURE sp_fact_encounter_care_and_treatment_tx_new_query(IN REPORT_START_DATE DATE, IN REPORT_END_DATE DATE)
+CREATE PROCEDURE sp_fact_encounter_art_follow_up_tx_new_query(IN REPORT_START_DATE DATE, IN REPORT_END_DATE DATE)
 BEGIN
 SELECT dim_ct.patient_name,
        dim_ct.mrn,
