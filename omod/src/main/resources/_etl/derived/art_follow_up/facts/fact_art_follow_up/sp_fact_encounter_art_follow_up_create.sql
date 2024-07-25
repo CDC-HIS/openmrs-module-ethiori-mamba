@@ -21,10 +21,6 @@ CREATE TABLE IF NOT EXISTS mamba_fact_art_follow_up
     ti                          NVARCHAR(255),
     treatment_end_date          DATE,
     next_visit_date             DATE,
-    latest_followup_date        DATE,
-    latest_followup_status      NVARCHAR(255),
-    latest_regimen              NVARCHAR(255),
-    latest_arv_dose_days        NVARCHAR(255),
     hiv_viral_load_count              INT,
     hiv_viral_load_status       NVARCHAR(255),
     viral_load_test_status      NVARCHAR(255),
@@ -38,6 +34,7 @@ CREATE TABLE IF NOT EXISTS mamba_fact_art_follow_up
     targeted_viral_load_test_indication NVARCHAR(255),
     PRIMARY KEY (id)
 );
-CREATE INDEX mamba_fact_care_and_treatment_art_start_date_index ON mamba_fact_care_and_treatment (art_start_date);
-CREATE INDEX mamba_fact_care_and_treatment_client_id_index ON mamba_fact_care_and_treatment (client_id);
+CREATE INDEX mamba_fact_art_follow_up_art_start_date_index ON mamba_fact_art_follow_up (art_start_date);
+CREATE INDEX mamba_fact_art_follow_up_client_id_index ON mamba_fact_art_follow_up (client_id);
+CREATE INDEX mamba_fact_art_follow_up_followup_date_index ON mamba_fact_art_follow_up (followup_date);
 -- $END

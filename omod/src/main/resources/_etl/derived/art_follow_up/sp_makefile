@@ -1,0 +1,34 @@
+#############################################################################
+############################ base Folder SPs ################################
+#############################################################################
+
+
+#############################################################################
+############################ derived folder SPs  ############################
+#############################################################################
+dimensions/dim_client_art_follow_up/sp_dim_client_art_follow_up.sql
+dimensions/dim_client_art_follow_up/sp_dim_client_art_follow_up_create.sql
+dimensions/dim_client_art_follow_up/sp_dim_client_art_follow_up_insert.sql
+dimensions/dim_client_art_follow_up/sp_dim_client_art_follow_up_update.sql
+
+#facts/fact_care_and_treatment/sp_fact_encounter_care_and_treatment.sql
+#facts/fact_care_and_treatment/sp_fact_encounter_care_and_treatment_create.sql
+#facts/fact_care_and_treatment/sp_fact_encounter_care_and_treatment_insert.sql
+#facts/fact_care_and_treatment/sp_fact_encounter_care_and_treatment_update.sql
+#facts/fact_care_and_treatment/sp_fact_encounter_care_and_treatment_tx_new_query.sql
+#facts/fact_care_and_treatment/sp_dim_tx_new_datim_query.sql
+
+facts/fact_art_follow_up/sp_fact_encounter_art_follow_up.sql
+facts/fact_art_follow_up/sp_fact_encounter_art_follow_up_create.sql
+facts/fact_art_follow_up/sp_fact_encounter_art_follow_up_insert.sql
+facts/fact_art_follow_up/sp_fact_encounter_art_follow_up_update.sql
+
+facts/fact_tx_new/sp_fact_encounter_tx_new.sql
+facts/fact_tx_new/sp_fact_encounter_tx_new_create.sql
+facts/fact_tx_new/sp_fact_encounter_tx_new_insert.sql
+facts/fact_tx_new/sp_fact_encounter_tx_new_update.sql
+
+#############################################################################
+##### A single SP that CALLs all SPs inside the derived & base folders ######
+#############################################################################
+sp_data_processing_derived_art_follow_up.sql

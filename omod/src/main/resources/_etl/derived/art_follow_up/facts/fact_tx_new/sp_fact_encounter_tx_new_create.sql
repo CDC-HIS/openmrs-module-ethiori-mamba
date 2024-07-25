@@ -1,5 +1,5 @@
 -- $BEGIN
-CREATE TABLE IF NOT EXISTS mamba_fact_care_and_treatment
+CREATE TABLE IF NOT EXISTS mamba_fact_tx_new
 (
     id                     INT AUTO_INCREMENT,
     client_id              INT NULL,
@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS mamba_fact_care_and_treatment
     latest_arv_dose_days   NVARCHAR(255),
     PRIMARY KEY (id)
 );
-CREATE INDEX mamba_fact_care_and_treatment_art_start_date_index ON mamba_fact_care_and_treatment (art_start_date);
-CREATE INDEX mamba_fact_care_and_treatment_client_id_index ON mamba_fact_care_and_treatment (client_id);
+CREATE INDEX mamba_fact_mamba_fact_tx_new_art_start_date_index ON mamba_fact_tx_new (art_start_date);
+CREATE INDEX mamba_fact_mamba_fact_tx_new_client_id_index ON mamba_fact_tx_new (client_id);
 -- $END
 

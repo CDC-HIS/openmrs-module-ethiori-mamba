@@ -7,7 +7,7 @@
 ############################ derived folder SPs  ############################
 #############################################################################
 
-derived/care_and_treatment/sp_data_processing_derived_care_and_treatment.sql
+derived/art_follow_up/sp_data_processing_derived_art_follow_up.sql
 
 #############################################################################
 ##### A single SP that CALLs all SPs inside the derived & base folders ######

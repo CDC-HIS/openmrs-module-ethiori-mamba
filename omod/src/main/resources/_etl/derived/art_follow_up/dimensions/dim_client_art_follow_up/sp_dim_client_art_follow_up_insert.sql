@@ -1,5 +1,5 @@
 -- $BEGIN
-INSERT INTO mamba_dim_client_care_and_treatment (client_id,
+INSERT INTO mamba_dim_client_art_follow_up (client_id,
                                                  patient_name,
                                                  mrn,
                                                  uan,
