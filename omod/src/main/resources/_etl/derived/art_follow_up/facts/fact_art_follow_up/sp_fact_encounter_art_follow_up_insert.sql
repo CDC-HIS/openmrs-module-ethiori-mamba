@@ -28,7 +28,12 @@ INSERT INTO mamba_fact_art_follow_up (client_id,
                                       date_of_reported_hiv_viral_load,
                                       date_viral_load_results_received,
                                       routine_viral_load_test_indication,
-                                      targeted_viral_load_test_indication)
+                                      targeted_viral_load_test_indication,
+                                      dsd_category,
+                                      tpt_start_date,
+                                      tpt_completed_date,
+                                      tpt_discontinued_date,
+                                      tuberculosis_treatment_end_date)
 SELECT follow_up.client_id,
        weight_kg_,
        cd4_count,
@@ -38,7 +43,7 @@ SELECT follow_up.client_id,
        date_enrolled_in_care,
        date_of_hiv_diagnosis,
        art_antiretroviral_start_date,
-       fn_mamba_age_calculator(date_of_hiv_diagnosis, art_antiretroviral_start_date) as days_difference,
+       DATEDIFF(art_antiretroviral_start_date,date_of_hiv_diagnosis) as days_difference,
        follow_up_date_followup_,
        regimen,
        antiretroviral_art_dispensed_dose_i,
@@ -58,7 +63,12 @@ SELECT follow_up.client_id,
        date_of_reported_hiv_viral_load,
        date_viral_load_results_received,
        routine_viral_load_test_indication,
-       targeted_viral_load_test_indication
+       targeted_viral_load_test_indication,
+       dsd_category,
+       date_started_on_tuberculosis_prophy,
+       date_completed_tuberculosis_prophyl,
+       date_discontinued_tuberculosis_prop,
+       tuberculosis_treatment_end_date
 FROM mamba_flat_encounter_follow_up follow_up
          JOIN mamba_flat_encounter_follow_up_1 enc_follow_up_1
               on enc_follow_up_1.encounter_id = follow_up.encounter_id
