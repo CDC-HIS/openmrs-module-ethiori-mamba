@@ -7,7 +7,6 @@
 ############################ derived folder SPs  ############################
 #############################################################################
 
-derived/care_and_treatment/dimensions/dim_client_care_and_treatment/sp_dim_tx_new_datim_query.sql
 derived/care_and_treatment/sp_data_processing_derived_care_and_treatment.sql
 
 #############################################################################
