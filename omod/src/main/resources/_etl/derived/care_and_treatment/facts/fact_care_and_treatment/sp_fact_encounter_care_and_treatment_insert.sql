@@ -71,5 +71,5 @@ FROM (SELECT enc_follow_up_1.client_id,
      ) AS subquery
          LEFT JOIN mamba_flat_encounter_intake_a int_a on subquery.client_id=int_a.client_id
 WHERE (rn_asc = 1 OR rn_desc = 1)
-GROUP BY subquery.client_id;
+GROUP BY subquery.client_id, int_a.date_enrolled_in_care;
 -- $END
