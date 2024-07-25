@@ -3,7 +3,6 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS sp_dim_tx_new_datim_query;
 
 -- e.g. CALL sp_dim_tx_new_datim_query('2020-01-01', '2020-01-01', 0, 'unknown');
-
 CREATE PROCEDURE sp_dim_tx_new_datim_query(
     IN REPORT_START_DATE DATE,
     IN REPORT_END_DATE DATE,
@@ -20,11 +19,11 @@ BEGIN
     IF CD4_COUNT_GROUPAGE = 'all' THEN
         SET cd4_count_condition = '1=1';
     ELSEIF CD4_COUNT_GROUPAGE = '>200' THEN
-        SET cd4_count_condition = 'fact_ct.cd4_count > 200';
+        SET cd4_count_condition = 'fact_art.cd4_count > 200';
     ELSEIF CD4_COUNT_GROUPAGE = '<200' THEN
-        SET cd4_count_condition = 'fact_ct.cd4_count < 200';
+        SET cd4_count_condition = 'fact_art.cd4_count < 200';
     ELSEIF CD4_COUNT_GROUPAGE = 'unknown' THEN
-        SET cd4_count_condition = 'fact_ct.cd4_count IS NULL';
+        SET cd4_count_condition = 'fact_art.cd4_count IS NULL';
     ELSE
         SET cd4_count_condition = '1=1';
     END IF;
@@ -39,7 +38,7 @@ BEGIN
                             )
                )
         INTO age_group_cols
-        FROM mamba_dim_client_care_and_treatment;
+        FROM mamba_dim_client_art_follow_up;
     ELSE
         SELECT GROUP_CONCAT(DISTINCT
                             CONCAT(
@@ -50,7 +49,7 @@ BEGIN
                             )
                )
         INTO age_group_cols
-        FROM mamba_dim_client_care_and_treatment;
+        FROM mamba_dim_client_art_follow_up;
     END IF;
 
     SET @sql = CONCAT('
@@ -62,12 +61,12 @@ BEGIN
             sex,
             ', IF(IS_COURSE_AGE_GROUP, 'coarse_age_group', 'fine_age_group'), ',
             COUNT(*) AS count
-          FROM mamba_dim_client_care_and_treatment dim_ct
-                INNER JOIN analysis_db.mamba_fact_care_and_treatment fact_ct
-                           ON dim_ct.client_id = fact_ct.client_id
-                WHERE fact_ct.art_start_date BETWEEN ? AND ?
+          FROM mamba_dim_client_art_follow_up dim_art
+                INNER JOIN analysis_db.mamba_fact_tx_new fact_art
+                           ON dim_art.client_id = fact_art.client_id
+                WHERE fact_art.art_start_date BETWEEN ? AND ?
                   AND ', cd4_count_condition, '
-                  AND dim_ct.mrn is not null and fact_ct.follow_up_status in (''Alive'', ''Restart'')
+                  AND dim_art.mrn is not null and fact_art.follow_up_status in (''Alive'', ''Restart'')
           GROUP BY sex, ', IF(IS_COURSE_AGE_GROUP, 'coarse_age_group', 'fine_age_group'), '
         ) AS subquery
         RIGHT JOIN (SELECT ''MALE'' AS sex UNION SELECT ''FEMALE'') AS genders
