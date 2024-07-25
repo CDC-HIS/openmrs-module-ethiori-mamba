@@ -38,7 +38,7 @@ SELECT subquery.client_id,
        MIN(CASE WHEN rn_asc = 1 THEN pregnancy_status END)                     AS pregnancy_status,
        MIN(CASE WHEN rn_asc = 1 THEN currently_breastfeeding_child END)        AS breast_feeding_status,
        MIN(CASE WHEN rn_asc = 1 THEN follow_up_status END)                     AS follow_up_status,
-       '',
+       MIN(CASE WHEN rn_asc = 1 THEN why_eligible_for_hiv_test_ END)   AS ti,
        MAX(CASE WHEN rn_desc = 1 THEN treatment_end_date END)                  AS treatment_end_date,
        MAX(CASE WHEN rn_desc = 1 THEN return_visit_date END)                   AS next_visit_date,
        MAX(CASE WHEN rn_desc = 1 THEN follow_up_date_followup_ END)            AS latest_followup_date,
@@ -67,7 +67,6 @@ FROM (SELECT enc_follow_up_1.client_id,
       FROM mamba_flat_encounter_follow_up
                JOIN mamba_flat_encounter_follow_up_1 enc_follow_up_1 on enc_follow_up_1.encounter_id=mamba_flat_encounter_follow_up.encounter_id
       where art_antiretroviral_start_date is not null
-        and (why_eligible_for_hiv_test_ != 'Transfer in' or why_eligible_for_hiv_test_ is null)
      ) AS subquery
          LEFT JOIN mamba_flat_encounter_intake_a int_a on subquery.client_id=int_a.client_id
 WHERE (rn_asc = 1 OR rn_desc = 1)
