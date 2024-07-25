@@ -268,7 +268,7 @@
                                     <argument>compile.sh</argument>
 
                                     <!-- The source database (OpenMRS database) -->
-                                    <argument>-d openmrs_source_data</argument>
+                                    <argument>-d ethiohri</argument>
 
                                     <!-- The target or analysis Database where the ETL data is stored -->
                                     <argument>-a analysis_db</argument>
