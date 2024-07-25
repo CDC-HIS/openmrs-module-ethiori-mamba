@@ -7,11 +7,11 @@
 ############################ derived folder SPs  ############################
 #############################################################################
 
-derived/art_follow_up/sp_data_processing_derived_art_follow_up.sql
-derived/transfer_in/sp_data_processing_derived_transfer_in.sql
-derived/transfer_out/sp_data_processing_derived_transfer_out.sql
-
+facts/fact_transfer_out/sp_fact_encounter_transfer_out.sql
+facts/fact_transfer_out/sp_fact_encounter_transfer_out_create.sql
+facts/fact_transfer_out/sp_fact_encounter_transfer_out_insert.sql
+facts/fact_transfer_out/sp_fact_encounter_transfer_out_update.sql
 #############################################################################
 ##### A single SP that CALLs all SPs inside the derived & base folders ######
 #############################################################################
-sp_mamba_data_processing_etl.sql
+sp_data_processing_derived_transfer_out.sql
