@@ -32,6 +32,11 @@ CREATE TABLE IF NOT EXISTS mamba_fact_art_follow_up
     date_viral_load_results_received NVARCHAR(255),
     routine_viral_load_test_indication NVARCHAR(255),
     targeted_viral_load_test_indication NVARCHAR(255),
+    dsd_category                        NVARCHAR(255),
+    tpt_start_date                      DATE,
+    tpt_completed_date                  DATE,
+    tpt_discontinued_date               DATE,
+    tuberculosis_treatment_end_date     DATE,
     PRIMARY KEY (id)
 );
 CREATE INDEX mamba_fact_art_follow_up_art_start_date_index ON mamba_fact_art_follow_up (art_start_date);
