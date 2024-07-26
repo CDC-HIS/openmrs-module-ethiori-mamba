@@ -1,5 +1,6 @@
-package org.openmrs.module.mambaetl.reports.linelist;
+package org.openmrs.module.mambaetl.reports.datim.tx_new;
 
+import org.openmrs.module.mambaetl.datasetdefinition.datim.TxNewCD4DataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.datasetdefinition.linelist.TXNewDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
@@ -14,21 +15,21 @@ import java.util.Collections;
 import java.util.List;
 
 @Component
-public class TxNewReportMamba implements ReportManager {
+public class TxNewCD4ReportMamba implements ReportManager {
 	
 	@Override
 	public String getUuid() {
-		return "f249d7fb-bb24-4630-928c-927514c2f8a6";
+		return "872b7ebd-ddc7-41dc-b9be-f3d44ec4ec74";
 	} //4d7b385f-331f-400c-8592-f539f4565d9d
 	
 	@Override
 	public String getName() {
-		return "LINELIST- TX_NEW";
+		return "DATIM- TX_NEW_CD4";
 	}
 	
 	@Override
 	public String getDescription() {
-		return "TX new mamba implementation";
+		return "TX new CD4 DATIM mamba report ";
 	}
 	
 	@Override
@@ -45,10 +46,10 @@ public class TxNewReportMamba implements ReportManager {
 		reportDefinition.setDescription(getDescription());
 		reportDefinition.setParameters(getParameters());
 		
-		TXNewDataSetDefinitionMamba txNewDataSetDefinitionMamba = new TXNewDataSetDefinitionMamba();
-		txNewDataSetDefinitionMamba.addParameters(getParameters());
-		reportDefinition.addDataSetDefinition("List of Patients Newly Started ART",
-		    EthiOhriUtil.map(txNewDataSetDefinitionMamba));
+		TxNewCD4DataSetDefinitionMamba txNewCD4DataSetDefinitionMamba = new TxNewCD4DataSetDefinitionMamba();
+		txNewCD4DataSetDefinitionMamba.addParameters(getParameters());
+		reportDefinition.addDataSetDefinition("List of Patients With CD4 Count Aggregation",
+		    EthiOhriUtil.map(txNewCD4DataSetDefinitionMamba));
 		
 		return reportDefinition;
 	}
@@ -56,7 +57,7 @@ public class TxNewReportMamba implements ReportManager {
 	@Override
 	public List<ReportDesign> constructReportDesigns(ReportDefinition reportDefinition) {
 		
-		ReportDesign design = ReportManagerUtil.createExcelDesign("59c89fef-38ce-4635-8a51-422ccf599b14", reportDefinition);
+		ReportDesign design = ReportManagerUtil.createExcelDesign("6d4cc920-e087-4b1c-9af2-287c80c0e0f8", reportDefinition);
 		
 		return Collections.singletonList(design);
 	}
