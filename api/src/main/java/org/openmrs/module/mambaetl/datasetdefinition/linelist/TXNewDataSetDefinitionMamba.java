@@ -6,10 +6,10 @@ import org.springframework.stereotype.Component;
 import java.util.Date;
 
 /**
- * HtsNewDataSetDefinition
+ * TXNewDataSetDefinitionMamba
  */
 @Component
-public class HTSNewDataSetDefinitionMamba extends BaseDataSetDefinition {
+public class TXNewDataSetDefinitionMamba extends BaseDataSetDefinition {
 	
 	@ConfigurationProperty
 	private Date startDate;

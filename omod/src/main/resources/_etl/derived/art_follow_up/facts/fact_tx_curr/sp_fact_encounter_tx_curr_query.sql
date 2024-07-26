@@ -2,7 +2,7 @@ DELIMITER //
 
 DROP PROCEDURE IF EXISTS sp_fact_encounter_art_follow_up_tx_curr_query;
 
-CREATE PROCEDURE sp_fact_encounter_art_follow_up_tx_curr_query(IN REPORT_START_DATE DATE, IN REPORT_END_DATE DATE)
+CREATE PROCEDURE sp_fact_encounter_art_follow_up_tx_curr_query(IN REPORT_END_DATE DATE)
 BEGIN
     SELECT   subquery.client_id,
              dim_art_follow_up.patient_name,
@@ -49,15 +49,14 @@ BEGIN
                  tuberculosis_treatment_end_date,
                  date_viral_load_results_received,
                  viral_load_test_status,
-                 ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY followup_date )     AS rn_asc,
                  ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY followup_date DESC) AS rn_desc
           from mamba_fact_art_follow_up
-          where followup_date BETWEEN  CAST(REPORT_START_DATE as DATE) AND CAST(REPORT_END_DATE as DATE)
-            and art_start_date BETWEEN  CAST(REPORT_START_DATE as DATE) AND CAST(REPORT_END_DATE as DATE)
+          where followup_date <=   CAST(REPORT_END_DATE as DATE)
+            and art_start_date <=   CAST(REPORT_END_DATE as DATE)
             and regimen is not null
          ) AS subquery
              join mamba_dim_client_art_follow_up dim_art_follow_up on subquery.client_id=dim_art_follow_up.client_id
-    WHERE (rn_asc = 1 OR rn_desc = 1) and follow_up_status='Alive'
+    WHERE rn_desc = 1 and follow_up_status='Alive'
     GROUP BY subquery.client_id;
 END //
 

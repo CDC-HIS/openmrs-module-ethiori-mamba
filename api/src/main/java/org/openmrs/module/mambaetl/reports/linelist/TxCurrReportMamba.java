@@ -1,5 +1,6 @@
 package org.openmrs.module.mambaetl.reports.linelist;
 
+import org.openmrs.api.context.Context;
 import org.openmrs.module.mambaetl.datasetdefinition.linelist.TxCurrDataSetDefinitionMamba;
 import org.openmrs.module.reporting.evaluation.parameter.Mapped;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
@@ -19,12 +20,12 @@ public class TxCurrReportMamba implements ReportManager {
 	
 	@Override
 	public String getUuid() {
-		return "86a28f40-7987-482b-bc49-2d32451d00vv";
+		return "c5781f7f-7830-4a90-97bb-aac8846f72db";
 	}
 	
 	@Override
 	public String getName() {
-		return "LINE LIST - TX_CURR";
+		return "LINELIST- TX_CURR";
 	}
 	
 	@Override
@@ -39,11 +40,7 @@ public class TxCurrReportMamba implements ReportManager {
 		endDate.setRequired(false);
 		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
 		endDateGC.setRequired(false);
-		Parameter startDate = new Parameter("startDate", "On Month", Date.class);
-		endDate.setRequired(false);
-		Parameter startDateGC = new Parameter("startDate", " ", Date.class);
-		endDateGC.setRequired(false);
-		return Arrays.asList(endDate, endDateGC, startDate, startDateGC);
+		return Arrays.asList(endDate, endDateGC);
 		
 	}
 	
@@ -58,7 +55,7 @@ public class TxCurrReportMamba implements ReportManager {
 		TxCurrDataSetDefinitionMamba txCurrDataSetDefinition = new TxCurrDataSetDefinitionMamba();
 		txCurrDataSetDefinition.addParameters(getParameters());
 		reportDefinition.addDataSetDefinition("List of Patients Currently on ART",
-		    map(txCurrDataSetDefinition, "endDate=${endDateGC},startDate=${startDateGC}"));
+		    map(txCurrDataSetDefinition, "endDate=${endDateGC}"));
 		return reportDefinition;
 	}
 	
@@ -74,7 +71,7 @@ public class TxCurrReportMamba implements ReportManager {
 	
 	@Override
 	public List<ReportDesign> constructReportDesigns(ReportDefinition reportDefinition) {
-		ReportDesign design = ReportManagerUtil.createExcelDesign("a1ee4c33-f087-4af9-8efc-edf007e5c278", reportDefinition);
+		ReportDesign design = ReportManagerUtil.createExcelDesign("835703a9-769d-4c48-ab8f-900249ff7550", reportDefinition);
 		
 		return Collections.singletonList(design);
 	}
@@ -88,5 +85,4 @@ public class TxCurrReportMamba implements ReportManager {
 	public String getVersion() {
 		return "1.0.0-SNAPSHOT";
 	}
-	
 }

@@ -1,8 +1,9 @@
-package org.openmrs.module.mambaetl.datasetevaluator.art;
+package org.openmrs.module.mambaetl.datasetevaluator.linelist.tx_curr;
 
 import org.openmrs.annotation.Handler;
 import org.openmrs.module.mambacore.db.ConnectionPoolManager;
 import org.openmrs.module.mambaetl.datasetdefinition.linelist.TxCurrDataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.mambaetl.helpers.TxCurrData;
 import org.openmrs.module.reporting.dataset.DataSet;
 import org.openmrs.module.reporting.dataset.DataSetColumn;
@@ -43,6 +44,10 @@ public class TxCurrDataSetEvaluatorMamba implements DataSetEvaluator {
 		//throw new EvaluationException("Start date cannot be greater than end date");
 		List<TxCurrData> resultSet = getEtlCurr(txCurrDataSetDefinitionMamba);
 		
+		row.addColumnValue(new DataSetColumn("#", "#", Integer.class), "TOTAL");
+		row.addColumnValue(new DataSetColumn("Patient Count", "Patient Count", Integer.class), resultSet.size());
+		data.addRow(row);
+		
 		for (TxCurrData txCurrData : resultSet) {
 			
 			try {
@@ -60,37 +65,60 @@ public class TxCurrDataSetEvaluatorMamba implements DataSetEvaluator {
 				    txCurrData.getMobileNumber());
 				row.addColumnValue(new DataSetColumn("weightInKg", "Weight In KG", Integer.class),
 				    txCurrData.getWeightInKg());
-				row.addColumnValue(new DataSetColumn("hivConfirmedDate", "HIV Confirmed Date", Date.class),
-				    txCurrData.getHivConfirmedDate());
-				row.addColumnValue(new DataSetColumn("artStartDate", "HIV Confirmed Date", Date.class),
-				    txCurrData.getArtStartDate());
-				row.addColumnValue(new DataSetColumn("followupDate", "HIV Confirmed Date", Date.class),
-				    txCurrData.getFollowupDate());
+				row.addColumnValue(
+				    new DataSetColumn("hivConfirmedDate", "HIV Confirmed Date", Date.class),
+				    txCurrData.getHivConfirmedDate() != null ? EthiOhriUtil.getEthiopianDate(new java.util.Date(txCurrData
+				            .getHivConfirmedDate().getTime())) : txCurrData.getHivConfirmedDate());
+				row.addColumnValue(
+				    new DataSetColumn("artStartDate", "Art Start Date", Date.class),
+				    txCurrData.getArtStartDate() != null ? EthiOhriUtil.getEthiopianDate(new java.util.Date(txCurrData
+				            .getArtStartDate().getTime())) : txCurrData.getArtStartDate());
+				row.addColumnValue(
+				    new DataSetColumn("followupDate", "Follow Up Date", Date.class),
+				    txCurrData.getFollowupDate() != null ? EthiOhriUtil.getEthiopianDate(new java.util.Date(txCurrData
+				            .getFollowupDate().getTime())) : txCurrData.getFollowupDate());
 				
-				row.addColumnValue(new DataSetColumn("weightInKg", "Sex", String.class), txCurrData.getWeightInKg());
-				row.addColumnValue(new DataSetColumn("pregnancyStatus", "Sex", String.class),
+				row.addColumnValue(new DataSetColumn("weightInKg", "Weight In Kg", String.class), txCurrData.getWeightInKg());
+				row.addColumnValue(new DataSetColumn("pregnancyStatus", "Pregnancy Status", String.class),
 				    txCurrData.getPregnancyStatus());
-				row.addColumnValue(new DataSetColumn("regimen", "Sex", String.class), txCurrData.getRegimen());
-				row.addColumnValue(new DataSetColumn("arvDoseDays", "Sex", String.class), txCurrData.getArvDoseDays());
-				row.addColumnValue(new DataSetColumn("followUpStatus", "Sex", String.class), txCurrData.getFollowUpStatus());
-				row.addColumnValue(new DataSetColumn("anitiretroviralAdherenceLevel", "Sex", String.class),
+				row.addColumnValue(new DataSetColumn("regimen", "Regimen", String.class), txCurrData.getRegimen());
+				row.addColumnValue(new DataSetColumn("arvDoseDays", "ARV Dose Days", String.class),
+				    txCurrData.getArvDoseDays());
+				row.addColumnValue(new DataSetColumn("followUpStatus", "Follow-up Status", String.class),
+				    txCurrData.getFollowUpStatus());
+				row.addColumnValue(new DataSetColumn("anitiretroviralAdherenceLevel", "Adherence", String.class),
 				    txCurrData.getAnitiretroviralAdherenceLevel());
-				row.addColumnValue(new DataSetColumn("nextVisitDate", "HIV Confirmed Date", Date.class),
-				    txCurrData.getNextVisitDate());
-				row.addColumnValue(new DataSetColumn("dsdCategory", "Sex", String.class), txCurrData.getDsdCategory());
-				row.addColumnValue(new DataSetColumn("tptStartDate", "HIV Confirmed Date", Date.class),
-				    txCurrData.getTptStartDate());
-				row.addColumnValue(new DataSetColumn("tptCompletedDate", "HIV Confirmed Date", Date.class),
-				    txCurrData.getTptCompletedDate());
-				row.addColumnValue(new DataSetColumn("tptDiscontinuedDate", "HIV Confirmed Date", Date.class),
-				    txCurrData.getTptDiscontinuedDate());
-				row.addColumnValue(new DataSetColumn("tuberculosisTreatmentEndDate", "HIV Confirmed Date", Date.class),
-				    txCurrData.getTuberculosisTreatmentEndDate());
-				row.addColumnValue(new DataSetColumn("dateViralLoadResultsReceived", "HIV Confirmed Date", Date.class),
-				    txCurrData.getDateViralLoadResultsReceived());
-				row.addColumnValue(new DataSetColumn("viralLoadTestStatus", "Sex", String.class),
+				row.addColumnValue(
+				    new DataSetColumn("nextVisitDate", "Next Visit Date", Date.class),
+				    txCurrData.getNextVisitDate() != null ? EthiOhriUtil.getEthiopianDate(new java.util.Date(txCurrData
+				            .getNextVisitDate().getTime())) : txCurrData.getNextVisitDate());
+				row.addColumnValue(new DataSetColumn("dsdCategory", "DSD Category", String.class),
+				    txCurrData.getDsdCategory());
+				row.addColumnValue(
+				    new DataSetColumn("tptStartDate", "TPT Start Date", Date.class),
+				    txCurrData.getTptStartDate() != null ? EthiOhriUtil.getEthiopianDate(new java.util.Date(txCurrData
+				            .getTptStartDate().getTime())) : txCurrData.getTptStartDate());
+				row.addColumnValue(
+				    new DataSetColumn("tptCompletedDate", "TPT Completed Date", Date.class),
+				    txCurrData.getTptCompletedDate() != null ? EthiOhriUtil.getEthiopianDate(new java.util.Date(txCurrData
+				            .getTptCompletedDate().getTime())) : txCurrData.getTptCompletedDate());
+				row.addColumnValue(
+				    new DataSetColumn("tptDiscontinuedDate", "TPT Discontinued Date", Date.class),
+				    txCurrData.getTptDiscontinuedDate() != null ? EthiOhriUtil.getEthiopianDate(new java.util.Date(
+				            txCurrData.getTptDiscontinuedDate().getTime())) : txCurrData.getTptDiscontinuedDate());
+				row.addColumnValue(
+				    new DataSetColumn("tuberculosisTreatmentEndDate", "TB Treatment Completed Date", Date.class),
+				    txCurrData.getTuberculosisTreatmentEndDate() != null ? EthiOhriUtil.getEthiopianDate(new java.util.Date(
+				            txCurrData.getTuberculosisTreatmentEndDate().getTime())) : txCurrData
+				            .getTuberculosisTreatmentEndDate());
+				row.addColumnValue(
+				    new DataSetColumn("dateViralLoadResultsReceived", "VL Received Date", Date.class),
+				    txCurrData.getDateViralLoadResultsReceived() != null ? EthiOhriUtil.getEthiopianDate(new java.util.Date(
+				            txCurrData.getDateViralLoadResultsReceived().getTime())) : txCurrData
+				            .getDateViralLoadResultsReceived());
+				row.addColumnValue(new DataSetColumn("viralLoadTestStatus", "VL Status", String.class),
 				    txCurrData.getViralLoadTestStatus());
-				row.addColumnValue(new DataSetColumn("VLEligibilityDate", "HIV Confirmed Date", Date.class),
+				row.addColumnValue(new DataSetColumn("VLEligibilityDate", "VL Eligibility Date", Date.class),
 				    txCurrData.getVLEligibilityDate());
 				
 				data.addRow(row);
@@ -109,9 +137,8 @@ public class TxCurrDataSetEvaluatorMamba implements DataSetEvaluator {
         List<TxCurrData> txCurrList = new ArrayList<>();
         DataSource dataSource = ConnectionPoolManager.getInstance().getDataSource();
         try (Connection connection = dataSource.getConnection();
-             CallableStatement statement = connection.prepareCall("{call sp_fact_encounter_art_follow_up_tx_curr_query(?,?)}")) {
-            statement.setDate(1, new java.sql.Date(txCurrDataSetDefinitionMamba.getStartDate().getTime()));
-            statement.setDate(2, new java.sql.Date(txCurrDataSetDefinitionMamba.getEndDate().getTime()));
+             CallableStatement statement = connection.prepareCall("{call sp_fact_encounter_art_follow_up_tx_curr_query(?)}")) {
+            statement.setDate(1, new java.sql.Date(txCurrDataSetDefinitionMamba.getEndDate().getTime()));
             boolean hasResults = statement.execute();
 
             while (hasResults) {

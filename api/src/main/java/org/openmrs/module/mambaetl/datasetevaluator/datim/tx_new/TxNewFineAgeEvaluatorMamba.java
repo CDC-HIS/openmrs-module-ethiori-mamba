@@ -1,8 +1,10 @@
-package org.openmrs.module.mambaetl.datasetevaluator.art;
+package org.openmrs.module.mambaetl.datasetevaluator.datim.tx_new;
 
 import org.openmrs.annotation.Handler;
 import org.openmrs.module.mambacore.db.ConnectionPoolManager;
-import org.openmrs.module.mambaetl.datasetdefinition.linelist.HTSNewDataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.datasetdefinition.datim.TxNewFineAgeDataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.datasetdefinition.linelist.TXNewDataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.mambaetl.helpers.TXNewData;
 import org.openmrs.module.reporting.dataset.DataSet;
 import org.openmrs.module.reporting.dataset.DataSetColumn;
@@ -24,18 +26,20 @@ import java.util.List;
 
 import static org.hibernate.search.util.AnalyzerUtils.log;
 
-@Handler(supports = { HTSNewDataSetDefinitionMamba.class })
-public class TxNewDatasetEvaluatorMamba implements DataSetEvaluator {
+@Handler(supports = { TxNewFineAgeDataSetDefinitionMamba.class })
+public class TxNewFineAgeEvaluatorMamba implements DataSetEvaluator {
 	
 	@Override
 	public DataSet evaluate(DataSetDefinition dataSetDefinition, EvaluationContext evalContext) throws EvaluationException {
-		HTSNewDataSetDefinitionMamba htsNewDataSetDefinitionMamba = (HTSNewDataSetDefinitionMamba) dataSetDefinition;
+		TxNewFineAgeDataSetDefinitionMamba txNewFineAgeDataSetDefinitionMamba = (TxNewFineAgeDataSetDefinitionMamba) dataSetDefinition;
 		SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
 		DataSetRow row = new DataSetRow();
 		// Check start date and end date are valid
 		// If start date is greater than end date
-		if (htsNewDataSetDefinitionMamba.getStartDate() != null && htsNewDataSetDefinitionMamba.getEndDate() != null
-		        && htsNewDataSetDefinitionMamba.getStartDate().compareTo(htsNewDataSetDefinitionMamba.getEndDate()) > 0) {
+		if (txNewFineAgeDataSetDefinitionMamba.getStartDate() != null
+		        && txNewFineAgeDataSetDefinitionMamba.getEndDate() != null
+		        && txNewFineAgeDataSetDefinitionMamba.getStartDate().compareTo(
+		            txNewFineAgeDataSetDefinitionMamba.getEndDate()) > 0) {
 			
 			row.addColumnValue(new DataSetColumn("Error", "Error", Integer.class),
 			    "Report start date cannot be after report end date");
@@ -43,8 +47,10 @@ public class TxNewDatasetEvaluatorMamba implements DataSetEvaluator {
 			throw new EvaluationException("Start date can not be greater than end date");
 		}
 		//throw new EvaluationException("Start date cannot be greater than end date");
-		List<TXNewData> resultSet = getEtlNew(htsNewDataSetDefinitionMamba);
-		
+		List<TXNewData> resultSet = getEtlNew(txNewFineAgeDataSetDefinitionMamba);
+		row.addColumnValue(new DataSetColumn("#", "#", Integer.class), "TOTAL");
+		row.addColumnValue(new DataSetColumn("Patient Count", "Patient Count", Integer.class), resultSet.size());
+		data.addRow(row);
 		for (TXNewData txNewDate : resultSet) {
 			
 			try {
@@ -66,16 +72,24 @@ public class TxNewDatasetEvaluatorMamba implements DataSetEvaluator {
 				    txNewDate.getNutritionalStatus());
 				row.addColumnValue(new DataSetColumn("tbScreeningResult", "TB Screening Result", String.class),
 				    txNewDate.getTbScreeningResult());
-				row.addColumnValue(new DataSetColumn("enrollmentDate", "Enrollment Date", Date.class),
-				    txNewDate.getEnrollmentDate());
-				row.addColumnValue(new DataSetColumn("hivConfirmedDate", "HIV Confirmed Date", Date.class),
-				    txNewDate.getHivConfirmedDate());
-				row.addColumnValue(new DataSetColumn("artStartDate", "ART Start Date", Date.class),
-				    txNewDate.getArtStartDate());
+				row.addColumnValue(
+				    new DataSetColumn("enrollmentDate", "Enrollment Date", Date.class),
+				    txNewDate.getEnrollmentDate() != null ? EthiOhriUtil.getEthiopianDate(new Date(txNewDate
+				            .getEnrollmentDate().getTime())) : txNewDate.getEnrollmentDate());
+				row.addColumnValue(
+				    new DataSetColumn("hivConfirmedDate", "HIV Confirmed Date", Date.class),
+				    txNewDate.getHivConfirmedDate() != null ? EthiOhriUtil.getEthiopianDate(new Date(txNewDate
+				            .getHivConfirmedDate().getTime())) : txNewDate.getHivConfirmedDate());
+				row.addColumnValue(
+				    new DataSetColumn("artStartDate", "ART Start Date", Date.class),
+				    txNewDate.getArtStartDate() != null ? EthiOhriUtil.getEthiopianDate(new Date(txNewDate.getArtStartDate()
+				            .getTime())) : txNewDate.getArtStartDate());
 				row.addColumnValue(new DataSetColumn("daysDifference", "Days difference", Integer.class),
 				    txNewDate.getDaysDifference());
-				row.addColumnValue(new DataSetColumn("followupDate", "Followup Date", Date.class),
-				    txNewDate.getFollowupDate());
+				row.addColumnValue(
+				    new DataSetColumn("followupDate", "Followup Date", Date.class),
+				    txNewDate.getFollowupDate() != null ? EthiOhriUtil.getEthiopianDate(new Date(txNewDate.getFollowupDate()
+				            .getTime())) : txNewDate.getFollowupDate());
 				row.addColumnValue(new DataSetColumn("regimen", "Regimen", String.class), txNewDate.getRegimen());
 				row.addColumnValue(new DataSetColumn("arvDoseDays", "ARV Dose Days", String.class),
 				    txNewDate.getArvDoseDays());
@@ -86,12 +100,18 @@ public class TxNewDatasetEvaluatorMamba implements DataSetEvaluator {
 				row.addColumnValue(new DataSetColumn("followUpStatus", "Followup Status", String.class),
 				    txNewDate.getFollowUpStatus());
 				row.addColumnValue(new DataSetColumn("ti", "TI", String.class), txNewDate.getTi());
-				row.addColumnValue(new DataSetColumn("treatmentEndDate", "Treatment End Date", Date.class),
-				    txNewDate.getTreatmentEndDate());
-				row.addColumnValue(new DataSetColumn("nextVisitDate", "Next Visit Date", Date.class),
-				    txNewDate.getNextVisitDate());
-				row.addColumnValue(new DataSetColumn("latestFollowupDate", "Latest Followup Date", Date.class),
-				    txNewDate.getLatestFollowupDate());
+				row.addColumnValue(
+				    new DataSetColumn("treatmentEndDate", "Treatment End Date", Date.class),
+				    txNewDate.getTreatmentEndDate() != null ? EthiOhriUtil.getEthiopianDate(new Date(txNewDate
+				            .getTreatmentEndDate().getTime())) : txNewDate.getTreatmentEndDate());
+				row.addColumnValue(
+				    new DataSetColumn("nextVisitDate", "Next Visit Date", Date.class),
+				    txNewDate.getNextVisitDate() != null ? EthiOhriUtil.getEthiopianDate(new Date(txNewDate
+				            .getNextVisitDate().getTime())) : txNewDate.getNextVisitDate());
+				row.addColumnValue(
+				    new DataSetColumn("latestFollowupDate", "Latest Followup Date", Date.class),
+				    txNewDate.getLatestFollowupDate() != null ? EthiOhriUtil.getEthiopianDate(new Date(txNewDate
+				            .getLatestFollowupDate().getTime())) : txNewDate.getLatestFollowupDate());
 				row.addColumnValue(new DataSetColumn("latestFollowupStatus", "Latest Followup Status", String.class),
 				    txNewDate.getLatestFollowupStatus());
 				row.addColumnValue(new DataSetColumn("latestRegimen", "Latest Regimen", String.class),
@@ -111,13 +131,13 @@ public class TxNewDatasetEvaluatorMamba implements DataSetEvaluator {
 		
 	}
 	
-	private List<TXNewData> getEtlNew(HTSNewDataSetDefinitionMamba htsNewDataSetDefinitionMamba) {
+	private List<TXNewData> getEtlNew(TxNewFineAgeDataSetDefinitionMamba txNewFineAgeDataSetDefinitionMamba) {
         List<TXNewData> txCurrList = new ArrayList<>();
         DataSource dataSource = ConnectionPoolManager.getInstance().getDataSource();
         try (Connection connection = dataSource.getConnection();
              CallableStatement statement = connection.prepareCall("{call sp_fact_encounter_art_follow_up_tx_new_query(?,?)}")) {
-            statement.setDate(1, new java.sql.Date(htsNewDataSetDefinitionMamba.getStartDate().getTime()));
-            statement.setDate(2, new java.sql.Date(htsNewDataSetDefinitionMamba.getEndDate().getTime()));
+            statement.setDate(1, new java.sql.Date(txNewFineAgeDataSetDefinitionMamba.getStartDate().getTime()));
+            statement.setDate(2, new java.sql.Date(txNewFineAgeDataSetDefinitionMamba.getEndDate().getTime()));
             boolean hasResults = statement.execute();
 
             while (hasResults) {

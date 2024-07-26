@@ -1,5 +1,7 @@
-package org.openmrs.module.mambaetl.reports.linelist;
+package org.openmrs.module.mambaetl.reports.datim.tx_new;
 
+import org.openmrs.module.mambaetl.datasetdefinition.datim.TxNewCoarseAgeDataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.datasetdefinition.datim.TxNewFineAgeDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.datasetdefinition.linelist.TXNewDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
@@ -14,21 +16,21 @@ import java.util.Collections;
 import java.util.List;
 
 @Component
-public class TxNewReportMamba implements ReportManager {
+public class TxNewCoarseAgeReportMamba implements ReportManager {
 	
 	@Override
 	public String getUuid() {
-		return "f249d7fb-bb24-4630-928c-927514c2f8a6";
+		return "5736fa07-e119-4ea2-b3c0-50fac959ba71";
 	} //4d7b385f-331f-400c-8592-f539f4565d9d
 	
 	@Override
 	public String getName() {
-		return "LINELIST- TX_NEW";
+		return "DATIM- TX_NEW_COARSE_AGE";
 	}
 	
 	@Override
 	public String getDescription() {
-		return "TX new mamba implementation";
+		return "TX new Coarse Age DATIM mamba report ";
 	}
 	
 	@Override
@@ -45,10 +47,10 @@ public class TxNewReportMamba implements ReportManager {
 		reportDefinition.setDescription(getDescription());
 		reportDefinition.setParameters(getParameters());
 		
-		TXNewDataSetDefinitionMamba txNewDataSetDefinitionMamba = new TXNewDataSetDefinitionMamba();
-		txNewDataSetDefinitionMamba.addParameters(getParameters());
-		reportDefinition.addDataSetDefinition("List of Patients Newly Started ART",
-		    EthiOhriUtil.map(txNewDataSetDefinitionMamba));
+		TxNewCoarseAgeDataSetDefinitionMamba txNewCoarseAgeDataSetDefinitionMamba = new TxNewCoarseAgeDataSetDefinitionMamba();
+		txNewCoarseAgeDataSetDefinitionMamba.addParameters(getParameters());
+		reportDefinition.addDataSetDefinition("List of Patients With Coarse Age Group Aggregation",
+		    EthiOhriUtil.map(txNewCoarseAgeDataSetDefinitionMamba));
 		
 		return reportDefinition;
 	}
@@ -56,7 +58,7 @@ public class TxNewReportMamba implements ReportManager {
 	@Override
 	public List<ReportDesign> constructReportDesigns(ReportDefinition reportDefinition) {
 		
-		ReportDesign design = ReportManagerUtil.createExcelDesign("59c89fef-38ce-4635-8a51-422ccf599b14", reportDefinition);
+		ReportDesign design = ReportManagerUtil.createExcelDesign("46ce413e-a331-4bef-a3c4-08571d393f6d", reportDefinition);
 		
 		return Collections.singletonList(design);
 	}
