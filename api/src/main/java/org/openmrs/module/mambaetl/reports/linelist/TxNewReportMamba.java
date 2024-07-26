@@ -14,7 +14,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Component
-public class TxNewReport implements ReportManager {
+public class TxNewReportMamba implements ReportManager {
 	
 	@Override
 	public String getUuid() {
@@ -23,7 +23,7 @@ public class TxNewReport implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "LINE LIST - TX_NEW_MAMBA_MAIN";
+		return "LINE LIST - TX_NEW_MAMBA";
 	}
 	
 	@Override
@@ -33,7 +33,6 @@ public class TxNewReport implements ReportManager {
 	
 	@Override
 	public List<Parameter> getParameters() {
-		System.out.println("getting parameters");
 		return EthiOhriUtil.getDateRangeParameters();
 		
 	}

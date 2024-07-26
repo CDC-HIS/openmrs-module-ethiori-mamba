@@ -2,7 +2,7 @@ package org.openmrs.module.mambaetl.helpers;
 
 import java.util.Date;
 
-public class TxNewData {
+public class TXNewData {
 	
 	private final String patientName;
 	
@@ -60,7 +60,7 @@ public class TxNewData {
 	
 	private final String latestArvDoseDays;
 	
-	public TxNewData(String patientName, String mrn, String uan, int currentAge, String sex, String mobileNumber,
+	public TXNewData(String patientName, String mrn, String uan, int currentAge, String sex, String mobileNumber,
 	    int weightInKg, int cd4Count, String currentWhoHivStage, String nutritionalStatus, String tbScreeningResult,
 	    Date enrollmentDate, Date hivConfirmedDate, Date artStartDate, int daysDifference, Date followupDate,
 	    String regimen, String arvDoseDays, String pregnancyStatus, String breastFeedingStatus, String followUpStatus,
