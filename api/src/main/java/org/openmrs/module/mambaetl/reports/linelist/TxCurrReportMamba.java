@@ -20,7 +20,7 @@ public class TxCurrReportMamba implements ReportManager {
 	
 	@Override
 	public String getUuid() {
-		return "c5781f7f-7830-4a90-97bb-aac8846f72db";
+		return "86a28f40-7987-482b-bc49-2d32451d00d9";
 	}
 	
 	@Override
@@ -54,6 +54,7 @@ public class TxCurrReportMamba implements ReportManager {
 		reportDefinition.setParameters(getParameters());
 		TxCurrDataSetDefinitionMamba txCurrDataSetDefinition = new TxCurrDataSetDefinitionMamba();
 		txCurrDataSetDefinition.addParameters(getParameters());
+		
 		reportDefinition.addDataSetDefinition("List of Patients Currently on ART",
 		    map(txCurrDataSetDefinition, "endDate=${endDateGC}"));
 		return reportDefinition;
@@ -71,7 +72,7 @@ public class TxCurrReportMamba implements ReportManager {
 	
 	@Override
 	public List<ReportDesign> constructReportDesigns(ReportDefinition reportDefinition) {
-		ReportDesign design = ReportManagerUtil.createExcelDesign("835703a9-769d-4c48-ab8f-900249ff7550", reportDefinition);
+		ReportDesign design = ReportManagerUtil.createExcelDesign("a1ee4c33-f087-4af9-8efc-edf007e5c277", reportDefinition);
 		
 		return Collections.singletonList(design);
 	}
