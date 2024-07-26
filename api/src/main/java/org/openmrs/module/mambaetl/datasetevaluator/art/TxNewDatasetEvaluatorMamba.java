@@ -3,7 +3,7 @@ package org.openmrs.module.mambaetl.datasetevaluator.art;
 import org.openmrs.annotation.Handler;
 import org.openmrs.module.mambacore.db.ConnectionPoolManager;
 import org.openmrs.module.mambaetl.datasetdefinition.linelist.HTSNewDataSetDefinitionMamba;
-import org.openmrs.module.mambaetl.helpers.TxNewData;
+import org.openmrs.module.mambaetl.helpers.TXNewData;
 import org.openmrs.module.reporting.dataset.DataSet;
 import org.openmrs.module.reporting.dataset.DataSetColumn;
 import org.openmrs.module.reporting.dataset.DataSetRow;
@@ -25,7 +25,7 @@ import java.util.List;
 import static org.hibernate.search.util.AnalyzerUtils.log;
 
 @Handler(supports = { HTSNewDataSetDefinitionMamba.class })
-public class TxNewDatasetEvaluator implements DataSetEvaluator {
+public class TxNewDatasetEvaluatorMamba implements DataSetEvaluator {
 	
 	@Override
 	public DataSet evaluate(DataSetDefinition dataSetDefinition, EvaluationContext evalContext) throws EvaluationException {
@@ -43,9 +43,9 @@ public class TxNewDatasetEvaluator implements DataSetEvaluator {
 			throw new EvaluationException("Start date can not be greater than end date");
 		}
 		//throw new EvaluationException("Start date cannot be greater than end date");
-		List<TxNewData> resultSet = getEtlNew(htsNewDataSetDefinitionMamba);
+		List<TXNewData> resultSet = getEtlNew(htsNewDataSetDefinitionMamba);
 		
-		for (TxNewData txNewDate : resultSet) {
+		for (TXNewData txNewDate : resultSet) {
 			
 			try {
 				row = new DataSetRow();
@@ -111,11 +111,11 @@ public class TxNewDatasetEvaluator implements DataSetEvaluator {
 		
 	}
 	
-	private List<TxNewData> getEtlNew(HTSNewDataSetDefinitionMamba htsNewDataSetDefinitionMamba) {
-        List<TxNewData> txCurrList = new ArrayList<>();
+	private List<TXNewData> getEtlNew(HTSNewDataSetDefinitionMamba htsNewDataSetDefinitionMamba) {
+        List<TXNewData> txCurrList = new ArrayList<>();
         DataSource dataSource = ConnectionPoolManager.getInstance().getDataSource();
         try (Connection connection = dataSource.getConnection();
-             CallableStatement statement = connection.prepareCall("{call sp_fact_encounter_care_and_treatment_tx_new_query(?,?)}")) {
+             CallableStatement statement = connection.prepareCall("{call sp_fact_encounter_art_follow_up_tx_new_query(?,?)}")) {
             statement.setDate(1, new java.sql.Date(htsNewDataSetDefinitionMamba.getStartDate().getTime()));
             statement.setDate(2, new java.sql.Date(htsNewDataSetDefinitionMamba.getEndDate().getTime()));
             boolean hasResults = statement.execute();
@@ -123,7 +123,7 @@ public class TxNewDatasetEvaluator implements DataSetEvaluator {
             while (hasResults) {
                 try (ResultSet resultSet = statement.getResultSet()) {
                     while (resultSet.next()) { // Iterate through each row
-                        TxNewData data = mapRowToTxNewData(resultSet);
+                        TXNewData data = mapRowToTxNewData(resultSet);
                         txCurrList.add(data);
                     }
                 }
@@ -135,8 +135,8 @@ public class TxNewDatasetEvaluator implements DataSetEvaluator {
         return txCurrList;
     }
 	
-	private TxNewData mapRowToTxNewData(ResultSet resultSet) throws SQLException {
-		return new TxNewData(resultSet.getString("patient_name"), resultSet.getString("mrn"), resultSet.getString("uan"),
+	private TXNewData mapRowToTxNewData(ResultSet resultSet) throws SQLException {
+		return new TXNewData(resultSet.getString("patient_name"), resultSet.getString("mrn"), resultSet.getString("uan"),
 		        resultSet.getInt("current_age"), resultSet.getString("sex"), resultSet.getString("mobile_no"),
 		        resultSet.getInt("weight_in_kg"), resultSet.getInt("cd4_count"),
 		        resultSet.getString("current_who_hiv_stage"), resultSet.getString("nutritional_status"),
