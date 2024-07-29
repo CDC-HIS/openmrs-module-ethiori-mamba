@@ -3,9 +3,9 @@ package org.openmrs.module.mambaetl.datasetevaluator.datim.tx_new;
 import org.openmrs.annotation.Handler;
 import org.openmrs.module.mambacore.db.ConnectionPoolManager;
 import org.openmrs.module.mambaetl.datasetdefinition.datim.TxNewFineAgeDataSetDefinitionMamba;
-import org.openmrs.module.mambaetl.datasetdefinition.linelist.TXNewDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
-import org.openmrs.module.mambaetl.helpers.TXNewData;
+import org.openmrs.module.mambaetl.helpers.dto.FineAgeData;
+import org.openmrs.module.mambaetl.helpers.dto.TXNewData;
 import org.openmrs.module.reporting.dataset.DataSet;
 import org.openmrs.module.reporting.dataset.DataSetColumn;
 import org.openmrs.module.reporting.dataset.DataSetRow;
@@ -47,77 +47,30 @@ public class TxNewFineAgeEvaluatorMamba implements DataSetEvaluator {
 			throw new EvaluationException("Start date can not be greater than end date");
 		}
 		//throw new EvaluationException("Start date cannot be greater than end date");
-		List<TXNewData> resultSet = getEtlNew(txNewFineAgeDataSetDefinitionMamba);
+		List<FineAgeData> resultSet = getEtlNew(txNewFineAgeDataSetDefinitionMamba);
 		row.addColumnValue(new DataSetColumn("#", "#", Integer.class), "TOTAL");
 		row.addColumnValue(new DataSetColumn("Patient Count", "Patient Count", Integer.class), resultSet.size());
 		data.addRow(row);
-		for (TXNewData txNewDate : resultSet) {
+		for (FineAgeData fineAgeData : resultSet) {
 			
 			try {
 				row = new DataSetRow();
 				
-				row.addColumnValue(new DataSetColumn("patientName", "Patient name", String.class),
-				    txNewDate.getPatientName());
-				row.addColumnValue(new DataSetColumn("mrn", "MRN", String.class), txNewDate.getMrn());
-				row.addColumnValue(new DataSetColumn("uan", "UAN", String.class), txNewDate.getUan());
-				row.addColumnValue(new DataSetColumn("currentAge", "Current Age", Integer.class), txNewDate.getCurrentAge());
-				row.addColumnValue(new DataSetColumn("sex", "Sex", String.class), txNewDate.getSex());
-				row.addColumnValue(new DataSetColumn("mobileNumber", "Mobile Number", String.class),
-				    txNewDate.getMobileNumber());
-				row.addColumnValue(new DataSetColumn("weightInKg", "Weight In KG", Integer.class), txNewDate.getWeightInKg());
-				row.addColumnValue(new DataSetColumn("cd4Count", "CD4 Count", Integer.class), txNewDate.getCd4Count());
-				row.addColumnValue(new DataSetColumn("currentWhoHivStage", "Current WHO HIV Stage", String.class),
-				    txNewDate.getCurrentWhoHivStage());
-				row.addColumnValue(new DataSetColumn("nutritionalStatus", "Nutritional Status", String.class),
-				    txNewDate.getNutritionalStatus());
-				row.addColumnValue(new DataSetColumn("tbScreeningResult", "TB Screening Result", String.class),
-				    txNewDate.getTbScreeningResult());
-				row.addColumnValue(
-				    new DataSetColumn("enrollmentDate", "Enrollment Date", Date.class),
-				    txNewDate.getEnrollmentDate() != null ? EthiOhriUtil.getEthiopianDate(new Date(txNewDate
-				            .getEnrollmentDate().getTime())) : txNewDate.getEnrollmentDate());
-				row.addColumnValue(
-				    new DataSetColumn("hivConfirmedDate", "HIV Confirmed Date", Date.class),
-				    txNewDate.getHivConfirmedDate() != null ? EthiOhriUtil.getEthiopianDate(new Date(txNewDate
-				            .getHivConfirmedDate().getTime())) : txNewDate.getHivConfirmedDate());
-				row.addColumnValue(
-				    new DataSetColumn("artStartDate", "ART Start Date", Date.class),
-				    txNewDate.getArtStartDate() != null ? EthiOhriUtil.getEthiopianDate(new Date(txNewDate.getArtStartDate()
-				            .getTime())) : txNewDate.getArtStartDate());
-				row.addColumnValue(new DataSetColumn("daysDifference", "Days difference", Integer.class),
-				    txNewDate.getDaysDifference());
-				row.addColumnValue(
-				    new DataSetColumn("followupDate", "Followup Date", Date.class),
-				    txNewDate.getFollowupDate() != null ? EthiOhriUtil.getEthiopianDate(new Date(txNewDate.getFollowupDate()
-				            .getTime())) : txNewDate.getFollowupDate());
-				row.addColumnValue(new DataSetColumn("regimen", "Regimen", String.class), txNewDate.getRegimen());
-				row.addColumnValue(new DataSetColumn("arvDoseDays", "ARV Dose Days", String.class),
-				    txNewDate.getArvDoseDays());
-				row.addColumnValue(new DataSetColumn("pregnancyStatus", "Pregnancy Status", String.class),
-				    txNewDate.getPregnancyStatus());
-				row.addColumnValue(new DataSetColumn("breastFeedingStatus", "Breast Feeding Status", String.class),
-				    txNewDate.getBreastFeedingStatus());
-				row.addColumnValue(new DataSetColumn("followUpStatus", "Followup Status", String.class),
-				    txNewDate.getFollowUpStatus());
-				row.addColumnValue(new DataSetColumn("ti", "TI", String.class), txNewDate.getTi());
-				row.addColumnValue(
-				    new DataSetColumn("treatmentEndDate", "Treatment End Date", Date.class),
-				    txNewDate.getTreatmentEndDate() != null ? EthiOhriUtil.getEthiopianDate(new Date(txNewDate
-				            .getTreatmentEndDate().getTime())) : txNewDate.getTreatmentEndDate());
-				row.addColumnValue(
-				    new DataSetColumn("nextVisitDate", "Next Visit Date", Date.class),
-				    txNewDate.getNextVisitDate() != null ? EthiOhriUtil.getEthiopianDate(new Date(txNewDate
-				            .getNextVisitDate().getTime())) : txNewDate.getNextVisitDate());
-				row.addColumnValue(
-				    new DataSetColumn("latestFollowupDate", "Latest Followup Date", Date.class),
-				    txNewDate.getLatestFollowupDate() != null ? EthiOhriUtil.getEthiopianDate(new Date(txNewDate
-				            .getLatestFollowupDate().getTime())) : txNewDate.getLatestFollowupDate());
-				row.addColumnValue(new DataSetColumn("latestFollowupStatus", "Latest Followup Status", String.class),
-				    txNewDate.getLatestFollowupStatus());
-				row.addColumnValue(new DataSetColumn("latestRegimen", "Latest Regimen", String.class),
-				    txNewDate.getLatestRegimen());
-				row.addColumnValue(new DataSetColumn("latestArvDoseDays", "Latest ARV Dose Days", String.class),
-				    txNewDate.getLatestArvDoseDays());
+				row.addColumnValue(new DataSetColumn("sex", "Sex", String.class), fineAgeData.getSex());
+				row.addColumnValue(new DataSetColumn("1-4", "1-4", String.class), fineAgeData.getAge_1_4());
+				row.addColumnValue(new DataSetColumn("5-9", "5-9", String.class), fineAgeData.getAge_5_9());
+				row.addColumnValue(new DataSetColumn("10-14", "10-14", String.class), fineAgeData.getAge_10_14());
+				row.addColumnValue(new DataSetColumn("15-19", "15-19", String.class), fineAgeData.getAge_15_19());
+				row.addColumnValue(new DataSetColumn("20-24", "20-24", String.class), fineAgeData.getAge_20_24());
+				row.addColumnValue(new DataSetColumn("25-29", "25-29", String.class), fineAgeData.getAge_25_29());
+				row.addColumnValue(new DataSetColumn("30-34", "30-34", String.class), fineAgeData.getAge_30_34());
+				row.addColumnValue(new DataSetColumn("35-39", "35-39", String.class), fineAgeData.getAge_35_39());
+				row.addColumnValue(new DataSetColumn("40-44", "40-44", String.class), fineAgeData.getAge_40_44());
+				row.addColumnValue(new DataSetColumn("45-49", "45-49", String.class), fineAgeData.getAge_45_49());
+				row.addColumnValue(new DataSetColumn("50-54", "50-54", String.class), fineAgeData.getAge_50_54());
+				row.addColumnValue(new DataSetColumn("55-59", "55-59", String.class), fineAgeData.getAge_55_59());
+				row.addColumnValue(new DataSetColumn("60-64", "60-64", String.class), fineAgeData.getAge_60_64());
+				row.addColumnValue(new DataSetColumn("65+", "65+", String.class), fineAgeData.getAge_65_plus());
 				
 				data.addRow(row);
 				
@@ -131,19 +84,21 @@ public class TxNewFineAgeEvaluatorMamba implements DataSetEvaluator {
 		
 	}
 	
-	private List<TXNewData> getEtlNew(TxNewFineAgeDataSetDefinitionMamba txNewFineAgeDataSetDefinitionMamba) {
-        List<TXNewData> txCurrList = new ArrayList<>();
+	private List<FineAgeData> getEtlNew(TxNewFineAgeDataSetDefinitionMamba txNewFineAgeDataSetDefinitionMamba) {
+        List<FineAgeData> txCurrList = new ArrayList<>();
         DataSource dataSource = ConnectionPoolManager.getInstance().getDataSource();
         try (Connection connection = dataSource.getConnection();
-             CallableStatement statement = connection.prepareCall("{call sp_fact_encounter_art_follow_up_tx_new_query(?,?)}")) {
+             CallableStatement statement = connection.prepareCall("{call sp_dim_tx_new_datim_query(?,?,?,?)}")) {
             statement.setDate(1, new java.sql.Date(txNewFineAgeDataSetDefinitionMamba.getStartDate().getTime()));
             statement.setDate(2, new java.sql.Date(txNewFineAgeDataSetDefinitionMamba.getEndDate().getTime()));
+            statement.setInt(3, 1);
+            statement.setString(4, "All");
             boolean hasResults = statement.execute();
 
             while (hasResults) {
                 try (ResultSet resultSet = statement.getResultSet()) {
                     while (resultSet.next()) { // Iterate through each row
-                        TXNewData data = mapRowToTxNewData(resultSet);
+                        FineAgeData data = mapRowToTxNewData(resultSet);
                         txCurrList.add(data);
                     }
                 }
@@ -155,20 +110,12 @@ public class TxNewFineAgeEvaluatorMamba implements DataSetEvaluator {
         return txCurrList;
     }
 	
-	private TXNewData mapRowToTxNewData(ResultSet resultSet) throws SQLException {
-		return new TXNewData(resultSet.getString("patient_name"), resultSet.getString("mrn"), resultSet.getString("uan"),
-		        resultSet.getInt("current_age"), resultSet.getString("sex"), resultSet.getString("mobile_no"),
-		        resultSet.getInt("weight_in_kg"), resultSet.getInt("cd4_count"),
-		        resultSet.getString("current_who_hiv_stage"), resultSet.getString("nutritional_status"),
-		        resultSet.getString("tb_screening_result"), resultSet.getDate("enrollment_date"),
-		        resultSet.getDate("hiv_confirmed_date"), resultSet.getDate("art_start_date"),
-		        resultSet.getInt("days_difference"), resultSet.getDate("followup_date"), resultSet.getString("regimen"),
-		        resultSet.getString("arv_dose_days"), resultSet.getString("pregnancy_status"),
-		        resultSet.getString("breast_feeding_status"), resultSet.getString("follow_up_status"),
-		        resultSet.getString("ti"), resultSet.getDate("treatment_end_date"), resultSet.getDate("next_visit_date"),
-		        resultSet.getDate("latest_followup_date"), resultSet.getString("latest_followup_status"),
-		        resultSet.getString("latest_regimen"), resultSet.getString("latest_arv_dose_days")
-		
-		);
+	private FineAgeData mapRowToTxNewData(ResultSet resultSet) throws SQLException {
+		return new FineAgeData(resultSet.getString("sex"), resultSet.getString("1-4"), resultSet.getString("5-9"),
+		        resultSet.getString("10-14"), resultSet.getString("15-19"), resultSet.getString("20-24"),
+		        resultSet.getString("25-29"), resultSet.getString("30-34"), resultSet.getString("35-39"),
+		        resultSet.getString("40-44"), resultSet.getString("45-49"), resultSet.getString("50-54"),
+		        resultSet.getString("55-59"), resultSet.getString("60-64"), resultSet.getString("65+"));
 	}
+	
 }
