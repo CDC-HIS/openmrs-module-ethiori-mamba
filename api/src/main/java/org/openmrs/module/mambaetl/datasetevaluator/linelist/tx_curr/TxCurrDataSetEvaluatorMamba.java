@@ -4,7 +4,7 @@ import org.openmrs.annotation.Handler;
 import org.openmrs.module.mambacore.db.ConnectionPoolManager;
 import org.openmrs.module.mambaetl.datasetdefinition.linelist.TxCurrDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
-import org.openmrs.module.mambaetl.helpers.TxCurrData;
+import org.openmrs.module.mambaetl.helpers.dto.TxCurrData;
 import org.openmrs.module.reporting.dataset.DataSet;
 import org.openmrs.module.reporting.dataset.DataSetColumn;
 import org.openmrs.module.reporting.dataset.DataSetRow;

@@ -1,4 +1,4 @@
-package org.openmrs.module.mambaetl.helpers;
+package org.openmrs.module.mambaetl.helpers.dto;
 
 import java.util.Date;
 
