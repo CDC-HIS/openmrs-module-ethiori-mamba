@@ -63,23 +63,5 @@ public class TxNewCoarseAgeEvaluatorMamba implements DataSetEvaluator {
 	private DataSource getDataSource() {
 		return ConnectionPoolManager.getInstance().getDataSource();
 	}
-	
-	private ResultSet getEtlNew(TxNewCoarseAgeDataSetDefinitionMamba definition) {
-        ResultSetMapper resultSetMapper = new ResultSetMapper();
-        DataSource dataSource = ConnectionPoolManager.getInstance().getDataSource();
-
-        try (Connection connection = dataSource.getConnection();
-             CallableStatement statement = connection.prepareCall("{call sp_dim_tx_new_datim_query(?,?,?,?)}")) {
-
-            statement.setDate(1, new java.sql.Date(definition.getStartDate().getTime()));
-            statement.setDate(2, new java.sql.Date(definition.getEndDate().getTime()));
-            statement.setInt(3, 0);
-            statement.setString(4, "All");
-
-            return statement.executeQuery();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
 }
