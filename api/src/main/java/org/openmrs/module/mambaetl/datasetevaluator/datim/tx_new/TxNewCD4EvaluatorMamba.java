@@ -3,7 +3,7 @@ package org.openmrs.module.mambaetl.datasetevaluator.datim.tx_new;
 import org.openmrs.annotation.Handler;
 import org.openmrs.module.mambacore.db.ConnectionPoolManager;
 import org.openmrs.module.mambaetl.datasetdefinition.datim.TxNewCD4DataSetDefinitionMamba;
-import org.openmrs.module.mambaetl.helpers.dto.CoarseData;
+import org.openmrs.module.mambaetl.helpers.dto.CoarseAgeData;
 import org.openmrs.module.reporting.dataset.DataSet;
 import org.openmrs.module.reporting.dataset.DataSetColumn;
 import org.openmrs.module.reporting.dataset.DataSetRow;
@@ -42,11 +42,11 @@ public class TxNewCD4EvaluatorMamba implements DataSetEvaluator {
 			throw new EvaluationException("Start date can not be greater than end date");
 		}
 		//throw new EvaluationException("Start date cannot be greater than end date");
-		List<CoarseData> resultSet = getEtlNew(txNewCD4DataSetDefinitionMamba);
+		List<CoarseAgeData> resultSet = getEtlNew(txNewCD4DataSetDefinitionMamba);
 		row.addColumnValue(new DataSetColumn("#", "#", Integer.class), "TOTAL");
 		row.addColumnValue(new DataSetColumn("TX NEW CD4 EVALUATOR", "Patient Count", Integer.class), resultSet.size());
 		data.addRow(row);
-		for (CoarseData txNewDate : resultSet) {
+		for (CoarseAgeData txNewDate : resultSet) {
 			
 			try {
 				row = new DataSetRow();
@@ -66,8 +66,8 @@ public class TxNewCD4EvaluatorMamba implements DataSetEvaluator {
 		
 	}
 	
-	private List<CoarseData> getEtlNew(TxNewCD4DataSetDefinitionMamba txNewCD4DataSetDefinitionMamba) {
-        List<CoarseData> txCurrList = new ArrayList<>();
+	private List<CoarseAgeData> getEtlNew(TxNewCD4DataSetDefinitionMamba txNewCD4DataSetDefinitionMamba) {
+        List<CoarseAgeData> txCurrList = new ArrayList<>();
         DataSource dataSource = ConnectionPoolManager.getInstance().getDataSource();
         try (Connection connection = dataSource.getConnection();
              CallableStatement statement = connection.prepareCall("{call sp_dim_tx_new_datim_query(?,?,?)}")) {
@@ -80,7 +80,7 @@ public class TxNewCD4EvaluatorMamba implements DataSetEvaluator {
             while (hasResults) {
                 try (ResultSet resultSet = statement.getResultSet()) {
                     while (resultSet.next()) { // Iterate through each row
-						CoarseData data = mapRowToTxNewData(resultSet);
+						CoarseAgeData data = mapRowToTxNewData(resultSet);
                         txCurrList.add(data);
                     }
                 }
@@ -92,7 +92,7 @@ public class TxNewCD4EvaluatorMamba implements DataSetEvaluator {
         return txCurrList;
     }
 	
-	private CoarseData mapRowToTxNewData(ResultSet resultSet) throws SQLException {
-		return new CoarseData(resultSet.getString("sex"), resultSet.getString("15+"), resultSet.getString("<15>"));
+	private CoarseAgeData mapRowToTxNewData(ResultSet resultSet) throws SQLException {
+		return new CoarseAgeData(resultSet.getString("sex"), resultSet.getString("15+"), resultSet.getString("<15>"));
 	}
 }
