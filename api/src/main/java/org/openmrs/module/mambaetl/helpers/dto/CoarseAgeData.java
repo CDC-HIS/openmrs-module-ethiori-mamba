@@ -1,6 +1,6 @@
 package org.openmrs.module.mambaetl.helpers.dto;
 
-public class CoarseData {
+public class CoarseAgeData {
 	
 	private final String sex;
 	
@@ -8,7 +8,7 @@ public class CoarseData {
 	
 	private final String age_15_minus;
 	
-	public CoarseData(String sex, String age_15_plus, String age_15_minus) {
+	public CoarseAgeData(String sex, String age_15_plus, String age_15_minus) {
 		this.sex = sex;
 		this.age_15_plus = age_15_plus;
 		this.age_15_minus = age_15_minus;
