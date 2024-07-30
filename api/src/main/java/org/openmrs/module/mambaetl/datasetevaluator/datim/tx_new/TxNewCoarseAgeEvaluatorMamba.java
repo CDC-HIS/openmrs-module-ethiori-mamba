@@ -81,29 +81,5 @@ public class TxNewCoarseAgeEvaluatorMamba implements DataSetEvaluator {
             throw new RuntimeException(e);
         }
     }
-	
-	private CoarseAgeData mapRowToTxNewCoarseAgeData(ResultSet resultSet) throws SQLException {
-		// Assuming TXNewData has a constructor or setters for these fields
-		return new CoarseAgeData(resultSet.getString("sex"), resultSet.getString("15+"), resultSet.getString("<15")
-		
-		);
-	}
-	
-	private void mapDataToDataSetRow(DataSetRow row, CoarseAgeData data) throws IllegalAccessException {
-		Field[] fields = CoarseAgeData.class.getDeclaredFields();
-		for (Field field : fields) {
-			field.setAccessible(true);
-			String fieldName = field.getName();
-			Object value = field.get(data);
-			Class<?> fieldType = field.getType();
-			
-			// Handle special cases or transformations if necessary
-			if (value instanceof Date) {
-				value = EthiOhriUtil.getEthiopianDate((Date) value);
-			}
-			
-			DataSetColumn column = new DataSetColumn(fieldName, fieldName, fieldType);
-			row.addColumnValue(column, value);
-		}
-	}
+
 }
