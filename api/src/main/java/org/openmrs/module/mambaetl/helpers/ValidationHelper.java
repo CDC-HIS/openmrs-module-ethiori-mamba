@@ -1,7 +1,7 @@
 package org.openmrs.module.mambaetl.helpers;
 
-import org.openmrs.module.mambaetl.datasetdefinition.datim.TxNewCoarseAgeDataSetDefinitionMamba;
-import org.openmrs.module.mambaetl.datasetdefinition.datim.TxNewFineAgeDataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_new.CoarseByAgeAndSexAndCD4DataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_new.FineByAgeAndSexAndCD4DataSetDefinitionMamba;
 import org.openmrs.module.reporting.dataset.DataSetColumn;
 import org.openmrs.module.reporting.dataset.DataSetRow;
 import org.openmrs.module.reporting.dataset.SimpleDataSet;
@@ -14,13 +14,13 @@ public class ValidationHelper {
 	public <T> void validateDates(T definition, SimpleDataSet data) throws EvaluationException {
 		Date startDate = null;
 		Date endDate = null;
-		if (definition instanceof TxNewFineAgeDataSetDefinitionMamba) {
-			TxNewFineAgeDataSetDefinitionMamba def = (TxNewFineAgeDataSetDefinitionMamba) definition;
+		if (definition instanceof FineByAgeAndSexAndCD4DataSetDefinitionMamba) {
+			FineByAgeAndSexAndCD4DataSetDefinitionMamba def = (FineByAgeAndSexAndCD4DataSetDefinitionMamba) definition;
 			startDate = new java.sql.Date(def.getStartDate().getTime());
 			endDate = new java.sql.Date(def.getEndDate().getTime());
 		}
-		if (definition instanceof TxNewCoarseAgeDataSetDefinitionMamba) {
-			TxNewCoarseAgeDataSetDefinitionMamba def = (TxNewCoarseAgeDataSetDefinitionMamba) definition;
+		if (definition instanceof CoarseByAgeAndSexAndCD4DataSetDefinitionMamba) {
+			CoarseByAgeAndSexAndCD4DataSetDefinitionMamba def = (CoarseByAgeAndSexAndCD4DataSetDefinitionMamba) definition;
 			startDate = new java.sql.Date(def.getStartDate().getTime());
 			endDate = new java.sql.Date(def.getEndDate().getTime());
 			
