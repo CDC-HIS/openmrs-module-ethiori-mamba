@@ -36,6 +36,7 @@ BEGIN
                                     ''' THEN count ELSE 0 END) AS `',
                                     coarse_age_group, '`'
                             )
+                            ORDER BY CAST(SUBSTRING_INDEX(coarse_age_group, '-', 1) AS UNSIGNED)
                )
         INTO age_group_cols
         FROM mamba_dim_client_art_follow_up;

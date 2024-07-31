@@ -1,8 +1,8 @@
 package org.openmrs.module.mambaetl.reports.datim.tx_new;
 
-import org.openmrs.module.mambaetl.datasetdefinition.datim.TxNewCD4DataSetDefinitionMamba;
-import org.openmrs.module.mambaetl.datasetdefinition.linelist.TXNewDataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_new.FineByAgeAndSexAndCD4DataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
+import org.openmrs.module.mambaetl.helpers.mapper.Cd4Status;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.report.ReportDesign;
 import org.openmrs.module.reporting.report.ReportRequest;
@@ -15,7 +15,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Component
-public class TxNewCD4ReportMamba implements ReportManager {
+public class TxNewDATIMReportsMamba implements ReportManager {
 	
 	@Override
 	public String getUuid() {
@@ -46,10 +46,26 @@ public class TxNewCD4ReportMamba implements ReportManager {
 		reportDefinition.setDescription(getDescription());
 		reportDefinition.setParameters(getParameters());
 		
-		TxNewCD4DataSetDefinitionMamba txNewCD4DataSetDefinitionMamba = new TxNewCD4DataSetDefinitionMamba();
-		txNewCD4DataSetDefinitionMamba.addParameters(getParameters());
-		reportDefinition.addDataSetDefinition("List of Patients With CD4 Count Aggregation",
-		    EthiOhriUtil.map(txNewCD4DataSetDefinitionMamba));
+		FineByAgeAndSexAndCD4DataSetDefinitionMamba lessThan200CD4DataSetDefinitionMamba = new FineByAgeAndSexAndCD4DataSetDefinitionMamba();
+		lessThan200CD4DataSetDefinitionMamba.addParameters(getParameters());
+		lessThan200CD4DataSetDefinitionMamba.setCd4Status(Cd4Status.LOW);
+		lessThan200CD4DataSetDefinitionMamba.setDescription("< 200 CD4");
+		
+		FineByAgeAndSexAndCD4DataSetDefinitionMamba greaterThan200CD4DataSetDefinitionMamba = new FineByAgeAndSexAndCD4DataSetDefinitionMamba();
+		greaterThan200CD4DataSetDefinitionMamba.addParameters(getParameters());
+		greaterThan200CD4DataSetDefinitionMamba.setCd4Status(Cd4Status.HIGH);
+		greaterThan200CD4DataSetDefinitionMamba.setDescription(">= 200 CD4");
+		
+		FineByAgeAndSexAndCD4DataSetDefinitionMamba unknownCD4DataSetDefinitionMamba = new FineByAgeAndSexAndCD4DataSetDefinitionMamba();
+		unknownCD4DataSetDefinitionMamba.addParameters(getParameters());
+		unknownCD4DataSetDefinitionMamba.setCd4Status(Cd4Status.UNKNOWN);
+		
+		greaterThan200CD4DataSetDefinitionMamba.addParameters(getParameters());
+		unknownCD4DataSetDefinitionMamba.addParameters(getParameters());
+		
+		reportDefinition.addDataSetDefinition("< 200 CD4", EthiOhriUtil.map(lessThan200CD4DataSetDefinitionMamba));
+		reportDefinition.addDataSetDefinition("> 200 CD4", EthiOhriUtil.map(greaterThan200CD4DataSetDefinitionMamba));
+		reportDefinition.addDataSetDefinition("Unknown CD4", EthiOhriUtil.map(unknownCD4DataSetDefinitionMamba));
 		
 		return reportDefinition;
 	}

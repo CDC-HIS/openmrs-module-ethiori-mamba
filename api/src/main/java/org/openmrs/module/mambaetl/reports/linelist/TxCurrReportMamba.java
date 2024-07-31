@@ -52,6 +52,7 @@ public class TxCurrReportMamba implements ReportManager {
 		reportDefinition.setDescription(getDescription());
 		
 		reportDefinition.setParameters(getParameters());
+		
 		TxCurrDataSetDefinitionMamba txCurrDataSetDefinition = new TxCurrDataSetDefinitionMamba();
 		txCurrDataSetDefinition.addParameters(getParameters());
 		
