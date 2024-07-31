@@ -14,9 +14,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ResultSetMapper {
-
+	
 	private Map<String, String> columnNameMapping;
-
+	
 	public ResultSetMapper() {
 		// Initialize the column name mapping
 		columnNameMapping = new HashMap<>();
@@ -58,58 +58,58 @@ public class ResultSetMapper {
 		columnNameMapping.put("date_viral_load_results_received", "Date Viral Load Results Received");
 		columnNameMapping.put("viral_load_test_status", "Viral Load Test Status");
 	}
-
+	
 	public DataSet mapResultSetToDataSet(ResultSet resultSet, SimpleDataSet dataSet) throws SQLException {
-
+		
 		DynamicDataSet dynamicDataSet = new DynamicDataSet();
-
+		
 		// Get metadata
 		ResultSetMetaData metaData = resultSet.getMetaData();
 		int columnCount = metaData.getColumnCount();
-
+		
 		// Add columns to DataSet
 		for (int i = 1; i <= columnCount; i++) {
 			String columnName = metaData.getColumnName(i);
 			String mappedColumnName = getMappedColumnName(columnName);
 			String columnLabel = metaData.getColumnLabel(i);
 			String columnType = metaData.getColumnTypeName(i);
-
+			
 			// Determine column class based on SQL type
 			Class<?> columnClass = getClassForSqlType(columnType);
-
+			
 			// Create and add DataSetColumn using the mapped column name
-			DataSetColumn column = new DataSetColumn(mappedColumnName, columnLabel, columnClass);
+			DataSetColumn column = new DataSetColumn(mappedColumnName, mappedColumnName, columnClass);
 			dynamicDataSet.addColumn(column);
 		}
-
+		
 		// Iterate through rows and add them to the DataSet
 		while (resultSet.next()) {
 			DataSetRow row = new DataSetRow();
 			for (int i = 1; i <= columnCount; i++) {
 				String columnName = metaData.getColumnName(i);
 				Object value = resultSet.getObject(i);
-
+				
 				// Add column value to the row
 				DataSetColumn column = dynamicDataSet.getColumn(getMappedColumnName(columnName));
 				if (column != null) {
 					if (value instanceof Date) {
 						value = transformDate((Date) value);
 					}
-
+					
 					row.addColumnValue(column, value);
 				}
 			}
 			dataSet.addRow(row);
 		}
-
+		
 		return dataSet;
 	}
-
+	
 	private String getMappedColumnName(String originalColumnName) {
 		// Get the mapped column name if it exists; otherwise, return the original name
 		return columnNameMapping.getOrDefault(originalColumnName, originalColumnName);
 	}
-
+	
 	private Class<?> getClassForSqlType(String sqlType) {
 		switch (sqlType) {
 			case "VARCHAR":
@@ -129,7 +129,7 @@ public class ResultSetMapper {
 				return Object.class;
 		}
 	}
-
+	
 	private Object transformDate(Date date) {
 		if (date != null) {
 			// Example transformation, e.g., to a different date format or a specific timezone
@@ -138,4 +138,3 @@ public class ResultSetMapper {
 		return null;
 	}
 }
-
