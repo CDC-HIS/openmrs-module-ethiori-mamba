@@ -1,5 +1,7 @@
 -- $BEGIN
 INSERT INTO mamba_fact_art_follow_up (client_id,
+                                      encounter_id,
+                                      encounter_datetime,
                                       weight_in_kg,
                                       cd4_count,
                                       current_who_hiv_stage,
@@ -35,6 +37,8 @@ INSERT INTO mamba_fact_art_follow_up (client_id,
                                       tpt_discontinued_date,
                                       tuberculosis_treatment_end_date)
 SELECT follow_up.client_id,
+       follow_up.encounter_id,
+       follow_up.encounter_datetime,
        weight_kg_,
        cd4_count,
        current_who_hiv_stage,
