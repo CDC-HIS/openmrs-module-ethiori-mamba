@@ -44,4 +44,5 @@ CREATE TABLE IF NOT EXISTS mamba_fact_art_follow_up
 CREATE INDEX mamba_fact_art_follow_up_art_start_date_index ON mamba_fact_art_follow_up (art_start_date);
 CREATE INDEX mamba_fact_art_follow_up_client_id_index ON mamba_fact_art_follow_up (client_id);
 CREATE INDEX mamba_fact_art_follow_up_followup_date_index ON mamba_fact_art_follow_up (followup_date);
+CREATE INDEX mamba_fact_art_follow_up_regimen_index ON mamba_fact_art_follow_up (regimen);
 -- $END
