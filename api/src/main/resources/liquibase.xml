@@ -5,10 +5,10 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.9
                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.9.xsd">
 
-    <changeSet id="mamba-etl-002" author="Arthur D. Mugume [MakSPH], Laureen G. Omare [UCSF]" runAlways="true">
+    <changeSet id="mamba-etl-003" author="Arthur D. Mugume [MakSPH], Laureen G. Omare [UCSF]" runAlways="true">
 
         <comment>
-            Installs/deploys all the required MambaETL Stored procedures and functions
+            updated tx curr query to avoid max
         </comment>
 
         <sqlFile splitStatements="true" stripComments="true" endDelimiter="~"
