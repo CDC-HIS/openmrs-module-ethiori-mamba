@@ -1,5 +1,6 @@
 package org.openmrs.module.mambaetl.reports.datim.tx_new;
 
+import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_new.CoarseByAgeAndSexAndCD4DataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_new.FineByAgeAndSexAndCD4DataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.mambaetl.helpers.mapper.Cd4Status;
@@ -46,26 +47,47 @@ public class TxNewDATIMReportsMamba implements ReportManager {
 		reportDefinition.setDescription(getDescription());
 		reportDefinition.setParameters(getParameters());
 		
+		// FINE BY AGE, SEX AND CD4 DATIM REPORTS
+		
 		FineByAgeAndSexAndCD4DataSetDefinitionMamba lessThan200CD4DataSetDefinitionMamba = new FineByAgeAndSexAndCD4DataSetDefinitionMamba();
 		lessThan200CD4DataSetDefinitionMamba.addParameters(getParameters());
 		lessThan200CD4DataSetDefinitionMamba.setCd4Status(Cd4Status.LOW);
-		lessThan200CD4DataSetDefinitionMamba.setDescription("< 200 CD4");
+		lessThan200CD4DataSetDefinitionMamba.setDescription("Fine Age < 200 CD4");
+		reportDefinition.addDataSetDefinition("Fine Age < 200 CD4", EthiOhriUtil.map(lessThan200CD4DataSetDefinitionMamba));
 		
 		FineByAgeAndSexAndCD4DataSetDefinitionMamba greaterThan200CD4DataSetDefinitionMamba = new FineByAgeAndSexAndCD4DataSetDefinitionMamba();
 		greaterThan200CD4DataSetDefinitionMamba.addParameters(getParameters());
 		greaterThan200CD4DataSetDefinitionMamba.setCd4Status(Cd4Status.HIGH);
-		greaterThan200CD4DataSetDefinitionMamba.setDescription(">= 200 CD4");
+		greaterThan200CD4DataSetDefinitionMamba.setDescription("Fine Age >= 200 CD4");
+		reportDefinition.addDataSetDefinition("Fine Age > 200 CD4",
+		    EthiOhriUtil.map(greaterThan200CD4DataSetDefinitionMamba));
 		
 		FineByAgeAndSexAndCD4DataSetDefinitionMamba unknownCD4DataSetDefinitionMamba = new FineByAgeAndSexAndCD4DataSetDefinitionMamba();
 		unknownCD4DataSetDefinitionMamba.addParameters(getParameters());
 		unknownCD4DataSetDefinitionMamba.setCd4Status(Cd4Status.UNKNOWN);
+		reportDefinition.addDataSetDefinition("Fine Age Unknown CD4", EthiOhriUtil.map(unknownCD4DataSetDefinitionMamba));
 		
-		greaterThan200CD4DataSetDefinitionMamba.addParameters(getParameters());
-		unknownCD4DataSetDefinitionMamba.addParameters(getParameters());
+		// COARSE BY AGE, SEX AND CD4 DATIM REPORTS
 		
-		reportDefinition.addDataSetDefinition("< 200 CD4", EthiOhriUtil.map(lessThan200CD4DataSetDefinitionMamba));
-		reportDefinition.addDataSetDefinition("> 200 CD4", EthiOhriUtil.map(greaterThan200CD4DataSetDefinitionMamba));
-		reportDefinition.addDataSetDefinition("Unknown CD4", EthiOhriUtil.map(unknownCD4DataSetDefinitionMamba));
+		CoarseByAgeAndSexAndCD4DataSetDefinitionMamba lessThan200CD4DataSetDefinitionMambaCoarse = new CoarseByAgeAndSexAndCD4DataSetDefinitionMamba();
+		lessThan200CD4DataSetDefinitionMambaCoarse.addParameters(getParameters());
+		lessThan200CD4DataSetDefinitionMambaCoarse.setCd4Status(Cd4Status.LOW);
+		lessThan200CD4DataSetDefinitionMambaCoarse.setDescription("Coarse Age < 200 CD4");
+		reportDefinition.addDataSetDefinition("Coarse Age < 200 CD4",
+		    EthiOhriUtil.map(lessThan200CD4DataSetDefinitionMambaCoarse));
+		
+		CoarseByAgeAndSexAndCD4DataSetDefinitionMamba greaterThan200CD4DataSetDefinitionMambaCoarse = new CoarseByAgeAndSexAndCD4DataSetDefinitionMamba();
+		greaterThan200CD4DataSetDefinitionMambaCoarse.addParameters(getParameters());
+		greaterThan200CD4DataSetDefinitionMambaCoarse.setCd4Status(Cd4Status.HIGH);
+		greaterThan200CD4DataSetDefinitionMambaCoarse.setDescription("Coarse Age >= 200 CD4");
+		reportDefinition.addDataSetDefinition("Coarse Age > 200 CD4",
+		    EthiOhriUtil.map(greaterThan200CD4DataSetDefinitionMambaCoarse));
+		
+		CoarseByAgeAndSexAndCD4DataSetDefinitionMamba unknownCD4DataSetDefinitionMambaCoarse = new CoarseByAgeAndSexAndCD4DataSetDefinitionMamba();
+		unknownCD4DataSetDefinitionMambaCoarse.addParameters(getParameters());
+		unknownCD4DataSetDefinitionMambaCoarse.setCd4Status(Cd4Status.UNKNOWN);
+		reportDefinition.addDataSetDefinition("Coarse Age Unknown CD4",
+		    EthiOhriUtil.map(unknownCD4DataSetDefinitionMambaCoarse));
 		
 		return reportDefinition;
 	}

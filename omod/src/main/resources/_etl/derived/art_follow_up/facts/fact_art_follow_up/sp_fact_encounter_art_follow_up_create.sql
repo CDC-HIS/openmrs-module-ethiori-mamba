@@ -2,6 +2,8 @@
 CREATE TABLE IF NOT EXISTS mamba_fact_art_follow_up
 (
     id                          INT AUTO_INCREMENT,
+    encounter_datetime         DATE,
+    encounter_id                INT,
     client_id                   INT NULL,
     weight_in_kg                DOUBLE,
     cd4_count                   DOUBLE,

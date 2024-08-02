@@ -25,6 +25,7 @@ public class ValidationHelper {
 			endDate = new java.sql.Date(def.getEndDate().getTime());
 			
 		}
+		
 		ValidateDates(data, startDate, endDate);
 		
 	}
