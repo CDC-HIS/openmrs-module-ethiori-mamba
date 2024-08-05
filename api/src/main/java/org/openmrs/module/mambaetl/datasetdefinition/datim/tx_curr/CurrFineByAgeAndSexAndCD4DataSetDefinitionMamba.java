@@ -11,21 +11,10 @@ import java.util.Date;
 public class CurrFineByAgeAndSexAndCD4DataSetDefinitionMamba extends BaseDataSetDefinition {
 	
 	@ConfigurationProperty
-	private Date startDate;
-	
-	public Date getStartDate() {
-		return startDate;
-	}
-	
-	@ConfigurationProperty
 	private Date endDate;
 	
 	@ConfigurationProperty
 	private Cd4Status cd4Status = Cd4Status.UNKNOWN;
-	
-	public void setStartDate(Date startDate) {
-		this.startDate = startDate;
-	}
 	
 	public Date getEndDate() {
 		return endDate;

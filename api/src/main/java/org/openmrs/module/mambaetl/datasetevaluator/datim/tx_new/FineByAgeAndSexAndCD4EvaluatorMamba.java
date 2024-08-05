@@ -38,7 +38,7 @@ public class FineByAgeAndSexAndCD4EvaluatorMamba implements DataSetEvaluator {
 
 			statement.setDate(1, new java.sql.Date(dataSetDefinition1.getStartDate().getTime()));
 			statement.setDate(2, new java.sql.Date(dataSetDefinition1.getEndDate().getTime()));
-			statement.setInt(3, 1);
+			statement.setInt(3, 0);
 			statement.setString(4, dataSetDefinition1.getCd4Status().getSqlValue());
 
 			try (ResultSet resultSet = statement.executeQuery()) {

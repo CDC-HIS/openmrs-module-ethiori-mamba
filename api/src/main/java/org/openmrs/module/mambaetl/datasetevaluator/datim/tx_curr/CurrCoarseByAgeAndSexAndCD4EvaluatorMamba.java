@@ -26,18 +26,16 @@ public class CurrCoarseByAgeAndSexAndCD4EvaluatorMamba implements DataSetEvaluat
 	public DataSet evaluate(DataSetDefinition dataSetDefinition, EvaluationContext evalContext) throws EvaluationException {
 		CurrCoarseByAgeAndSexAndCD4DataSetDefinitionMamba dataSetDefinition1 = (CurrCoarseByAgeAndSexAndCD4DataSetDefinitionMamba) dataSetDefinition;
 		SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
-		ValidationHelper validationHelper = new ValidationHelper();
+
 		ResultSetMapper resultSetMapper = new ResultSetMapper();
 
 
 		// Get ResultSet from the database
 		try (Connection connection = getDataSource().getConnection();
-			 CallableStatement statement = connection.prepareCall("{call sp_dim_tx_new_datim_query(?,?,?,?)}")) {
-
-			statement.setDate(1, new java.sql.Date(dataSetDefinition1.getStartDate().getTime()));
-			statement.setDate(2, new java.sql.Date(dataSetDefinition1.getEndDate().getTime()));
-			statement.setInt(3, 0);
-			statement.setString(4, dataSetDefinition1.getCd4Status().getSqlValue());
+			 CallableStatement statement = connection.prepareCall("{call sp_dim_tx_curr_datim_query(?,?,?)}")) {
+			statement.setDate(1, new java.sql.Date(dataSetDefinition1.getEndDate().getTime()));
+			statement.setInt(2, 1);
+			statement.setString(3, dataSetDefinition1.getCd4Status().getSqlValue());
 
 			try (ResultSet resultSet = statement.executeQuery()) {
 				if (resultSet != null) {
