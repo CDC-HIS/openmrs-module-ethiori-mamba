@@ -10,6 +10,7 @@
 package org.openmrs.module.mambaetl;
 
 import org.openmrs.api.context.Context;
+import org.openmrs.module.mambacore.api.FlattenDatabaseService;
 import org.openmrs.module.reporting.report.manager.ReportManager;
 import org.openmrs.module.reporting.report.manager.ReportManagerUtil;
 import org.slf4j.Logger;
@@ -25,11 +26,14 @@ public class MambaETLActivator extends BaseModuleActivator {
 	
 	@Override
 	public void started() {
+		
 		log.info("Started MambaETL Reference Module");
+		
 		for (ReportManager reportManager : Context.getRegisteredComponents(ReportManager.class)) {
 			log.info("Setting up report " + reportManager.getName() + "...");
 			ReportManagerUtil.setupReport(reportManager);
 		}
+		Context.getService(FlattenDatabaseService.class).setupEtl();
 	}
 	
 	@Override
