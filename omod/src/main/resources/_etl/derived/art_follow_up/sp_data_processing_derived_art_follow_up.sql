@@ -9,6 +9,5 @@ CALL sp_fact_encounter_art_latest_follow_up();
 
 CALL sp_fact_encounter_tx_new();
 
-CALL sp_fact_encounter_tx_curr_analytics_query();
 
 -- $END
