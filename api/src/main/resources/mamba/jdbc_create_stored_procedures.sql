@@ -12811,49 +12811,6 @@ END;
 
         
 -- ---------------------------------------------------------------------------------------------
--- ----------------------  sp_data_processing_derived_art_follow_up  ----------------------------
--- ---------------------------------------------------------------------------------------------
-
-DROP PROCEDURE IF EXISTS sp_data_processing_derived_art_follow_up;
-
-
-~-~-
-CREATE PROCEDURE sp_data_processing_derived_art_follow_up()
-BEGIN
-
-DECLARE EXIT HANDLER FOR SQLEXCEPTION
-BEGIN
-    GET DIAGNOSTICS CONDITION 1
-
-    @message_text = MESSAGE_TEXT,
-    @mysql_errno = MYSQL_ERRNO,
-    @returned_sqlstate = RETURNED_SQLSTATE;
-
-    CALL sp_mamba_etl_error_log_insert('sp_data_processing_derived_art_follow_up', @message_text, @mysql_errno, @returned_sqlstate);
-
-    UPDATE _mamba_etl_schedule
-    SET end_time                   = NOW(),
-        completion_status          = 'ERROR',
-        transaction_status         = 'COMPLETED',
-        success_or_error_message   = CONCAT('sp_data_processing_derived_art_follow_up', ', ', @mysql_errno, ', ', @message_text)
-        WHERE id = (SELECT last_etl_schedule_insert_id FROM _mamba_etl_user_settings ORDER BY id DESC LIMIT 1);
-
-    RESIGNAL;
-END;
-
--- $BEGIN
-CALL sp_dim_client_art_follow_up();
-CALL sp_fact_encounter_art_follow_up();
-CALL sp_fact_encounter_art_first_follow_up();
-CALL sp_fact_encounter_art_latest_follow_up();
-CALL sp_fact_encounter_tx_new();
--- $END
-END;
-~-~-
-
-
-        
--- ---------------------------------------------------------------------------------------------
 -- ----------------------  sp_data_processing_derived_transfer_in  ----------------------------
 -- ---------------------------------------------------------------------------------------------
 
@@ -12936,46 +12893,18 @@ END;
 -- ----------------------  sp_mamba_data_processing_etl  ----------------------------
 -- ---------------------------------------------------------------------------------------------
 
+
 DROP PROCEDURE IF EXISTS sp_mamba_data_processing_etl;
 
-
 ~-~-
-CREATE PROCEDURE sp_mamba_data_processing_etl()
-BEGIN
-
-DECLARE EXIT HANDLER FOR SQLEXCEPTION
-BEGIN
-    GET DIAGNOSTICS CONDITION 1
-
-    @message_text = MESSAGE_TEXT,
-    @mysql_errno = MYSQL_ERRNO,
-    @returned_sqlstate = RETURNED_SQLSTATE;
-
-    CALL sp_mamba_etl_error_log_insert('sp_mamba_data_processing_etl', @message_text, @mysql_errno, @returned_sqlstate);
-
-    UPDATE _mamba_etl_schedule
-    SET end_time                   = NOW(),
-        completion_status          = 'ERROR',
-        transaction_status         = 'COMPLETED',
-        success_or_error_message   = CONCAT('sp_mamba_data_processing_etl', ', ', @mysql_errno, ', ', @message_text)
-        WHERE id = (SELECT last_etl_schedule_insert_id FROM _mamba_etl_user_settings ORDER BY id DESC LIMIT 1);
-
-    RESIGNAL;
-END;
-
--- $BEGIN
--- add base folder SP here --
-
--- Flatten OpenMRS Observational Data
-CALL sp_mamba_data_processing_flatten();
+CREATE PROCEDURE sp_mamba_data_processing_etl(IN etl_incremental_mode INT)
 
 -- Add the implementation-specific ETL processes here
+CALL sp_mamba_drop_all_derived_tables();
 CALL sp_data_processing_derived_art_follow_up();
 CALL sp_data_processing_derived_transfer_in();
 CALL sp_data_processing_derived_transfer_out();
 -- $END
-END;
-~-~-
 
 
         
@@ -13056,7 +12985,7 @@ CREATE TABLE IF NOT EXISTS mamba_dim_client_art_follow_up
 (
     id                INT AUTO_INCREMENT,
     client_id         INT           NOT NULL,
-    patient_name      NVARCHAR(255) NOT NULL,
+    patient_name      NVARCHAR(255) NULL,
     mrn               NVARCHAR(50)  NULL,
     uan               NVARCHAR(50)  NULL,
     current_age       INT,
@@ -13396,7 +13325,7 @@ INSERT INTO mamba_fact_art_follow_up (client_id,
 SELECT follow_up.client_id,
        follow_up.encounter_id,
        follow_up.encounter_datetime,
-       weight_kg,
+       weight_kg_,
        cd4_count,
        current_who_hiv_stage,
        nutritional_status_of_adult,
@@ -13405,13 +13334,13 @@ SELECT follow_up.client_id,
        date_of_hiv_diagnosis,
        art_antiretroviral_start_date,
        DATEDIFF(art_antiretroviral_start_date,date_of_hiv_diagnosis) as days_difference,
-       followup_date_followup,
+       follow_up_date_followup_,
        regimen,
-       antiretroviral_art_dispensed_dose_in_days,
+       antiretroviral_art_dispensed_dose_i,
        pregnancy_status,
        currently_breastfeeding_child,
        follow_up_status,
-       why_eligible_for_hiv_test,
+       why_eligible_for_hiv_test_,
        treatment_end_date,
        return_visit_date,
        hiv_viral_load,
@@ -13426,9 +13355,9 @@ SELECT follow_up.client_id,
        routine_viral_load_test_indication,
        targeted_viral_load_test_indication,
        dsd_category,
-       date_started_on_tuberculosis_prophylaxis,
-       date_completed_tuberculosis_prophylaxis,
-       date_discontinued_tuberculosis_prophylaxis,
+       date_started_on_tuberculosis_prophy,
+       date_completed_tuberculosis_prophyl,
+       date_discontinued_tuberculosis_prop,
        tuberculosis_treatment_end_date
 FROM mamba_flat_encounter_follow_up follow_up
          JOIN mamba_flat_encounter_follow_up_1 enc_follow_up_1
@@ -14684,6 +14613,173 @@ END;
 
         
 -- ---------------------------------------------------------------------------------------------
+-- ----------------------  sp_fact_encounter_tx_curr_analytics_query  ----------------------------
+-- ---------------------------------------------------------------------------------------------
+
+
+DROP PROCEDURE IF EXISTS sp_fact_encounter_tx_curr_analytics_query;
+
+-- e.g. CALL sp_fact_encounter_tx_curr_analytics_query('2020-01-01', '2020-01-01');
+~-~-
+CREATE PROCEDURE sp_fact_encounter_tx_curr_analytics_query(
+    IN REPORT_START_DATE DATE,
+    IN REPORT_END_DATE DATE
+)
+BEGIN
+WITH LatestFollowUp AS (
+    SELECT
+        client_id,
+        hiv_confirmed_date,
+        art_start_date,
+        followup_date,
+        enrollment_date,
+        weight_in_kg,
+        pregnancy_status,
+        regimen,
+        arv_dose_days,
+        treatment_end_date,
+        follow_up_status,
+        anitiretroviral_adherence_level,
+        next_visit_date,
+        dsd_category,
+        tpt_start_date,
+        tpt_completed_date,
+        tpt_discontinued_date,
+        tuberculosis_treatment_end_date,
+        date_viral_load_results_received,
+        viral_load_test_status,
+        status,
+        ROW_NUMBER() OVER (
+            PARTITION BY client_id
+            ORDER BY
+                followup_date DESC
+        ) AS rn_desc
+    FROM
+        (
+            SELECT
+                client_id,
+                hiv_confirmed_date,
+                art_start_date,
+                followup_date,
+                enrollment_date,
+                weight_in_kg,
+                pregnancy_status,
+                regimen,
+                arv_dose_days,
+                treatment_end_date,
+                follow_up_status,
+                anitiretroviral_adherence_level,
+                next_visit_date,
+                dsd_category,
+                tpt_start_date,
+                tpt_completed_date,
+                tpt_discontinued_date,
+                tuberculosis_treatment_end_date,
+                date_viral_load_results_received,
+                viral_load_test_status,
+                'current' as status
+            FROM
+                mamba_fact_art_follow_up
+            WHERE
+                (
+                    followup_date <= REPORT_END_DATE
+                    AND art_start_date <= REPORT_END_DATE
+                    AND treatment_end_date >= REPORT_END_DATE
+                )
+                AND regimen IS NOT NULL
+            UNION
+            ALL
+            SELECT
+                client_id,
+                hiv_confirmed_date,
+                art_start_date,
+                followup_date,
+                enrollment_date,
+                weight_in_kg,
+                pregnancy_status,
+                regimen,
+                arv_dose_days,
+                treatment_end_date,
+                follow_up_status,
+                anitiretroviral_adherence_level,
+                next_visit_date,
+                dsd_category,
+                tpt_start_date,
+                tpt_completed_date,
+                tpt_discontinued_date,
+                tuberculosis_treatment_end_date,
+                date_viral_load_results_received,
+                viral_load_test_status,
+                'previous' as status
+            FROM
+                mamba_fact_art_follow_up
+            WHERE
+                (
+                    followup_date <= REPORT_START_DATE
+                    AND art_start_date <= REPORT_START_DATE
+                    AND treatment_end_date >= REPORT_START_DATE
+                )
+                AND regimen IS NOT NULL
+        ) AS combined
+),
+StatusSummary AS (
+    SELECT
+        client_id,
+        MAX(status) AS max_status,
+        COUNT(DISTINCT status) AS status_count
+    FROM
+        LatestFollowUp
+    GROUP BY
+        client_id
+)
+SELECT
+    lf.client_id,
+    dim.patient_name,
+    dim.mrn,
+    dim.uan,
+    dim.current_age,
+    fn_mamba_age_calculator(dim.date_of_birth, lf.enrollment_date) AS age_at_enrollment,
+    dim.sex,
+    dim.mobile_no,
+    lf.hiv_confirmed_date,
+    lf.art_start_date,
+    lf.followup_date,
+    lf.weight_in_kg,
+    lf.pregnancy_status,
+    lf.regimen,
+    lf.arv_dose_days,
+    lf.follow_up_status,
+    lf.anitiretroviral_adherence_level,
+    lf.next_visit_date,
+    lf.dsd_category,
+    lf.tpt_start_date,
+    lf.tpt_completed_date,
+    lf.tpt_discontinued_date,
+    lf.tuberculosis_treatment_end_date,
+    lf.date_viral_load_results_received,
+    lf.viral_load_test_status,
+    CASE
+        WHEN ss.status_count = 2 THEN 'STILL ON CARE'
+        WHEN ss.max_status = 'current' THEN 'New'
+        WHEN ss.max_status = 'previous' THEN 'Previous'
+    END AS status,
+    NOW()
+FROM
+    LatestFollowUp lf
+    JOIN StatusSummary ss ON lf.client_id = ss.client_id
+    JOIN mamba_dim_client_art_follow_up dim ON lf.client_id = dim.client_id
+WHERE
+    lf.rn_desc = 1
+    AND (
+        lf.follow_up_status = 'Alive'
+        OR lf.follow_up_status = 'Restart');
+END;
+~-~-
+
+
+
+        
+-- ---------------------------------------------------------------------------------------------
 -- ----------------------  sp_data_processing_derived_art_follow_up  ----------------------------
 -- ---------------------------------------------------------------------------------------------
 
@@ -14716,10 +14812,17 @@ END;
 
 -- $BEGIN
 CALL sp_dim_client_art_follow_up();
+
 CALL sp_fact_encounter_art_follow_up();
+
 CALL sp_fact_encounter_art_first_follow_up();
+
 CALL sp_fact_encounter_art_latest_follow_up();
+
 CALL sp_fact_encounter_tx_new();
+
+CALL sp_fact_encounter_art_follow_up_tx_curr_analytics_query();
+
 -- $END
 END;
 ~-~-

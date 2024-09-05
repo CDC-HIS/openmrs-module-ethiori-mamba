@@ -59,7 +59,7 @@ public class TxCurrAnalysisReportMamba implements ReportManager {
 		TxCurrAnalysisDataSetDefinitionMamba txCurrAnalysisDataSetDefinition = new TxCurrAnalysisDataSetDefinitionMamba();
 		txCurrAnalysisDataSetDefinition.addParameters(getParameters());
 		
-		reportDefinition.addDataSetDefinition("List of Patients Newly Started ART",
+		reportDefinition.addDataSetDefinition("List of Patients for TX Curr Analysis",
 		    EthiOhriUtil.map(txCurrAnalysisDataSetDefinition));
 		return reportDefinition;
 	}
