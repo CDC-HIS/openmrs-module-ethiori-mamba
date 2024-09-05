@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS mamba_dim_client_art_follow_up
 (
     id                INT AUTO_INCREMENT,
     client_id         INT           NOT NULL,
-    patient_name      NVARCHAR(255) NOT NULL,
+    patient_name      NVARCHAR(255) NULL,
     mrn               NVARCHAR(50)  NULL,
     uan               NVARCHAR(50)  NULL,
     current_age       INT,
