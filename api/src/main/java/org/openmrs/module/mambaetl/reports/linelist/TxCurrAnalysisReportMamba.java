@@ -25,7 +25,7 @@ public class TxCurrAnalysisReportMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "LINELIST- TX_CURR_ANALYSIS";
+		return "MAMBA LINELIST- TX_CURR_ANALYSIS";
 	}
 	
 	@Override

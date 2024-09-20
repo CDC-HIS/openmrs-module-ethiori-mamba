@@ -7,13 +7,11 @@
 ############################ derived folder SPs  ############################
 #############################################################################
 
-derived/art_follow_up/sp_data_processing_derived_migrated.sql
-derived/transfer_in/sp_data_processing_derived_transfer_in.sql
-derived/transfer_out/sp_data_processing_derived_transfer_out.sql
+############################ VL ELIGIBILITY QUERY #######################
 
-derived/sp_mamba_drop_all_derived_tables.sql
+facts/fact_vl_eligibility/sp_fact_vl_eligibility_query.sql
 
 #############################################################################
 ##### A single SP that CALLs all SPs inside the derived & base folders ######
 #############################################################################
-sp_mamba_data_processing_etl.sql
+sp_data_processing_derived_migrated.sql

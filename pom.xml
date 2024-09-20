@@ -13,15 +13,15 @@
     <artifactId>ethiohri-mamba</artifactId>
     <version>1.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>MambaETL Reference Module</name>
-    <description>MambaETL Reference Module</description>
+    <name>Ethiori MambaETL Module</name>
+    <description>MambaETL Module for ethiori reporting</description>
 
     <url>https://wiki.openmrs.org/x/FQ4z</url>
 
     <scm>
-        <connection>scm:git:git@github.com:UCSF-IGHS/openmrs-module-mamba-etl.git</connection>
-        <url>https://github.com/UCSF-IGHS/openmrs-module-mamba-etl</url>
-        <developerConnection>scm:git:git@github.com:UCSF-IGHS/openmrs-module-mamba-etl.git</developerConnection>
+        <connection>scm:git:git@github.com:CDC-HIS/openmrs-module-ethiori-mamba</connection>
+        <url>https://github.com/CDC-HIS/openmrs-module-ethiori-mamba</url>
+        <developerConnection>scm:git:git@github.com:CDC-HIS/openmrs-module-ethiori-mamba.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
 
@@ -267,10 +267,10 @@
                                     <argument>compile.sh</argument>
 
                                     <!-- The source database (OpenMRS database) -->
-                                    <argument>-d openmrs_bati_v3</argument>
+                                    <argument>-d openmrs_butajira</argument>
 
                                     <!-- The target or analysis Database where the ETL data is stored -->
-                                    <argument>-a analysis_db_bati_v3</argument>
+                                    <argument>-a analysis_db</argument>
 
                                     <!-- File with a list of all files with stored procedures -->
                                     <!-- Remove this argument after automating core to auto-read this -->
