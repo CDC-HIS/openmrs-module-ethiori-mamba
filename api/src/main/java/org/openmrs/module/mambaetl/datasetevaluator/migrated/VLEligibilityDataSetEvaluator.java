@@ -1,8 +1,10 @@
-package org.openmrs.module.mambaetl.datasetevaluator.datim.tx_curr;
+package org.openmrs.module.mambaetl.datasetevaluator.migrated;
 
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_curr.CurrCoarseByAgeAndSexAndCD4DataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.datasetdefinition.linelist.TxCurrDataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.datasetdefinition.migrated.VLEligibilityDatasetDefinition;
 import org.openmrs.module.mambaetl.helpers.ConnectionPoolManager;
+import org.openmrs.module.mambaetl.helpers.ValidationHelper;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
 import org.openmrs.module.reporting.dataset.DataSet;
 import org.openmrs.module.reporting.dataset.SimpleDataSet;
@@ -17,23 +19,25 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-@Handler(supports = { CurrCoarseByAgeAndSexAndCD4DataSetDefinitionMamba.class })
-public class CurrCoarseByAgeAndSexAndCD4EvaluatorMamba implements DataSetEvaluator {
+@Handler(supports = { VLEligibilityDatasetDefinition.class })
+public class VLEligibilityDataSetEvaluator implements DataSetEvaluator {
 	
 	@Override
 	public DataSet evaluate(DataSetDefinition dataSetDefinition, EvaluationContext evalContext) throws EvaluationException {
-		CurrCoarseByAgeAndSexAndCD4DataSetDefinitionMamba dataSetDefinition1 = (CurrCoarseByAgeAndSexAndCD4DataSetDefinitionMamba) dataSetDefinition;
+
+		VLEligibilityDatasetDefinition vlEligibilityDatasetDefinition = (VLEligibilityDatasetDefinition) dataSetDefinition;
 		SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
 
+		ValidationHelper validationHelper = new ValidationHelper();
 		ResultSetMapper resultSetMapper = new ResultSetMapper();
 
+		// Validate start and end dates
+		validationHelper.validateDates(vlEligibilityDatasetDefinition, data);
 
 		// Get ResultSet from the database
 		try (Connection connection = getDataSource().getConnection();
-			 CallableStatement statement = connection.prepareCall("{call sp_dim_tx_curr_datim_query(?,?,?)}")) {
-			statement.setDate(1, new java.sql.Date(dataSetDefinition1.getEndDate().getTime()));
-			statement.setInt(2, 1);
-			statement.setString(3, dataSetDefinition1.getCd4Status().getSqlValue());
+			 CallableStatement statement = connection.prepareCall("{call sp_fact_encounter_art_follow_up_tx_curr_query(?)}")) {
+			statement.setDate(1, new java.sql.Date(vlEligibilityDatasetDefinition.getEndDate().getTime()));
 
 			try (ResultSet resultSet = statement.executeQuery()) {
 				if (resultSet != null) {
@@ -50,5 +54,4 @@ public class CurrCoarseByAgeAndSexAndCD4EvaluatorMamba implements DataSetEvaluat
 	private DataSource getDataSource() {
 		return ConnectionPoolManager.getInstance().getDataSource();
 	}
-	
 }

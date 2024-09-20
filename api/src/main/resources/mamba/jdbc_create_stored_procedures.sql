@@ -1136,26 +1136,15 @@ BEGIN
 
     SET @drop_table = CONCAT('DROP TABLE IF EXISTS `', flat_encounter_table_name, '`');
 
-    SELECT GROUP_CONCAT(CONCAT(column_label, ' ', fn_mamba_get_datatype_for_concept(concept_datatype)) SEPARATOR ', ')
+    SELECT GROUP_CONCAT(CONCAT('`', column_label, '` ', fn_mamba_get_datatype_for_concept(concept_datatype)) SEPARATOR ', ')
     INTO @column_labels
     FROM mamba_concept_metadata
     WHERE flat_table_name = flat_encounter_table_name
-      AND concept_id IS NOT NULL
       AND concept_datatype IS NOT NULL;
 
     IF @column_labels IS NOT NULL THEN
         SET @create_table = CONCAT(
-                'CREATE TABLE `', flat_encounter_table_name,
-                '` (encounter_id INT NOT NULL,
-                    visit_id INT NULL,
-                    client_id INT NOT NULL,
-                    encounter_datetime DATETIME NOT NULL,
-                    location_id INT NULL, ', @column_labels, ',
-
-                    UNIQUE KEY mamba_key_encounter_person_datetime (encounter_id, client_id, encounter_datetime),
-                    INDEX mamba_idx_encounter_id (encounter_id),
-                    INDEX mamba_idx_visit_id (visit_id), INDEX mamba_idx_client_id (client_id), INDEX mamba_idx_encounter_datetime (encounter_datetime),
-                    INDEX mamba_idx_location_id (location_id));');
+            'CREATE TABLE `', flat_encounter_table_name, '` (`encounter_id` INT NOT NULL, `visit_id` INT NULL, `client_id` INT NOT NULL, `encounter_datetime` DATETIME NOT NULL, `location_id` INT NULL, ', @column_labels, ', INDEX `mamba_idx_encounter_id` (`encounter_id`), INDEX `mamba_idx_visit_id` (`visit_id`), INDEX `mamba_idx_client_id` (`client_id`), INDEX `mamba_idx_encounter_datetime` (`encounter_datetime`), INDEX `mamba_idx_location_id` (`location_id`));');
     END IF;
 
     IF @column_labels IS NOT NULL THEN
@@ -1230,12 +1219,12 @@ DROP PROCEDURE IF EXISTS sp_mamba_flat_encounter_table_insert;
 
 ~-~-
 CREATE PROCEDURE sp_mamba_flat_encounter_table_insert(
-    IN flat_encounter_table_name VARCHAR(60) CHARACTER SET UTF8MB4,
+    IN `flat_encounter_table_name` VARCHAR(60) CHARACTER SET UTF8MB4,
     IN encounter_id INT -- Optional parameter for incremental insert
 )
 BEGIN
     SET session group_concat_max_len = 20000;
-    SET @tbl_name = flat_encounter_table_name;
+    SET @tbl_name = `flat_encounter_table_name`;
     SET @enc_id = encounter_id;
 
     -- called outside the incremental script
@@ -1245,105 +1234,106 @@ BEGIN
     ELSE
         -- called through the incremental script
         -- if enc_id exits in the table @tbl_name, then delete the record (to be replaced with the new one)
-        SET @delete_stmt = CONCAT('DELETE FROM `', @tbl_name, '` WHERE encounter_id = ', @enc_id);
-        PREPARE deletetb FROM @delete_stmt;
-        EXECUTE deletetb;
-        DEALLOCATE PREPARE deletetb;
+        SET @delete_stmt = CONCAT('DELETE FROM `', @tbl_name, '` WHERE `encounter_id` = ', @enc_id);
+        PREPARE `deletetb` FROM @delete_stmt;
+        EXECUTE `deletetb`;
+        DEALLOCATE PREPARE `deletetb`;
     END IF;
 
     -- Precompute the concept metadata table to minimize repeated queries
-    CREATE TEMPORARY TABLE IF NOT EXISTS mamba_temp_concept_metadata
+    CREATE TEMPORARY TABLE IF NOT EXISTS `mamba_temp_concept_metadata`
     (
-        id                  INT          NOT NULL,
-        flat_table_name     VARCHAR(60)  NOT NULL,
-        encounter_type_uuid CHAR(38)     NOT NULL,
-        column_label        VARCHAR(255) NOT NULL,
-        concept_uuid        CHAR(38)     NOT NULL,
-        obs_value_column    VARCHAR(50),
-        concept_answer_obs  INT,
+        `id`                 INT          NOT NULL,
+        `flat_table_name`     VARCHAR(60)  NOT NULL,
+        `encounter_type_uuid` CHAR(38)     NOT NULL,
+        `column_label`        VARCHAR(255) NOT NULL,
+        `concept_uuid`        CHAR(38)     NOT NULL,
+        `obs_value_column`    VARCHAR(50),
+        `concept_answer_obs`  INT,
 
-        INDEX mamba_idx_id (id),
-        INDEX mamba_idx_column_label (column_label),
-        INDEX mamba_idx_concept_uuid (concept_uuid),
-        INDEX mamba_idx_concept_answer_obs (concept_answer_obs),
-        INDEX mamba_idx_flat_table_name (flat_table_name),
-        INDEX mamba_idx_encounter_type_uuid (encounter_type_uuid)
+        INDEX `mamba_idx_id` (`id`),
+        INDEX `mamba_idx_column_label` (`column_label`),
+        INDEX `mamba_idx_concept_uuid` (`concept_uuid`),
+        INDEX `mamba_idx_concept_answer_obs` (`concept_answer_obs`),
+        INDEX `mamba_idx_flat_table_name` (`flat_table_name`),
+        INDEX `mamba_idx_encounter_type_uuid` (`encounter_type_uuid`)
     )
         CHARSET = UTF8MB4;
 
-    TRUNCATE TABLE mamba_temp_concept_metadata;
+    TRUNCATE TABLE `mamba_temp_concept_metadata`;
 
-    INSERT INTO mamba_temp_concept_metadata
-    SELECT DISTINCT id,
-                    flat_table_name,
-                    encounter_type_uuid,
-                    column_label,
-                    concept_uuid,
-                    fn_mamba_get_obs_value_column(concept_datatype) AS obs_value_column,
-                    concept_answer_obs
-    FROM mamba_concept_metadata
-    WHERE flat_table_name = @tbl_name
-      AND concept_id IS NOT NULL
-      AND concept_datatype IS NOT NULL;
+    INSERT INTO `mamba_temp_concept_metadata`
+    SELECT DISTINCT `id`,
+                    `flat_table_name`,
+                    `encounter_type_uuid`,
+                    `column_label`,
+                    `concept_uuid`,
+                    fn_mamba_get_obs_value_column(`concept_datatype`) AS `obs_value_column`,
+                    `concept_answer_obs`
+    FROM `mamba_concept_metadata`
+    WHERE `flat_table_name` = @tbl_name
+      AND `concept_id` IS NOT NULL
+      AND `concept_datatype` IS NOT NULL;
 
     SELECT GROUP_CONCAT(DISTINCT
-                        CONCAT('MAX(CASE WHEN column_label = ''', column_label, ''' THEN ',
-                               obs_value_column, ' END) ', column_label)
-                        ORDER BY id ASC)
+                            CONCAT('MAX(CASE WHEN `column_label` = ''', `column_label`, ''' THEN ',
+                                   `obs_value_column`, ' END) `', `column_label`, '`')
+                            ORDER BY `id` ASC)
     INTO @column_labels
-    FROM mamba_temp_concept_metadata;
+    FROM `mamba_temp_concept_metadata`;
 
-    SELECT DISTINCT encounter_type_uuid INTO @tbl_encounter_type_uuid FROM mamba_temp_concept_metadata;
+    SELECT DISTINCT `encounter_type_uuid` INTO @tbl_encounter_type_uuid FROM `mamba_temp_concept_metadata`;
 
     IF @column_labels IS NOT NULL THEN
-        -- First Insert: concept_answer_obs = 0
+        -- First Insert: `concept_answer_obs` = 0
         SET @insert_stmt = CONCAT(
                 'INSERT INTO `', @tbl_name,
-                '` SELECT o.encounter_id, MAX(o.visit_id) AS visit_id, o.person_id, o.encounter_datetime, MAX(o.location_id) AS location_id, ',
+                '` SELECT `o`.`encounter_id`, MAX(`o`.`visit_id`) AS `visit_id`, `o`.`person_id`, `o`.`encounter_datetime`, MAX(`o`.`location_id`) AS `location_id`, ',
                 @column_labels, '
-                FROM mamba_z_encounter_obs o
-                    INNER JOIN mamba_temp_concept_metadata tcm
-                    ON tcm.concept_uuid = o.obs_question_uuid
+                FROM `mamba_z_encounter_obs` `o`
+                    INNER JOIN `mamba_temp_concept_metadata` `tcm`
+                    ON `tcm`.`concept_uuid` = `o`.`obs_question_uuid`
                 WHERE 1=1 ',
-                IF(@enc_id <> 0, CONCAT('AND o.encounter_id = ', @enc_id), ''),
-                ' AND o.encounter_type_uuid = ''', @tbl_encounter_type_uuid, '''
-                AND tcm.concept_answer_obs = 0
-                AND tcm.obs_value_column IS NOT NULL
-                AND o.obs_group_id IS NULL AND o.voided = 0
-                GROUP BY o.encounter_id, o.person_id, o.encounter_datetime
-                ORDER BY o.encounter_id ASC');
+                IF(@enc_id <> 0, CONCAT('AND `o`.`encounter_id` = ', @enc_id), ''),
+                ' AND `o`.`encounter_type_uuid` = ''', @tbl_encounter_type_uuid, '''
+                AND `tcm`.`concept_answer_obs` = 0
+                AND `tcm`.`obs_value_column` IS NOT NULL
+                AND `o`.`obs_group_id` IS NULL AND `o`.`voided` = 0
+                GROUP BY `o`.`encounter_id`, `o`.`person_id`, `o`.`encounter_datetime`
+                ORDER BY `o`.`encounter_id` ASC');
 
-        PREPARE inserttbl FROM @insert_stmt;
-        EXECUTE inserttbl;
-        DEALLOCATE PREPARE inserttbl;
+    PREPARE `inserttbl` FROM @insert_stmt;
+    EXECUTE `inserttbl`;
+    DEALLOCATE PREPARE `inserttbl`;
 
-        -- Second Insert: concept_answer_obs = 1, Handle potential duplicates
-        SET @update_stmt =
-                (SELECT GROUP_CONCAT(CONCAT(column_label, ' = COALESCE(VALUES(', column_label, '), ', column_label,
-                                            ')'))
-                 FROM mamba_temp_concept_metadata);
+    -- Second Insert: `concept_answer_obs` = 1, Handle potential duplicates
+    SET @update_stmt =
+                    (SELECT GROUP_CONCAT(CONCAT('`', `column_label`, '` = COALESCE(VALUES(`', `column_label`, '`), `', `column_label`, '`)'))
+                     FROM `mamba_temp_concept_metadata`);
 
         SET @insert_stmt = CONCAT(
                 'INSERT INTO `', @tbl_name,
-                '` SELECT o.encounter_id, MAX(o.visit_id) AS visit_id, o.person_id, o.encounter_datetime, MAX(o.location_id) AS location_id, ',
+                '` SELECT `o`.`encounter_id`, MAX(`o`.`visit_id`) AS `visit_id`, `o`.`person_id`, `o`.`encounter_datetime`, MAX(`o`.`location_id`) AS `location_id`, ',
                 @column_labels, '
-                FROM mamba_z_encounter_obs o
-                    INNER JOIN mamba_temp_concept_metadata tcm
-                    ON tcm.concept_uuid = o.obs_value_coded_uuid
+                FROM `mamba_z_encounter_obs` `o`
+                    INNER JOIN `mamba_temp_concept_metadata` `tcm`
+                    ON `tcm`.`concept_uuid` = `o`.`obs_value_coded_uuid`
                 WHERE 1=1 ',
-                IF(@enc_id <> 0, CONCAT('AND o.encounter_id = ', @enc_id), ''),
-                ' AND o.encounter_type_uuid = ''', @tbl_encounter_type_uuid, '''
-                AND tcm.concept_answer_obs = 1
-                AND tcm.obs_value_column IS NOT NULL
-                AND o.obs_group_id IS NULL AND o.voided = 0
-                GROUP BY o.encounter_id, o.person_id, o.encounter_datetime
-                ORDER BY o.encounter_id ASC
+                IF(@enc_id <> 0, CONCAT('AND `o`.`encounter_id` = ', @enc_id), ''),
+                ' AND `o`.`encounter_type_uuid` = ''', @tbl_encounter_type_uuid, '''
+                AND `tcm`.`concept_answer_obs` = 1
+                AND `tcm`.`obs_value_column` IS NOT NULL
+                AND `o`.`obs_group_id` IS NULL AND `o`.`voided` = 0
+                GROUP BY `o`.`encounter_id`, `o`.`person_id`, `o`.`encounter_datetime`
+                ORDER BY `o`.`encounter_id` ASC
                 ON DUPLICATE KEY UPDATE ', @update_stmt);
 
-        PREPARE inserttbl FROM @insert_stmt;
-        EXECUTE inserttbl;
-        DEALLOCATE PREPARE inserttbl;
+    PREPARE `inserttbl` FROM @insert_stmt;
+    EXECUTE `inserttbl`;
+    DEALLOCATE PREPARE `inserttbl`;
     END IF;
+
+    DROP TEMPORARY TABLE IF EXISTS `mamba_temp_concept_metadata`;
 
 END;
 ~-~-
@@ -1570,52 +1560,52 @@ END;
 -- ---------------------------------------------------------------------------------------------
 
 
-DROP PROCEDURE IF EXISTS sp_mamba_flat_encounter_obs_group_table_create;
+DROP PROCEDURE IF EXISTS `sp_mamba_flat_encounter_obs_group_table_create`;
 
 ~-~-
-CREATE PROCEDURE sp_mamba_flat_encounter_obs_group_table_create(
-    IN flat_encounter_table_name VARCHAR(60) CHARSET UTF8MB4,
-    obs_group_concept_name VARCHAR(255) CHARSET UTF8MB4
+CREATE PROCEDURE `sp_mamba_flat_encounter_obs_group_table_create`(
+    IN `flat_encounter_table_name` VARCHAR(60) CHARSET UTF8MB4,
+    `obs_group_concept_name` VARCHAR(255) CHARSET UTF8MB4
 )
 BEGIN
 
     SET session group_concat_max_len = 20000;
     SET @column_labels := NULL;
-    SET @tbl_obs_group_name = CONCAT(LEFT(flat_encounter_table_name, 50), '_', obs_group_concept_name); -- TODO: 50 + 12 to make 62
+        SET @tbl_obs_group_name = CONCAT(LEFT(`flat_encounter_table_name`, 50), '_', `obs_group_concept_name`); -- TODO: 50 + 12 to make 62
 
-    SET @drop_table = CONCAT('DROP TABLE IF EXISTS `', @tbl_obs_group_name, '`');
+        SET @drop_table = CONCAT('DROP TABLE IF EXISTS `', @tbl_obs_group_name, '`');
 
-    SELECT GROUP_CONCAT(CONCAT(column_label, ' ', fn_mamba_get_datatype_for_concept(concept_datatype)) SEPARATOR ', ')
+    SELECT GROUP_CONCAT(CONCAT(`column_label`, ' ', fn_mamba_get_datatype_for_concept(`concept_datatype`)) SEPARATOR ', ')
     INTO @column_labels
-    FROM mamba_concept_metadata cm
+    FROM `mamba_concept_metadata` `cm`
              INNER JOIN
-         (SELECT DISTINCT obs_question_concept_id
-          FROM mamba_z_encounter_obs eo
-                   INNER JOIN mamba_obs_group og
-                              on eo.obs_group_id = og.obs_id
-          WHERE obs_group_id IS NOT NULL
-            AND og.obs_group_concept_name = obs_group_concept_name) eo
-         ON cm.concept_id = eo.obs_question_concept_id
-    WHERE flat_table_name = flat_encounter_table_name
-      AND concept_datatype IS NOT NULL;
+         (SELECT DISTINCT `obs_question_concept_id`
+          FROM `mamba_z_encounter_obs` `eo`
+                   INNER JOIN `mamba_obs_group` `og`
+                              ON `eo`.`obs_id` = `og`.`obs_id`
+          WHERE `obs_group_id` IS NOT NULL
+            AND `og`.`obs_group_concept_name` = `obs_group_concept_name`) `eo`
+         ON `cm`.`concept_id` = `eo`.`obs_question_concept_id`
+    WHERE `flat_table_name` = `flat_encounter_table_name`
+      AND `concept_datatype` IS NOT NULL;
 
     IF @column_labels IS NOT NULL THEN
-        SET @create_table = CONCAT(
-                'CREATE TABLE `', @tbl_obs_group_name,
-                '` (encounter_id INT NOT NULL, visit_id INT NULL, client_id INT NOT NULL, encounter_datetime DATETIME NOT NULL, location_id INT NULL, ',
-                @column_labels,
-                ', INDEX mamba_idx_encounter_id (encounter_id), INDEX mamba_idx_visit_id (visit_id), INDEX mamba_idx_client_id (client_id), INDEX mamba_idx_encounter_datetime (encounter_datetime), INDEX mamba_idx_location_id (location_id));');
+            SET @create_table = CONCAT(
+                    'CREATE TABLE `', @tbl_obs_group_name,
+                    '` (`encounter_id` INT NOT NULL, `visit_id` INT NULL, `client_id` INT NOT NULL, `encounter_datetime` DATETIME NOT NULL, `location_id` INT NULL, ',
+                    @column_labels,
+                    ', INDEX `mamba_idx_encounter_id` (`encounter_id`), INDEX `mamba_idx_visit_id` (`visit_id`), INDEX `mamba_idx_client_id` (`client_id`), INDEX `mamba_idx_encounter_datetime` (`encounter_datetime`), INDEX `mamba_idx_location_id` (`location_id`));');
     END IF;
 
-    IF @column_labels IS NOT NULL THEN
-        PREPARE deletetb FROM @drop_table;
-        PREPARE createtb FROM @create_table;
+        IF @column_labels IS NOT NULL THEN
+            PREPARE `deletetb` FROM @drop_table;
+    PREPARE `createtb` FROM @create_table;
 
-        EXECUTE deletetb;
-        EXECUTE createtb;
+    EXECUTE `deletetb`;
+    EXECUTE `createtb`;
 
-        DEALLOCATE PREPARE deletetb;
-        DEALLOCATE PREPARE createtb;
+    DEALLOCATE PREPARE `deletetb`;
+    DEALLOCATE PREPARE `createtb`;
     END IF;
 
 END;
@@ -1694,61 +1684,61 @@ END;
 -- ---------------------------------------------------------------------------------------------
 
 
-DROP PROCEDURE IF EXISTS sp_mamba_flat_encounter_obs_group_table_insert;
+DROP PROCEDURE IF EXISTS `sp_mamba_flat_encounter_obs_group_table_insert`;
 
 ~-~-
-CREATE PROCEDURE sp_mamba_flat_encounter_obs_group_table_insert(
-    IN flat_encounter_table_name VARCHAR(60) CHARACTER SET UTF8MB4,
-    obs_group_concept_name VARCHAR(255) CHARSET UTF8MB4
+CREATE PROCEDURE `sp_mamba_flat_encounter_obs_group_table_insert`(
+    IN `flat_encounter_table_name` VARCHAR(60) CHARACTER SET UTF8MB4,
+    `obs_group_concept_name` VARCHAR(255) CHARSET UTF8MB4
 )
 BEGIN
 
     SET session group_concat_max_len = 20000;
-    SET @tbl_name = flat_encounter_table_name;
+    SET @tbl_name = `flat_encounter_table_name`;
 
-    SET @tbl_obs_group_name = CONCAT(LEFT(@tbl_name, 50), '_', obs_group_concept_name); -- TODO: 50 + 12 to make 62
+        SET @tbl_obs_group_name = CONCAT(LEFT(@tbl_name, 50), '_', `obs_group_concept_name`); -- TODO: 50 + 12 to make 62
 
-    SET @old_sql = (SELECT GROUP_CONCAT(COLUMN_NAME SEPARATOR ', ')
-                    FROM INFORMATION_SCHEMA.COLUMNS
-                    WHERE TABLE_NAME = @tbl_name
-                      AND TABLE_SCHEMA = Database());
+        SET @old_sql = (SELECT GROUP_CONCAT(`COLUMN_NAME` SEPARATOR ', ')
+                        FROM `INFORMATION_SCHEMA`.`COLUMNS`
+                        WHERE `TABLE_NAME` = @tbl_name
+                          AND `TABLE_SCHEMA` = DATABASE());
 
     SELECT GROUP_CONCAT(DISTINCT
-                        CONCAT(' MAX(CASE WHEN column_label = ''', column_label, ''' THEN ',
-                               fn_mamba_get_obs_value_column(concept_datatype), ' END) ', column_label)
-                        ORDER BY id ASC)
+                            CONCAT(' MAX(CASE WHEN `column_label` = ''', `column_label`, ''' THEN ',
+                                   fn_mamba_get_obs_value_column(`concept_datatype`), ' END) ', `column_label`)
+                            ORDER BY `id` ASC)
     INTO @column_labels
-    FROM mamba_concept_metadata cm
+    FROM `mamba_concept_metadata` `cm`
              INNER JOIN
-         (SELECT DISTINCT obs_question_concept_id
-          FROM mamba_z_encounter_obs eo
-                   INNER JOIN mamba_obs_group og
-                              on eo.obs_group_id = og.obs_id
-          WHERE obs_group_id IS NOT NULL
-            AND og.obs_group_concept_name = obs_group_concept_name) eo
-         ON cm.concept_id = eo.obs_question_concept_id
-    WHERE flat_table_name = @tbl_name;
+         (SELECT DISTINCT `obs_question_concept_id`
+          FROM `mamba_z_encounter_obs` `eo`
+                   INNER JOIN `mamba_obs_group` `og`
+                              ON `eo`.`obs_id` = `og`.`obs_id`
+          WHERE `obs_group_id` IS NOT NULL
+            AND `og`.`obs_group_concept_name` = `obs_group_concept_name`) `eo`
+         ON `cm`.`concept_id` = `eo`.`obs_question_concept_id`
+    WHERE `flat_table_name` = @tbl_name;
 
     IF @column_labels IS NOT NULL THEN
-        IF (SELECT count(*) FROM information_schema.tables WHERE table_name = @tbl_obs_group_name) > 0 THEN
-            SET @insert_stmt = CONCAT(
-                    'INSERT INTO `', @tbl_obs_group_name,
-                    '` SELECT eo.encounter_id, MAX(eo.visit_id) AS visit_id, eo.person_id, eo.encounter_datetime, MAX(eo.location_id) AS location_id, ',
-                    @column_labels, '
-                    FROM mamba_z_encounter_obs eo
-                        INNER JOIN mamba_concept_metadata cm
-                        ON IF(cm.concept_answer_obs=1, cm.concept_uuid=eo.obs_value_coded_uuid, cm.concept_uuid=eo.obs_question_uuid)
-                    WHERE  cm.flat_table_name = ''', @tbl_name, '''
-                    AND eo.encounter_type_uuid = cm.encounter_type_uuid
-                    AND eo.obs_group_id IS NOT NULL
-                    GROUP BY eo.encounter_id, eo.person_id, eo.encounter_datetime,eo.obs_group_id;');
-        END IF;
+            IF (SELECT COUNT(*) FROM `information_schema`.`tables` WHERE `table_name` = @tbl_obs_group_name) > 0 THEN
+                SET @insert_stmt = CONCAT(
+                        'INSERT INTO `', @tbl_obs_group_name,
+                        '` SELECT `eo`.`encounter_id`, MAX(`eo`.`visit_id`) AS `visit_id`, `eo`.`person_id`, `eo`.`encounter_datetime`, MAX(`eo`.`location_id`) AS `location_id`, ',
+                        @column_labels, '
+                        FROM `mamba_z_encounter_obs` `eo`
+                            INNER JOIN `mamba_concept_metadata` `cm`
+                            ON IF(`cm`.`concept_answer_obs`=1, `cm`.`concept_uuid`=`eo`.`obs_value_coded_uuid`, `cm`.`concept_uuid`=`eo`.`obs_question_uuid`)
+                        WHERE  `cm`.`flat_table_name` = ''', @tbl_name, '''
+                        AND `eo`.`encounter_type_uuid` = `cm`.`encounter_type_uuid`
+                        AND `eo`.`obs_group_id` IS NOT NULL
+                        GROUP BY `eo`.`encounter_id`, `eo`.`person_id`, `eo`.`encounter_datetime`, `eo`.`obs_group_id`;');
+    END IF;
     END IF;
 
-    IF @column_labels IS NOT NULL THEN
-        PREPARE inserttbl FROM @insert_stmt;
-        EXECUTE inserttbl;
-        DEALLOCATE PREPARE inserttbl;
+        IF @column_labels IS NOT NULL THEN
+            PREPARE `inserttbl` FROM @insert_stmt;
+    EXECUTE `inserttbl`;
+    DEALLOCATE PREPARE `inserttbl`;
     END IF;
 
 END;
@@ -12976,8 +12966,8 @@ BEGIN
     -- Call the implementer ETL process
     CALL sp_mamba_drop_all_derived_tables();
     CALL sp_data_processing_derived_art_follow_up();
-    CALL sp_data_processing_derived_transfer_in();
-    CALL sp_data_processing_derived_transfer_out();
+--     CALL sp_data_processing_derived_transfer_in();
+--     CALL sp_data_processing_derived_transfer_out();
 
 END;
 ~-~-

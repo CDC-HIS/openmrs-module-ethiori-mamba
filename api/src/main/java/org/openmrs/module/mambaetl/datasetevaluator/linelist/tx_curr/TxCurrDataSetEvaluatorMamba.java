@@ -3,13 +3,9 @@ package org.openmrs.module.mambaetl.datasetevaluator.linelist.tx_curr;
 import org.openmrs.annotation.Handler;
 import org.openmrs.module.mambaetl.datasetdefinition.linelist.TxCurrDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.ConnectionPoolManager;
-import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.mambaetl.helpers.ValidationHelper;
-import org.openmrs.module.mambaetl.helpers.dto.TxCurrData;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
 import org.openmrs.module.reporting.dataset.DataSet;
-import org.openmrs.module.reporting.dataset.DataSetColumn;
-import org.openmrs.module.reporting.dataset.DataSetRow;
 import org.openmrs.module.reporting.dataset.SimpleDataSet;
 import org.openmrs.module.reporting.dataset.definition.DataSetDefinition;
 import org.openmrs.module.reporting.dataset.definition.evaluator.DataSetEvaluator;
@@ -21,9 +17,6 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
-
-import static org.hibernate.search.util.AnalyzerUtils.log;
 
 @Handler(supports = { TxCurrDataSetDefinitionMamba.class })
 public class TxCurrDataSetEvaluatorMamba implements DataSetEvaluator {
