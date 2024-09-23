@@ -3400,155 +3400,162 @@ END;
 
 
 SET @report_data = '{"flat_report_metadata":[{
-  "report_name": "Follow Up",
-  "flat_table_name": "mamba_flat_encounter_follow_up",
   "encounter_type_uuid": "136b2ded-22a3-4831-a39a-088d35a50ef5",
+  "flat_table_name": "mamba_flat_encounter_follow_up",
+  "report_name": "Follow Up",
   "table_columns": {
-    "cd4_": "730AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "edema": "6175fb23-7046-4fc0-9cc9-e43f5d448cd8",
-    "height": "f980e9d2-e85c-483e-ae93-980623114e6f",
-    "lab_id": "051f22d7-24dc-423c-a13d-b5de1e2e8361",
-    "regimen": "6d7d0327-e1f8-4246-bfe5-be1e82d94b14",
-    "cd4_done": "4868dd2d-4d56-4e72-8c89-8658a32a9072",
     "adherence": "23d97715-589c-4dcf-bb86-70e26bba2269",
-    "bmi_text_": "e3c2efba-3ec9-4029-9bd9-716948995433",
-    "cd4_count": "5497AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "hgb_g_dl_": "8729e0b9-c1b4-416f-b47e-9d9b8855d023",
-    "via_done_": "fa346c0e-a1a0-4758-87a3-12f2dcb6c0e9",
-    "visit_type": "b3f60308-cda4-41f9-af08-b98d2c1562c7",
-    "hpv_subtype": "7bb81ac2-7a2a-4870-b965-fd3883d36f20",
-    "dsd_category": "defeb4ff-d07b-4e4a-bbd6-d4281c1384a2",
-    "weight_text_": "4ab93a3c-4373-4b9b-9268-5ff0641cc242",
-    "biopsy_result": "df94b4c4-8a3a-46b2-be5b-e948403081a0",
-    "date_of_event": "160753AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "lf_lam_result": "98ff157c-c736-4078-8acd-847a74accb64",
-    "cytology_done_": "ccf40a4b-072c-4648-ae34-731d4278d15d",
-    "diagnosis_date": "159948AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "hiv_viral_load": "856AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "regimen_change": "f5c27f2a-a2a3-4e91-91c9-488f4f4eb3b6",
-    "assessment_date": "78c8abfb-1989-444a-8750-947227f4bde8",
-    "diagnostic_test": "002240c0-8672-4631-a32d-9bb9c34e4665",
-    "next_visit_date": "c596f199-4d76-4eca-b3c4-ffa631c0aee9",
-    "eligible_for_tpt": "30b80afc-6358-404a-89c4-af5762faaeee",
-    "follow_up_status": "222f64a8-a603-4d2e-b70e-2d90b622bb04",
-    "pregnancy_status": "5272AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "tpt_followup_6h_": "0166677a-5a8e-45fa-b3f6-3c5aa9f13d00",
-    "tpt_side_effects": "87174948-2998-47b5-a551-64ea23ab9862",
-    "type_of_hiv_test": "5583b0a6-f390-446d-ab39-d98584ee330c",
-    "assessed_for_pain": "7c67f18a-d9ff-4e4c-8c55-35ea70b9c697",
-    "assessment_status": "e6e24c87-d3a0-4a38-bd04-560b13f92298",
-    "gene_xpert_result": "a10a7db7-5ec5-4d62-9b35-cc9ac222a05c",
-    "pain_level_coded_": "166000AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "tb_screening_date": "179497a0-6f07-469f-bb2e-9b85644a82af",
-    "are_there_any_ois_": "cd16e7e6-85cb-441a-a718-18d76957edac",
-    "eligibility_status": "9ed5856a-a20a-44d2-bc8e-2acaa68cf11b",
-    "on_family_planning": "8d5be308-7205-4a57-844e-968f62850e65",
-    "treatment_end_date": "164384AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "date_active_tbrx_dc": "93c114b1-ddcb-41eb-bca5-0c08a2a8c349",
-    "fluconazole_started": "a1173486-b6c1-4d0a-886d-1126b6b558a1",
-    "regimen_switch_type": "8825ff0d-de38-4525-8130-86738c70c599",
-    "tb_prophylaxis_type": "54084c9e-bc87-4d95-89fc-eb9a2cffb592",
-    "tb_treatment_status": "cc9215e5-454f-4cdf-a773-62b2f2f17fdb",
-    "colposcopy_exam_date": "eb135e8e-5e19-4d6e-ad71-c6bdab26f73d",
-    "specimen_sent_to_lab": "161934AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "stages_of_disclosure": "685eaed5-b695-499e-96c5-d9ce95d8b7df",
-    "treatment_start_date": "163526AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "via_screening_result": "ff6b60e4-7310-4ddc-98ce-a2910c32a7a0",
-    "viral_load_received_": "f429af1a-8eba-48ab-a0f7-9d69652753e7",
-    "current_who_hiv_stage": "5356AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "date_counseling_given": "72a28ebe-77ba-4592-9291-ac91e46ea770",
-    "eats_nutritious_foods": "161005AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "hiv_viral_load_status": "163310AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "weight_for_age_status": "1854AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "date_hpv_test_was_done": "8b57d62c-c9a3-454a-b1af-929ca69603ce",
-    "fluconazole_start_date": "5ac4300a-5e19-45c8-8692-31a57d6d5b8c",
-    "viral_load_test_status": "2dc9ee04-4d12-4606-ae0f-86895bf14a44",
-    "other_medications_med_1": "7616e1cd-0c39-4fc3-a9e6-14a69e72655a",
-    "follow_up_date_followup_": "5c118396-52dc-4cac-8860-e6d8e4a7f296",
-    "hpv_dna_screening_result": "8ecc6d15-26dd-4840-8667-a517a93bea5f",
-    "reason_for_referral_cacx": "52106755-062c-4cd5-a627-2373f5a0cef0",
-    "current_functional_status": "2b7b8471-b19e-4d55-b2a4-4fe5b80f889a",
-    "date_patient_referred_out": "161561AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "method_of_family_planning": "374AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "on_antiretroviral_therapy": "1149AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "regimen_substitution_type": "94747e61-6350-4382-817a-265f18501758",
-    "tb_diagnostic_test_result": "c20140f7-d45d-4b44-a1b9-0534861a615d",
-    "current_visit_observations": "7d175fa9-e64c-4923-ae6d-e35512be07a3",
-    "date_active_tbrx_completed": "d4a98e9e-26b0-429b-82cb-e6a2197eeb05",
-    "viral_load_test_indication": "6bb5b796-60bc-406c-abd9-fb9362ed5e80",
-    "are_there_any_side_effects_": "6d9482a5-4686-4fa2-a35a-ea6c0daa5d1f",
-    "biopsy_result_received_date": "473c914c-53d8-496c-a85c-32787a7d95b0",
-    "developmental_exam_findings": "1200AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "mid_upper_arm_circumference": "1343AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "nutritional_status_of_adult": "ae4d72a4-ccf5-49ff-b395-6687c534b1a2",
-    "biopsy_sample_collected_date": "5c93668e-6206-4cce-bdf9-7c6fb02991df",
-    "hpv_dna_result_received_date": "510f2a47-3761-4903-b7eb-8ea389cecfe9",
-    "nutritional_screening_result": "2c5b553b-58f8-4462-b14e-0a6a6628a790",
-    "art_antiretroviral_start_date": "ae329187-6232-4142-aa91-22c85bc8e5b5",
-    "colposcopy_of_cervix_findings": "93bf2a3e-1675-44c9-b7ee-b8ba9cb32b22",
-    "cotrimoxazole_adherence_level": "af63fc87-379b-4fc4-8e68-936026da9f54",
-    "currently_breastfeeding_child": "5632AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "date_cytology_result_received": "f0892f21-406c-446b-abd5-bb62f3ea2387",
-    "estimated_date_of_confinement": "5596AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "next_follow_up_screening_date": "4ce065b6-aecb-46a3-b60b-41bc5dc8022f",
-    "reason_for_art_regimen_change": "ae280ece-d408-4e49-b472-0dba1c918d10",
-    "patient_wishes_to_get_pregnant": "160571AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "reason_for_dsd_category_change": "2780c548-5118-4ae4-99da-c8557cb55f28",
-    "tb_prophylaxis_type_alternate_": "f18eded5-67a9-4f02-b131-9a6230e64d18",
-    "tpt_followup_alternate_for_3hp": "c1af657e-bc31-46a2-9f5e-55a1c9ae7507",
-    "tpt_followup_alternate_for_3hr": "43f17059-ad82-43d7-bb0b-fe5315abdd07",
     "anitiretroviral_adherence_level": "b1a646d3-78ff-4dd5-823a-5bef7d69ff3d",
-    "client_sets_hiv_prevention_plan": "a3758771-f534-495e-9a3c-290acc79dda0",
-    "cytology_sample_collection_date": "3b5034de-ce0f-4017-80ab-17746ab3fe15",
-    "date_of_reported_hiv_viral_load": "163281AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "tpt_dispensed_dose_in_days_inh_": "ad542a8d-cd7c-4d70-8ef3-829b89c05009",
-    "cervical_cancer_screening_status": "01c546b4-e08a-4c0c-82ef-d387cab6bbbf",
-    "date_viral_load_results_received": "beeede36-cae4-4f6e-b4b9-e39e37353a82",
-    "nutritional_supplements_provided": "a0f1f531-e082-448a-aed5-200621c7b274",
-    "dsd_category_changed_by_this_date": "eae5830f-ac48-48f0-bebd-35c500de8ff9",
-    "date_of_last_menstrual_period_lmp_": "30d8d278-5ace-4d01-b2f1-8efc28372070",
-    "routine_viral_load_test_indication": "9b8cef86-9093-4737-a641-3b8399618c85",
-    "screening_test_result_tuberculosis": "160108AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "antiretroviral_art_dispensed_dose_i": "f3911009-1a8f-42ee-bdfc-1e343c2839aa",
+    "are_there_any_ois_": "cd16e7e6-85cb-441a-a718-18d76957edac",
+    "are_there_any_side_effects_": "6d9482a5-4686-4fa2-a35a-ea6c0daa5d1f",
     "are_there_any_side_effects_for_tpt_": "2705e6f9-960c-4d8c-be78-2929a8ee418d",
+    "art_antiretroviral_start_date": "ae329187-6232-4142-aa91-22c85bc8e5b5",
+    "assessed_for_pain": "7c67f18a-d9ff-4e4c-8c55-35ea70b9c697",
+    "assessment_date": "78c8abfb-1989-444a-8750-947227f4bde8",
+    "assessment_status": "e6e24c87-d3a0-4a38-bd04-560b13f92298",
+    "biopsy_result": "df94b4c4-8a3a-46b2-be5b-e948403081a0",
+    "biopsy_result_received_date": "473c914c-53d8-496c-a85c-32787a7d95b0",
+    "biopsy_sample_collected_date": "5c93668e-6206-4cce-bdf9-7c6fb02991df",
     "bmi_for_age_children_between_age_5_": "eeeaf256-e133-42fa-b167-dbf9edf33e77",
+    "bmi_text_": "e3c2efba-3ec9-4029-9bd9-716948995433",
+    "cd4_": "730AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "cd4_count": "5497AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "cd4_done": "4868dd2d-4d56-4e72-8c89-8658a32a9072",
     "cervical_cancer_screening_method_st": "c842a287-f94c-48ee-a370-bd6540a0d1af",
+    "cervical_cancer_screening_status": "01c546b4-e08a-4c0c-82ef-d387cab6bbbf",
+    "client_sets_hiv_prevention_plan": "a3758771-f534-495e-9a3c-290acc79dda0",
+    "colposcopy_exam_date": "eb135e8e-5e19-4d6e-ad71-c6bdab26f73d",
+    "colposcopy_of_cervix_findings": "93bf2a3e-1675-44c9-b7ee-b8ba9cb32b22",
     "confirmed_cervical_cancer_cases_bas": "6b78badd-0b92-47f8-b16c-46559d5179b2",
+    "cotrimoxazole_adherence_level": "af63fc87-379b-4fc4-8e68-936026da9f54",
     "cotrimoxazole_dispensed_dose_in_day": "629c6f5d-a10d-408a-9daa-d44383c8d653",
     "cotrimoxazole_prophylaxis_start_dat": "164361AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "cotrimoxazole_prophylaxis_stop_date": "164362AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "current_functional_status": "2b7b8471-b19e-4d55-b2a4-4fe5b80f889a",
+    "current_visit_observations": "7d175fa9-e64c-4923-ae6d-e35512be07a3",
+    "current_who_hiv_stage": "5356AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "currently_breastfeeding_child": "5632AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "currently_taking_tuberculosis_proph": "166449AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "cytology_done_": "ccf40a4b-072c-4648-ae34-731d4278d15d",
+    "cytology_sample_collection_date": "3b5034de-ce0f-4017-80ab-17746ab3fe15",
+    "date_active_tbrx_completed": "d4a98e9e-26b0-429b-82cb-e6a2197eeb05",
+    "date_active_tbrx_dc": "93c114b1-ddcb-41eb-bca5-0c08a2a8c349",
     "date_client_arrived_in_the_referred": "88571a39-5caf-4260-b8d6-d0e28ca37410",
     "date_client_served_in_the_referred_": "080e8ad4-809e-4d51-a2a9-6eaac774ad38",
     "date_completed_tuberculosis_prophyl": "162279AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "date_counseling_given": "72a28ebe-77ba-4592-9291-ac91e46ea770",
+    "date_cytology_result_received": "f0892f21-406c-446b-abd5-bb62f3ea2387",
     "date_discontinued_tuberculosis_prop": "162281AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "date_enrolled_for_cervical_cancer_s": "c7ecf767-325a-41c2-80a7-79c91762ab3e",
     "date_first_enhanced_adherence_couns": "70788495-b7d5-4484-b571-88383409c386",
+    "date_hpv_test_was_done": "8b57d62c-c9a3-454a-b1af-929ca69603ce",
     "date_linked_to_cervical_cancer_scre": "2df6bd1b-c200-4363-8293-0d72ef24e8b7",
     "date_medically_eligible_for_antiret": "162227AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "date_of_event": "160753AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "date_of_last_menstrual_period_lmp_": "30d8d278-5ace-4d01-b2f1-8efc28372070",
+    "date_of_reported_hiv_viral_load": "163281AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "date_patient_referred_out": "161561AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "date_second_enhanced_adherence_coun": "25f8b459-94b5-4ea9-8b64-9ccf3f8422e7",
     "date_started_on_tuberculosis_prophy": "162320AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "date_third_enhanced_adherence_couns": "95f843ff-07d4-4c46-8642-06e935b69be2",
+    "date_viral_load_results_received": "beeede36-cae4-4f6e-b4b9-e39e37353a82",
     "date_visual_inspection_of_the_cervi": "f46c7ed3-65c3-451c-a8e1-4c615f795db1",
+    "developmental_exam_findings": "1200AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "diagnosis_date": "159948AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "diagnostic_test": "002240c0-8672-4631-a32d-9bb9c34e4665",
+    "dsd_category": "defeb4ff-d07b-4e4a-bbd6-d4281c1384a2",
+    "dsd_category_changed_by_this_date": "eae5830f-ac48-48f0-bebd-35c500de8ff9",
+    "eats_nutritious_foods": "161005AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "edema": "6175fb23-7046-4fc0-9cc9-e43f5d448cd8",
+    "eligibility_status": "9ed5856a-a20a-44d2-bc8e-2acaa68cf11b",
+    "eligible_for_tpt": "30b80afc-6358-404a-89c4-af5762faaeee",
     "enhanced_adherence_counseling_provi": "ebb4f716-7da3-4110-b9e2-6d6838140346",
     "enrolled_to_otz_operation_triple_zo": "d61f6440-5d4a-4389-a162-61c1ba13963e",
+    "estimated_date_of_confinement": "5596AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "fluconazole_start_date": "5ac4300a-5e19-45c8-8692-31a57d6d5b8c",
+    "fluconazole_started": "a1173486-b6c1-4d0a-886d-1126b6b558a1",
+    "follow_up_date_followup_": "5c118396-52dc-4cac-8860-e6d8e4a7f296",
+    "follow_up_status": "222f64a8-a603-4d2e-b70e-2d90b622bb04",
+    "gene_xpert_result": "a10a7db7-5ec5-4d62-9b35-cc9ac222a05c",
+    "height": "f980e9d2-e85c-483e-ae93-980623114e6f",
+    "hgb_g_dl_": "8729e0b9-c1b4-416f-b47e-9d9b8855d023",
+    "hiv_viral_load": "856AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "hiv_viral_load_status": "163310AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "hpv_dna_result_received_date": "510f2a47-3761-4903-b7eb-8ea389cecfe9",
+    "hpv_dna_screening_result": "8ecc6d15-26dd-4840-8667-a517a93bea5f",
+    "hpv_subtype": "7bb81ac2-7a2a-4870-b965-fd3883d36f20",
+    "lab_id": "051f22d7-24dc-423c-a13d-b5de1e2e8361",
+    "lf_lam_result": "98ff157c-c736-4078-8acd-847a74accb64",
     "linked_to_cervical_cancer_screening": "a3998691-d9cc-492b-81f2-7bd28a6e413b",
+    "method_of_family_planning": "374AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "mid_upper_arm_circumference": "1343AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "mother_enrolled_in_prevention_of_ma": "163532AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "next_follow_up_screening_date": "4ce065b6-aecb-46a3-b60b-41bc5dc8022f",
+    "next_visit_date": "c596f199-4d76-4eca-b3c4-ffa631c0aee9",
+    "nutritional_screening_result": "2c5b553b-58f8-4462-b14e-0a6a6628a790",
+    "nutritional_status_of_adult": "ae4d72a4-ccf5-49ff-b395-6687c534b1a2",
     "nutritional_status_of_older_child_a": "cdcebe52-8acc-4eaa-ba6d-ceef4bde644f",
+    "nutritional_supplements_provided": "a0f1f531-e082-448a-aed5-200621c7b274",
+    "on_antiretroviral_therapy": "1149AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "on_family_planning": "8d5be308-7205-4a57-844e-968f62850e65",
     "operation_triple_zero_enrollment_da": "0fe4faee-0717-4dc0-be3d-1cd52923804a",
+    "other_medications_med_1": "7616e1cd-0c39-4fc3-a9e6-14a69e72655a",
+    "pain_level_coded_": "166000AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "patient_diagnosed_with_active_tuber": "164500AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "patient_wishes_to_get_pregnant": "160571AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "pre_test_counselling_for_cervical_c": "fc5ec0e6-8e56-4a23-8bf9-fbe464da12c7",
+    "pregnancy_status": "5272AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "purpose_for_visit_cervical_screenin": "2c6f75a8-f35c-4671-939e-ebcc680c48a0",
     "ready_for_cervical_cancer_screening": "1b1dc36e-fe65-4f4b-8304-09fbd9c106ad",
+    "reason_for_art_regimen_change": "ae280ece-d408-4e49-b472-0dba1c918d10",
+    "reason_for_dsd_category_change": "2780c548-5118-4ae4-99da-c8557cb55f28",
     "reason_for_poor_treatment_adherence": "160582AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "reason_for_referral_cacx": "52106755-062c-4cd5-a627-2373f5a0cef0",
+    "regimen": "6d7d0327-e1f8-4246-bfe5-be1e82d94b14",
+    "regimen_change": "f5c27f2a-a2a3-4e91-91c9-488f4f4eb3b6",
+    "regimen_substitution_type": "94747e61-6350-4382-817a-265f18501758",
+    "regimen_switch_type": "8825ff0d-de38-4525-8130-86738c70c599",
+    "routine_viral_load_test_indication": "9b8cef86-9093-4737-a641-3b8399618c85",
+    "screening_test_result_tuberculosis": "160108AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "specimen_sent_to_lab": "161934AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "stages_of_disclosure": "685eaed5-b695-499e-96c5-d9ce95d8b7df",
     "taking_co_trimoxazole_preventive_th": "160434AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "targeted_viral_load_test_indication": "8f75ce27-29fa-4a67-bc8a-295c94323220",
+    "tb_diagnostic_test_result": "c20140f7-d45d-4b44-a1b9-0534861a615d",
+    "tb_prophylaxis_type": "54084c9e-bc87-4d95-89fc-eb9a2cffb592",
+    "tb_prophylaxis_type_alternate_": "f18eded5-67a9-4f02-b131-9a6230e64d18",
     "tb_related_ois_opportunistic_illnes": "efe20a31-6781-40b7-a4d8-5fc347881e76",
+    "tb_screening_date": "179497a0-6f07-469f-bb2e-9b85644a82af",
+    "tb_treatment_status": "cc9215e5-454f-4cdf-a773-62b2f2f17fdb",
     "tpt_dispensed_dose_in_days_alternat": "cc80b9ac-2ed1-4fd5-969a-9e324e91e95e",
+    "tpt_dispensed_dose_in_days_inh_": "ad542a8d-cd7c-4d70-8ef3-829b89c05009",
+    "tpt_followup_6h_": "0166677a-5a8e-45fa-b3f6-3c5aa9f13d00",
+    "tpt_followup_alternate_for_3hp": "c1af657e-bc31-46a2-9f5e-55a1c9ae7507",
+    "tpt_followup_alternate_for_3hr": "43f17059-ad82-43d7-bb0b-fe5315abdd07",
+    "tpt_side_effects": "87174948-2998-47b5-a551-64ea23ab9862",
+    "treatment_end_date": "164384AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "treatment_of_pre_cancerous_lesions_": "6b97156c-3795-48d0-a15c-4f2590ffef54",
+    "treatment_start_date": "163526AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "tuberculosis_drug_treatment_start_d": "1113AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "type_of_hiv_test": "5583b0a6-f390-446d-ab39-d98584ee330c",
+    "via_done_": "fa346c0e-a1a0-4758-87a3-12f2dcb6c0e9",
+    "via_screening_result": "ff6b60e4-7310-4ddc-98ce-a2910c32a7a0",
+    "viral_load_received_": "f429af1a-8eba-48ab-a0f7-9d69652753e7",
+    "viral_load_test_indication": "6bb5b796-60bc-406c-abd9-fb9362ed5e80",
+    "viral_load_test_status": "2dc9ee04-4d12-4606-ae0f-86895bf14a44",
+    "visit_type": "b3f60308-cda4-41f9-af08-b98d2c1562c7",
     "was_the_patient_screened_for_tuberc": "feebf47b-c11e-4fa7-bb4b-1a9fc444bcc9",
-    "cytology_result": "9e5c5bd8-276c-497b-9ea1-9a5c9f94faa7"
+    "weight_for_age_status": "1854AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "weight_text_": "4ab93a3c-4373-4b9b-9268-5ff0641cc242",
+
+    "cytology_result": "9e5c5bd8-276c-497b-9ea1-9a5c9f94faa7",
+    "crag": "ac95e1ae-ee9a-4fdc-8fb6-d5fd640727f7",
+    "creatinine_cr_mg_dl_": "5f39ac9e-7338-4a79-8b40-58dbef9debb0",
+    "ast_u_l_": "33297367-9a74-4e2c-a474-923e61d45252",
+    "antiretroviral_side_effects": "9d4cf346-a23e-4c8e-9ed0-4e6fc274cbe6",
+    "alt_u_l_": "49296372-8a07-4182-8506-ded37e2bc667",
+    "date_of_hiv_diagnosis": "160554AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
   }
 },{
   "report_name": "Intake A",
@@ -3923,155 +3930,162 @@ END;
 
 
 SET @report_data = '{"flat_report_metadata":[{
-  "report_name": "Follow Up",
-  "flat_table_name": "mamba_flat_encounter_follow_up",
   "encounter_type_uuid": "136b2ded-22a3-4831-a39a-088d35a50ef5",
+  "flat_table_name": "mamba_flat_encounter_follow_up",
+  "report_name": "Follow Up",
   "table_columns": {
-    "cd4_": "730AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "edema": "6175fb23-7046-4fc0-9cc9-e43f5d448cd8",
-    "height": "f980e9d2-e85c-483e-ae93-980623114e6f",
-    "lab_id": "051f22d7-24dc-423c-a13d-b5de1e2e8361",
-    "regimen": "6d7d0327-e1f8-4246-bfe5-be1e82d94b14",
-    "cd4_done": "4868dd2d-4d56-4e72-8c89-8658a32a9072",
     "adherence": "23d97715-589c-4dcf-bb86-70e26bba2269",
-    "bmi_text_": "e3c2efba-3ec9-4029-9bd9-716948995433",
-    "cd4_count": "5497AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "hgb_g_dl_": "8729e0b9-c1b4-416f-b47e-9d9b8855d023",
-    "via_done_": "fa346c0e-a1a0-4758-87a3-12f2dcb6c0e9",
-    "visit_type": "b3f60308-cda4-41f9-af08-b98d2c1562c7",
-    "hpv_subtype": "7bb81ac2-7a2a-4870-b965-fd3883d36f20",
-    "dsd_category": "defeb4ff-d07b-4e4a-bbd6-d4281c1384a2",
-    "weight_text_": "4ab93a3c-4373-4b9b-9268-5ff0641cc242",
-    "biopsy_result": "df94b4c4-8a3a-46b2-be5b-e948403081a0",
-    "date_of_event": "160753AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "lf_lam_result": "98ff157c-c736-4078-8acd-847a74accb64",
-    "cytology_done_": "ccf40a4b-072c-4648-ae34-731d4278d15d",
-    "diagnosis_date": "159948AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "hiv_viral_load": "856AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "regimen_change": "f5c27f2a-a2a3-4e91-91c9-488f4f4eb3b6",
-    "assessment_date": "78c8abfb-1989-444a-8750-947227f4bde8",
-    "diagnostic_test": "002240c0-8672-4631-a32d-9bb9c34e4665",
-    "next_visit_date": "c596f199-4d76-4eca-b3c4-ffa631c0aee9",
-    "eligible_for_tpt": "30b80afc-6358-404a-89c4-af5762faaeee",
-    "follow_up_status": "222f64a8-a603-4d2e-b70e-2d90b622bb04",
-    "pregnancy_status": "5272AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "tpt_followup_6h_": "0166677a-5a8e-45fa-b3f6-3c5aa9f13d00",
-    "tpt_side_effects": "87174948-2998-47b5-a551-64ea23ab9862",
-    "type_of_hiv_test": "5583b0a6-f390-446d-ab39-d98584ee330c",
-    "assessed_for_pain": "7c67f18a-d9ff-4e4c-8c55-35ea70b9c697",
-    "assessment_status": "e6e24c87-d3a0-4a38-bd04-560b13f92298",
-    "gene_xpert_result": "a10a7db7-5ec5-4d62-9b35-cc9ac222a05c",
-    "pain_level_coded_": "166000AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "tb_screening_date": "179497a0-6f07-469f-bb2e-9b85644a82af",
-    "are_there_any_ois_": "cd16e7e6-85cb-441a-a718-18d76957edac",
-    "eligibility_status": "9ed5856a-a20a-44d2-bc8e-2acaa68cf11b",
-    "on_family_planning": "8d5be308-7205-4a57-844e-968f62850e65",
-    "treatment_end_date": "164384AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "date_active_tbrx_dc": "93c114b1-ddcb-41eb-bca5-0c08a2a8c349",
-    "fluconazole_started": "a1173486-b6c1-4d0a-886d-1126b6b558a1",
-    "regimen_switch_type": "8825ff0d-de38-4525-8130-86738c70c599",
-    "tb_prophylaxis_type": "54084c9e-bc87-4d95-89fc-eb9a2cffb592",
-    "tb_treatment_status": "cc9215e5-454f-4cdf-a773-62b2f2f17fdb",
-    "colposcopy_exam_date": "eb135e8e-5e19-4d6e-ad71-c6bdab26f73d",
-    "specimen_sent_to_lab": "161934AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "stages_of_disclosure": "685eaed5-b695-499e-96c5-d9ce95d8b7df",
-    "treatment_start_date": "163526AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "via_screening_result": "ff6b60e4-7310-4ddc-98ce-a2910c32a7a0",
-    "viral_load_received_": "f429af1a-8eba-48ab-a0f7-9d69652753e7",
-    "current_who_hiv_stage": "5356AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "date_counseling_given": "72a28ebe-77ba-4592-9291-ac91e46ea770",
-    "eats_nutritious_foods": "161005AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "hiv_viral_load_status": "163310AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "weight_for_age_status": "1854AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "date_hpv_test_was_done": "8b57d62c-c9a3-454a-b1af-929ca69603ce",
-    "fluconazole_start_date": "5ac4300a-5e19-45c8-8692-31a57d6d5b8c",
-    "viral_load_test_status": "2dc9ee04-4d12-4606-ae0f-86895bf14a44",
-    "other_medications_med_1": "7616e1cd-0c39-4fc3-a9e6-14a69e72655a",
-    "follow_up_date_followup_": "5c118396-52dc-4cac-8860-e6d8e4a7f296",
-    "hpv_dna_screening_result": "8ecc6d15-26dd-4840-8667-a517a93bea5f",
-    "reason_for_referral_cacx": "52106755-062c-4cd5-a627-2373f5a0cef0",
-    "current_functional_status": "2b7b8471-b19e-4d55-b2a4-4fe5b80f889a",
-    "date_patient_referred_out": "161561AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "method_of_family_planning": "374AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "on_antiretroviral_therapy": "1149AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "regimen_substitution_type": "94747e61-6350-4382-817a-265f18501758",
-    "tb_diagnostic_test_result": "c20140f7-d45d-4b44-a1b9-0534861a615d",
-    "current_visit_observations": "7d175fa9-e64c-4923-ae6d-e35512be07a3",
-    "date_active_tbrx_completed": "d4a98e9e-26b0-429b-82cb-e6a2197eeb05",
-    "viral_load_test_indication": "6bb5b796-60bc-406c-abd9-fb9362ed5e80",
-    "are_there_any_side_effects_": "6d9482a5-4686-4fa2-a35a-ea6c0daa5d1f",
-    "biopsy_result_received_date": "473c914c-53d8-496c-a85c-32787a7d95b0",
-    "developmental_exam_findings": "1200AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "mid_upper_arm_circumference": "1343AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "nutritional_status_of_adult": "ae4d72a4-ccf5-49ff-b395-6687c534b1a2",
-    "biopsy_sample_collected_date": "5c93668e-6206-4cce-bdf9-7c6fb02991df",
-    "hpv_dna_result_received_date": "510f2a47-3761-4903-b7eb-8ea389cecfe9",
-    "nutritional_screening_result": "2c5b553b-58f8-4462-b14e-0a6a6628a790",
-    "art_antiretroviral_start_date": "ae329187-6232-4142-aa91-22c85bc8e5b5",
-    "colposcopy_of_cervix_findings": "93bf2a3e-1675-44c9-b7ee-b8ba9cb32b22",
-    "cotrimoxazole_adherence_level": "af63fc87-379b-4fc4-8e68-936026da9f54",
-    "currently_breastfeeding_child": "5632AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "date_cytology_result_received": "f0892f21-406c-446b-abd5-bb62f3ea2387",
-    "estimated_date_of_confinement": "5596AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "next_follow_up_screening_date": "4ce065b6-aecb-46a3-b60b-41bc5dc8022f",
-    "reason_for_art_regimen_change": "ae280ece-d408-4e49-b472-0dba1c918d10",
-    "patient_wishes_to_get_pregnant": "160571AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "reason_for_dsd_category_change": "2780c548-5118-4ae4-99da-c8557cb55f28",
-    "tb_prophylaxis_type_alternate_": "f18eded5-67a9-4f02-b131-9a6230e64d18",
-    "tpt_followup_alternate_for_3hp": "c1af657e-bc31-46a2-9f5e-55a1c9ae7507",
-    "tpt_followup_alternate_for_3hr": "43f17059-ad82-43d7-bb0b-fe5315abdd07",
     "anitiretroviral_adherence_level": "b1a646d3-78ff-4dd5-823a-5bef7d69ff3d",
-    "client_sets_hiv_prevention_plan": "a3758771-f534-495e-9a3c-290acc79dda0",
-    "cytology_sample_collection_date": "3b5034de-ce0f-4017-80ab-17746ab3fe15",
-    "date_of_reported_hiv_viral_load": "163281AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "tpt_dispensed_dose_in_days_inh_": "ad542a8d-cd7c-4d70-8ef3-829b89c05009",
-    "cervical_cancer_screening_status": "01c546b4-e08a-4c0c-82ef-d387cab6bbbf",
-    "date_viral_load_results_received": "beeede36-cae4-4f6e-b4b9-e39e37353a82",
-    "nutritional_supplements_provided": "a0f1f531-e082-448a-aed5-200621c7b274",
-    "dsd_category_changed_by_this_date": "eae5830f-ac48-48f0-bebd-35c500de8ff9",
-    "date_of_last_menstrual_period_lmp_": "30d8d278-5ace-4d01-b2f1-8efc28372070",
-    "routine_viral_load_test_indication": "9b8cef86-9093-4737-a641-3b8399618c85",
-    "screening_test_result_tuberculosis": "160108AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "antiretroviral_art_dispensed_dose_i": "f3911009-1a8f-42ee-bdfc-1e343c2839aa",
+    "are_there_any_ois_": "cd16e7e6-85cb-441a-a718-18d76957edac",
+    "are_there_any_side_effects_": "6d9482a5-4686-4fa2-a35a-ea6c0daa5d1f",
     "are_there_any_side_effects_for_tpt_": "2705e6f9-960c-4d8c-be78-2929a8ee418d",
+    "art_antiretroviral_start_date": "ae329187-6232-4142-aa91-22c85bc8e5b5",
+    "assessed_for_pain": "7c67f18a-d9ff-4e4c-8c55-35ea70b9c697",
+    "assessment_date": "78c8abfb-1989-444a-8750-947227f4bde8",
+    "assessment_status": "e6e24c87-d3a0-4a38-bd04-560b13f92298",
+    "biopsy_result": "df94b4c4-8a3a-46b2-be5b-e948403081a0",
+    "biopsy_result_received_date": "473c914c-53d8-496c-a85c-32787a7d95b0",
+    "biopsy_sample_collected_date": "5c93668e-6206-4cce-bdf9-7c6fb02991df",
     "bmi_for_age_children_between_age_5_": "eeeaf256-e133-42fa-b167-dbf9edf33e77",
+    "bmi_text_": "e3c2efba-3ec9-4029-9bd9-716948995433",
+    "cd4_": "730AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "cd4_count": "5497AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "cd4_done": "4868dd2d-4d56-4e72-8c89-8658a32a9072",
     "cervical_cancer_screening_method_st": "c842a287-f94c-48ee-a370-bd6540a0d1af",
+    "cervical_cancer_screening_status": "01c546b4-e08a-4c0c-82ef-d387cab6bbbf",
+    "client_sets_hiv_prevention_plan": "a3758771-f534-495e-9a3c-290acc79dda0",
+    "colposcopy_exam_date": "eb135e8e-5e19-4d6e-ad71-c6bdab26f73d",
+    "colposcopy_of_cervix_findings": "93bf2a3e-1675-44c9-b7ee-b8ba9cb32b22",
     "confirmed_cervical_cancer_cases_bas": "6b78badd-0b92-47f8-b16c-46559d5179b2",
+    "cotrimoxazole_adherence_level": "af63fc87-379b-4fc4-8e68-936026da9f54",
     "cotrimoxazole_dispensed_dose_in_day": "629c6f5d-a10d-408a-9daa-d44383c8d653",
     "cotrimoxazole_prophylaxis_start_dat": "164361AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "cotrimoxazole_prophylaxis_stop_date": "164362AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "current_functional_status": "2b7b8471-b19e-4d55-b2a4-4fe5b80f889a",
+    "current_visit_observations": "7d175fa9-e64c-4923-ae6d-e35512be07a3",
+    "current_who_hiv_stage": "5356AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "currently_breastfeeding_child": "5632AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "currently_taking_tuberculosis_proph": "166449AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "cytology_done_": "ccf40a4b-072c-4648-ae34-731d4278d15d",
+    "cytology_sample_collection_date": "3b5034de-ce0f-4017-80ab-17746ab3fe15",
+    "date_active_tbrx_completed": "d4a98e9e-26b0-429b-82cb-e6a2197eeb05",
+    "date_active_tbrx_dc": "93c114b1-ddcb-41eb-bca5-0c08a2a8c349",
     "date_client_arrived_in_the_referred": "88571a39-5caf-4260-b8d6-d0e28ca37410",
     "date_client_served_in_the_referred_": "080e8ad4-809e-4d51-a2a9-6eaac774ad38",
     "date_completed_tuberculosis_prophyl": "162279AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "date_counseling_given": "72a28ebe-77ba-4592-9291-ac91e46ea770",
+    "date_cytology_result_received": "f0892f21-406c-446b-abd5-bb62f3ea2387",
     "date_discontinued_tuberculosis_prop": "162281AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "date_enrolled_for_cervical_cancer_s": "c7ecf767-325a-41c2-80a7-79c91762ab3e",
     "date_first_enhanced_adherence_couns": "70788495-b7d5-4484-b571-88383409c386",
+    "date_hpv_test_was_done": "8b57d62c-c9a3-454a-b1af-929ca69603ce",
     "date_linked_to_cervical_cancer_scre": "2df6bd1b-c200-4363-8293-0d72ef24e8b7",
     "date_medically_eligible_for_antiret": "162227AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "date_of_event": "160753AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "date_of_last_menstrual_period_lmp_": "30d8d278-5ace-4d01-b2f1-8efc28372070",
+    "date_of_reported_hiv_viral_load": "163281AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "date_patient_referred_out": "161561AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "date_second_enhanced_adherence_coun": "25f8b459-94b5-4ea9-8b64-9ccf3f8422e7",
     "date_started_on_tuberculosis_prophy": "162320AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "date_third_enhanced_adherence_couns": "95f843ff-07d4-4c46-8642-06e935b69be2",
+    "date_viral_load_results_received": "beeede36-cae4-4f6e-b4b9-e39e37353a82",
     "date_visual_inspection_of_the_cervi": "f46c7ed3-65c3-451c-a8e1-4c615f795db1",
+    "developmental_exam_findings": "1200AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "diagnosis_date": "159948AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "diagnostic_test": "002240c0-8672-4631-a32d-9bb9c34e4665",
+    "dsd_category": "defeb4ff-d07b-4e4a-bbd6-d4281c1384a2",
+    "dsd_category_changed_by_this_date": "eae5830f-ac48-48f0-bebd-35c500de8ff9",
+    "eats_nutritious_foods": "161005AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "edema": "6175fb23-7046-4fc0-9cc9-e43f5d448cd8",
+    "eligibility_status": "9ed5856a-a20a-44d2-bc8e-2acaa68cf11b",
+    "eligible_for_tpt": "30b80afc-6358-404a-89c4-af5762faaeee",
     "enhanced_adherence_counseling_provi": "ebb4f716-7da3-4110-b9e2-6d6838140346",
     "enrolled_to_otz_operation_triple_zo": "d61f6440-5d4a-4389-a162-61c1ba13963e",
+    "estimated_date_of_confinement": "5596AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "fluconazole_start_date": "5ac4300a-5e19-45c8-8692-31a57d6d5b8c",
+    "fluconazole_started": "a1173486-b6c1-4d0a-886d-1126b6b558a1",
+    "follow_up_date_followup_": "5c118396-52dc-4cac-8860-e6d8e4a7f296",
+    "follow_up_status": "222f64a8-a603-4d2e-b70e-2d90b622bb04",
+    "gene_xpert_result": "a10a7db7-5ec5-4d62-9b35-cc9ac222a05c",
+    "height": "f980e9d2-e85c-483e-ae93-980623114e6f",
+    "hgb_g_dl_": "8729e0b9-c1b4-416f-b47e-9d9b8855d023",
+    "hiv_viral_load": "856AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "hiv_viral_load_status": "163310AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "hpv_dna_result_received_date": "510f2a47-3761-4903-b7eb-8ea389cecfe9",
+    "hpv_dna_screening_result": "8ecc6d15-26dd-4840-8667-a517a93bea5f",
+    "hpv_subtype": "7bb81ac2-7a2a-4870-b965-fd3883d36f20",
+    "lab_id": "051f22d7-24dc-423c-a13d-b5de1e2e8361",
+    "lf_lam_result": "98ff157c-c736-4078-8acd-847a74accb64",
     "linked_to_cervical_cancer_screening": "a3998691-d9cc-492b-81f2-7bd28a6e413b",
+    "method_of_family_planning": "374AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "mid_upper_arm_circumference": "1343AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "mother_enrolled_in_prevention_of_ma": "163532AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "next_follow_up_screening_date": "4ce065b6-aecb-46a3-b60b-41bc5dc8022f",
+    "next_visit_date": "c596f199-4d76-4eca-b3c4-ffa631c0aee9",
+    "nutritional_screening_result": "2c5b553b-58f8-4462-b14e-0a6a6628a790",
+    "nutritional_status_of_adult": "ae4d72a4-ccf5-49ff-b395-6687c534b1a2",
     "nutritional_status_of_older_child_a": "cdcebe52-8acc-4eaa-ba6d-ceef4bde644f",
+    "nutritional_supplements_provided": "a0f1f531-e082-448a-aed5-200621c7b274",
+    "on_antiretroviral_therapy": "1149AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "on_family_planning": "8d5be308-7205-4a57-844e-968f62850e65",
     "operation_triple_zero_enrollment_da": "0fe4faee-0717-4dc0-be3d-1cd52923804a",
+    "other_medications_med_1": "7616e1cd-0c39-4fc3-a9e6-14a69e72655a",
+    "pain_level_coded_": "166000AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "patient_diagnosed_with_active_tuber": "164500AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "patient_wishes_to_get_pregnant": "160571AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "pre_test_counselling_for_cervical_c": "fc5ec0e6-8e56-4a23-8bf9-fbe464da12c7",
+    "pregnancy_status": "5272AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "purpose_for_visit_cervical_screenin": "2c6f75a8-f35c-4671-939e-ebcc680c48a0",
     "ready_for_cervical_cancer_screening": "1b1dc36e-fe65-4f4b-8304-09fbd9c106ad",
+    "reason_for_art_regimen_change": "ae280ece-d408-4e49-b472-0dba1c918d10",
+    "reason_for_dsd_category_change": "2780c548-5118-4ae4-99da-c8557cb55f28",
     "reason_for_poor_treatment_adherence": "160582AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "reason_for_referral_cacx": "52106755-062c-4cd5-a627-2373f5a0cef0",
+    "regimen": "6d7d0327-e1f8-4246-bfe5-be1e82d94b14",
+    "regimen_change": "f5c27f2a-a2a3-4e91-91c9-488f4f4eb3b6",
+    "regimen_substitution_type": "94747e61-6350-4382-817a-265f18501758",
+    "regimen_switch_type": "8825ff0d-de38-4525-8130-86738c70c599",
+    "routine_viral_load_test_indication": "9b8cef86-9093-4737-a641-3b8399618c85",
+    "screening_test_result_tuberculosis": "160108AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "specimen_sent_to_lab": "161934AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "stages_of_disclosure": "685eaed5-b695-499e-96c5-d9ce95d8b7df",
     "taking_co_trimoxazole_preventive_th": "160434AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "targeted_viral_load_test_indication": "8f75ce27-29fa-4a67-bc8a-295c94323220",
+    "tb_diagnostic_test_result": "c20140f7-d45d-4b44-a1b9-0534861a615d",
+    "tb_prophylaxis_type": "54084c9e-bc87-4d95-89fc-eb9a2cffb592",
+    "tb_prophylaxis_type_alternate_": "f18eded5-67a9-4f02-b131-9a6230e64d18",
     "tb_related_ois_opportunistic_illnes": "efe20a31-6781-40b7-a4d8-5fc347881e76",
+    "tb_screening_date": "179497a0-6f07-469f-bb2e-9b85644a82af",
+    "tb_treatment_status": "cc9215e5-454f-4cdf-a773-62b2f2f17fdb",
     "tpt_dispensed_dose_in_days_alternat": "cc80b9ac-2ed1-4fd5-969a-9e324e91e95e",
+    "tpt_dispensed_dose_in_days_inh_": "ad542a8d-cd7c-4d70-8ef3-829b89c05009",
+    "tpt_followup_6h_": "0166677a-5a8e-45fa-b3f6-3c5aa9f13d00",
+    "tpt_followup_alternate_for_3hp": "c1af657e-bc31-46a2-9f5e-55a1c9ae7507",
+    "tpt_followup_alternate_for_3hr": "43f17059-ad82-43d7-bb0b-fe5315abdd07",
+    "tpt_side_effects": "87174948-2998-47b5-a551-64ea23ab9862",
+    "treatment_end_date": "164384AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "treatment_of_pre_cancerous_lesions_": "6b97156c-3795-48d0-a15c-4f2590ffef54",
+    "treatment_start_date": "163526AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "tuberculosis_drug_treatment_start_d": "1113AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "type_of_hiv_test": "5583b0a6-f390-446d-ab39-d98584ee330c",
+    "via_done_": "fa346c0e-a1a0-4758-87a3-12f2dcb6c0e9",
+    "via_screening_result": "ff6b60e4-7310-4ddc-98ce-a2910c32a7a0",
+    "viral_load_received_": "f429af1a-8eba-48ab-a0f7-9d69652753e7",
+    "viral_load_test_indication": "6bb5b796-60bc-406c-abd9-fb9362ed5e80",
+    "viral_load_test_status": "2dc9ee04-4d12-4606-ae0f-86895bf14a44",
+    "visit_type": "b3f60308-cda4-41f9-af08-b98d2c1562c7",
     "was_the_patient_screened_for_tuberc": "feebf47b-c11e-4fa7-bb4b-1a9fc444bcc9",
-    "cytology_result": "9e5c5bd8-276c-497b-9ea1-9a5c9f94faa7"
+    "weight_for_age_status": "1854AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "weight_text_": "4ab93a3c-4373-4b9b-9268-5ff0641cc242",
+
+    "cytology_result": "9e5c5bd8-276c-497b-9ea1-9a5c9f94faa7",
+    "crag": "ac95e1ae-ee9a-4fdc-8fb6-d5fd640727f7",
+    "creatinine_cr_mg_dl_": "5f39ac9e-7338-4a79-8b40-58dbef9debb0",
+    "ast_u_l_": "33297367-9a74-4e2c-a474-923e61d45252",
+    "antiretroviral_side_effects": "9d4cf346-a23e-4c8e-9ed0-4e6fc274cbe6",
+    "alt_u_l_": "49296372-8a07-4182-8506-ded37e2bc667",
+    "date_of_hiv_diagnosis": "160554AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
   }
 },{
   "report_name": "Intake A",
@@ -12894,13 +12908,9 @@ END;
 
 -- $BEGIN
 CALL sp_dim_client_art_follow_up();
-
 CALL sp_fact_encounter_art_follow_up();
-
 CALL sp_fact_encounter_art_first_follow_up();
-
 CALL sp_fact_encounter_art_latest_follow_up();
-
 CALL sp_fact_encounter_tx_new();
 
 
@@ -13210,6 +13220,7 @@ SELECT person.person_id,
        p_add.city_village,
        (SELECT normal_agegroup from mamba_dim_agegroup where age = current_age)  as coarse_age_group,
        (SELECT  datim_agegroup from mamba_dim_agegroup where age = current_age) as fine_age_group
+
 FROM mamba_dim_person person
          LEFT JOIN mamba_dim_person_address p_add ON person.person_id = p_add.person_id;
 -- $END
@@ -13453,7 +13464,7 @@ INSERT INTO mamba_fact_art_follow_up (client_id,
 SELECT follow_up.client_id,
        follow_up.encounter_id,
        follow_up.encounter_datetime,
-       weight_kg_,
+       weight_text_,
        cd4_count,
        current_who_hiv_stage,
        nutritional_status_of_adult,
@@ -13468,9 +13479,9 @@ SELECT follow_up.client_id,
        pregnancy_status,
        currently_breastfeeding_child,
        follow_up_status,
-       why_eligible_for_hiv_test_,
+       'why_eligible_for_hiv_test_',
        treatment_end_date,
-       return_visit_date,
+       next_visit_date,
        hiv_viral_load,
        hiv_viral_load_status,
        viral_load_test_status,
@@ -13486,7 +13497,7 @@ SELECT follow_up.client_id,
        date_started_on_tuberculosis_prophy,
        date_completed_tuberculosis_prophyl,
        date_discontinued_tuberculosis_prop,
-       tuberculosis_treatment_end_date
+       treatment_end_date
 FROM mamba_flat_encounter_follow_up follow_up
          JOIN mamba_flat_encounter_follow_up_1 enc_follow_up_1
               on enc_follow_up_1.encounter_id = follow_up.encounter_id
@@ -14833,13 +14844,9 @@ END;
 
 -- $BEGIN
 CALL sp_dim_client_art_follow_up();
-
 CALL sp_fact_encounter_art_follow_up();
-
 CALL sp_fact_encounter_art_first_follow_up();
-
 CALL sp_fact_encounter_art_latest_follow_up();
-
 CALL sp_fact_encounter_tx_new();
 
 
@@ -14876,11 +14883,11 @@ BEGIN
                               art_antiretroviral_start_date       as art_start_date,
                               viral_load_test_status              as viral_load_status,
                               hiv_viral_load                      as viral_load_count,
-                              weight_kg_                          as weight,
+                              weight_text_                          as weight,
                               diagnosis_date               as date_hiv_confirmed,
                               antiretroviral_art_dispensed_dose_i as arv_dispensed_dose_days,
                               regimen,
-                              return_visit_date                   as next_visit_date,
+                              next_visit_date                   as next_visit_date,
                               routine_viral_load_test_indication  as routine_viral_load,
                               date_of_last_menstrual_period_lmp_  as lmp,
                               currently_breastfeeding_child       as BreastFeeding,
@@ -14893,7 +14900,7 @@ BEGIN
                                            on follow_up.encounter_id = follow_up_1.encounter_id
                                 left join mamba_dim_client_art_follow_up dim_client
                                           on follow_up.client_id = dim_client.client_id
-                       WHERE follow_up.follow_up_date_followup_ <= REPORT_END_DATE),
+                       WHERE follow_up_1.follow_up_date_followup_ <= REPORT_END_DATE),
          VLSentdate AS (SELECT Follow_up.patient_id, MAX(viral_load_sent_date) AS VL_Sent_Date
                         FROM Follow_up
                         where
@@ -15389,22 +15396,22 @@ BEGIN
                           temp3.age,
                           temp3.sex,
                           temp3.weight,
-                          ConvertGregorianToEthiopian(temp3.date_hiv_confirmed)  as date_hiv_confirmed,
-                          ConvertGregorianToEthiopian(temp3.art_start_date)      as art_start_date,
-                          ConvertGregorianToEthiopian(temp3.follow_up_date)      as follow_up_date,
+                          temp3.date_hiv_confirmed date_hiv_confirmed,
+                          temp3.art_start_date      as art_start_date,
+                          temp3.follow_up_date      as follow_up_date,
                           IsPregnant,
                           temp3.regimen                                                   AS ARVDispendsedDose,
                           arv_dispensed_dose_days,
-                          ConvertGregorianToEthiopian(temp3.next_visit_date)     as next_visit_date,
+                          temp3.next_visit_date     as next_visit_date,
                           temp3.follow_up_status,
-                          ConvertGregorianToEthiopian(treatment_end_date)        as treatment_end_date,
-                          ConvertGregorianToEthiopian(viral_load_performed_date) as viral_load_performed_date,
+                          treatment_end_date        as treatment_end_date,
+                          viral_load_performed_date as viral_load_performed_date,
                           viral_load_status,
                           viral_load_count,
-                          ConvertGregorianToEthiopian(VL_Sent_Date)              as VL_Sent_Date,
-                          ConvertGregorianToEthiopian(viral_load_ref_date)       as viral_load_ref_date,
-                          ConvertGregorianToEthiopian(date_regimen_change)       as date_regimen_change,
-                          ConvertGregorianToEthiopian(eligiblityDate)            as eligiblityDate,
+                          VL_Sent_Date              as VL_Sent_Date,
+                          viral_load_ref_date       as viral_load_ref_date,
+                          date_regimen_change       as date_regimen_change,
+                          eligiblityDate            as eligiblityDate,
                           vl_key,
                           CASE
                               WHEN IsPregnant = 'Yes' or BreastFeeding = 'Yes' THEN 'Yes'
@@ -15429,11 +15436,13 @@ END;
 -- ----------------------  sp_fact_cxca_query  ----------------------------
 -- ---------------------------------------------------------------------------------------------
 
+DELIMITER
+//
 
 DROP PROCEDURE IF EXISTS sp_fact_cxca_query;
 
 ~-~-
-CREATE PROCEDURE  sp_fact_cxca_query()
+CREATE PROCEDURE sp_fact_cxca_query()
 BEGIN
 
 -- SMARTCARE                       -    OPENMRS                                                                  MAMBA
@@ -15447,29 +15456,29 @@ BEGIN
 -- colposcopy_exam_finding         -    1858,Colposcopy of cervix findings                               -  colposcopy_of_cervix_findings            - 93bf2a3e-1675-44c9-b7ee-b8ba9cb32b22
 -- ccs_next_date                   -    964,Next follow up screening date                                -  next_follow_up_screening_date            - 4ce065b6-aecb-46a3-b60b-41bc5dc8022f
 -- ccs_screendoneyes               -    1871,Cervical cancer screening status                            -  cervical_cancer_screening_status         - 01c546b4-e08a-4c0c-82ef-d387cab6bbbf
-WITH Follow_up AS (SELECT follow_up_date_followup_                      AS follow_up_date,
-                          follow_up.client_id                           AS patient_id,
-                          follow_up.encounter_id                        AS encounter_id,
+WITH Follow_up AS (SELECT follow_up_date_followup_                                         AS follow_up_date,
+                          follow_up.client_id                                              AS patient_id,
+                          follow_up.encounter_id                                           AS encounter_id,
                           follow_up_status,
-                          next_follow_up_screening_date                 AS ccs_next_date,
-                          cervical_cancer_screening_status              AS screening_status,
+                          next_follow_up_screening_date                                    AS ccs_next_date,
+                          cervical_cancer_screening_status                                 AS screening_status,
                           hpv_dna_result_received_date,
-                          hpv_dna_screening_result                      AS ccs_hpv_result,
-                          cytology_done_                                AS cytology_result,
-                          date_cytology_result_received                 AS cytology_result_received_date,
-                          via_screening_result                          AS ccs_via_result,
+                          hpv_dna_screening_result                                         AS ccs_hpv_result,
+                          cytology_done_                                                   AS cytology_result,
+                          date_cytology_result_received                                    AS cytology_result_received_date,
+                          via_screening_result                                             AS ccs_via_result,
                           via_done_,
-                          date_visual_inspection_of_the_cervi           AS date_via_result,
-                          treatment_start_date                          AS ccs_treat_received_date,
-                          colposcopy_of_cervix_findings                 AS colposcopy_exam_finding,
+                          date_visual_inspection_of_the_cervi                              AS date_via_result,
+                          treatment_start_date                                             AS ccs_treat_received_date,
+                          colposcopy_of_cervix_findings                                    AS colposcopy_exam_finding,
                           sex,
-                          CEILING(TIMESTAMPDIFF(MONTH , date_of_birth, '2024-01-01')/12) AS age,
+                          CEILING(TIMESTAMPDIFF(MONTH , date_of_birth, '2024-01-01') / 12) AS age,
                           mrn,
                           uan,
-                          patient_name                                  as NAME,
-                          ''                                            as phonenumber,
-                          mobile_no                                     as mobilephonenumber,
-                          art_antiretroviral_start_date                 AS art_start_date,
+                          patient_name                                                     as NAME,
+                          ''                                                               as phonenumber,
+                          mobile_no                                                        as mobilephonenumber,
+                          art_antiretroviral_start_date                                    AS art_start_date,
                           regimen,
                           adherence,
                           next_visit_date
@@ -15487,10 +15496,10 @@ WITH Follow_up AS (SELECT follow_up_date_followup_                      AS follo
                                         Follow_up.follow_up_status,
                                         ROW_NUMBER() OVER (PARTITION BY patient_id ORDER BY follow_up_date DESC, encounter_id DESC) AS rn
                                  from Follow_up),
-     cervical_screening_performed AS (SELECT MAX(follow_up_date)                                                                                             AS max_follow_up_date,
-                                             Follow_up.patient_id                                                                                            as max_patient_id,
-                                             Follow_up.encounter_id                                                                                          as max_encounter_id,
-                                             ROW_NUMBER() OVER (PARTITION BY Follow_up.patient_id ORDER BY follow_up_date DESC, Follow_up.encounter_id DESC) AS rn
+     cervical_screening_performed AS (SELECT MAX(follow_up_date)    AS max_follow_up_date,
+                                             Follow_up.patient_id   as max_patient_id,
+                                             Follow_up.encounter_id as max_encounter_id,
+                                             ROW_NUMBER()              OVER (PARTITION BY Follow_up.patient_id ORDER BY follow_up_date DESC, Follow_up.encounter_id DESC) AS rn
                                       FROM Follow_up
                                                inner join latest_follow_up_status
                                                           on Follow_up.patient_id = latest_follow_up_status.patient_id
@@ -15498,10 +15507,10 @@ WITH Follow_up AS (SELECT follow_up_date_followup_                      AS follo
                                         and rn = 1
                                         and latest_follow_up_status.follow_up_status not in ('Dead', 'Transferred out')
                                       group by Follow_up.patient_id, Follow_up.encounter_id, Follow_up.follow_up_date),
-     cervical_screening_not_performed AS (SELECT MAX(follow_up_date)                                                                                             AS max_follow_up_date,
-                                                 Follow_up.patient_id                                                                                            as max_patient_id,
-                                                 Follow_up.encounter_id                                                                                          as max_encounter_id,
-                                                 ROW_NUMBER() OVER (PARTITION BY Follow_up.patient_id ORDER BY follow_up_date DESC, Follow_up.encounter_id DESC) AS rn
+     cervical_screening_not_performed AS (SELECT MAX(follow_up_date)    AS max_follow_up_date,
+                                                 Follow_up.patient_id   as max_patient_id,
+                                                 Follow_up.encounter_id as max_encounter_id,
+                                                 ROW_NUMBER()              OVER (PARTITION BY Follow_up.patient_id ORDER BY follow_up_date DESC, Follow_up.encounter_id DESC) AS rn
                                           FROM Follow_up
                                                    inner join latest_follow_up_status
                                                               on Follow_up.patient_id = latest_follow_up_status.patient_id
@@ -15525,9 +15534,9 @@ WITH Follow_up AS (SELECT follow_up_date_followup_                      AS follo
                               adherence,
                               follow_up_status,
                               follow_up_date,
-                              ConvertGregorianToEthiopian(ccs_next_date,'D/M/Y') as appointmentdate,
+                              ccs_next_date             as appointmentdate,
                               Follow_up.next_visit_date,
-                              ConvertGregorianToEthiopian(Follow_up.next_visit_date, 'D/M/Y') as next_visit_date_et,
+                              Follow_up.next_visit_date as next_visit_date_et,
                               CASE
                                   WHEN TIMESTAMPDIFF(DAY, hpv_dna_result_received_date, '2024-01-01') > 1095
                                       AND ccs_hpv_result = 'Negative result'
@@ -15551,7 +15560,7 @@ WITH Follow_up AS (SELECT follow_up_date_followup_                      AS follo
                                       THEN 'HPV Positive but VIA Negative- Need Re-screening'
                                   WHEN ccs_next_date <= '2024-01-01'
                                       AND ccs_next_date != '1900-01-01' THEN 'Other'
-                                  END                                               AS treatmentreceived
+                                  END                                                         AS treatmentreceived
                        FROM cervical_screening_performed
                                 INNER JOIN
                             Follow_up ON Follow_up.encounter_id = cervical_screening_performed.max_encounter_id
@@ -15568,11 +15577,10 @@ WITH Follow_up AS (SELECT follow_up_date_followup_                      AS follo
                               adherence,
                               follow_up_status,
                               follow_up_date,
-                              ConvertGregorianToEthiopian(ccs_next_date,'D/M/Y') as appointmentdate,
+                              ccs_next_date             as appointmentdate,
                               Follow_up.next_visit_date,
-                              ConvertGregorianToEthiopian(next_visit_date, 'D/M/Y') as next_visit_date_et,
-
-                              'Never screened for CxCa'                             as treatmentreceived
+                              next_visit_date           as next_visit_date_et,
+                              'Never screened for CxCa' as treatmentreceived
                        from cervical_screening_not_performed
                                 INNER JOIN Follow_up
                                            ON Follow_up.encounter_id = cervical_screening_not_performed.max_encounter_id
@@ -15581,8 +15589,8 @@ select *
 from cervical_data
 where treatmentreceived is not null;
 
-END;
-~-~-
+END
+//
 
 
 
@@ -15595,124 +15603,123 @@ END;
 DROP PROCEDURE IF EXISTS sp_fact_pediatric_age_out_query;
 
 ~-~-
-CREATE PROCEDURE  sp_fact_pediatric_age_out_query(IN REPORT_START_DATE DATE, IN REPORT_END_DATE DATE)
+CREATE PROCEDURE sp_fact_pediatric_age_out_query(IN REPORT_START_DATE DATE, IN REPORT_END_DATE DATE)
 BEGIN
-WITH Follow_up AS (SELECT follow_up_date_followup_                                      AS follow_up_date,
-                          follow_up.client_id                                           AS patient_id,
-                          follow_up.encounter_id                                        AS encounter_id,
-                          follow_up_status,
-                          FLOOR(TIMESTAMPDIFF(MONTH, date_of_birth, '2024-01-01') / 12) AS age,
-                          mrn,
-                          uan,
-                          sex,
-                          date_of_birth,
-                          patient_name                                                  as NAME,
-                          ''                                                            as phonenumber,
-                          mobile_no                                                     as mobilephonenumber,
-                          regimen,
-                          art_antiretroviral_start_date                                 as art_sart_date,
-                          diagnosis_date                                                as date_hiv_confirmed,
-                          next_visit_date,
-                          antiretroviral_art_dispensed_dose_i                           as art_dose,
-                          intake_a.date_enrolled_in_care                                as registration_date
-                   FROM mamba_flat_encounter_follow_up follow_up
-                            INNER JOIN
-                        mamba_flat_encounter_follow_up_1 follow_up_1
-                        ON follow_up.encounter_id = follow_up_1.encounter_id
-                            LEFT JOIN
-                        mamba_dim_client_art_follow_up dim_client
-                        ON follow_up.client_id = dim_client.client_id
-                            left join mamba_flat_encounter_intake_a intake_a on intake_a.client_id = follow_up.client_id
-                   where follow_up_date_followup_ < REPORT_END_DATE),
-     firstArtRegimen as (select patient_id,
-                                Min(follow_up_date)                                                                         as followupdate,
-                                encounter_id,
-                                ROW_NUMBER() OVER (PARTITION BY patient_id ORDER BY follow_up_date DESC, encounter_id DESC) AS rn
-                         FROM Follow_up
-                         WHERE regimen IS NOT NULL
-                         GROUP BY patient_id, encounter_id, follow_up_date),
-     firstArtRegimen2 as (SELECT regimen, Follow_up.patient_id
-                          from Follow_up
-                                   INNER JOIN firstArtRegimen
-                                              on Follow_up.encounter_id = firstArtRegimen.encounter_id
-                          where Follow_up.regimen IS NOT NULL
-                            and firstArtRegimen.rn = 1),
-     latest_follow_up_encounter as (SELECT patient_id,
-                                           encounter_id,
-                                           ROW_NUMBER() OVER (PARTITION BY patient_id ORDER BY follow_up_date DESC, encounter_id DESC) AS rn
-                                    from Follow_up
-                                    where follow_up_status IS NOT NULL
-                                      and art_sart_date is not null)
+    WITH Follow_up AS (SELECT follow_up_date_followup_                                      AS follow_up_date,
+                              follow_up.client_id                                           AS patient_id,
+                              follow_up.encounter_id                                        AS encounter_id,
+                              follow_up_status,
+                              FLOOR(TIMESTAMPDIFF(MONTH, date_of_birth, '2024-01-01') / 12) AS age,
+                              mrn,
+                              uan,
+                              sex,
+                              date_of_birth,
+                              patient_name                                                  as NAME,
+                              ''                                                            as phonenumber,
+                              mobile_no                                                     as mobilephonenumber,
+                              regimen,
+                              art_antiretroviral_start_date                                 as art_sart_date,
+                              diagnosis_date                                                as date_hiv_confirmed,
+                              next_visit_date,
+                              antiretroviral_art_dispensed_dose_i                           as art_dose,
+                              intake_a.date_enrolled_in_care                                as registration_date
+                       FROM mamba_flat_encounter_follow_up follow_up
+                                INNER JOIN
+                            mamba_flat_encounter_follow_up_1 follow_up_1
+                            ON follow_up.encounter_id = follow_up_1.encounter_id
+                                LEFT JOIN
+                            mamba_dim_client_art_follow_up dim_client
+                            ON follow_up.client_id = dim_client.client_id
+                                left join mamba_flat_encounter_intake_a intake_a
+                                          on intake_a.client_id = follow_up.client_id
+                       where follow_up_date_followup_ < REPORT_END_DATE),
+         firstArtRegimen as (select patient_id,
+                                    Min(follow_up_date)                                                                         as followupdate,
+                                    encounter_id,
+                                    ROW_NUMBER() OVER (PARTITION BY patient_id ORDER BY follow_up_date DESC, encounter_id DESC) AS rn
+                             FROM Follow_up
+                             WHERE regimen IS NOT NULL
+                             GROUP BY patient_id, encounter_id, follow_up_date),
+         firstArtRegimen2 as (SELECT regimen, Follow_up.patient_id
+                              from Follow_up
+                                       INNER JOIN firstArtRegimen
+                                                  on Follow_up.encounter_id = firstArtRegimen.encounter_id
+                              where Follow_up.regimen IS NOT NULL
+                                and firstArtRegimen.rn = 1),
+         latest_follow_up_encounter as (SELECT patient_id,
+                                               encounter_id,
+                                               ROW_NUMBER() OVER (PARTITION BY patient_id ORDER BY follow_up_date DESC, encounter_id DESC) AS rn
+                                        from Follow_up
+                                        where follow_up_status IS NOT NULL
+                                          and art_sart_date is not null)
 
 
-SELECT DISTINCT Follow_up.patient_id,
-                Follow_up.NAME                          AS patientname,
-                mrn,
-                uan,
-                sex,
-                date_of_birth                           AS date_of_birth_gc,
+    SELECT DISTINCT Follow_up.patient_id,
+                    Follow_up.NAME              AS patientname,
+                    mrn,
+                    uan,
+                    sex,
+                    date_of_birth               AS date_of_birth_gc,
 
-                        date_of_birth AS date_of_birth_et,
-                                 reg.ageatdateofenrollment,
-        FLOOR(TIMESTAMPDIFF(MONTH, date_of_birth, registration_date) / 12)
-            AS age_at_enrollment,
-                CEILING(TIMESTAMPDIFF(MONTH, date_of_birth, '2024-01-01') / 12)
-                                                        AS current_age,
-               registration_date                 AS enrollment_date,
-                 date_hiv_confirmed                  AS hivconfirmed_date_et,
-                date_hiv_confirmed                      AS hivconfirmed_date_gc,
-                art_sart_date                         AS artstartdate_et,
-                art_sart_date                           AS artstarteddate_gc,
-                follow_up_date                          AS followupdate_gc,
-                follow_up_date                       AS followupdate_ec,
-                follow_up_status,
-                CASE
-                    WHEN TIMESTAMPDIFF(DAY, next_visit_date, CURDATE()) >= 30
-                        AND TIMESTAMPDIFF(DAY, next_visit_date, CURDATE()) <= 60 THEN '1lost'
-                    WHEN TIMESTAMPDIFF(DAY, next_visit_date, CURDATE()) > 60
-                        AND TIMESTAMPDIFF(DAY, next_visit_date, CURDATE()) <= 90 THEN '2lost'
-                    WHEN TIMESTAMPDIFF(DAY, next_visit_date, CURDATE()) > 90 THEN 'dropped'
-                    ELSE ' ' END                        AS current_status,
-                firstArtRegimen2.regimen                AS arv_regimen_when_started_art,
-                Follow_up.regimen                       AS arv_regimen,
-                CASE
-                    WHEN art_dose = 0 THEN '30'
-                    WHEN art_dose = 1 THEN '60'
-                    WHEN art_dose = 2 THEN '90'
-                    WHEN art_dose = 3 THEN '120'
-                    WHEN art_dose = 4 THEN '150'
-                    WHEN art_dose = 5 THEN '180'
-                    ELSE art_dose
-                    END                                 AS ndays,
-                CASE
-                    WHEN next_visit_date = '1900-01-01' THEN NULL
-                    ELSE ConvertGregorianToEthiopian(
-                            next_visit_date, 'D-M-Y'
-                         )
-                    END                                 AS nextvisitdate,
-                DATE_ADD(
-                        date_of_birth, INTERVAL 15 YEAR
-                )                                       AS date_of_15th_birthday_gc,
-               DATE_ADD(
-                                                    date_of_birth, INTERVAL 15 YEAR
-                                            ) AS date_of_15th_birthday_et,
-                CASE
-                    WHEN FLOOR(TIMESTAMPDIFF(MONTH, date_of_birth, '2024-01-01') / 12) >= '15' THEN 'YES'
-                    ELSE 'NO'
-                    END                                 AS age_out
-FROM latest_follow_up_encounter
-         left join Follow_up on latest_follow_up_encounter.encounter_id = Follow_up.encounter_id
+                    date_of_birth               AS date_of_birth_et,
+                    date_of_birth,
+                    FLOOR(TIMESTAMPDIFF(MONTH, date_of_birth, registration_date) / 12)
+                                                AS age_at_enrollment,
+                    CEILING(TIMESTAMPDIFF(MONTH, date_of_birth, '2024-01-01') / 12)
+                                                AS current_age,
+                    registration_date           AS enrollment_date,
+                    date_hiv_confirmed          AS hivconfirmed_date_et,
+                    date_hiv_confirmed          AS hivconfirmed_date_gc,
+                    art_sart_date               AS artstartdate_et,
+                    art_sart_date               AS artstarteddate_gc,
+                    follow_up_date              AS followupdate_gc,
+                    follow_up_date              AS followupdate_ec,
+                    follow_up_status,
+                    CASE
+                        WHEN TIMESTAMPDIFF(DAY, next_visit_date, CURDATE()) >= 30
+                            AND TIMESTAMPDIFF(DAY, next_visit_date, CURDATE()) <= 60 THEN '1lost'
+                        WHEN TIMESTAMPDIFF(DAY, next_visit_date, CURDATE()) > 60
+                            AND TIMESTAMPDIFF(DAY, next_visit_date, CURDATE()) <= 90 THEN '2lost'
+                        WHEN TIMESTAMPDIFF(DAY, next_visit_date, CURDATE()) > 90 THEN 'dropped'
+                        ELSE ' ' END            AS current_status,
+                    firstArtRegimen2.regimen    AS arv_regimen_when_started_art,
+                    Follow_up.regimen           AS arv_regimen,
+                    CASE
+                        WHEN art_dose = 0 THEN '30'
+                        WHEN art_dose = 1 THEN '60'
+                        WHEN art_dose = 2 THEN '90'
+                        WHEN art_dose = 3 THEN '120'
+                        WHEN art_dose = 4 THEN '150'
+                        WHEN art_dose = 5 THEN '180'
+                        ELSE art_dose
+                        END                     AS ndays,
+                    CASE
+                        WHEN next_visit_date = '1900-01-01' THEN NULL
+                        ELSE
+                            next_visit_date END AS nextvisitdate,
+                    DATE_ADD(
+                            date_of_birth, INTERVAL 15 YEAR
+                    )                           AS date_of_15th_birthday_gc,
+                    DATE_ADD(
+                            date_of_birth, INTERVAL 15 YEAR
+                    )                           AS date_of_15th_birthday_et,
+                    CASE
+                        WHEN FLOOR(TIMESTAMPDIFF(MONTH, date_of_birth, '2024-01-01') / 12) >= '15' THEN 'YES'
+                        ELSE 'NO'
+                        END                     AS age_out
+    FROM latest_follow_up_encounter
+             left join Follow_up on latest_follow_up_encounter.encounter_id = Follow_up.encounter_id
 
 
-         LEFT OUTER JOIN firstArtRegimen2 on firstArtRegimen2.patient_id = Follow_up.patient_id
-where rn = 1
+             LEFT OUTER JOIN firstArtRegimen2 on firstArtRegimen2.patient_id = Follow_up.patient_id
+    where rn = 1
 
-  and (FLOOR(TIMESTAMPDIFF(MONTH, date_of_birth, registration_date) / 12) <= '15')
-order by patientname;
-   AND (DATE_ADD(
-         date_of_birth, INTERVAL 15 YEAR
-        )) BETWEEN REPORT_START_DATE
-                     AND REPORT_END_DATE;
+      and (FLOOR(TIMESTAMPDIFF(MONTH, date_of_birth, registration_date) / 12) <= '15')
+    order by patientname
+                 AND (DATE_ADD(
+                date_of_birth, INTERVAL 15 YEAR
+                      )) BETWEEN REPORT_START_DATE
+                 AND REPORT_END_DATE;
 END;
 ~-~-
 
