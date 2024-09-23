@@ -7,7 +7,7 @@
 ############################ derived folder SPs  ############################
 #############################################################################
 
-derived/art_follow_up/sp_data_processing_derived_migrated.sql
+derived/art_follow_up/sp_data_processing_derived_art_follow_up.sql
 derived/transfer_in/sp_data_processing_derived_transfer_in.sql
 derived/transfer_out/sp_data_processing_derived_transfer_out.sql
 

@@ -41,11 +41,9 @@ facts/fact_tx_new/sp_fact_encounter_tx_new_query.sql
 facts/fact_tx_new/sp_dim_tx_new_datim_query.sql
 
 facts/fact_tx_curr/sp_fact_encounter_tx_curr_query.sql
-facts/fact_tx_curr/sp_fact_vl_eligibility_query.sql
-
 facts/fact_tx_curr/sp_fact_encounter_tx_curr_analytics_query.sql
 
 #############################################################################
 ##### A single SP that CALLs all SPs inside the derived & base folders ######
 #############################################################################
-sp_data_processing_derived_migrated.sql
+sp_data_processing_derived_art_follow_up.sql
