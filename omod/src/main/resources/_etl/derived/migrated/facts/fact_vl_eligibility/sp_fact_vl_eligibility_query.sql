@@ -21,11 +21,11 @@ BEGIN
                               art_antiretroviral_start_date       as art_start_date,
                               viral_load_test_status              as viral_load_status,
                               hiv_viral_load                      as viral_load_count,
-                              weight_kg_                          as weight,
+                              weight_text_                          as weight,
                               diagnosis_date               as date_hiv_confirmed,
                               antiretroviral_art_dispensed_dose_i as arv_dispensed_dose_days,
                               regimen,
-                              return_visit_date                   as next_visit_date,
+                              next_visit_date                   as next_visit_date,
                               routine_viral_load_test_indication  as routine_viral_load,
                               date_of_last_menstrual_period_lmp_  as lmp,
                               currently_breastfeeding_child       as BreastFeeding,
@@ -38,7 +38,7 @@ BEGIN
                                            on follow_up.encounter_id = follow_up_1.encounter_id
                                 left join mamba_dim_client_art_follow_up dim_client
                                           on follow_up.client_id = dim_client.client_id
-                       WHERE follow_up.follow_up_date_followup_ <= REPORT_END_DATE),
+                       WHERE follow_up_1.follow_up_date_followup_ <= REPORT_END_DATE),
          VLSentdate AS (SELECT Follow_up.patient_id, MAX(viral_load_sent_date) AS VL_Sent_Date
                         FROM Follow_up
                         where
@@ -534,22 +534,22 @@ BEGIN
                           temp3.age,
                           temp3.sex,
                           temp3.weight,
-                          ConvertGregorianToEthiopian(temp3.date_hiv_confirmed)  as date_hiv_confirmed,
-                          ConvertGregorianToEthiopian(temp3.art_start_date)      as art_start_date,
-                          ConvertGregorianToEthiopian(temp3.follow_up_date)      as follow_up_date,
+                          temp3.date_hiv_confirmed date_hiv_confirmed,
+                          temp3.art_start_date      as art_start_date,
+                          temp3.follow_up_date      as follow_up_date,
                           IsPregnant,
                           temp3.regimen                                                   AS ARVDispendsedDose,
                           arv_dispensed_dose_days,
-                          ConvertGregorianToEthiopian(temp3.next_visit_date)     as next_visit_date,
+                          temp3.next_visit_date     as next_visit_date,
                           temp3.follow_up_status,
-                          ConvertGregorianToEthiopian(treatment_end_date)        as treatment_end_date,
-                          ConvertGregorianToEthiopian(viral_load_performed_date) as viral_load_performed_date,
+                          treatment_end_date        as treatment_end_date,
+                          viral_load_performed_date as viral_load_performed_date,
                           viral_load_status,
                           viral_load_count,
-                          ConvertGregorianToEthiopian(VL_Sent_Date)              as VL_Sent_Date,
-                          ConvertGregorianToEthiopian(viral_load_ref_date)       as viral_load_ref_date,
-                          ConvertGregorianToEthiopian(date_regimen_change)       as date_regimen_change,
-                          ConvertGregorianToEthiopian(eligiblityDate)            as eligiblityDate,
+                          VL_Sent_Date              as VL_Sent_Date,
+                          viral_load_ref_date       as viral_load_ref_date,
+                          date_regimen_change       as date_regimen_change,
+                          eligiblityDate            as eligiblityDate,
                           vl_key,
                           CASE
                               WHEN IsPregnant = 'Yes' or BreastFeeding = 'Yes' THEN 'Yes'

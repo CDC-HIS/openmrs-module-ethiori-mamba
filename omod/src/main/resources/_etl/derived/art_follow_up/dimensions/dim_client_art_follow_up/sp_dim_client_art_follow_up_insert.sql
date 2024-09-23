@@ -40,6 +40,7 @@ SELECT person.person_id,
        p_add.city_village,
        (SELECT normal_agegroup from mamba_dim_agegroup where age = current_age)  as coarse_age_group,
        (SELECT  datim_agegroup from mamba_dim_agegroup where age = current_age) as fine_age_group
+
 FROM mamba_dim_person person
          LEFT JOIN mamba_dim_person_address p_add ON person.person_id = p_add.person_id;
 -- $END
