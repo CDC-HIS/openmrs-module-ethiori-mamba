@@ -13,14 +13,18 @@
     <packaging>jar</packaging>
     <name>MambaETL Reference module - OMOD</name>
     <description>OpenMRS MambaETL Reference module - OMOD</description>
-
-
-
     <dependencies>
         <dependency>
+            <groupId>org.openmrs.api</groupId>
+            <artifactId>openmrs-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>javax.annotation-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.openmrs.module</groupId>
-            <artifactId>ethiohri-mamba-api</artifactId>
-            <version>${project.parent.version}</version>
+            <artifactId>mamba-core-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.openmrs.web</groupId>
