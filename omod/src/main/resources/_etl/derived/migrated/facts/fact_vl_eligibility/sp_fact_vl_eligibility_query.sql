@@ -36,6 +36,8 @@ BEGIN
                        from mamba_flat_encounter_follow_up follow_up
                                 inner join mamba_flat_encounter_follow_up_1 follow_up_1
                                            on follow_up.encounter_id = follow_up_1.encounter_id
+                                inner join mamba_flat_encounter_follow_up_2 follow_up_2
+                                           on follow_up.encounter_id = follow_up_2.encounter_id
                                 left join mamba_dim_client_art_follow_up dim_client
                                           on follow_up.client_id = dim_client.client_id
                        WHERE follow_up_1.follow_up_date_followup_ <= REPORT_END_DATE),
