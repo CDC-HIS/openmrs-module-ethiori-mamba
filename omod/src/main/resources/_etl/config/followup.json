@@ -160,6 +160,9 @@
     "purpose_for_visit_cervical_screening":"2c6f75a8-f35c-4671-939e-ebcc680c48a0",
     "cervical_cancer_screening_method_strategy": "c842a287-f94c-48ee-a370-bd6540a0d1af",
     "treatment_of_precancerous_lesions_of_the_cervix": "6b97156c-3795-48d0-a15c-4f2590ffef54",
-    "suspected_cervical_cancer": "159008AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    "suspected_cervical_cancer": "159008AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "referral_or_linkage_status": "12ea1ff4-4d3e-46e1-8310-5b853baf48f2",
+    "transferred_in_check_this_for_all_t": "cc2dfcbd-e099-47d5-b01c-74caa296ba3c",
+    "why_eligible_reason_": "b7b1da64-22f4-4357-9eb8-493b43c02581"
   }
 }
