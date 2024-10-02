@@ -7,10 +7,6 @@ CREATE PROCEDURE  sp_fact_vl_eligibility_query(
 )
 BEGIN
 
-    DECLARE end_date_str VARCHAR(20);
-
-    SET end_date_str = DATE_FORMAT(REPORT_END_DATE, '%Y-%m-%d');
-
     WITH Follow_up AS (select follow_up_date_followup_            as follow_up_date,
                               follow_up.client_id                 as patient_id,
                               follow_up.encounter_id              as encounter_id,
