@@ -24,7 +24,8 @@
         </dependency>
         <dependency>
             <groupId>org.openmrs.module</groupId>
-            <artifactId>mamba-core-api</artifactId>
+            <artifactId>ethiohri-mamba-api</artifactId>
+            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openmrs.web</groupId>
