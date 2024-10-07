@@ -106,7 +106,7 @@ public class TxCurrDATIMReportsMamba implements ReportManager {
 	
 	@Override
 	public List<ReportDesign> constructReportDesigns(ReportDefinition reportDefinition) {
-		ReportDesign design = ReportManagerUtil.createExcelDesign("d4debfa2-95ea-4c8e-9a89-36ccd201e943", reportDefinition);
+		ReportDesign design = ReportManagerUtil.createExcelDesign("dd86d722-c9c9-4d23-beff-4e76ffbdc0b1", reportDefinition);
 		
 		return Collections.singletonList(design);
 	}
