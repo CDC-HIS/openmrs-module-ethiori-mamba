@@ -35,7 +35,14 @@ INSERT INTO mamba_fact_art_follow_up (client_id,
                                       tpt_start_date,
                                       tpt_completed_date,
                                       tpt_discontinued_date,
-                                      tuberculosis_treatment_end_date)
+                                      date_active_tbrx_completed,
+                                      tb_prophylaxis_type,
+                                      cotrimoxazole_prophylaxis_start_dat,
+                                      cotrimoxazole_prophylaxis_stop_date,
+                                      patient_diagnosed_with_active_tuber,
+                                      diagnosis_date,
+                                      tuberculosis_drug_treatment_start_d,
+                                      fluconazole_start_date)
 SELECT follow_up.client_id,
        follow_up.encounter_id,
        follow_up.encounter_datetime,
@@ -72,10 +79,18 @@ SELECT follow_up.client_id,
        date_started_on_tuberculosis_prophy,
        date_completed_tuberculosis_prophyl,
        date_discontinued_tuberculosis_prop,
-       treatment_end_date
+       date_active_tbrx_completed,
+       tb_prophylaxis_type,
+       cotrimoxazole_prophylaxis_start_dat,
+       cotrimoxazole_prophylaxis_stop_date,
+       patient_diagnosed_with_active_tuber,
+       diagnosis_date,
+       tuberculosis_drug_treatment_start_d,
+       fluconazole_start_date
 FROM mamba_flat_encounter_follow_up follow_up
          JOIN mamba_flat_encounter_follow_up_1 enc_follow_up_1        on enc_follow_up_1.encounter_id = follow_up.encounter_id
          JOIN mamba_flat_encounter_follow_up_2 enc_follow_up_2        on enc_follow_up_2.encounter_id = follow_up.encounter_id
+         JOIN mamba_flat_encounter_follow_up_3 enc_follow_up_3        on enc_follow_up_3.encounter_id = follow_up.encounter_id
          JOIN mamba_flat_encounter_intake_a int_a on follow_up.client_id = int_a.client_id
 where art_antiretroviral_start_date is not null;
 -- $END

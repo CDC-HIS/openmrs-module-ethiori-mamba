@@ -1,5 +1,4 @@
-DELIMITER
-//
+DELIMITER //
 
 DROP PROCEDURE IF EXISTS sp_fact_cxca_query;
 
@@ -150,7 +149,6 @@ select *
 from cervical_data
 where treatmentreceived is not null;
 
-END
-//
+END //
 
 DELIMITER ;

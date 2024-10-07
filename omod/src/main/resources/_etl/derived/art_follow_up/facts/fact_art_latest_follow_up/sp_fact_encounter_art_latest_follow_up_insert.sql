@@ -35,7 +35,8 @@ INSERT INTO mamba_fact_art_latest_follow_up (client_id,
                                       tpt_start_date,
                                       tpt_completed_date,
                                       tpt_discontinued_date,
-                                      tuberculosis_treatment_end_date)
+                                      tuberculosis_treatment_end_date,
+                                      tb_prophylaxis_type)
 WITH RankedFollowups AS (
     SELECT
         client_id,
@@ -75,6 +76,7 @@ WITH RankedFollowups AS (
         tpt_completed_date,
         tpt_discontinued_date,
         tuberculosis_treatment_end_date,
+        tb_prophylaxis_type,
         ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY followup_date DESC) AS rn
     FROM mamba_fact_art_follow_up
 )
@@ -115,7 +117,8 @@ SELECT
     tpt_start_date,
     tpt_completed_date,
     tpt_discontinued_date,
-    tuberculosis_treatment_end_date
+    tuberculosis_treatment_end_date,
+    tb_prophylaxis_type
 FROM RankedFollowups
 WHERE rn = 1;
 -- $END
