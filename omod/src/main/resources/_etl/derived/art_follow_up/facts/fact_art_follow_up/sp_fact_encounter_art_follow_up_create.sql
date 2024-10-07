@@ -39,6 +39,14 @@ CREATE TABLE IF NOT EXISTS mamba_fact_art_follow_up
     tpt_completed_date                  DATE,
     tpt_discontinued_date               DATE,
     tuberculosis_treatment_end_date     DATE,
+    tb_prophylaxis_type                 NVARCHAR(255),
+    cotrimoxazole_prophylaxis_start_dat NVARCHAR(255),
+    cotrimoxazole_prophylaxis_stop_date NVARCHAR(255),
+    patient_diagnosed_with_active_tuber NVARCHAR(255),
+    diagnosis_date                      DATE,
+    tuberculosis_drug_treatment_start_d NVARCHAR(255),
+    date_active_tbrx_completed          DATE,
+    fluconazole_start_date              DATE,
     PRIMARY KEY (id)
 );
 CREATE INDEX mamba_fact_art_follow_up_art_start_date_index ON mamba_fact_art_follow_up (art_start_date);

@@ -1,6 +1,6 @@
 DELIMITER //
 
-DROP PROCEDURE IF EXISTS sp_fact_vl_eligibility_query;
+DROP PROCEDURE IF EXISTS sp_fact_tx_curr_analysis_query;
 
 CREATE PROCEDURE  sp_fact_tx_curr_analysis_query(IN REPORT_START_DATE DATE, IN REPORT_END_DATE DATE)
 BEGIN

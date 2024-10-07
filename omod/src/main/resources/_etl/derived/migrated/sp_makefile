@@ -13,6 +13,7 @@ facts/fact_vl_eligibility/sp_fact_vl_eligibility_query.sql
 facts/cxca/sp_fact_cxca_query.sql
 facts/pediatric_age_out/sp_fact_pediatric_age_out_query.sql
 facts/tx_curr_analysis/sp_fact_tx_curr_analysis_query.sql
+facts/tpt_data_extraction/sp_fact_tpt_linelist_data_extraction_query.sql
 #############################################################################
 ##### A single SP that CALLs all SPs inside the derived & base folders ######
 #############################################################################
