@@ -3,7 +3,10 @@ package org.openmrs.module.mambaetl.reports.linelist.migrated;
 import org.openmrs.module.mambaetl.datasetdefinition.migrated.CXCADatasetDefinition;
 import org.openmrs.module.mambaetl.datasetdefinition.migrated.VLEligibilityDatasetDefinition;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
+import org.openmrs.module.reporting.evaluation.parameter.Mapped;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
+import org.openmrs.module.reporting.evaluation.parameter.Parameterizable;
+import org.openmrs.module.reporting.evaluation.parameter.ParameterizableUtil;
 import org.openmrs.module.reporting.report.ReportDesign;
 import org.openmrs.module.reporting.report.ReportRequest;
 import org.openmrs.module.reporting.report.definition.ReportDefinition;
@@ -11,9 +14,9 @@ import org.openmrs.module.reporting.report.manager.ReportManager;
 import org.openmrs.module.reporting.report.manager.ReportManagerUtil;
 import org.springframework.stereotype.Component;
 
-import java.sql.Date;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 @Component
@@ -36,15 +39,12 @@ public class VLEligibilityReport implements ReportManager {
 	
 	@Override
 	public List<Parameter> getParameters() {
-		Parameter startDate = new Parameter("startDate", "On Month", Date.class);
-		startDate.setRequired(false);
-		Parameter startDateGC = new Parameter("startDateGC", " ", Date.class);
-		startDateGC.setRequired(false);
-		Parameter endDate = new Parameter("endDate", "On Month", Date.class);
+		
+		Parameter endDate = new Parameter("endDate", "On Month", java.util.Date.class);
 		endDate.setRequired(false);
 		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
 		endDateGC.setRequired(false);
-		return Arrays.asList(startDate, startDateGC, endDate, endDateGC);
+		return Arrays.asList(endDate, endDateGC);
 		
 	}
 	
@@ -61,8 +61,19 @@ public class VLEligibilityReport implements ReportManager {
 		vlEligibilityDatasetDefinition.addParameters(getParameters());
 		
 		reportDefinition.addDataSetDefinition("List of Patients eligible for VL",
-		    EthiOhriUtil.map(vlEligibilityDatasetDefinition));
+		    map(vlEligibilityDatasetDefinition, "endDate=${endDateGC}"));
+		
 		return reportDefinition;
+	}
+	
+	public static <T extends Parameterizable> Mapped<T> map(T parameterizable, String mappings) {
+		if (parameterizable == null) {
+			throw new IllegalArgumentException("Parameterizable cannot be null");
+		}
+		if (mappings == null) {
+			mappings = ""; // probably not necessary, just to be safe
+		}
+		return new Mapped<>(parameterizable, ParameterizableUtil.createParameterMappings(mappings));
 	}
 	
 	@Override

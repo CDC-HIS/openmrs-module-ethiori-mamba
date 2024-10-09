@@ -39,6 +39,7 @@ public class VLEligibilityDataSetEvaluator implements DataSetEvaluator {
 			 CallableStatement statement = connection.prepareCall("{call sp_fact_vl_eligibility_query(?)}")) {
 			statement.setDate(1, new java.sql.Date(vlEligibilityDatasetDefinition.getEndDate().getTime()));
 
+
 			try (ResultSet resultSet = statement.executeQuery()) {
 				if (resultSet != null) {
 					return resultSetMapper.mapResultSetToDataSet(resultSet, data);
