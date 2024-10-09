@@ -28,7 +28,7 @@ SELECT person.person_id,
        (select p_attr.value as mobile_no
         from mamba_dim_person_attribute p_attr
         where person.person_id = p_attr.person_id
-          and p_attr.person_attribute_type_id = 9
+          and p_attr.person_attribute_type_id = 26
         LIMIT 1),
        person.birthdate,
        CASE

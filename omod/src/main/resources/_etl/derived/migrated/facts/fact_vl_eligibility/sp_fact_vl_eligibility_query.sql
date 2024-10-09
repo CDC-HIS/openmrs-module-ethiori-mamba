@@ -18,7 +18,7 @@ BEGIN
                               viral_load_test_status              as viral_load_status,
                               hiv_viral_load                      as viral_load_count,
                               weight_text_                          as weight,
-                              diagnosis_date               as date_hiv_confirmed,
+                              date_of_event               as date_hiv_confirmed,
                               antiretroviral_art_dispensed_dose_i as arv_dispensed_dose_days,
                               regimen,
                               next_visit_date                   as next_visit_date,
