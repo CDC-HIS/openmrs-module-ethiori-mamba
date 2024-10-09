@@ -42,8 +42,9 @@ BEGIN
             fluconazole_start_date,
             ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY followup_date DESC) AS rn_desc
         FROM mamba_fact_art_follow_up
-        WHERE followup_date <= CAST('2024-08-31' AS DATE)
-          AND art_start_date <= CAST('2024-08-31' AS DATE)
+        WHERE followup_date <= REPORT_END_DATE
+          AND art_start_date <= REPORT_END_DATE
+          AND treatment_end_date >= REPORT_END_DATE
           AND regimen IS NOT NULL
     )
     SELECT
@@ -77,7 +78,8 @@ BEGIN
     FROM LatestFollowUp lf
              JOIN mamba_dim_client_art_follow_up dim ON lf.client_id = dim.client_id
     WHERE lf.rn_desc = 1
-      AND lf.follow_up_status = 'Alive';
+      AND (lf.follow_up_status = 'Alive'
+      OR lf.follow_up_status = 'Restart medication');
 END //
 
 DELIMITER ;
