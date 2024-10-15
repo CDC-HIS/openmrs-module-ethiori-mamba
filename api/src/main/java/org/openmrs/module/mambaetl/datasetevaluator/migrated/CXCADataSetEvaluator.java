@@ -1,7 +1,6 @@
 package org.openmrs.module.mambaetl.datasetevaluator.migrated;
 
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.mambaetl.datasetdefinition.linelist.TxCurrDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.datasetdefinition.migrated.CXCADatasetDefinition;
 import org.openmrs.module.mambaetl.helpers.ConnectionPoolManager;
 import org.openmrs.module.mambaetl.helpers.ValidationHelper;
@@ -23,7 +22,8 @@ import java.sql.SQLException;
 public class CXCADataSetEvaluator implements DataSetEvaluator {
 	
 	@Override
-	public DataSet evaluate(DataSetDefinition dataSetDefinition, EvaluationContext evalContext) throws EvaluationException {
+	public DataSet evaluate(DataSetDefinition dataSetDefinition, EvaluationContext evalContext)
+			throws EvaluationException {
 
 		CXCADatasetDefinition cxcaDatasetDefinition = (CXCADatasetDefinition) dataSetDefinition;
 		SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
@@ -36,7 +36,7 @@ public class CXCADataSetEvaluator implements DataSetEvaluator {
 
 		// Get ResultSet from the database
 		try (Connection connection = getDataSource().getConnection();
-			 CallableStatement statement = connection.prepareCall("{call sp_fact_cxca_query()}")) {
+				CallableStatement statement = connection.prepareCall("{call sp_fact_cxca_query()}")) {
 
 			try (ResultSet resultSet = statement.executeQuery()) {
 				if (resultSet != null) {
