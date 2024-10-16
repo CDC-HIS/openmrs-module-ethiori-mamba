@@ -163,6 +163,24 @@
     "suspected_cervical_cancer": "159008AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "referral_or_linkage_status": "12ea1ff4-4d3e-46e1-8310-5b853baf48f2",
     "transferred_in_check_this_for_all_t": "cc2dfcbd-e099-47d5-b01c-74caa296ba3c",
-    "why_eligible_reason_": "b7b1da64-22f4-4357-9eb8-493b43c02581"
+    "why_eligible_reason_": "b7b1da64-22f4-4357-9eb8-493b43c02581",
+    "suspected_antiretroviral_failure":"4c6f2326-480f-449d-9932-fe85019997f6",
+    "repeat_or_confirmatory_vl_initial_viral_load_greater_than_10":"9ffb81b7-3d9e-4f72-b1ba-3f60f07e4661",
+    "pneumonia":"114100AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "extra_pulmonary_tuberculosis_tb": "fadf2d65-cf3a-4bc1-aa83-9a938b7d205d",
+    "candidiasis_of_the_esophagus": "146513AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "candidiasis_vaginal": "298AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "mouth_ulcer":"ddd5125d-f973-47ce-8fa7-8e3852d24021",
+    "diarrhea_chronic":"5018AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "acute_diarrhea":"149856AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "toxoplasmosis":"5355AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "meningitis_cryptococcal":"1294AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "kaposi_sarcoma_oral":"644AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "pulmonary_tuberculosis_tb":"988737cf-d3ae-4fa3-99f1-0929ccafeb9d",
+    "candidiasis_oral":"5334AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "pneumocystis_carinii_pneumonia_pcp": "6fdd205f-d467-40c0-ab3d-62e73c22acf6",
+    "malignant_lymphoma_nonhodgkins":"115195AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "female_genital_ulcer_disease":"153872AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "other_opportunistic_illnesses": "20841482-587f-4b4c-9562-ce3f481dd5a8"
   }
 }
