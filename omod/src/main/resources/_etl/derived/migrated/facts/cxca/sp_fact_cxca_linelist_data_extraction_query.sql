@@ -100,6 +100,6 @@ BEGIN
         WHERE sex = 'FEMALE'
         AND age > 15
         AND lf.art_start_date IS NOT NULL
-        AND why_null.client_id IS NULL
+        AND why_null.client_id IS NULL;
 END //
 DELIMITER ;
