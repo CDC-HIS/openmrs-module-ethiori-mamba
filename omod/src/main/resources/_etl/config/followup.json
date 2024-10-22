@@ -195,6 +195,7 @@
     "first_viral_load_test_at_3_months_or_longer_post_art": "d1977f43-83a5-4b32-b589-33b9315e912d",
     "herpes_zoster":"117543AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "bacterial_pneumonia": "121252AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "no_opportunistic_illness": "ace33bc0-b97d-46ff-a979-0056439f7d64"
+    "no_opportunistic_illness": "ace33bc0-b97d-46ff-a979-0056439f7d64",
+    "fluconazole_stop_date": "c2d57bcb-02f2-457d-af05-8d759a1457a7"
   }
 }
