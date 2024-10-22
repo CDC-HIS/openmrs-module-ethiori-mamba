@@ -181,6 +181,18 @@
     "pneumocystis_carinii_pneumonia_pcp": "6fdd205f-d467-40c0-ab3d-62e73c22acf6",
     "malignant_lymphoma_nonhodgkins":"115195AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "female_genital_ulcer_disease":"153872AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "other_opportunistic_illnesses": "20841482-587f-4b4c-9562-ce3f481dd5a8"
+    "other_opportunistic_illnesses": "20841482-587f-4b4c-9562-ce3f481dd5a8",
+    "at_3436_weeks_of_gestation": "c1f8f2f6-ec39-422b-a305-58ccafec86c3",
+    "viral_load_after_eac_confirmatory_viral_load_where_initial_v": "4afb4baf-14c0-498b-b908-06b33e50476e",
+    "viral_load_after_eac_repeat_viral_load_where_initial_viral_l": "9dbe8de0-c0ca-4bb0-ac46-207dd5ee5caf",
+    "every_six_months_until_mtct_ends": "d18e5f76-5026-45d1-be18-f14ae936c692",
+    "six_months_after_the_first_viral_load_test_at_postnatal_peri": "d3d6d8e3-0438-4f83-ba9f-ac46eed6782b",
+    "three_months_after_delivery": "603faef3-2142-4ee7-8781-aa977ada17a2",
+    "at_the_first_antenatal_care_visit": "89e9a9ee-15d1-424b-be5a-0765822cd35e",
+    "annual_viral_load_test": "42a61e3f-e3e9-46a8-96e3-8643f4d476a4",
+    "second_viral_load_test_at_12_months_post_art": "c616b09a-bcc2-49a9-b47c-7219f7695e91",
+    "first_viral_load_test_at_6_months_or_longer_post_art": "b450f8e7-f55e-4788-8fb4-de5229db1b10",
+    "first_viral_load_test_at_3_months_or_longer_post_art": "d1977f43-83a5-4b32-b589-33b9315e912d",
+    "herpes_zoster":"117543AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
   }
 }
