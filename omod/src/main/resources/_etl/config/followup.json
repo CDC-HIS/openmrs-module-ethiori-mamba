@@ -193,6 +193,8 @@
     "second_viral_load_test_at_12_months_post_art": "c616b09a-bcc2-49a9-b47c-7219f7695e91",
     "first_viral_load_test_at_6_months_or_longer_post_art": "b450f8e7-f55e-4788-8fb4-de5229db1b10",
     "first_viral_load_test_at_3_months_or_longer_post_art": "d1977f43-83a5-4b32-b589-33b9315e912d",
-    "herpes_zoster":"117543AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    "herpes_zoster":"117543AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "bacterial_pneumonia": "121252AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "no_opportunistic_illness": "ace33bc0-b97d-46ff-a979-0056439f7d64"
   }
 }
