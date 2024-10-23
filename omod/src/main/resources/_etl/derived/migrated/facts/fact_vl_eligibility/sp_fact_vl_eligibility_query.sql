@@ -284,16 +284,15 @@ BEGIN
                                   THEN DATE_ADD(vlperfdate.viral_load_ref_date, INTERVAL 91 DAY)
 
                               WHEN (
-                                  (vlperfdate.viral_load_ref_date IS NULL or
-                                   vlperfdate.viral_load_ref_date = '1900-01-01 00:00:00.000')
-                                      AND (SwitchDate IS not NULL and SwitchDate != '1900-01-01 00:00:00.000')
+                                  (vlperfdate.viral_load_ref_date IS NULL )
+                                      AND (SwitchDate IS not NULL )
                                   )
                                   THEN DATE_ADD(SwitchDate, INTERVAL 181 DAY)
 
                               WHEN (
                                   (vlperfdate.viral_load_ref_date IS not NULL and
                                    vlperfdate.viral_load_ref_date != '1900-01-01 00:00:00.000')
-                                      AND (SwitchDate IS not NULL and SwitchDate != '1900-01-01 00:00:00.000')
+                                      AND (SwitchDate IS not NULL )
                                       AND (vlperfdate.viral_load_ref_date <= SwitchDate)
                                   )
                                   THEN DATE_ADD(SwitchDate, INTERVAL 181 DAY)
@@ -301,7 +300,7 @@ BEGIN
                               When (
                                   (Follow_up.BreastFeeding = 'Yes')
                                       AND (vlperfdate.viral_load_ref_date IS not NULL and
-                                           vlperfdate.viral_load_ref_date != '1900-01-01 00:00:00.000')
+                                           )
                                       AND (TIMESTAMPDIFF(DAY, vlperfdate.viral_load_ref_date, REPORT_END_DATE) >= 90)
                                   )
                                   THEN REPORT_END_DATE
@@ -309,7 +308,7 @@ BEGIN
                               When (
                                   (Follow_up.IsPregnant = 'Yes')
                                       AND (vlperfdate.viral_load_ref_date IS not NULL and
-                                           vlperfdate.viral_load_ref_date != '1900-01-01 00:00:00.000')
+                                           )
                                       AND (TIMESTAMPDIFF(DAY, vlperfdate.viral_load_ref_date, REPORT_END_DATE) >= 90)
                                   )
                                   THEN REPORT_END_DATE
@@ -332,7 +331,7 @@ BEGIN
                                   AND (SwitchDate IS NULL OR SwitchDate = '1900-01-01 00:00:00.000' or
                                        (SwitchDate is not null and SwitchDate < vlperfdate.viral_load_ref_date))
                                   AND (vlperfdate.viral_load_ref_date IS NOT NULL AND
-                                       vlperfdate.viral_load_ref_date != '1900-01-01 00:00:00.000')
+                                       )
                                   AND (vlperfdate.viral_load_count IS NULL OR vlperfdate.viral_load_count < 51))
                                   THEN '2nd VL at 12 months'
 
@@ -372,7 +371,7 @@ BEGIN
                                       AND (Follow_up.lmp is not null)
                                       AND (TIMESTAMPDIFF(WEEK, REPORT_END_DATE, DATE_ADD(Follow_up.lmp, INTERVAL 280 DAY)) < 34)
                                       AND (vlperfdate.viral_load_ref_date IS not NULL and
-                                           vlperfdate.viral_load_ref_date != '1900-01-01 00:00:00.000')
+                                           )
                                       AND (vlperfdate.viral_load_count IS NULL OR vlperfdate.viral_load_count < 51)
                                       AND (TIMESTAMPDIFF(MONTH, vlperfdate.viral_load_ref_date, REPORT_END_DATE) >= 3)
                                   )
@@ -396,7 +395,7 @@ BEGIN
                                   (TIMESTAMPDIFF(WEEK, REPORT_END_DATE, DATE_ADD(Follow_up.follow_up_date, INTERVAL 280 DAY)) <
                                    34)
                                       AND (vlperfdate.viral_load_ref_date IS not NULL and
-                                           vlperfdate.viral_load_ref_date != '1900-01-01 00:00:00.000')
+                                           )
                                       AND (vlperfdate.viral_load_count IS NULL OR vlperfdate.viral_load_count < 51)
                                       AND (TIMESTAMPDIFF(MONTH, vlperfdate.viral_load_ref_date, REPORT_END_DATE) >= 3)
                                   )
@@ -406,7 +405,7 @@ BEGIN
                                   (Follow_up.lmp is not null and Follow_up.lmp != '1900-01-01 00:00:00.000')
                                       AND (TIMESTAMPDIFF(WEEK, REPORT_END_DATE, DATE_ADD(Follow_up.lmp, INTERVAL 280 DAY)) < 34)
                                       AND (vlperfdate.viral_load_ref_date IS not NULL and
-                                           vlperfdate.viral_load_ref_date != '1900-01-01 00:00:00.000')
+                                           )
                                       AND (Follow_up.IsPregnant = 'Yes')
                                   )
                                   THEN 'VL at 34-36 weeks gestation'
@@ -433,7 +432,7 @@ BEGIN
                                   (Follow_up.IsPregnant = 'Yes')
                                       AND (Follow_up.lmp is not null and Follow_up.lmp != '1900-01-01 00:00:00.000')
                                       AND (vlperfdate.viral_load_ref_date IS not NULL and
-                                           vlperfdate.viral_load_ref_date != '1900-01-01 00:00:00.000')
+                                           )
                                       AND (vlperfdate.viral_load_ref_date > (Follow_up.lmp))
                                   )
                                   THEN '6 months after 1st VL at PNC'
@@ -441,59 +440,58 @@ BEGIN
                               WHEN (
                                   (Follow_up.BreastFeeding = 'Yes')
                                       AND (vlperfdate.viral_load_ref_date IS not NULL and
-                                           vlperfdate.viral_load_ref_date != '1900-01-01 00:00:00.000')
+                                           )
                                       AND (vlperfdate.viral_load_ref_date < Follow_up.follow_up_date and
                                            TIMESTAMPDIFF(DAY, vlperfdate.viral_load_ref_date, REPORT_END_DATE) > 180)
                                   )
                                   THEN 'Every 6 months untill MTCT ends'
 
                               WHEN (
-                                  (vlperfdate.viral_load_ref_date IS not NULL and
-                                   vlperfdate.viral_load_ref_date != '1900-01-01 00:00:00.000')
+                                  (vlperfdate.viral_load_ref_date IS not NULL
+                                   )
                                       AND
                                   (vlperfdate.viral_load_count IS not NULL and vlperfdate.viral_load_count <= 1000 and
                                    vlperfdate.viral_load_count >= 51)
-                                      AND (SwitchDate IS NULL OR SwitchDate = '1900-01-01 00:00:00.000' or
+                                      AND (
                                            (SwitchDate is not null and SwitchDate < vlperfdate.viral_load_ref_date))
                                   )
                                   THEN 'Repeat VL test'
 
                               WHEN (
-                                  (vlperfdate.viral_load_ref_date IS not NULL and
-                                   vlperfdate.viral_load_ref_date != '1900-01-01 00:00:00.000')
+                                  (vlperfdate.viral_load_ref_date IS not NULL
+                                   )
                                       AND (vlperfdate.viral_load_count IS not NULL and vlperfdate.viral_load_count > 1000)
-                                      AND (SwitchDate IS NULL OR SwitchDate = '1900-01-01 00:00:00.000' or
+                                      AND (
                                            (SwitchDate is not null and SwitchDate < vlperfdate.viral_load_ref_date))
                                   )
                                   THEN 'Confirmatory VL'
 
                               WHEN (
-                                  (vlperfdate.viral_load_ref_date IS NULL or
-                                   vlperfdate.viral_load_ref_date = '1900-01-01 00:00:00.000')
-                                      AND (SwitchDate IS not NULL and SwitchDate != '1900-01-01 00:00:00.000')
+                                  (vlperfdate.viral_load_ref_date IS NULL )
+                                      AND (SwitchDate IS not NULL)
                                   )
                                   THEN '1st VL at 6 months post regimen change/switch 1'
 
                               WHEN (
                                   (vlperfdate.viral_load_ref_date IS not NULL and
-                                   vlperfdate.viral_load_ref_date != '1900-01-01 00:00:00.000')
-                                      AND (SwitchDate IS not NULL and SwitchDate != '1900-01-01 00:00:00.000')
+                                   )
+                                      AND (SwitchDate IS not NULL)
                                       AND (vlperfdate.viral_load_ref_date <= SwitchDate)
                                   )
                                   THEN '1st VL at 6 months post regimen change/switch 2'
 
                               When (
                                   (Follow_up.BreastFeeding = 'Yes')
-                                      AND (vlperfdate.viral_load_ref_date IS not NULL and
-                                           vlperfdate.viral_load_ref_date != '1900-01-01 00:00:00.000')
+                                      AND (vlperfdate.viral_load_ref_date IS not NULL
+                                           )
                                       AND (TIMESTAMPDIFF(DAY, vlperfdate.viral_load_ref_date, REPORT_END_DATE) >= 90)
                                   )
                                   THEN 'Other 1'
 
                               When (
                                   (Follow_up.IsPregnant = 'Yes')
-                                      AND (vlperfdate.viral_load_ref_date IS not NULL and
-                                           vlperfdate.viral_load_ref_date != '1900-01-01 00:00:00.000')
+                                      AND (vlperfdate.viral_load_ref_date IS not NULL
+                                           )
                                       AND (TIMESTAMPDIFF(DAY, vlperfdate.viral_load_ref_date, REPORT_END_DATE) >= 90)
                                   )
                                   THEN 'Other 2'
