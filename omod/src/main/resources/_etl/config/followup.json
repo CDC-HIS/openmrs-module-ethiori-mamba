@@ -181,6 +181,7 @@
     "pneumocystis_carinii_pneumonia_pcp": "6fdd205f-d467-40c0-ab3d-62e73c22acf6",
     "malignant_lymphoma_nonhodgkins":"115195AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "female_genital_ulcer_disease":"153872AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "other_opportunistic_illnesses": "20841482-587f-4b4c-9562-ce3f481dd5a8"
+    "other_opportunistic_illnesses": "20841482-587f-4b4c-9562-ce3f481dd5a8",
+    "fluconazole_stop_date": "c2d57bcb-02f2-457d-af05-8d759a1457a7"
   }
 }
