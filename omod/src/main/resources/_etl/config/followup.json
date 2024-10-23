@@ -182,6 +182,9 @@
     "malignant_lymphoma_nonhodgkins":"115195AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "female_genital_ulcer_disease":"153872AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "other_opportunistic_illnesses": "20841482-587f-4b4c-9562-ce3f481dd5a8",
-    "fluconazole_stop_date": "c2d57bcb-02f2-457d-af05-8d759a1457a7"
+    "fluconazole_stop_date": "c2d57bcb-02f2-457d-af05-8d759a1457a7",
+    "bacterial_pneumonia": "121252AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "herpes_zoster": "117543AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "no_opportunistic_illness": "ace33bc0-b97d-46ff-a979-0056439f7d64"
   }
 }
