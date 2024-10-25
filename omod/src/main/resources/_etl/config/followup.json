@@ -197,6 +197,10 @@
     "second_viral_load_test_at_12_months_post_art": "c616b09a-bcc2-49a9-b47c-7219f7695e91",
     "first_viral_load_test_at_6_months_or_longer_post_art": "b450f8e7-f55e-4788-8fb4-de5229db1b10",
     "first_viral_load_test_at_3_months_or_longer_post_art": "d1977f43-83a5-4b32-b589-33b9315e912d",
-    "other_medications_med2": "9965553a-432b-418e-bb80-760584239853"
+    "other_medications_med2": "9965553a-432b-418e-bb80-760584239853",
+    "date_third_enhanced_adherence_counseling_provided": "95f843ff-07d4-4c46-8642-06e935b69be2",
+    "date_second_enhanced_adherence_counseling_provided": "25f8b459-94b5-4ea9-8b64-9ccf3f8422e7",
+    "date_first_enhanced_adherence_counseling_provided": "70788495-b7d5-4484-b571-88383409c386"
+
   }
 }
