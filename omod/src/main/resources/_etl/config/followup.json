@@ -208,7 +208,13 @@
     "referred_to_higher_level_facility": "164165AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "radiotherapy": "161174AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "surgical_procedure": "159619AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "other": "5622AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    "other": "5622AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "unknown": "1067AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "positive": "703AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "negative_result": "5e4fc757-0b14-49ae-b3b7-419666f41e15",
+    "via_negative": "a08ab377-30bc-4ef6-bb9d-4cf6a0564ccc",
+    "via_positive_noneligible_for_cryothermocoagula": "be297cab-5ae6-4e7c-8657-b82730b7b8f1",
+    "via_positive_eligible_for_cryothermocoagula": "7bc7c4f3-a636-478d-8a3f-65116093e37a"
 
 
   }
