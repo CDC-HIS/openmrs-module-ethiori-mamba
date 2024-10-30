@@ -200,7 +200,16 @@
     "other_medications_med2": "9965553a-432b-418e-bb80-760584239853",
     "date_third_enhanced_adherence_counseling_provided": "95f843ff-07d4-4c46-8642-06e935b69be2",
     "date_second_enhanced_adherence_counseling_provided": "25f8b459-94b5-4ea9-8b64-9ccf3f8422e7",
-    "date_first_enhanced_adherence_counseling_provided": "70788495-b7d5-4484-b571-88383409c386"
+    "date_first_enhanced_adherence_counseling_provided": "70788495-b7d5-4484-b571-88383409c386",
+    "transfer_in": "160563AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "none": "1107AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "chemotherapy": "166917AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "patient_referred_to_palliative_care": "166938AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "referred_to_higher_level_facility": "164165AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "radiotherapy": "161174AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "surgical_procedure": "159619AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "other": "5622AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+
 
   }
 }
