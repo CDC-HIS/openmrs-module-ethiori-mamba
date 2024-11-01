@@ -15,32 +15,17 @@ dimensions/dim_client_art_follow_up/sp_dim_client_art_follow_up_create.sql
 dimensions/dim_client_art_follow_up/sp_dim_client_art_follow_up_insert.sql
 dimensions/dim_client_art_follow_up/sp_dim_client_art_follow_up_update.sql
 
-#FACTS FOR ART
+# FACTS FOR ART
 facts/fact_art_follow_up/sp_fact_encounter_art_follow_up.sql
 facts/fact_art_follow_up/sp_fact_encounter_art_follow_up_create.sql
 facts/fact_art_follow_up/sp_fact_encounter_art_follow_up_insert.sql
 facts/fact_art_follow_up/sp_fact_encounter_art_follow_up_update.sql
 
-#FIRST ENCOUNTERS FOR ART
-facts/fact_art_first_follow_up/sp_fact_encounter_art_first_follow_up.sql
-facts/fact_art_first_follow_up/sp_fact_encounter_art_first_follow_up_create.sql
-facts/fact_art_first_follow_up/sp_fact_encounter_art_first_follow_up_insert.sql
-facts/fact_art_first_follow_up/sp_fact_encounter_art_first_follow_up_update.sql
 
-#LAST ENCOUNTERS FOR ART
-facts/fact_art_latest_follow_up/sp_fact_encounter_art_latest_follow_up.sql
-facts/fact_art_latest_follow_up/sp_fact_encounter_art_latest_follow_up_create.sql
-facts/fact_art_latest_follow_up/sp_fact_encounter_art_latest_follow_up_insert.sql
-facts/fact_art_latest_follow_up/sp_fact_encounter_art_latest_follow_up_update.sql
-
-facts/fact_tx_new/sp_fact_encounter_tx_new.sql
-facts/fact_tx_new/sp_fact_encounter_tx_new_create.sql
-facts/fact_tx_new/sp_fact_encounter_tx_new_insert.sql
-facts/fact_tx_new/sp_fact_encounter_tx_new_update.sql
-facts/fact_tx_new/sp_fact_encounter_tx_new_query.sql
-facts/fact_tx_new/sp_dim_tx_new_datim_query.sql
-
-facts/fact_tx_curr/sp_fact_encounter_tx_curr_query.sql
+# TX CURR & TX NEW QUERIES
+#facts/fact_tx_new/sp_fact_encounter_tx_new_query.sql
+#facts/fact_tx_new/sp_dim_tx_new_datim_query.sql
+#facts/fact_tx_curr/sp_fact_encounter_tx_curr_query.sql
 
 
 #############################################################################
