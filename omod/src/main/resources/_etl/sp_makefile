@@ -8,11 +8,9 @@
 #############################################################################
 
 derived/art_follow_up/sp_data_processing_derived_art_follow_up.sql
-derived/transfer_in/sp_data_processing_derived_transfer_in.sql
-derived/transfer_out/sp_data_processing_derived_transfer_out.sql
+derived/location/sp_data_processing_derived_location_tag.sql
 
 derived/sp_mamba_drop_all_derived_tables.sql
-
 
 #############################################################################
 ############################       Functions     ############################
@@ -20,6 +18,7 @@ derived/sp_mamba_drop_all_derived_tables.sql
 
 derived/functions/fn_get_ti_status.sql
 derived/functions/fn_gregorian_to_ethiopian_calendar.sql
+
 #############################################################################
 ##### A single SP that CALLs all SPs inside the derived & base folders ######
 #############################################################################

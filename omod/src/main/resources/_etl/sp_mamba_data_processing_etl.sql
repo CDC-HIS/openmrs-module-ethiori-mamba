@@ -10,8 +10,7 @@ BEGIN
     -- Call the implementer ETL process
     CALL sp_mamba_drop_all_derived_tables();
     CALL sp_data_processing_derived_art_follow_up();
---     CALL sp_data_processing_derived_transfer_in();
---     CALL sp_data_processing_derived_transfer_out();
+    CALL sp_data_processing_derived_location_tag();
 
 END //
 
