@@ -1,0 +1,39 @@
+#############################################################################
+############################ base Folder SPs ################################
+#############################################################################
+
+
+#############################################################################
+############################ derived folder SPs  ############################
+#############################################################################
+
+############################ ART FOLLOW-UP ENCOUNTERS #######################
+
+# FACT LOCATION TAG
+facts/location_tag/sp_fact_location_tag.sql
+facts/location_tag/sp_fact_location_tag_create.sql
+facts/location_tag/sp_fact_location_tag_insert.sql
+facts/location_tag/sp_fact_location_tag_update.sql
+
+# FACT LOCATION TAG MAP
+facts/location_tag_map/sp_fact_location_tag_map.sql
+facts/location_tag_map/sp_fact_location_tag_map_create.sql
+facts/location_tag_map/sp_fact_location_tag_map_insert.sql
+facts/location_tag_map/sp_fact_location_tag_map_update.sql
+
+# FACT LOCATION ATTRIBUTE
+facts/location_attribute/sp_fact_location_attribute.sql
+facts/location_attribute/sp_fact_location_attribute_create.sql
+facts/location_attribute/sp_fact_location_attribute_insert.sql
+facts/location_attribute/sp_fact_location_attribute_update.sql
+
+# FACT LOCATION ATTRIBUTE TYPE
+facts/location_attribute_type/sp_fact_location_attribute_type.sql
+facts/location_attribute_type/sp_fact_location_attribute_type_create.sql
+facts/location_attribute_type/sp_fact_location_attribute_type_insert.sql
+facts/location_attribute_type/sp_fact_location_attribute_type_update.sql
+
+#############################################################################
+##### A single SP that CALLs all SPs inside the derived & base folders ######
+#############################################################################
+sp_data_processing_derived_location_tag.sql

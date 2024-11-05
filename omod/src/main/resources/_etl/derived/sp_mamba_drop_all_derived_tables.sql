@@ -11,5 +11,7 @@ BEGIN
     DROP TABLE IF EXISTS mamba_fact_client_tranfer_in;
     DROP TABLE IF EXISTS mamba_fact_client_tranfer_out;
     DROP TABLE IF EXISTS mamba_dim_client_art_follow_up;
+    DROP TABLE IF EXISTS sp_fact_location_tag;
+    DROP TABLE IF EXISTS sp_fact_location_tag_map;
 END //
 DELIMITER ;
