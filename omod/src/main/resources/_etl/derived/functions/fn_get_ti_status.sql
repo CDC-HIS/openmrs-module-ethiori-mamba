@@ -12,6 +12,7 @@ WITH TIFollowUp AS (
     SELECT follow_up.client_id, MIN(follow_up_date_followup_) AS FollowupDate
     FROM mamba_flat_encounter_follow_up follow_up
              JOIN mamba_flat_encounter_follow_up_1 follow_up_1 ON follow_up.encounter_id = follow_up_1.encounter_id
+             JOIN mamba_flat_encounter_follow_up_2 follow_up_2 ON follow_up.encounter_id = follow_up_2.encounter_id
              JOIN mamba_flat_encounter_follow_up_3 follow_up_3 ON follow_up.encounter_id = follow_up_3.encounter_id
     WHERE follow_up_status IS NOT NULL
       AND art_antiretroviral_start_date IS NOT NULL
