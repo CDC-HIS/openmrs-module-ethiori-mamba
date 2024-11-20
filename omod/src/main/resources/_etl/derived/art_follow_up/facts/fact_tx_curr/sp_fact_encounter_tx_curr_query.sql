@@ -48,7 +48,12 @@ BEGIN
                              viral_load_test_status,
                              date_viral_load_results_received,
                              date_discontinued_tuberculosis_prop as tpt_discontinued_date,
-                             date_completed_tuberculosis_prophyl as tpt_completed_date
+                             date_completed_tuberculosis_prophyl as tpt_completed_date,
+                             COALESCE(
+                                     nutritional_status_of_older_child_a ,
+                                     nutritional_status_of_adult         ,
+                                     weight_for_age_status               ,
+                             )                                                                                as NutritionalStatus
                       FROM mamba_flat_encounter_follow_up follow_up
                                JOIN mamba_flat_encounter_follow_up_1 follow_up_1
                                     ON follow_up.encounter_id = follow_up_1.encounter_id
@@ -80,34 +85,35 @@ BEGIN
 
          latestDSD AS (select * from latestDSD_tmp where row_num = 1),
          tx_curr AS (select * from tx_curr_all where row_num = 1)
-    SELECT FollowUp.PatientId,
-           FollowUp.person_name_long,
-           FollowUp.mrn,
-           FollowUp.uan,
-           FollowUp.Age,
-           fn_mamba_age_calculator(FollowUp.birthdate, art_start_date) AS age_at_enrollment,
-           FollowUp.sex,
-           FollowUp.mobile_no,
-           FollowUp.hiv_confirmed_date,
-           FollowUp.art_start_date,
-           FollowUp.follow_up_date,
-           FollowUp.Weight,
-           FollowUp.pregnancy_status,
-           FollowUp.regimen,
-           FollowUp.ARTDoseDays,
-           FollowUp.follow_up_status,
-           FollowUp.AdherenceLevel,
-           FollowUp.next_visit_date,
-           latestDSD.dsd_category,
-           FollowUp.tpt_start_date,
-           FollowUp.tpt_completed_date,
-           FollowUp.tpt_discontinued_date,
-           FollowUp.treatment_end_date,
-           FollowUp.date_viral_load_results_received,
-           FollowUp.viral_load_test_status,
-           NOW()
+    SELECT
+        FollowUp.person_name_long as patient_name,
+        FollowUp.mrn,
+        FollowUp.uan,
+        FollowUp.Age as current_age,
+        fn_mamba_age_calculator(FollowUp.birthdate, art_start_date) AS AgeatEnrollment,
+        FollowUp.sex,
+        FollowUp.mobile_no,
+        FollowUp.hiv_confirmed_date,
+        FollowUp.art_start_date,
+        FollowUp.follow_up_date as FollowUpDate,
+        FollowUp.Weight as weight_in_kg,
+        FollowUp.pregnancy_status,
+        FollowUp.regimen,
+        FollowUp.ARTDoseDays as arv_dose_days,
+        FollowUp.follow_up_status as FollowUpStatus,
+        FollowUp.AdherenceLevel as Adherence,
+        FollowUp.next_visit_date as NextVisitDate,
+        latestDSD.dsd_category as DSDCategory,
+        FollowUp.tpt_start_date,
+        FollowUp.tpt_completed_date,
+        FollowUp.tpt_discontinued_date,
+        FollowUp.treatment_end_date as tuberculosis_treatment_end_date,
+        FollowUp.date_viral_load_results_received as VLReceivedDate,
+        FollowUp.viral_load_test_status as VLStatus,
+#        'VLEligibilityDate',
+        NutritionalStatus
     FROM FollowUp
              JOIN tx_curr ON FollowUp.encounter_id = tx_curr.encounter_id
              left JOIN latestDSD on tx_curr.PatientId = latestDSD.PatientId;
-    END //
+END //
 DELIMITER ;
