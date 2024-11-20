@@ -36,8 +36,8 @@ public class ResultSetMapper {
 		columnNameMapping.put("art_start_date", "ART Start Date");
 		columnNameMapping.put("days_difference", "Days Difference");
 		columnNameMapping.put("followup_date", "Followup Date");
-		columnNameMapping.put("regimen", "Regimen at Enrollment");
-		columnNameMapping.put("arv_dose_days", "ARV Dose Days at Enrollment");
+		columnNameMapping.put("regimen", "Regimen");
+		columnNameMapping.put("arv_dose_days", "ARV Dose Days");
 		columnNameMapping.put("pregnancy_status", "Pregnancy(Y/N)");
 		columnNameMapping.put("breast_feeding_status", "Breast Feeding Status");
 		columnNameMapping.put("follow_up_status", "Follow Up Status");

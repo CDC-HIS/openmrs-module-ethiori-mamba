@@ -2,7 +2,7 @@ DELIMITER //
 
 DROP PROCEDURE IF EXISTS sp_fact_vl_eligibility_query;
 
-CREATE PROCEDURE  sp_fact_vl_eligibility_query(
+CREATE PROCEDURE sp_fact_vl_eligibility_query(
     IN REPORT_END_DATE DATE
 )
 BEGIN
@@ -17,11 +17,11 @@ BEGIN
                               art_antiretroviral_start_date       as art_start_date,
                               viral_load_test_status              as viral_load_status,
                               hiv_viral_load                      as viral_load_count,
-                              weight_text_                          as weight,
-                              date_of_event               as date_hiv_confirmed,
+                              weight_text_                        as weight,
+                              date_of_event                       as date_hiv_confirmed,
                               antiretroviral_art_dispensed_dose_i as arv_dispensed_dose_days,
                               regimen,
-                              next_visit_date                   as next_visit_date,
+                              next_visit_date                     as next_visit_date,
                               routine_viral_load_test_indication  as routine_viral_load,
                               date_of_last_menstrual_period_lmp_  as lmp,
                               currently_breastfeeding_child       as BreastFeeding,
@@ -34,58 +34,61 @@ BEGIN
                                            on follow_up.encounter_id = follow_up_1.encounter_id
                                 inner join mamba_flat_encounter_follow_up_2 follow_up_2
                                            on follow_up.encounter_id = follow_up_2.encounter_id
-                                left join mamba_dim_client_art_follow_up dim_client
+                                inner join mamba_flat_encounter_follow_up_3 follow_up_3
+                                           on follow_up.encounter_id = follow_up_3.encounter_id
+                                inner join mamba_dim_client_art_follow_up dim_client
                                           on follow_up.client_id = dim_client.client_id
                        WHERE follow_up_1.follow_up_date_followup_ <= REPORT_END_DATE),
-         VLSentdate AS (SELECT Follow_up.patient_id, MAX(viral_load_sent_date) AS VL_Sent_Date
-                        FROM Follow_up
-                        where
-                            viral_load_sent_date is not null
-                        GROUP BY Follow_up.patient_id),
-         SwitchSubdate AS (SELECT Follow_up.patient_id, MAX(follow_up_date) AS SwitchDate
-                           FROM Follow_up
-                           WHERE (regimen_change is not null and regimen_change = 'Regimen switch type')
-                           GROUP BY Follow_up.patient_id),
-         VLPerfdate1 AS (SELECT Follow_up.patient_id, MAX(viral_load_performed_date) AS viral_load_perform_date
+         tmp_vl_sent_date as (SELECT encounter_id,
+                                     patient_id,
+                                     viral_load_sent_date                                                                              AS VL_Sent_Date,
+                                     ROW_NUMBER() OVER (PARTITION BY patient_id ORDER BY viral_load_sent_date DESC, encounter_id DESC) AS row_num
+                              FROM Follow_up
+                              WHERE viral_load_sent_date is not null
+                              ),
+         vl_sent_date as (select * from tmp_vl_sent_date where row_num = 1),
+
+         tmp_switch_sub_date as (SELECT encounter_id,
+                                        patient_id,
+                                        follow_up_date                                                                              AS SwitchDate,
+                                        ROW_NUMBER() OVER (PARTITION BY patient_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
+                                 FROM Follow_up
+                                 WHERE regimen_change is not null),
+
+         switch_sub_date as (select * from tmp_switch_sub_date where row_num = 1),
+
+         tmp_vl_perf_date_1 AS (SELECT Follow_up.patient_id,
+                                       encounter_id,
+                                       viral_load_performed_date                                                                              AS viral_load_perform_date,
+                                       ROW_NUMBER() OVER (PARTITION BY patient_id ORDER BY viral_load_performed_date DESC, encounter_id DESC) AS row_num
+                                FROM Follow_up
+                                WHERE follow_up_status IS NOT NULL
+                                  AND art_start_date is not null
+                                  and viral_load_performed_date is not null),
+         vl_perf_date_1 as (select * from tmp_vl_perf_date_1 where row_num = 1),
+
+         VLPerfdate3 AS (SELECT Follow_up.encounter_id,
+                                Follow_up.patient_id,
+                                viral_load_performed_date,
+                                Follow_up.viral_load_status,
+                                Follow_up.viral_load_count,
+                                CASE
+                                    WHEN vl_sent_date.VL_Sent_Date IS NOT NULL
+                                        THEN vl_sent_date.VL_Sent_Date
+                                    WHEN Follow_up.viral_load_performed_date IS NOT NULL
+                                        THEN Follow_up.viral_load_performed_date
+                                    END AS viral_load_ref_date
                          FROM Follow_up
-                         WHERE follow_up_status IS NOT NULL
-                           AND art_start_date is not null
-                           and viral_load_performed_date is not null
-                         GROUP BY Follow_up.patient_id) ,
-         VLPerfdate2 AS (SELECT MAX(encounter_id) as encounter_id
-                         FROM Follow_up
-                                  INNER JOIN VLPerfdate1 on Follow_up.patient_id = VLPerfdate1.patient_id
-                             AND Follow_up.viral_load_performed_date = VLPerfdate1.viral_load_perform_date
-                         GROUP BY Follow_up.patient_id, Follow_up.viral_load_performed_date),
-         VLPerfdate3 AS (SELECT
-                             Follow_up.encounter_id,
-                             Follow_up.patient_id,
-                             viral_load_performed_date,
-                             Follow_up.viral_load_status,
-                             IF(Follow_up.viral_load_count REGEXP '^[0-9]+(\.[0-9]+)?$' > 0,
-                                CAST(viral_load_count AS DECIMAL(12, 2)), NULL) AS viral_load_count,
-                             CASE
-                                 WHEN VLSentdate.VL_Sent_Date IS NOT NULL AND
-                                      VLSentdate.VL_Sent_Date != '1900-01-01 00:00:00.000'
-                                     THEN VLSentdate.VL_Sent_Date
-                                 WHEN Follow_up.viral_load_performed_date IS NOT NULL
-                                     AND Follow_up.viral_load_performed_date != '1900-01-01 00:00:00.000'
-                                     THEN Follow_up.viral_load_performed_date
-                                 ELSE '1900-01-01 00:00:00.000'
-                                 END AS viral_load_ref_date
-                         FROM Follow_up
-                                  INNER JOIN VLPerfdate2 ON Follow_up.encounter_id = VLPerfdate2.encounter_id
-                                  LEFT JOIN VLSentdate ON Follow_up.patient_id = VLSentdate.patient_id),
-         temp1 AS (SELECT patient_id, MAX(follow_up_date) AS FollowupDate
+                                  INNER JOIN vl_perf_date_1 ON Follow_up.encounter_id = vl_perf_date_1.encounter_id
+                                  LEFT JOIN vl_sent_date ON Follow_up.patient_id = vl_sent_date.patient_id),
+         temp1 AS (SELECT patient_id,
+                          encounter_id,
+                          follow_up_date                                                                              AS FollowupDate,
+                          ROW_NUMBER() OVER (PARTITION BY patient_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
                    FROM Follow_up
                    WHERE follow_up_status IS NOT NULL
-                     and art_start_date
-                   GROUP BY patient_id),
-         temp2 AS (SELECT MAX(Follow_up.encounter_id) as encounter_id
-                   FROM Follow_up
-                            INNER JOIN temp1 on Follow_up.patient_id = temp1.patient_id AND
-                                                Follow_up.follow_up_date = temp1.FollowupDate
-                   GROUP BY Follow_up.patient_id, Follow_up.follow_up_date),
+                     and art_start_date is not null),
+         temp2 AS (select * from temp1 where row_num = 1),
          temp3 AS (SELECT dim_clinet.mrn,-- reg.PatientId as mrn,
                           dim_clinet.patient_name,-- reg.fullname,
                           dim_clinet.mobile_no,-- address.MobilePhoneNumber,
@@ -175,7 +178,8 @@ BEGIN
                                       AND (Follow_up.BreastFeeding is null or Follow_up.BreastFeeding = 'No')
                                       AND (SwitchDate IS NULL OR SwitchDate = '1900-01-01 00:00:00.000')
                                       AND
-                                  (vlperfdate.viral_load_ref_date = '1900-01-01' or vlperfdate.viral_load_ref_date IS NULL)
+                                  (vlperfdate.viral_load_ref_date = '1900-01-01' or
+                                   vlperfdate.viral_load_ref_date IS NULL)
                                       AND (vlperfdate.viral_load_count IS NULL)
                                   )
                                   THEN DATE_ADD(Follow_up.art_start_date, INTERVAL 91 DAY)
@@ -183,12 +187,14 @@ BEGIN
                               WHEN (
                                   (TIMESTAMPDIFF(MONTH, Follow_up.art_start_date, REPORT_END_DATE) > 3)
                                       AND
-                                  (TIMESTAMPDIFF(WEEK, REPORT_END_DATE, DATE_ADD(Follow_up.lmp, INTERVAL 280 DAY)) < 34 and
+                                  (TIMESTAMPDIFF(WEEK, REPORT_END_DATE, DATE_ADD(Follow_up.lmp, INTERVAL 280 DAY)) <
+                                   34 and
                                    Follow_up.lmp is not null)
                                       AND (vlperfdate.viral_load_ref_date IS not NULL and
                                            vlperfdate.viral_load_ref_date != '1900-01-01 00:00:00.000')
                                       AND (vlperfdate.viral_load_count IS NULL OR vlperfdate.viral_load_count < 51)
-                                      AND (Abs(TIMESTAMPDIFF(MONTH, vlperfdate.viral_load_ref_date, REPORT_END_DATE)) >= 3)
+                                      AND
+                                  (Abs(TIMESTAMPDIFF(MONTH, vlperfdate.viral_load_ref_date, REPORT_END_DATE)) >= 3)
                                       AND (Follow_up.IsPregnant = 'Yes')
                                   )
                                   THEN REPORT_END_DATE
@@ -196,7 +202,8 @@ BEGIN
                               WHEN (
                                   (TIMESTAMPDIFF(MONTH, Follow_up.art_start_date, REPORT_END_DATE) > 3)
                                       AND (Follow_up.lmp is not null)
-                                      AND (TIMESTAMPDIFF(WEEK, REPORT_END_DATE, DATE_ADD(Follow_up.lmp, INTERVAL 280 DAY)) < 34)
+                                      AND
+                                  (TIMESTAMPDIFF(WEEK, REPORT_END_DATE, DATE_ADD(Follow_up.lmp, INTERVAL 280 DAY)) < 34)
                                       AND (vlperfdate.viral_load_ref_date IS NULL or
                                            vlperfdate.viral_load_ref_date = '1900-01-01 00:00:00.000')
                                       AND (Follow_up.IsPregnant = 'Yes')
@@ -208,7 +215,8 @@ BEGIN
                                       AND (TIMESTAMPDIFF(MONTH, Follow_up.art_start_date, REPORT_END_DATE) > 3)
                                       AND (Follow_up.lmp is null or Follow_up.lmp = '1900-01-01 00:00:00.000')
                                       AND
-                                  (TIMESTAMPDIFF(WEEK, REPORT_END_DATE, DATE_ADD(Follow_up.follow_up_date, INTERVAL 280 DAY)) <
+                                  (TIMESTAMPDIFF(WEEK, REPORT_END_DATE,
+                                                 DATE_ADD(Follow_up.follow_up_date, INTERVAL 280 DAY)) <
                                    34)
                                       AND (vlperfdate.viral_load_ref_date IS not NULL and
                                            vlperfdate.viral_load_ref_date != '1900-01-01 00:00:00.000')
@@ -220,7 +228,8 @@ BEGIN
 
                               WHEN (
                                   (Follow_up.lmp is not null and Follow_up.lmp != '1900-01-01 00:00:00.000')
-                                      AND (TIMESTAMPDIFF(WEEK, REPORT_END_DATE, DATE_ADD(Follow_up.lmp, INTERVAL 280 DAY)) < 34)
+                                      AND
+                                  (TIMESTAMPDIFF(WEEK, REPORT_END_DATE, DATE_ADD(Follow_up.lmp, INTERVAL 280 DAY)) < 34)
                                       AND (vlperfdate.viral_load_ref_date IS not NULL and
                                            vlperfdate.viral_load_ref_date != '1900-01-01 00:00:00.000')
                                       AND (Follow_up.IsPregnant = 'Yes')
@@ -277,43 +286,44 @@ BEGIN
                               WHEN (
                                   (vlperfdate.viral_load_ref_date IS not NULL and
                                    vlperfdate.viral_load_ref_date != '1900-01-01 00:00:00.000')
-                                      AND (vlperfdate.viral_load_count IS not NULL and vlperfdate.viral_load_count > 1000)
+                                      AND
+                                  (vlperfdate.viral_load_count IS not NULL and vlperfdate.viral_load_count > 1000)
                                       AND (SwitchDate IS NULL OR SwitchDate = '1900-01-01 00:00:00.000' or
                                            (SwitchDate is not null and SwitchDate < vlperfdate.viral_load_ref_date))
                                   )
                                   THEN DATE_ADD(vlperfdate.viral_load_ref_date, INTERVAL 91 DAY)
 
                               WHEN (
-                                  (vlperfdate.viral_load_ref_date IS NULL )
-                                      AND (SwitchDate IS not NULL )
+                                  (vlperfdate.viral_load_ref_date IS NULL)
+                                      AND (SwitchDate IS not NULL)
                                   )
                                   THEN DATE_ADD(SwitchDate, INTERVAL 181 DAY)
 
                               WHEN (
                                   (vlperfdate.viral_load_ref_date IS not NULL and
                                    vlperfdate.viral_load_ref_date != '1900-01-01 00:00:00.000')
-                                      AND (SwitchDate IS not NULL )
+                                      AND (SwitchDate IS not NULL)
                                       AND (vlperfdate.viral_load_ref_date <= SwitchDate)
                                   )
                                   THEN DATE_ADD(SwitchDate, INTERVAL 181 DAY)
 
                               When (
                                   (Follow_up.BreastFeeding = 'Yes')
-                                      AND (vlperfdate.viral_load_ref_date IS not NULL and
-                                           )
+                                      AND (vlperfdate.viral_load_ref_date IS not NULL
+                                      )
                                       AND (TIMESTAMPDIFF(DAY, vlperfdate.viral_load_ref_date, REPORT_END_DATE) >= 90)
                                   )
                                   THEN REPORT_END_DATE
 
                               When (
                                   (Follow_up.IsPregnant = 'Yes')
-                                      AND (vlperfdate.viral_load_ref_date IS not NULL and
-                                           )
+                                      AND (vlperfdate.viral_load_ref_date IS not NULL
+                                      )
                                       AND (TIMESTAMPDIFF(DAY, vlperfdate.viral_load_ref_date, REPORT_END_DATE) >= 90)
                                   )
                                   THEN REPORT_END_DATE
 
-                              ELSE REPORT_END_DATE End                                   AS eligiblityDate,
+                              ELSE REPORT_END_DATE End                             AS eligiblityDate,
 
                           CASE
                               WHEN (
@@ -330,8 +340,8 @@ BEGIN
                                   AND (Follow_up.BreastFeeding is null OR Follow_up.BreastFeeding = 'No')
                                   AND (SwitchDate IS NULL OR SwitchDate = '1900-01-01 00:00:00.000' or
                                        (SwitchDate is not null and SwitchDate < vlperfdate.viral_load_ref_date))
-                                  AND (vlperfdate.viral_load_ref_date IS NOT NULL AND
-                                       )
+                                  AND (vlperfdate.viral_load_ref_date IS NOT NULL
+                                        )
                                   AND (vlperfdate.viral_load_count IS NULL OR vlperfdate.viral_load_count < 51))
                                   THEN '2nd VL at 12 months'
 
@@ -360,7 +370,8 @@ BEGIN
                                       AND (Follow_up.BreastFeeding is null or Follow_up.BreastFeeding = 'No')
                                       AND (SwitchDate IS NULL OR SwitchDate = '1900-01-01 00:00:00.000')
                                       AND
-                                  (vlperfdate.viral_load_ref_date = '1900-01-01' or vlperfdate.viral_load_ref_date IS NULL)
+                                  (vlperfdate.viral_load_ref_date = '1900-01-01' or
+                                   vlperfdate.viral_load_ref_date IS NULL)
                                       AND (vlperfdate.viral_load_count IS NULL)
                                   )
                                   THEN '1st VL at 3 months(Pregnant)'
@@ -369,9 +380,10 @@ BEGIN
                                   (Follow_up.IsPregnant = 'Yes')
                                       AND (TIMESTAMPDIFF(MONTH, Follow_up.art_start_date, REPORT_END_DATE) > 3)
                                       AND (Follow_up.lmp is not null)
-                                      AND (TIMESTAMPDIFF(WEEK, REPORT_END_DATE, DATE_ADD(Follow_up.lmp, INTERVAL 280 DAY)) < 34)
-                                      AND (vlperfdate.viral_load_ref_date IS not NULL and
-                                           )
+                                      AND
+                                  (TIMESTAMPDIFF(WEEK, REPORT_END_DATE, DATE_ADD(Follow_up.lmp, INTERVAL 280 DAY)) < 34)
+                                      AND (vlperfdate.viral_load_ref_date IS not NULL
+                                      )
                                       AND (vlperfdate.viral_load_count IS NULL OR vlperfdate.viral_load_count < 51)
                                       AND (TIMESTAMPDIFF(MONTH, vlperfdate.viral_load_ref_date, REPORT_END_DATE) >= 3)
                                   )
@@ -380,7 +392,8 @@ BEGIN
                               WHEN (
                                   (TIMESTAMPDIFF(MONTH, Follow_up.art_start_date, REPORT_END_DATE) > 3)
                                       and (Follow_up.lmp is not null)
-                                      AND (TIMESTAMPDIFF(WEEK, REPORT_END_DATE, DATE_ADD(Follow_up.lmp, INTERVAL 280 DAY)) < 34)
+                                      AND
+                                  (TIMESTAMPDIFF(WEEK, REPORT_END_DATE, DATE_ADD(Follow_up.lmp, INTERVAL 280 DAY)) < 34)
                                       AND (vlperfdate.viral_load_ref_date IS NULL or
                                            vlperfdate.viral_load_ref_date = '1900-01-01 00:00:00.000')
                                       AND (Follow_up.IsPregnant = 'Yes')
@@ -392,10 +405,11 @@ BEGIN
                                       AND (TIMESTAMPDIFF(MONTH, Follow_up.art_start_date, REPORT_END_DATE) > 3)
                                       AND (Follow_up.lmp is null or Follow_up.lmp = '1900-01-01 00:00:00.000')
                                       AND
-                                  (TIMESTAMPDIFF(WEEK, REPORT_END_DATE, DATE_ADD(Follow_up.follow_up_date, INTERVAL 280 DAY)) <
+                                  (TIMESTAMPDIFF(WEEK, REPORT_END_DATE,
+                                                 DATE_ADD(Follow_up.follow_up_date, INTERVAL 280 DAY)) <
                                    34)
-                                      AND (vlperfdate.viral_load_ref_date IS not NULL and
-                                           )
+                                      AND (vlperfdate.viral_load_ref_date IS not NULL
+                                      )
                                       AND (vlperfdate.viral_load_count IS NULL OR vlperfdate.viral_load_count < 51)
                                       AND (TIMESTAMPDIFF(MONTH, vlperfdate.viral_load_ref_date, REPORT_END_DATE) >= 3)
                                   )
@@ -403,9 +417,10 @@ BEGIN
 
                               WHEN (
                                   (Follow_up.lmp is not null and Follow_up.lmp != '1900-01-01 00:00:00.000')
-                                      AND (TIMESTAMPDIFF(WEEK, REPORT_END_DATE, DATE_ADD(Follow_up.lmp, INTERVAL 280 DAY)) < 34)
-                                      AND (vlperfdate.viral_load_ref_date IS not NULL and
-                                           )
+                                      AND
+                                  (TIMESTAMPDIFF(WEEK, REPORT_END_DATE, DATE_ADD(Follow_up.lmp, INTERVAL 280 DAY)) < 34)
+                                      AND (vlperfdate.viral_load_ref_date IS not NULL
+                                      )
                                       AND (Follow_up.IsPregnant = 'Yes')
                                   )
                                   THEN 'VL at 34-36 weeks gestation'
@@ -431,16 +446,16 @@ BEGIN
                               WHEN (
                                   (Follow_up.IsPregnant = 'Yes')
                                       AND (Follow_up.lmp is not null and Follow_up.lmp != '1900-01-01 00:00:00.000')
-                                      AND (vlperfdate.viral_load_ref_date IS not NULL and
-                                           )
+                                      AND (vlperfdate.viral_load_ref_date IS not NULL
+                                      )
                                       AND (vlperfdate.viral_load_ref_date > (Follow_up.lmp))
                                   )
                                   THEN '6 months after 1st VL at PNC'
 
                               WHEN (
                                   (Follow_up.BreastFeeding = 'Yes')
-                                      AND (vlperfdate.viral_load_ref_date IS not NULL and
-                                           )
+                                      AND (vlperfdate.viral_load_ref_date IS not NULL
+                                      )
                                       AND (vlperfdate.viral_load_ref_date < Follow_up.follow_up_date and
                                            TIMESTAMPDIFF(DAY, vlperfdate.viral_load_ref_date, REPORT_END_DATE) > 180)
                                   )
@@ -448,33 +463,34 @@ BEGIN
 
                               WHEN (
                                   (vlperfdate.viral_load_ref_date IS not NULL
-                                   )
+                                      )
                                       AND
                                   (vlperfdate.viral_load_count IS not NULL and vlperfdate.viral_load_count <= 1000 and
                                    vlperfdate.viral_load_count >= 51)
                                       AND (
-                                           (SwitchDate is not null and SwitchDate < vlperfdate.viral_load_ref_date))
+                                      (SwitchDate is not null and SwitchDate < vlperfdate.viral_load_ref_date))
                                   )
                                   THEN 'Repeat VL test'
 
                               WHEN (
                                   (vlperfdate.viral_load_ref_date IS not NULL
-                                   )
-                                      AND (vlperfdate.viral_load_count IS not NULL and vlperfdate.viral_load_count > 1000)
+                                      )
+                                      AND
+                                  (vlperfdate.viral_load_count IS not NULL and vlperfdate.viral_load_count > 1000)
                                       AND (
-                                           (SwitchDate is not null and SwitchDate < vlperfdate.viral_load_ref_date))
+                                      (SwitchDate is not null and SwitchDate < vlperfdate.viral_load_ref_date))
                                   )
                                   THEN 'Confirmatory VL'
 
                               WHEN (
-                                  (vlperfdate.viral_load_ref_date IS NULL )
+                                  (vlperfdate.viral_load_ref_date IS NULL)
                                       AND (SwitchDate IS not NULL)
                                   )
                                   THEN '1st VL at 6 months post regimen change/switch 1'
 
                               WHEN (
-                                  (vlperfdate.viral_load_ref_date IS not NULL and
-                                   )
+                                  (vlperfdate.viral_load_ref_date IS not NULL
+                                      )
                                       AND (SwitchDate IS not NULL)
                                       AND (vlperfdate.viral_load_ref_date <= SwitchDate)
                                   )
@@ -483,7 +499,7 @@ BEGIN
                               When (
                                   (Follow_up.BreastFeeding = 'Yes')
                                       AND (vlperfdate.viral_load_ref_date IS not NULL
-                                           )
+                                      )
                                       AND (TIMESTAMPDIFF(DAY, vlperfdate.viral_load_ref_date, REPORT_END_DATE) >= 90)
                                   )
                                   THEN 'Other 1'
@@ -491,7 +507,7 @@ BEGIN
                               When (
                                   (Follow_up.IsPregnant = 'Yes')
                                       AND (vlperfdate.viral_load_ref_date IS not NULL
-                                           )
+                                      )
                                       AND (TIMESTAMPDIFF(DAY, vlperfdate.viral_load_ref_date, REPORT_END_DATE) >= 90)
                                   )
                                   THEN 'Other 2'
@@ -508,7 +524,8 @@ BEGIN
                           CASE
                               WHEN 1 = 1
                                   THEN DATE_ADD(Follow_up.art_start_date, INTERVAL
-                                                365 * TIMESTAMPDIFF(YEAR, Follow_up.art_start_date, REPORT_END_DATE) DAY)
+                                                365 * TIMESTAMPDIFF(YEAR, Follow_up.art_start_date, REPORT_END_DATE)
+                                                DAY)
                               ELSE DATE_ADD(Follow_up.art_start_date, INTERVAL
                                             365 * TIMESTAMPDIFF(YEAR, Follow_up.art_start_date, REPORT_END_DATE) DAY)
                               END                                                  AS datesecond,
@@ -517,8 +534,9 @@ BEGIN
                    FROM Follow_up
                             INNER JOIN temp2 ON Follow_up.encounter_id = temp2.encounter_id
                             LEFT JOIN VLPerfdate3 as vlperfdate ON vlperfdate.patient_id = Follow_up.patient_id
-                            LEFT join VLSentdate as vlsentdate ON vlsentdate.patient_id = Follow_up.patient_id
-                            LEFT join SwitchSubdate as sub_switch_date ON sub_switch_date.patient_id = Follow_up.patient_id
+                            LEFT join vl_sent_date as vlsentdate ON vlsentdate.patient_id = Follow_up.patient_id
+                            LEFT join switch_sub_date as sub_switch_date
+                                      ON sub_switch_date.patient_id = Follow_up.patient_id
                             INNER join mamba_dim_client_art_follow_up dim_clinet
                                        on Follow_up.patient_id = dim_clinet.client_id),
 
@@ -530,11 +548,11 @@ BEGIN
                           temp3.age,
                           temp3.sex,
                           temp3.weight,
-                          temp3.date_hiv_confirmed date_hiv_confirmed,
+                          temp3.date_hiv_confirmed     date_hiv_confirmed,
                           temp3.art_start_date      as art_start_date,
                           temp3.follow_up_date      as follow_up_date,
                           IsPregnant,
-                          temp3.regimen                                                   AS ARVDispendsedDose,
+                          temp3.regimen             AS ARVDispendsedDose,
                           arv_dispensed_dose_days,
                           temp3.next_visit_date     as next_visit_date,
                           temp3.follow_up_status,
@@ -549,15 +567,37 @@ BEGIN
                           vl_key,
                           CASE
                               WHEN IsPregnant = 'Yes' or BreastFeeding = 'Yes' THEN 'Yes'
-                              ELSE 'No' END                                               AS PMTCT_ART
+                              ELSE 'No' END         AS PMTCT_ART
                    FROM temp3
              -- WHERE follow_up_status != 'Dead'
              -- and eligiblityDate between @DateFrom and @DateTo
-         )select
-              mrn, patient_name as fullname, uan as UniqueArtNumber, mobile_no as MobilePhoneNumber, '' PhoneNumber,  age,  sex, weight as Weight,  date_hiv_confirmed,
-              art_start_date, follow_up_date as FollowUpDate,  IsPregnant,  ARVDispendsedDose, arv_dispensed_dose_days as art_dose,  next_visit_date,  follow_up_status, treatment_end_date as art_dose_End,
-              viral_load_performed_date as viral_load_perform_date,  viral_load_status,  viral_load_count, VL_Sent_Date as viral_load_sent_date,  viral_load_ref_date,
-              date_regimen_change,    eligiblityDate,    vl_key,    PMTCT_ART
+         )
+    select mrn,
+           patient_name              as fullname,
+           uan                       as UniqueArtNumber,
+           mobile_no                 as MobilePhoneNumber,
+           ''                           PhoneNumber,
+           age,
+           sex,
+           weight                    as Weight,
+           date_hiv_confirmed,
+           art_start_date,
+           follow_up_date            as FollowUpDate,
+           IsPregnant,
+           ARVDispendsedDose,
+           arv_dispensed_dose_days   as art_dose,
+           next_visit_date,
+           follow_up_status,
+           treatment_end_date        as art_dose_End,
+           viral_load_performed_date as viral_load_perform_date,
+           viral_load_status,
+           viral_load_count,
+           VL_Sent_Date              as viral_load_sent_date,
+           viral_load_ref_date,
+           date_regimen_change,
+           eligiblityDate,
+           vl_key,
+           PMTCT_ART
     from temp4;
 
 END //
