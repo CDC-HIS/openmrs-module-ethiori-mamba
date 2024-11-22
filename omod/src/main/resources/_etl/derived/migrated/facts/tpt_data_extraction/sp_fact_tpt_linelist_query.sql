@@ -7,7 +7,13 @@ CREATE PROCEDURE  sp_fact_tpt_linelist_data_extraction_query(
     IN REPORT_END_DATE DATE
 )
 BEGIN
-WITH FollowUp AS (SELECT follow_up.encounter_id,
+WITH client_identifier as (select person.person_id,
+                                  MAX(CASE WHEN pid.identifier_type = 5 THEN pid.identifier END) AS MRN,
+                                  MAX(CASE WHEN pid.identifier_type = 6 THEN pid.identifier END) AS UAN
+                           from mamba_dim_person person
+                                    left join mamba_dim_patient_identifier pid on person.person_id = pid.patient_id
+                           group by person_id),
+     FollowUp AS (SELECT follow_up.encounter_id,
                          follow_up.client_id,
                          date_of_event                       as hiv_confirmed_date,
                          art_antiretroviral_start_date       as art_start_date,
@@ -54,7 +60,8 @@ WITH FollowUp AS (SELECT follow_up.encounter_id,
                                 on follow_up.encounter_id = follow_up_2.encounter_id
                            join mamba_flat_encounter_follow_up_3 follow_up_3
                                 on follow_up.encounter_id = follow_up_3.encounter_id
-                           join mamba_dim_person person on follow_up.client_id = person.person_id),
+                           join mamba_dim_person person on follow_up.client_id = person_id
+                           join client_identifier pid on follow_up.client_id = pid.person_id),
      tmp_tpt_type as (SELECT encounter_id,
                              client_id,
                              TB_ProphylaxisType                                                                                                     AS TptType,
