@@ -7,14 +7,7 @@ CREATE PROCEDURE sp_fact_vl_eligibility_query(
 )
 BEGIN
 
-    WITH  client_identifier as (select person.person_id,
-        MAX(CASE WHEN pid.identifier_type = 5 THEN pid.identifier END) AS MRN,
-        MAX(CASE WHEN pid.identifier_type = 6 THEN pid.identifier END) AS UAN
-        from mamba_dim_person person
-        left join mamba_dim_patient_identifier pid on person.person_id = pid.patient_id
-        group by person_id),
-
-        FollowUp AS (SELECT follow_up.client_id,
+    WITH FollowUp AS (SELECT follow_up.client_id,
                              follow_up.encounter_id,
                              date_viral_load_results_received AS viral_load_perform_date,
                              viral_load_received_,
@@ -66,8 +59,9 @@ BEGIN
                                     ON follow_up.encounter_id = follow_up_3.encounter_id
                                JOIN mamba_flat_encounter_follow_up_4 follow_up_4
                                     ON follow_up.encounter_id = follow_up_4.encounter_id
-                               join mamba_dim_person person on follow_up.client_id = person_id
-                               join client_identifier pid on follow_up.client_id = pid.person_id),
+                               JOIN mamba_dim_client_art_follow_up dim_client
+                                    ON follow_up.client_id = dim_client.client_id
+                               JOIN mamba_dim_person person on person.person_id = follow_up.client_id),
 
 
          tmp_all_art_follow_ups as (SELECT encounter_id,
@@ -89,7 +83,7 @@ BEGIN
                               FROM FollowUp
                               WHERE viral_load_sent_date is not null
                                 and viral_load_sent_date <= REPORT_END_DATE
-                              --  and viral_load_sent_date >= '2024-08-27'
+                                -- and viral_load_sent_date >= '2024-08-27'
                               ),
          vl_sent_date as (select * from tmp_vl_sent_date where row_num = 1),
 
@@ -99,7 +93,7 @@ BEGIN
                                         ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
                                  FROM FollowUp
                                  WHERE follow_up_date <= REPORT_END_DATE
-                                  -- and follow_up_date >= '2024-08-27'
+                                --   and follow_up_date >= '2024-08-27'
                                    and regimen_change is not null),
          switch_sub_date as (select * from tmp_switch_sub_date where row_num = 1),
 
@@ -112,7 +106,7 @@ BEGIN
                                        AND (
                                          (viral_load_perform_date IS NOT NULL AND
                                           viral_load_perform_date <= REPORT_END_DATE
-                                          --   AND viral_load_perform_date                                              >= '2024-08-27'
+                                            -- AND viral_load_perform_date >= '2024-08-27'
                                              )
                                              OR
                                          viral_load_perform_date IS NULL
@@ -184,7 +178,7 @@ BEGIN
                                       FROM FollowUp
                                       WHERE follow_up_status in ('Alive', 'Restart medication')
                                         AND follow_up_date <= REPORT_END_DATE
-                                        -- AND follow_up_date >= '2024-08-27'
+                                    --    AND follow_up_date >= '2024-08-27'
                                       ),
          latest_alive_restart as (select * from tmp_latest_alive_restart where row_num = 1),
          vl_eligibility as (SELECT f_case.art_start_date                         as art_start_date,
@@ -197,7 +191,6 @@ BEGIN
                                    f_case.pregnancy_status                       as IsPregnant,
                                    mobile_no                                     as MobilePhoneNumber,
                                    mrn                                           as MRN,
-                                   uan,
                                    uuid                                          as PatientGUID,
                                    f_case.client_id                              as PatientId,
                                    sex                                           as Sex,
@@ -374,15 +367,9 @@ BEGIN
                                      Left join all_art_follow_ups on f_case.client_id = all_art_follow_ups.client_id
 
                             where all_art_follow_ups.follow_up_status in ('Alive', 'Restart Medication'))
-    select
-
-           MRN,
-           FullName,
-           uan,
-           MobilePhoneNumber,
-           current_age          as Age,
-           Sex,
+    select Sex,
            Weight,
+           current_age          as Age,
            date_hiv_confirmed,
            art_start_date,
            FollowUpDate,
@@ -395,10 +382,13 @@ BEGIN
            viral_load_perform_date,
            viral_load_status,
            viral_load_count,
-           viral_load_sent_date  ,
+           viral_load_sent_date,
+           viral_load_ref_date,
            date_regimen_change,
            eligiblityDate,
-           vl_status_final as vl_key,
+           PatientGUID,
+           t.BreastFeeding      as IsBreastfeeding,
+           vl_status_final,
            CASE
                WHEN IsPregnant = 'Yes' THEN 'Yes'
                WHEN BreastFeeding = 'Yes' THEN 'Yes'
