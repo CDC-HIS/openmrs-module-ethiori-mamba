@@ -21,7 +21,6 @@
     "cd4_": "730AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "cd4_count": "5497AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "cd4_done": "4868dd2d-4d56-4e72-8c89-8658a32a9072",
-    "cervical_cancer_screening_method_st": "c842a287-f94c-48ee-a370-bd6540a0d1af",
     "cervical_cancer_screening_status": "01c546b4-e08a-4c0c-82ef-d387cab6bbbf",
     "client_sets_hiv_prevention_plan": "a3758771-f534-495e-9a3c-290acc79dda0",
     "colposcopy_exam_date": "eb135e8e-5e19-4d6e-ad71-c6bdab26f73d",
@@ -47,7 +46,6 @@
     "date_cytology_result_received": "f0892f21-406c-446b-abd5-bb62f3ea2387",
     "date_discontinued_tuberculosis_prop": "162281AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "date_enrolled_for_cervical_cancer_s": "c7ecf767-325a-41c2-80a7-79c91762ab3e",
-    "date_first_enhanced_adherence_couns": "70788495-b7d5-4484-b571-88383409c386",
     "date_hpv_test_was_done": "8b57d62c-c9a3-454a-b1af-929ca69603ce",
     "date_linked_to_cervical_cancer_scre": "2df6bd1b-c200-4363-8293-0d72ef24e8b7",
     "date_medically_eligible_for_antiret": "162227AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
@@ -55,9 +53,7 @@
     "date_of_last_menstrual_period_lmp_": "30d8d278-5ace-4d01-b2f1-8efc28372070",
     "date_of_reported_hiv_viral_load": "163281AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "date_patient_referred_out": "161561AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "date_second_enhanced_adherence_coun": "25f8b459-94b5-4ea9-8b64-9ccf3f8422e7",
     "date_started_on_tuberculosis_prophy": "162320AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "date_third_enhanced_adherence_couns": "95f843ff-07d4-4c46-8642-06e935b69be2",
     "date_viral_load_results_received": "beeede36-cae4-4f6e-b4b9-e39e37353a82",
     "date_visual_inspection_of_the_cervi": "f46c7ed3-65c3-451c-a8e1-4c615f795db1",
     "developmental_exam_findings": "1200AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
@@ -105,7 +101,6 @@
     "patient_wishes_to_get_pregnant": "160571AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "pre_test_counselling_for_cervical_c": "fc5ec0e6-8e56-4a23-8bf9-fbe464da12c7",
     "pregnancy_status": "5272AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "purpose_for_visit_cervical_screenin": "2c6f75a8-f35c-4671-939e-ebcc680c48a0",
     "ready_for_cervical_cancer_screening": "1b1dc36e-fe65-4f4b-8304-09fbd9c106ad",
     "reason_for_art_regimen_change": "ae280ece-d408-4e49-b472-0dba1c918d10",
     "reason_for_dsd_category_change": "2780c548-5118-4ae4-99da-c8557cb55f28",
@@ -134,7 +129,6 @@
     "tpt_followup_alternate_for_3hr": "43f17059-ad82-43d7-bb0b-fe5315abdd07",
     "tpt_side_effects": "87174948-2998-47b5-a551-64ea23ab9862",
     "treatment_end_date": "164384AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "treatment_of_pre_cancerous_lesions_": "6b97156c-3795-48d0-a15c-4f2590ffef54",
     "treatment_start_date": "163526AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "tuberculosis_drug_treatment_start_d": "1113AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "type_of_hiv_test": "5583b0a6-f390-446d-ab39-d98584ee330c",
@@ -220,6 +214,7 @@
     "low_grade": "f0f52e6c-56fa-44c6-a81e-a3a7ac8548c4",
     "high_grade": "7276fa8a-3bab-4bd7-b647-8e9c8536ef30",
     "ascus_atypical_squamous_cells_of_undetermined_significance_o": "145822AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "_ascus": "912a5c48-8b07-4fd7-b2c3-ccb94fde7c68"
+    "_ascus": "912a5c48-8b07-4fd7-b2c3-ccb94fde7c68",
+    "reason_not_eligible_for_tuberculosi": "4fedb725-fe8e-4a66-b8b2-a605239efa17"
   }
 }
