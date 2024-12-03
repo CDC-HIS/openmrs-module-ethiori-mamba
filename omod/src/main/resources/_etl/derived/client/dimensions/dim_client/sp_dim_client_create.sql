@@ -1,5 +1,5 @@
 -- $BEGIN
-CREATE TABLE IF NOT EXISTS mamba_dim_client_art_follow_up
+CREATE TABLE IF NOT EXISTS mamba_dim_client
 (
     id                INT AUTO_INCREMENT,
     client_id         INT           NOT NULL,
@@ -17,8 +17,8 @@ CREATE TABLE IF NOT EXISTS mamba_dim_client_art_follow_up
     fine_age_group    NVARCHAR(255) NULL,
     PRIMARY KEY (id)
 );
-CREATE INDEX mamba_dim_client_art_follow_up_client_id_index ON mamba_dim_client_art_follow_up (client_id);
-CREATE INDEX mamba_dim_client_art_follow_up_mrn_index ON mamba_dim_client_art_follow_up (mrn);
-CREATE INDEX mamba_dim_client_art_follow_up_uan_index ON mamba_dim_client_art_follow_up (uan);
+CREATE INDEX mamba_dim_client_client_id_index ON mamba_dim_client (client_id);
+CREATE INDEX mamba_dim_client_mrn_index ON mamba_dim_client (mrn);
+CREATE INDEX mamba_dim_client_uan_index ON mamba_dim_client (uan);
 -- CREATE INDEX mamba_dim_client_care_and_treatment_enrollment_date_index ON mamba_dim_client_care_and_treatment (enrollment_date);
 -- $END

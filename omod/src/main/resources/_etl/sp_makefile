@@ -7,7 +7,7 @@
 ############################ derived folder SPs  ############################
 #############################################################################
 
-derived/art_follow_up/sp_data_processing_derived_art_follow_up.sql
+derived/client/sp_data_processing_derived_client.sql
 derived/location/sp_data_processing_derived_location_tag.sql
 
 derived/sp_mamba_drop_all_derived_tables.sql

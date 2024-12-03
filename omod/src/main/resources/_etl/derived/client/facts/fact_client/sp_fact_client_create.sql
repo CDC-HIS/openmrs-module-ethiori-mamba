@@ -1,5 +1,5 @@
 -- $BEGIN
-CREATE TABLE IF NOT EXISTS mamba_fact_art_follow_up
+CREATE TABLE IF NOT EXISTS mamba_fact_client
 (
     id                          INT AUTO_INCREMENT,
     encounter_datetime         DATE,
