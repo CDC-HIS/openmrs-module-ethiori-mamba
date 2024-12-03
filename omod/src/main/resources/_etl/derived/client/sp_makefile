@@ -10,16 +10,16 @@
 ############################ ART FOLLOW-UP ENCOUNTERS #######################
 
 ### DIMENSIONS FOR ART
-dimensions/dim_client_art_follow_up/sp_dim_client_art_follow_up.sql
-dimensions/dim_client_art_follow_up/sp_dim_client_art_follow_up_create.sql
-dimensions/dim_client_art_follow_up/sp_dim_client_art_follow_up_insert.sql
-dimensions/dim_client_art_follow_up/sp_dim_client_art_follow_up_update.sql
+dimensions/dim_client/sp_dim_client.sql
+dimensions/dim_client/sp_dim_client_create.sql
+dimensions/dim_client/sp_dim_client_insert.sql
+dimensions/dim_client/sp_dim_client_update.sql
 
 # FACTS FOR ART
-facts/fact_art_follow_up/sp_fact_encounter_art_follow_up.sql
-facts/fact_art_follow_up/sp_fact_encounter_art_follow_up_create.sql
-facts/fact_art_follow_up/sp_fact_encounter_art_follow_up_insert.sql
-facts/fact_art_follow_up/sp_fact_encounter_art_follow_up_update.sql
+facts/fact_client/sp_fact_client.sql
+facts/fact_client/sp_fact_client_create.sql
+facts/fact_client/sp_fact_client_insert.sql
+facts/fact_client/sp_fact_client_update.sql
 
 
 

@@ -1,5 +1,5 @@
 -- $BEGIN
-INSERT INTO mamba_fact_art_follow_up (client_id,
+INSERT INTO mamba_fact_client (client_id,
                                       encounter_id,
                                       encounter_datetime,
                                       weight_in_kg,
