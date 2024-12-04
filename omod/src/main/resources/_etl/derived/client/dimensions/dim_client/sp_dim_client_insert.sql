@@ -1,6 +1,10 @@
 -- $BEGIN
 INSERT INTO mamba_dim_client (client_id,
                               patient_name,
+                              prefix,
+                              given_name,
+                              middle_name,
+                              family_name,
                               mrn,
                               uan,
                               patient_uuid,
@@ -19,6 +23,10 @@ INSERT INTO mamba_dim_client (client_id,
                               fine_age_group)
 SELECT person.person_id,
        person.person_name_long,
+       p_name.prefix,
+       p_name.given_name,
+       p_name.middle_name,
+       p_name.family_name,
        mrn.mrn                                                                  AS MRN ,
        uan.uan                                                                  AS UAN,
        person.uuid,
@@ -41,6 +49,7 @@ SELECT person.person_id,
 
 FROM mamba_dim_person person
          LEFT JOIN mamba_dim_person_address p_add ON person.person_id = p_add.person_id
+         LEFT JOIN mamba_dim_person_name p_name ON person.person_id = p_name.person_id
          LEFT JOIN
      (SELECT pa.patient_id,
              pa.identifier mrn

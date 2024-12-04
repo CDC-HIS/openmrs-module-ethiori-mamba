@@ -4,6 +4,10 @@ CREATE TABLE IF NOT EXISTS mamba_dim_client
     client_id         int                                not null
         primary key,
     patient_name      VARCHAR(255) NULL,
+    prefix            VARCHAR(255) NULL,
+    given_name        VARCHAR(255) NULL,
+    middle_name       VARCHAR(255) NULL,
+    family_name       VARCHAR(255) NULL,
     mrn               VARCHAR(50)  NULL,
     uan               VARCHAR(50)  NULL,
     patient_uuid      VARCHAR(38),
@@ -15,11 +19,11 @@ CREATE TABLE IF NOT EXISTS mamba_dim_client
     state_province    VARCHAR(255) NULL,
     county_district   VARCHAR(255) NULL,
     city_village      VARCHAR(255) NULL,
-    coarse_age_group  VARCHAR(255) NULL,
-    fine_age_group    VARCHAR(255) NULL,
     key_population    VARCHAR(50)   NULL,
     marital_status    VARCHAR(50)   NULL,
     education_level   VARCHAR(50)   NULL,
+    coarse_age_group  VARCHAR(255) NULL,
+    fine_age_group    VARCHAR(255) NULL,
     constraint client_id
         unique (client_id)
 );
