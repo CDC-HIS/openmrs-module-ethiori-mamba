@@ -270,7 +270,7 @@
                                     <argument>-d openmrs_dilla</argument>
 
                                     <!-- The target or analysis Database where the ETL data is stored -->
-                                    <argument>-a analysis_db_test</argument>
+                                    <argument>-a analytics_db</argument>
 
                                     <!-- File with a list of all files with stored procedures -->
                                     <!-- Remove this argument after automating core to auto-read this -->
