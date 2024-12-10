@@ -215,6 +215,9 @@
     "high_grade": "7276fa8a-3bab-4bd7-b647-8e9c8536ef30",
     "ascus_atypical_squamous_cells_of_undetermined_significance_o": "145822AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "_ascus": "912a5c48-8b07-4fd7-b2c3-ccb94fde7c68",
-    "reason_not_eligible_for_tuberculosi": "4fedb725-fe8e-4a66-b8b2-a605239efa17"
+    "reason_not_eligible_for_tuberculosi": "4fedb725-fe8e-4a66-b8b2-a605239efa17",
+    "invasive_cervical_cancer": "baab7d76-69e0-426d-afca-99cd1c9849a5",
+    "carcinoma_in_situ":"fde5cd74-e503-4ce1-9afe-f74195f95f6e",
+    "cin_13": "ba4420d5-acc2-4d1c-8ead-43476e17960d"
   }
 }
