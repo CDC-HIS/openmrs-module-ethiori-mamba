@@ -267,10 +267,10 @@
                                     <argument>compile.sh</argument>
 
                                     <!-- The source database (OpenMRS database) -->
-                                    <argument>-d openmrs_dilla</argument>
+                                    <argument>-d openmrs_gunchire</argument>
 
                                     <!-- The target or analysis Database where the ETL data is stored -->
-                                    <argument>-a analytics_db</argument>
+                                    <argument>-a analytics_gunchire</argument>
 
                                     <!-- File with a list of all files with stored procedures -->
                                     <!-- Remove this argument after automating core to auto-read this -->
