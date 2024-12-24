@@ -39,9 +39,9 @@ BEGIN
     SET _year = 4 * FLOOR((jdn - era) / 1461) + FLOOR(r / 365) - FLOOR(r / 1460);
     SET _month = FLOOR(n / 30) + 1;
     SET _day = MOD(n, 30) + 1;
-    SET _format = REPLACE(_format, 'Y', _year);
-    SET _format = REPLACE(_format, 'M', _month);
-    SET _format = REPLACE(_format, 'D', _day);
+    SET _format = REPLACE(_format, 'Y', CAST(_year AS CHAR));
+    SET _format = REPLACE(_format, 'M', LPAD(CAST(_month AS CHAR), 2, '0'));
+    SET _format = REPLACE(_format, 'D', LPAD(CAST(_day AS CHAR), 2, '0'));
     RETURN _format;
 END //
 
