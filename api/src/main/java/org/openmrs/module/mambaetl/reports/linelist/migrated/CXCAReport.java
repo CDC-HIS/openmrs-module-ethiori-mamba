@@ -35,15 +35,7 @@ public class CXCAReport implements ReportManager {
 	
 	@Override
 	public List<Parameter> getParameters() {
-		Parameter startDate = new Parameter("startDate", "On Month", Date.class);
-		startDate.setRequired(false);
-		Parameter startDateGC = new Parameter("startDateGC", " ", Date.class);
-		startDateGC.setRequired(false);
-		Parameter endDate = new Parameter("endDate", "On Month", Date.class);
-		endDate.setRequired(false);
-		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
-		endDateGC.setRequired(false);
-		return Arrays.asList(startDate, startDateGC, endDate, endDateGC);
+		return EthiOhriUtil.getDateRangeParameters();
 		
 	}
 	
@@ -59,7 +51,8 @@ public class CXCAReport implements ReportManager {
 		CXCADatasetDefinition cxcaDatasetDefinition = new CXCADatasetDefinition();
 		cxcaDatasetDefinition.addParameters(getParameters());
 		
-		reportDefinition.addDataSetDefinition("List of Patients for CXCA", EthiOhriUtil.map(cxcaDatasetDefinition));
+		reportDefinition.addDataSetDefinition("List of Patients for CXCA",
+		    EthiOhriUtil.map(cxcaDatasetDefinition, "startDate=${startDateGC},endDate=${endDateGC}"));
 		return reportDefinition;
 	}
 	

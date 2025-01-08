@@ -35,15 +35,7 @@ public class TxCurrAnalysisReportMamba implements ReportManager {
 	
 	@Override
 	public List<Parameter> getParameters() {
-		Parameter startDate = new Parameter("startDate", "On Month", Date.class);
-		startDate.setRequired(false);
-		Parameter startDateGC = new Parameter("startDateGC", " ", Date.class);
-		startDateGC.setRequired(false);
-		Parameter endDate = new Parameter("endDate", "On Month", Date.class);
-		endDate.setRequired(false);
-		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
-		endDateGC.setRequired(false);
-		return Arrays.asList(startDate, startDateGC, endDate, endDateGC);
+		return EthiOhriUtil.getDateRangeParameters();
 		
 	}
 	
@@ -60,7 +52,7 @@ public class TxCurrAnalysisReportMamba implements ReportManager {
 		txCurrAnalysisDataSetDefinition.addParameters(getParameters());
 		
 		reportDefinition.addDataSetDefinition("List of Patients for TX Curr Analysis",
-		    EthiOhriUtil.map(txCurrAnalysisDataSetDefinition));
+		    EthiOhriUtil.map(txCurrAnalysisDataSetDefinition, "startDate=${startDateGC},endDate=${endDateGC}"));
 		return reportDefinition;
 	}
 	

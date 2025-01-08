@@ -48,7 +48,7 @@ public class TxNewReportMamba implements ReportManager {
 		TXNewDataSetDefinitionMamba txNewDataSetDefinitionMamba = new TXNewDataSetDefinitionMamba();
 		txNewDataSetDefinitionMamba.addParameters(getParameters());
 		reportDefinition.addDataSetDefinition("List of Patients Newly Started ART",
-		    EthiOhriUtil.map(txNewDataSetDefinitionMamba));
+		    EthiOhriUtil.map(txNewDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
 		
 		return reportDefinition;
 	}

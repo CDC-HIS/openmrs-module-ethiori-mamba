@@ -25,57 +25,75 @@ public class EthiOhriUtil {
 		return Arrays.asList(startDate, startDateGC, endDate, endDateGC);
 	}
 	
-	public static <T extends Parameterizable> Mapped<T> map(T parameterizable) {
+	public static List<Parameter> getEndDateParameters() {
+		
+		Parameter endDate = new Parameter("endDate", "On Month", Date.class);
+		endDate.setRequired(false);
+		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
+		endDateGC.setRequired(false);
+		return Arrays.asList(endDate, endDateGC);
+		
+	}
+	
+	public List<Parameter> getStartDateParameters() {
+		
+		Parameter endDate = new Parameter("startDate", "On Month", Date.class);
+		endDate.setRequired(false);
+		Parameter endDateGC = new Parameter("startDateGC", " ", Date.class);
+		endDateGC.setRequired(false);
+		return Arrays.asList(endDate, endDateGC);
+		
+	}
+	
+	public static <T extends Parameterizable> Mapped<T> map(T parameterizable, String mappings) {
 		if (parameterizable == null) {
 			throw new IllegalArgumentException("Parameterizable cannot be null");
 		}
-		
-		String mappings = "startDate=${startDateGC},endDate=${endDateGC}";
-		return new Mapped<T>(parameterizable, ParameterizableUtil.createParameterMappings(mappings));
-	}
-	
-	public static <T extends Parameterizable> Mapped<T> mapEndDate(T parameterizable) {
-		if (parameterizable == null) {
-			throw new IllegalArgumentException("Parameterizable cannot be null");
+		if (mappings == null) {
+			mappings = ""; // probably not necessary, just to be safe
 		}
-		
-		String mappings = "endDate=${endDateGC}";
-		return new Mapped<T>(parameterizable, ParameterizableUtil.createParameterMappings(mappings));
+		return new Mapped<>(parameterizable, ParameterizableUtil.createParameterMappings(mappings));
 	}
 	
-	public static <T extends Parameterizable> Mapped<T> mapNoDate(T parameterizable) {
-		if (parameterizable == null) {
-			throw new IllegalArgumentException("Parameterizable cannot be null");
-		}
-		
-		String mappings = "endDate=${endDateGC}";
-		return new Mapped<T>(parameterizable, ParameterizableUtil.createParameterMappings(mappings));
-	}
+	//	public static <T extends Parameterizable> Mapped<T> map(T parameterizable) {
+	//		if (parameterizable == null) {
+	//			throw new IllegalArgumentException("Parameterizable cannot be null");
+	//		}
+	//
+	//		String mappings = "startDate=${startDateGC},endDate=${endDateGC}";
+	//		return new Mapped<T>(parameterizable, ParameterizableUtil.createParameterMappings(mappings));
+	//	}
 	
-	public static <T extends Parameterizable> Mapped<T> map(T parameterizable, String _map) {
-		if (parameterizable == null) {
-			throw new IllegalArgumentException("Parameterizable cannot be null");
-		}
-		
-		String mappings = "startDate=${startDateGC},endDate=${endDateGC}";
-		
-		if (!Objects.isNull(_map) && !_map.isEmpty())
-			mappings = _map + "," + mappings;
-		
-		return new Mapped<T>(parameterizable, ParameterizableUtil.createParameterMappings(mappings));
-	}
-	
-	public static int getAgeInMonth(Date birthDate, Date asOfDate) {
-		Calendar birthCalendar = Calendar.getInstance();
-		Calendar asOfCalendar = Calendar.getInstance();
-		birthCalendar.setTime(birthDate);
-		asOfCalendar.setTime(asOfDate);
-		
-		int ageInMonthOfYear = (asOfCalendar.get(Calendar.YEAR) - birthCalendar.get(Calendar.YEAR)) * MONTHS_IN_A_YEAR;
-		
-		return (asOfCalendar.get(Calendar.MONTH) - birthCalendar.get(Calendar.MONTH)) + ageInMonthOfYear;
-		
-	}
+	//	public static <T extends Parameterizable> Mapped<T> mapEndDate(T parameterizable) {
+	//		if (parameterizable == null) {
+	//			throw new IllegalArgumentException("Parameterizable cannot be null");
+	//		}
+	//
+	//		String mappings = "endDate=${endDateGC}";
+	//		return new Mapped<T>(parameterizable, ParameterizableUtil.createParameterMappings(mappings));
+	//	}
+	//
+	//	public static <T extends Parameterizable> Mapped<T> mapNoDate(T parameterizable) {
+	//		if (parameterizable == null) {
+	//			throw new IllegalArgumentException("Parameterizable cannot be null");
+	//		}
+	//
+	//		String mappings = "endDate=${endDateGC}";
+	//		return new Mapped<T>(parameterizable, ParameterizableUtil.createParameterMappings(mappings));
+	//	}
+	//
+	//	public static <T extends Parameterizable> Mapped<T> map(T parameterizable, String _map) {
+	//		if (parameterizable == null) {
+	//			throw new IllegalArgumentException("Parameterizable cannot be null");
+	//		}
+	//
+	//		String mappings = "startDate=${startDateGC},endDate=${endDateGC}";
+	//
+	//		if (!Objects.isNull(_map) && !_map.isEmpty())
+	//			mappings = _map + "," + mappings;
+	//
+	//		return new Mapped<T>(parameterizable, ParameterizableUtil.createParameterMappings(mappings));
+	//	}
 	
 	public static String getEthiopianDate(Date date) {
 		if (date == null) {
