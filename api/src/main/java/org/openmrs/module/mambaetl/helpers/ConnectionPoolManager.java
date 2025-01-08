@@ -28,7 +28,7 @@ public class ConnectionPoolManager {
 		//		String url = properties.getProperty("mambaetl.analysis.db.url");
 		String userName = properties.getProperty("mambaetl.analysis.db.username");
 		String password = properties.getProperty("mambaetl.analysis.db.password");
-		String url = "jdbc:mysql://localhost:3306/analysis_db?autoReconnect=true&useSSL=false";
+		String url = "jdbc:mysql://localhost:3306/analytics_db?autoReconnect=true&useSSL=false";
 		
 		dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
 		dataSource.setUsername(userName != null ? userName : properties.getProperty("connection.username"));

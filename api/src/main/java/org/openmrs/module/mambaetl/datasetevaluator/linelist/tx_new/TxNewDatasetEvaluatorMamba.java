@@ -33,7 +33,7 @@ public class TxNewDatasetEvaluatorMamba implements DataSetEvaluator {
 
         // Get ResultSet from the database
         try (Connection connection = getDataSource().getConnection();
-             CallableStatement statement = connection.prepareCall("{call sp_fact_encounter_art_follow_up_tx_new_query(?,?)}")) {
+             CallableStatement statement = connection.prepareCall("{call sp_fact_tx_new_query(?,?)}")) {
             statement.setDate(1, new java.sql.Date(txNewDataSetDefinitionMamba.getStartDate().getTime()));
             statement.setDate(2, new java.sql.Date(txNewDataSetDefinitionMamba.getEndDate().getTime()));
 

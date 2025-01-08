@@ -35,15 +35,7 @@ public class VlEligibilityDataExtractionReport implements ReportManager {
 	
 	@Override
 	public List<Parameter> getParameters() {
-		Parameter startDate = new Parameter("startDate", "On Month", Date.class);
-		startDate.setRequired(false);
-		Parameter startDateGC = new Parameter("startDateGC", " ", Date.class);
-		startDateGC.setRequired(false);
-		Parameter endDate = new Parameter("endDate", "On Month", Date.class);
-		endDate.setRequired(false);
-		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
-		endDateGC.setRequired(false);
-		return Arrays.asList(startDate, startDateGC, endDate, endDateGC);
+		return EthiOhriUtil.getDateRangeParameters();
 		
 	}
 	
@@ -60,7 +52,7 @@ public class VlEligibilityDataExtractionReport implements ReportManager {
 		vlEligibilityDataExtractionDatasetDefinition.addParameters(getParameters());
 		
 		reportDefinition.addDataSetDefinition("List of Patients for Vl Eligibility Extraction",
-		    EthiOhriUtil.map(vlEligibilityDataExtractionDatasetDefinition));
+		    EthiOhriUtil.map(vlEligibilityDataExtractionDatasetDefinition, "startDate=${startDateGC},endDate=${endDateGC}"));
 		return reportDefinition;
 	}
 	

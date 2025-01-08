@@ -1,11 +1,8 @@
 package org.openmrs.module.mambaetl.reports.linelist;
 
-import org.openmrs.api.context.Context;
 import org.openmrs.module.mambaetl.datasetdefinition.linelist.TxCurrDataSetDefinitionMamba;
-import org.openmrs.module.reporting.evaluation.parameter.Mapped;
+import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
-import org.openmrs.module.reporting.evaluation.parameter.Parameterizable;
-import org.openmrs.module.reporting.evaluation.parameter.ParameterizableUtil;
 import org.openmrs.module.reporting.report.ReportDesign;
 import org.openmrs.module.reporting.report.ReportRequest;
 import org.openmrs.module.reporting.report.definition.ReportDefinition;
@@ -14,6 +11,9 @@ import org.openmrs.module.reporting.report.manager.ReportManagerUtil;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+
+import static org.openmrs.module.mambaetl.helpers.EthiOhriUtil.getEndDateParameters;
+import static org.openmrs.module.mambaetl.helpers.EthiOhriUtil.map;
 
 @Component
 public class TxCurrReportMamba implements ReportManager {
@@ -35,12 +35,7 @@ public class TxCurrReportMamba implements ReportManager {
 	
 	@Override
 	public List<Parameter> getParameters() {
-		
-		Parameter endDate = new Parameter("endDate", "On Month", Date.class);
-		endDate.setRequired(false);
-		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
-		endDateGC.setRequired(false);
-		return Arrays.asList(endDate, endDateGC);
+		return EthiOhriUtil.getEndDateParameters();
 		
 	}
 	
@@ -61,16 +56,16 @@ public class TxCurrReportMamba implements ReportManager {
 		return reportDefinition;
 	}
 	
-	public static <T extends Parameterizable> Mapped<T> map(T parameterizable, String mappings) {
-		if (parameterizable == null) {
-			throw new IllegalArgumentException("Parameterizable cannot be null");
-		}
-		if (mappings == null) {
-			mappings = ""; // probably not necessary, just to be safe
-		}
-		return new Mapped<>(parameterizable, ParameterizableUtil.createParameterMappings(mappings));
-	}
-	
+	//	public static <T extends Parameterizable> Mapped<T> map(T parameterizable, String mappings) {
+	//		if (parameterizable == null) {
+	//			throw new IllegalArgumentException("Parameterizable cannot be null");
+	//		}
+	//		if (mappings == null) {
+	//			mappings = ""; // probably not necessary, just to be safe
+	//		}
+	//		return new Mapped<>(parameterizable, ParameterizableUtil.createParameterMappings(mappings));
+	//	}
+	//
 	@Override
 	public List<ReportDesign> constructReportDesigns(ReportDefinition reportDefinition) {
 		ReportDesign design = ReportManagerUtil.createExcelDesign("a1ee4c33-f087-4af9-8efc-edf007e5c277", reportDefinition);
