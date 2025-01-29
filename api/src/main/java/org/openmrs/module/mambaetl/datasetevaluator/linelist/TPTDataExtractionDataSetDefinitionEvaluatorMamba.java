@@ -1,14 +1,7 @@
-package org.openmrs.module.mambaetl.datasetevaluator.linelist.dataExtractionTool;
-
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import javax.sql.DataSource;
+package org.openmrs.module.mambaetl.datasetevaluator.linelist;
 
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.mambaetl.datasetdefinition.linelist.dataExtractionTool.CXCADataExtractionDataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.datasetdefinition.linelist.dataExtractionTool.TPTDataExtractionDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.ConnectionPoolManager;
 import org.openmrs.module.mambaetl.helpers.ValidationHelper;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
@@ -19,13 +12,19 @@ import org.openmrs.module.reporting.dataset.definition.evaluator.DataSetEvaluato
 import org.openmrs.module.reporting.evaluation.EvaluationContext;
 import org.openmrs.module.reporting.evaluation.EvaluationException;
 
-@Handler(supports = { CXCADataExtractionDataSetDefinitionMamba.class })
-public class CxCaDataExtractionDataSetDefinitionEvaluatorMamba implements DataSetEvaluator {
+import javax.sql.DataSource;
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+@Handler(supports = { TPTDataExtractionDataSetDefinitionMamba.class })
+public class TPTDataExtractionDataSetDefinitionEvaluatorMamba implements DataSetEvaluator {
 	
 	@Override
     public DataSet evaluate(DataSetDefinition dataSetDefinition, EvaluationContext evalContext)
             throws EvaluationException {
-        CXCADataExtractionDataSetDefinitionMamba cxcaDataExtractionDataSetDefinitionMamba = (CXCADataExtractionDataSetDefinitionMamba) dataSetDefinition;
+        TPTDataExtractionDataSetDefinitionMamba tptDataExtractionDataSetDefinitionMamba = (TPTDataExtractionDataSetDefinitionMamba) dataSetDefinition;
 
         SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
 
@@ -33,13 +32,14 @@ public class CxCaDataExtractionDataSetDefinitionEvaluatorMamba implements DataSe
         ResultSetMapper resultSetMapper = new ResultSetMapper();
 
         // Validate start and end dates
-        validationHelper.validateDates(cxcaDataExtractionDataSetDefinitionMamba, data);
+        validationHelper.validateDates(tptDataExtractionDataSetDefinitionMamba, data);
+
         // Get ResultSet from the database
         try (Connection connection = getDataSource().getConnection();
                 CallableStatement statement = connection
-                        .prepareCall("{call sp_fact_cxca_linelist_data_extraction_query(?,?)}")) {
-            statement.setDate(1, new java.sql.Date(cxcaDataExtractionDataSetDefinitionMamba.getStartDate().getTime()));
-            statement.setDate(2, new java.sql.Date(cxcaDataExtractionDataSetDefinitionMamba.getEndDate().getTime()));
+                        .prepareCall("{call sp_fact_tpt_linelist_query(?,?)}")) {
+            statement.setDate(1, new java.sql.Date(tptDataExtractionDataSetDefinitionMamba.getStartDate().getTime()));
+            statement.setDate(2, new java.sql.Date(tptDataExtractionDataSetDefinitionMamba.getEndDate().getTime()));
 
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet != null) {
