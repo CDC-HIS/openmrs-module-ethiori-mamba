@@ -23,7 +23,7 @@ public class TPTLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "MAMBA LINELIST- TPT_DATA_EXTRACTION";
+		return "MAMBA LINELIST- TPT Line List";
 	}
 	
 	@Override
