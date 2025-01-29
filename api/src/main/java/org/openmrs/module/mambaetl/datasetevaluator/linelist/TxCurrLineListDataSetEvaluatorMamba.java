@@ -1,7 +1,7 @@
 package org.openmrs.module.mambaetl.datasetevaluator.linelist;
 
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.mambaetl.datasetdefinition.migrated.VLEligibilityDatasetDefinition;
+import org.openmrs.module.mambaetl.datasetdefinition.linelist.TxCurrLineListDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.ConnectionPoolManager;
 import org.openmrs.module.mambaetl.helpers.ValidationHelper;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
@@ -18,26 +18,25 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-@Handler(supports = { VLEligibilityDatasetDefinition.class })
-public class VLEligibilityDataSetEvaluator implements DataSetEvaluator {
+@Handler(supports = { TxCurrLineListDataSetDefinitionMamba.class })
+public class TxCurrLineListDataSetEvaluatorMamba implements DataSetEvaluator {
 	
 	@Override
 	public DataSet evaluate(DataSetDefinition dataSetDefinition, EvaluationContext evalContext) throws EvaluationException {
-
-		VLEligibilityDatasetDefinition vlEligibilityDatasetDefinition = (VLEligibilityDatasetDefinition) dataSetDefinition;
+		
+		TxCurrLineListDataSetDefinitionMamba txCurrLineListDataSetDefinitionMamba = (TxCurrLineListDataSetDefinitionMamba) dataSetDefinition;
 		SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
 
 		ValidationHelper validationHelper = new ValidationHelper();
 		ResultSetMapper resultSetMapper = new ResultSetMapper();
 
 		// Validate start and end dates
-		validationHelper.validateDates(vlEligibilityDatasetDefinition, data);
+		validationHelper.validateDates(txCurrLineListDataSetDefinitionMamba, data);
 
 		// Get ResultSet from the database
 		try (Connection connection = getDataSource().getConnection();
-			 CallableStatement statement = connection.prepareCall("{call sp_fact_vl_eligibility_query(?)}")) {
-			statement.setDate(1, new java.sql.Date(vlEligibilityDatasetDefinition.getEndDate().getTime()));
-
+			 CallableStatement statement = connection.prepareCall("{call sp_fact_tx_curr_query(?)}")) {
+			statement.setDate(1, new java.sql.Date(txCurrLineListDataSetDefinitionMamba.getEndDate().getTime()));
 
 			try (ResultSet resultSet = statement.executeQuery()) {
 				if (resultSet != null) {

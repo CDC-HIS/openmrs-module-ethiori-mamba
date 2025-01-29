@@ -1,6 +1,6 @@
 package org.openmrs.module.mambaetl.reports.linelist;
 
-import org.openmrs.module.mambaetl.datasetdefinition.linelist.TXNewDataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.datasetdefinition.linelist.PediatricAgeOutLineListDatasetDefinition;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.report.ReportDesign;
@@ -14,21 +14,21 @@ import java.util.Collections;
 import java.util.List;
 
 @Component
-public class TxNewReportMamba implements ReportManager {
+public class PediatricAgeOutLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getUuid() {
-		return "f249d7fb-bb24-4630-928c-927514c2f8a6";
-	} //4d7b385f-331f-400c-8592-f539f4565d9d
+		return "b700965c-89d2-490e-abaa-2c5c72770421";
+	}
 	
 	@Override
 	public String getName() {
-		return "MAMBA LINELIST- TX_NEW";
+		return "MAMBA LINELIST- PEDIATRIC_AGE_OUT";
 	}
 	
 	@Override
 	public String getDescription() {
-		return "TX new mamba implementation";
+		return null;
 	}
 	
 	@Override
@@ -43,20 +43,21 @@ public class TxNewReportMamba implements ReportManager {
 		reportDefinition.setUuid(getUuid());
 		reportDefinition.setName(getName());
 		reportDefinition.setDescription(getDescription());
+		
 		reportDefinition.setParameters(getParameters());
 		
-		TXNewDataSetDefinitionMamba txNewDataSetDefinitionMamba = new TXNewDataSetDefinitionMamba();
-		txNewDataSetDefinitionMamba.addParameters(getParameters());
-		reportDefinition.addDataSetDefinition("List of Patients Newly Started ART",
-		    EthiOhriUtil.map(txNewDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		PediatricAgeOutLineListDatasetDefinition pediatricAgeOutLineListDatasetDefinition = new PediatricAgeOutLineListDatasetDefinition();
+		pediatricAgeOutLineListDatasetDefinition.addParameters(getParameters());
 		
+		reportDefinition.addDataSetDefinition("List of Patients with pediatric age out",
+		    EthiOhriUtil.map(pediatricAgeOutLineListDatasetDefinition, "startDate=${startDateGC},endDate=${endDateGC}"));
 		return reportDefinition;
 	}
 	
 	@Override
 	public List<ReportDesign> constructReportDesigns(ReportDefinition reportDefinition) {
 		
-		ReportDesign design = ReportManagerUtil.createExcelDesign("59c89fef-38ce-4635-8a51-422ccf599b14", reportDefinition);
+		ReportDesign design = ReportManagerUtil.createExcelDesign("44dcf287-1665-4f77-b02e-c920c4bf60e6", reportDefinition);
 		
 		return Collections.singletonList(design);
 	}
@@ -70,5 +71,4 @@ public class TxNewReportMamba implements ReportManager {
 	public String getVersion() {
 		return "1.0.0-SNAPSHOT";
 	}
-	
 }

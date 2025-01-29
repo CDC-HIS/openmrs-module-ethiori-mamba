@@ -1,7 +1,7 @@
 package org.openmrs.module.mambaetl.datasetevaluator.linelist;
 
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.mambaetl.datasetdefinition.migrated.CXCADatasetDefinition;
+import org.openmrs.module.mambaetl.datasetdefinition.linelist.PediatricAgeOutLineListDatasetDefinition;
 import org.openmrs.module.mambaetl.helpers.ConnectionPoolManager;
 import org.openmrs.module.mambaetl.helpers.ValidationHelper;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
@@ -18,25 +18,26 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-@Handler(supports = { CXCADatasetDefinition.class })
-public class CXCADataSetEvaluator implements DataSetEvaluator {
+@Handler(supports = { PediatricAgeOutLineListDatasetDefinition.class })
+public class PediatricAgeOutLineListDataSetEvaluator implements DataSetEvaluator {
 	
 	@Override
-	public DataSet evaluate(DataSetDefinition dataSetDefinition, EvaluationContext evalContext)
-			throws EvaluationException {
+	public DataSet evaluate(DataSetDefinition dataSetDefinition, EvaluationContext evalContext) throws EvaluationException {
 
-		CXCADatasetDefinition cxcaDatasetDefinition = (CXCADatasetDefinition) dataSetDefinition;
+		PediatricAgeOutLineListDatasetDefinition pediatricAgeOutLineListDatasetDefinition = (PediatricAgeOutLineListDatasetDefinition) dataSetDefinition;
 		SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
 
 		ValidationHelper validationHelper = new ValidationHelper();
 		ResultSetMapper resultSetMapper = new ResultSetMapper();
 
 		// Validate start and end dates
-		validationHelper.validateDates(cxcaDatasetDefinition, data);
+		validationHelper.validateDates(pediatricAgeOutLineListDatasetDefinition, data);
 
 		// Get ResultSet from the database
 		try (Connection connection = getDataSource().getConnection();
-				CallableStatement statement = connection.prepareCall("{call sp_fact_cxca_query()}")) {
+			 CallableStatement statement = connection.prepareCall("{call sp_fact_pediatric_age_out_query(?,?)}")) {
+			statement.setDate(1, new java.sql.Date(pediatricAgeOutLineListDatasetDefinition.getStartDate().getTime()));
+			statement.setDate(2, new java.sql.Date(pediatricAgeOutLineListDatasetDefinition.getEndDate().getTime()));
 
 			try (ResultSet resultSet = statement.executeQuery()) {
 				if (resultSet != null) {

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import java.util.Date;
 
 @Component
-public class TxCurrDataSetDefinitionMamba extends BaseDataSetDefinition {
+public class VLEligibilityLineListDatasetDefinition extends BaseDataSetDefinition {
 	
 	@ConfigurationProperty
 	private Date endDate;

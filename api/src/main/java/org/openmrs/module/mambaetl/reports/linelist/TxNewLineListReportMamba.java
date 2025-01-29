@@ -1,36 +1,34 @@
-package org.openmrs.module.mambaetl.reports.linelist.migrated;
+package org.openmrs.module.mambaetl.reports.linelist;
 
-import org.openmrs.module.reporting.report.manager.ReportManager;
-import org.openmrs.module.mambaetl.datasetdefinition.linelist.dataExtractionTool.TPTDataExtractionDataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.datasetdefinition.linelist.TXNewLineListDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.report.ReportDesign;
 import org.openmrs.module.reporting.report.ReportRequest;
 import org.openmrs.module.reporting.report.definition.ReportDefinition;
+import org.openmrs.module.reporting.report.manager.ReportManager;
 import org.openmrs.module.reporting.report.manager.ReportManagerUtil;
 import org.springframework.stereotype.Component;
 
-import java.sql.Date;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 @Component
-public class TPTDataExtractionReport implements ReportManager {
+public class TxNewLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getUuid() {
-		return "9000965c-89d2-490e-abaa-2c5c72770421";
-	}
+		return "f249d7fb-bb24-4630-928c-927514c2f8a6";
+	} //4d7b385f-331f-400c-8592-f539f4565d9d
 	
 	@Override
 	public String getName() {
-		return "MAMBA LINELIST- TPT_DATA_EXTRACTION";
+		return "MAMBA LINELIST- TX_NEW";
 	}
 	
 	@Override
 	public String getDescription() {
-		return null;
+		return "TX new mamba implementation";
 	}
 	
 	@Override
@@ -45,21 +43,20 @@ public class TPTDataExtractionReport implements ReportManager {
 		reportDefinition.setUuid(getUuid());
 		reportDefinition.setName(getName());
 		reportDefinition.setDescription(getDescription());
-		
 		reportDefinition.setParameters(getParameters());
 		
-		TPTDataExtractionDataSetDefinitionMamba tptDataExtractionDataSetDefinitionMamba = new TPTDataExtractionDataSetDefinitionMamba();
-		tptDataExtractionDataSetDefinitionMamba.addParameters(getParameters());
+		TXNewLineListDataSetDefinitionMamba txNewLineListDataSetDefinitionMamba = new TXNewLineListDataSetDefinitionMamba();
+		txNewLineListDataSetDefinitionMamba.addParameters(getParameters());
+		reportDefinition.addDataSetDefinition("List of Patients Newly Started ART",
+		    EthiOhriUtil.map(txNewLineListDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
 		
-		reportDefinition.addDataSetDefinition("List of Patients with TPT",
-		    EthiOhriUtil.map(tptDataExtractionDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
 		return reportDefinition;
 	}
 	
 	@Override
 	public List<ReportDesign> constructReportDesigns(ReportDefinition reportDefinition) {
 		
-		ReportDesign design = ReportManagerUtil.createExcelDesign("77dcf287-1665-4f77-b02e-c920c4bf60e6", reportDefinition);
+		ReportDesign design = ReportManagerUtil.createExcelDesign("59c89fef-38ce-4635-8a51-422ccf599b14", reportDefinition);
 		
 		return Collections.singletonList(design);
 	}
@@ -73,4 +70,5 @@ public class TPTDataExtractionReport implements ReportManager {
 	public String getVersion() {
 		return "1.0.0-SNAPSHOT";
 	}
+	
 }

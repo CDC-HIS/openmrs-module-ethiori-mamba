@@ -1,4 +1,4 @@
-package org.openmrs.module.mambaetl.datasetdefinition.linelist.dataExtractionTool;
+package org.openmrs.module.mambaetl.datasetdefinition.linelist;
 
 import java.util.Date;
 
@@ -7,7 +7,7 @@ import org.openmrs.module.reporting.definition.configuration.ConfigurationProper
 import org.springframework.stereotype.Component;
 
 @Component
-public class CXCADataExtractionDataSetDefinitionMamba extends BaseDataSetDefinition {
+public class TxCurrAnalysisLineListDataSetDefinitionMamba extends BaseDataSetDefinition {
 	
 	@ConfigurationProperty
 	private Date startDate;
@@ -30,5 +30,4 @@ public class CXCADataExtractionDataSetDefinitionMamba extends BaseDataSetDefinit
 	public void setEndDate(Date endDate) {
 		this.endDate = endDate;
 	}
-	
 }

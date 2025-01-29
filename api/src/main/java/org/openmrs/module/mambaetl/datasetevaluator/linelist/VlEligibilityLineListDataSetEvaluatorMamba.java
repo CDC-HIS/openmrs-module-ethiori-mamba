@@ -1,7 +1,14 @@
 package org.openmrs.module.mambaetl.datasetevaluator.linelist;
 
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import javax.sql.DataSource;
+
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.mambaetl.datasetdefinition.linelist.dataExtractionTool.TPTDataExtractionDataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.datasetdefinition.linelist.VlEligibilityLineListDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.ConnectionPoolManager;
 import org.openmrs.module.mambaetl.helpers.ValidationHelper;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
@@ -12,19 +19,13 @@ import org.openmrs.module.reporting.dataset.definition.evaluator.DataSetEvaluato
 import org.openmrs.module.reporting.evaluation.EvaluationContext;
 import org.openmrs.module.reporting.evaluation.EvaluationException;
 
-import javax.sql.DataSource;
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-@Handler(supports = { TPTDataExtractionDataSetDefinitionMamba.class })
-public class TPTDataExtractionDataSetDefinitionEvaluatorMamba implements DataSetEvaluator {
+@Handler(supports = { VlEligibilityLineListDataSetDefinitionMamba.class })
+public class VlEligibilityLineListDataSetEvaluatorMamba implements DataSetEvaluator {
 	
 	@Override
     public DataSet evaluate(DataSetDefinition dataSetDefinition, EvaluationContext evalContext)
             throws EvaluationException {
-        TPTDataExtractionDataSetDefinitionMamba tptDataExtractionDataSetDefinitionMamba = (TPTDataExtractionDataSetDefinitionMamba) dataSetDefinition;
+        VlEligibilityLineListDataSetDefinitionMamba vlEligibilityLineListDataSetDefinitionMamba = (VlEligibilityLineListDataSetDefinitionMamba) dataSetDefinition;
 
         SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
 
@@ -32,14 +33,15 @@ public class TPTDataExtractionDataSetDefinitionEvaluatorMamba implements DataSet
         ResultSetMapper resultSetMapper = new ResultSetMapper();
 
         // Validate start and end dates
-        validationHelper.validateDates(tptDataExtractionDataSetDefinitionMamba, data);
-
+        validationHelper.validateDates(vlEligibilityLineListDataSetDefinitionMamba, data);
         // Get ResultSet from the database
         try (Connection connection = getDataSource().getConnection();
                 CallableStatement statement = connection
-                        .prepareCall("{call sp_fact_tpt_linelist_query(?,?)}")) {
-            statement.setDate(1, new java.sql.Date(tptDataExtractionDataSetDefinitionMamba.getStartDate().getTime()));
-            statement.setDate(2, new java.sql.Date(tptDataExtractionDataSetDefinitionMamba.getEndDate().getTime()));
+                        .prepareCall("{call sp_fact_vl_eligibility_query(?,?)}")) {
+            statement.setDate(1, new java.sql.Date(
+                    vlEligibilityLineListDataSetDefinitionMamba.getStartDate().getTime()));
+            statement.setDate(2, new java.sql.Date(
+                    vlEligibilityLineListDataSetDefinitionMamba.getEndDate().getTime()));
 
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet != null) {

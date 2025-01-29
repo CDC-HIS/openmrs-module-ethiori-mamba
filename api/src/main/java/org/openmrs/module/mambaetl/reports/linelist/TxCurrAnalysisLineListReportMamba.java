@@ -1,7 +1,9 @@
-package org.openmrs.module.mambaetl.reports.linelist.migrated;
+package org.openmrs.module.mambaetl.reports.linelist;
 
-import org.openmrs.module.mambaetl.datasetdefinition.migrated.CXCADatasetDefinition;
-import org.openmrs.module.mambaetl.datasetdefinition.migrated.PediatricAgeOutDatasetDefinition;
+import java.util.Collections;
+import java.util.List;
+
+import org.openmrs.module.mambaetl.datasetdefinition.linelist.TxCurrAnalysisLineListDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.report.ReportDesign;
@@ -11,22 +13,17 @@ import org.openmrs.module.reporting.report.manager.ReportManager;
 import org.openmrs.module.reporting.report.manager.ReportManagerUtil;
 import org.springframework.stereotype.Component;
 
-import java.sql.Date;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 @Component
-public class PediatricAgeOutReport implements ReportManager {
+public class TxCurrAnalysisLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getUuid() {
-		return "b700965c-89d2-490e-abaa-2c5c72770421";
+		return "73528f40-7987-482b-bc49-2d32451d00d9";
 	}
 	
 	@Override
 	public String getName() {
-		return "MAMBA LINELIST- PEDIATRIC_AGE_OUT";
+		return "MAMBA LINELIST- TX_CURR_ANALYSIS";
 	}
 	
 	@Override
@@ -49,18 +46,18 @@ public class PediatricAgeOutReport implements ReportManager {
 		
 		reportDefinition.setParameters(getParameters());
 		
-		PediatricAgeOutDatasetDefinition pediatricAgeOutDatasetDefinition = new PediatricAgeOutDatasetDefinition();
-		pediatricAgeOutDatasetDefinition.addParameters(getParameters());
+		TxCurrAnalysisLineListDataSetDefinitionMamba txCurrAnalysisDataSetDefinition = new TxCurrAnalysisLineListDataSetDefinitionMamba();
+		txCurrAnalysisDataSetDefinition.addParameters(getParameters());
 		
-		reportDefinition.addDataSetDefinition("List of Patients with pediatric age out",
-		    EthiOhriUtil.map(pediatricAgeOutDatasetDefinition, "startDate=${startDateGC},endDate=${endDateGC}"));
+		reportDefinition.addDataSetDefinition("List of Patients for TX Curr Analysis",
+		    EthiOhriUtil.map(txCurrAnalysisDataSetDefinition, "startDate=${startDateGC},endDate=${endDateGC}"));
 		return reportDefinition;
 	}
 	
 	@Override
 	public List<ReportDesign> constructReportDesigns(ReportDefinition reportDefinition) {
 		
-		ReportDesign design = ReportManagerUtil.createExcelDesign("44dcf287-1665-4f77-b02e-c920c4bf60e6", reportDefinition);
+		ReportDesign design = ReportManagerUtil.createExcelDesign("ef7db8b4-aabd-4c57-a3f9-7cfb6aac7e3a", reportDefinition);
 		
 		return Collections.singletonList(design);
 	}
