@@ -30,7 +30,7 @@ WITH Follow_up AS (SELECT follow_up_date_followup_                              
                             join mamba_flat_encounter_follow_up_3 follow_up_3
                                  ON follow_up.encounter_id = follow_up_3.encounter_id
                             JOIN
-                        mamba_dim_client_art_follow_up dim_client
+                        mamba_dim_client dim_client
                         ON follow_up.client_id = dim_client.client_id
                             left join mamba_flat_encounter_intake_a intake_a on intake_a.client_id = follow_up.client_id
                    where follow_up_date_followup_

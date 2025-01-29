@@ -7,7 +7,7 @@ BEGIN
 
     with followup as
              (select follow_up.encounter_id,
-                     follow_up_1.follow_up_date_followup_ as follow_up_date,
+                     follow_up_date_followup_ as follow_up_date,
                      follow_up.client_id,
                      follow_up_status,
                      art_antiretroviral_start_date,
@@ -154,7 +154,7 @@ BEGIN
            r.prev_curr
 
     from f_result r
-             inner join mamba_dim_client_art_follow_up dim_client on r.client_id = dim_client.client_id
+             inner join mamba_dim_client dim_client on r.client_id = dim_client.client_id
     where r.prev_curr = 1;
 
 END //
