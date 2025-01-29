@@ -1,4 +1,4 @@
-package org.openmrs.module.mambaetl.datasetdefinition.migrated;
+package org.openmrs.module.mambaetl.datasetdefinition.linelist;
 
 import org.openmrs.module.reporting.dataset.definition.BaseDataSetDefinition;
 import org.openmrs.module.reporting.definition.configuration.ConfigurationProperty;
@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import java.util.Date;
 
 @Component
-public class PediatricAgeOutDatasetDefinition extends BaseDataSetDefinition {
+public class CXCALineListDatasetDefinition extends BaseDataSetDefinition {
 	
 	@ConfigurationProperty
 	private Date startDate;

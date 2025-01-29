@@ -1,11 +1,9 @@
-package org.openmrs.module.mambaetl.reports.linelist.migrated;
+package org.openmrs.module.mambaetl.reports.linelist;
 
-import java.sql.Date;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.openmrs.module.mambaetl.datasetdefinition.linelist.dataExtractionTool.VlEligibilityDataExtractionDataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.datasetdefinition.linelist.VlEligibilityLineListDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.report.ReportDesign;
@@ -16,7 +14,7 @@ import org.openmrs.module.reporting.report.manager.ReportManagerUtil;
 import org.springframework.stereotype.Component;
 
 @Component
-public class VlEligibilityDataExtractionReport implements ReportManager {
+public class VlEligibilityLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getUuid() {
@@ -48,7 +46,7 @@ public class VlEligibilityDataExtractionReport implements ReportManager {
 		
 		reportDefinition.setParameters(getParameters());
 		
-		VlEligibilityDataExtractionDataSetDefinitionMamba vlEligibilityDataExtractionDatasetDefinition = new VlEligibilityDataExtractionDataSetDefinitionMamba();
+		VlEligibilityLineListDataSetDefinitionMamba vlEligibilityDataExtractionDatasetDefinition = new VlEligibilityLineListDataSetDefinitionMamba();
 		vlEligibilityDataExtractionDatasetDefinition.addParameters(getParameters());
 		
 		reportDefinition.addDataSetDefinition("List of Patients for Vl Eligibility Extraction",

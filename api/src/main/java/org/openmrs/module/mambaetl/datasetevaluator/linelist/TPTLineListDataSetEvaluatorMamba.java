@@ -1,7 +1,7 @@
-package org.openmrs.module.mambaetl.datasetevaluator.linelist.tx_new;
+package org.openmrs.module.mambaetl.datasetevaluator.linelist;
 
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.mambaetl.datasetdefinition.linelist.TXNewDataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.datasetdefinition.linelist.TPTLineListDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.ConnectionPoolManager;
 import org.openmrs.module.mambaetl.helpers.ValidationHelper;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
@@ -18,24 +18,28 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-@Handler(supports = { TXNewDataSetDefinitionMamba.class })
-public class TxNewDatasetEvaluatorMamba implements DataSetEvaluator {
+@Handler(supports = { TPTLineListDataSetDefinitionMamba.class })
+public class TPTLineListDataSetEvaluatorMamba implements DataSetEvaluator {
 	
 	@Override
-    public DataSet evaluate(DataSetDefinition dataSetDefinition, EvaluationContext evalContext) throws EvaluationException {
-        TXNewDataSetDefinitionMamba txNewDataSetDefinitionMamba = (TXNewDataSetDefinitionMamba) dataSetDefinition;
+    public DataSet evaluate(DataSetDefinition dataSetDefinition, EvaluationContext evalContext)
+            throws EvaluationException {
+        TPTLineListDataSetDefinitionMamba tptLineListDataSetDefinitionMamba = (TPTLineListDataSetDefinitionMamba) dataSetDefinition;
+
         SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
+
         ValidationHelper validationHelper = new ValidationHelper();
         ResultSetMapper resultSetMapper = new ResultSetMapper();
 
         // Validate start and end dates
-        validationHelper.validateDates(txNewDataSetDefinitionMamba, data);
+        validationHelper.validateDates(tptLineListDataSetDefinitionMamba, data);
 
         // Get ResultSet from the database
         try (Connection connection = getDataSource().getConnection();
-             CallableStatement statement = connection.prepareCall("{call sp_fact_tx_new_query(?,?)}")) {
-            statement.setDate(1, new java.sql.Date(txNewDataSetDefinitionMamba.getStartDate().getTime()));
-            statement.setDate(2, new java.sql.Date(txNewDataSetDefinitionMamba.getEndDate().getTime()));
+                CallableStatement statement = connection
+                        .prepareCall("{call sp_fact_tpt_linelist_query(?,?)}")) {
+            statement.setDate(1, new java.sql.Date(tptLineListDataSetDefinitionMamba.getStartDate().getTime()));
+            statement.setDate(2, new java.sql.Date(tptLineListDataSetDefinitionMamba.getEndDate().getTime()));
 
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet != null) {

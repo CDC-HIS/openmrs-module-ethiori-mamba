@@ -1,5 +1,4 @@
-DELIMITER
-//
+DELIMITER //
 
 DROP PROCEDURE IF EXISTS sp_fact_vl_received_query;
 
@@ -112,7 +111,6 @@ WITH FollowUp AS (SELECT follow_up.client_id,
 select
     
 ;
-END
-//
+END //
 
 DELIMITER ;

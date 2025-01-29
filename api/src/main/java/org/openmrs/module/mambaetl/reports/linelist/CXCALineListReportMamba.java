@@ -1,6 +1,6 @@
-package org.openmrs.module.mambaetl.reports.linelist.migrated;
+package org.openmrs.module.mambaetl.reports.linelist;
 
-import org.openmrs.module.mambaetl.datasetdefinition.migrated.CXCADatasetDefinition;
+import org.openmrs.module.mambaetl.datasetdefinition.linelist.CXCALineListDatasetDefinition;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.report.ReportDesign;
@@ -10,13 +10,11 @@ import org.openmrs.module.reporting.report.manager.ReportManager;
 import org.openmrs.module.reporting.report.manager.ReportManagerUtil;
 import org.springframework.stereotype.Component;
 
-import java.sql.Date;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 @Component
-public class CXCAReport implements ReportManager {
+public class CXCALineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getUuid() {
@@ -48,11 +46,11 @@ public class CXCAReport implements ReportManager {
 		
 		reportDefinition.setParameters(getParameters());
 		
-		CXCADatasetDefinition cxcaDatasetDefinition = new CXCADatasetDefinition();
-		cxcaDatasetDefinition.addParameters(getParameters());
+		CXCALineListDatasetDefinition cxcaLineListDatasetDefinition = new CXCALineListDatasetDefinition();
+		cxcaLineListDatasetDefinition.addParameters(getParameters());
 		
 		reportDefinition.addDataSetDefinition("List of Patients for CXCA",
-		    EthiOhriUtil.map(cxcaDatasetDefinition, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(cxcaLineListDatasetDefinition, "startDate=${startDateGC},endDate=${endDateGC}"));
 		return reportDefinition;
 	}
 	

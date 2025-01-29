@@ -1,31 +1,29 @@
 package org.openmrs.module.mambaetl.reports.linelist;
 
-import org.openmrs.module.mambaetl.datasetdefinition.linelist.TxCurrDataSetDefinitionMamba;
+import org.openmrs.module.reporting.report.manager.ReportManager;
+import org.openmrs.module.mambaetl.datasetdefinition.linelist.TPTLineListDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.report.ReportDesign;
 import org.openmrs.module.reporting.report.ReportRequest;
 import org.openmrs.module.reporting.report.definition.ReportDefinition;
-import org.openmrs.module.reporting.report.manager.ReportManager;
 import org.openmrs.module.reporting.report.manager.ReportManagerUtil;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
-
-import static org.openmrs.module.mambaetl.helpers.EthiOhriUtil.getEndDateParameters;
-import static org.openmrs.module.mambaetl.helpers.EthiOhriUtil.map;
+import java.util.Collections;
+import java.util.List;
 
 @Component
-public class TxCurrReportMamba implements ReportManager {
+public class TPTLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getUuid() {
-		return "e9f07911-dd8f-410c-aa00-4d753cf47b00";
+		return "9000965c-89d2-490e-abaa-2c5c72770421";
 	}
 	
 	@Override
 	public String getName() {
-		return "MAMBA LINELIST- TX_CURR";
+		return "MAMBA LINELIST- TPT_DATA_EXTRACTION";
 	}
 	
 	@Override
@@ -35,7 +33,7 @@ public class TxCurrReportMamba implements ReportManager {
 	
 	@Override
 	public List<Parameter> getParameters() {
-		return EthiOhriUtil.getEndDateParameters();
+		return EthiOhriUtil.getDateRangeParameters();
 		
 	}
 	
@@ -48,24 +46,25 @@ public class TxCurrReportMamba implements ReportManager {
 		
 		reportDefinition.setParameters(getParameters());
 		
-		TxCurrDataSetDefinitionMamba txCurrDataSetDefinition = new TxCurrDataSetDefinitionMamba();
-		txCurrDataSetDefinition.addParameters(getParameters());
+		TPTLineListDataSetDefinitionMamba tptLineListDataSetDefinitionMamba = new TPTLineListDataSetDefinitionMamba();
+		tptLineListDataSetDefinitionMamba.addParameters(getParameters());
 		
-		reportDefinition.addDataSetDefinition("List of Patients Currently on ART",
-		    map(txCurrDataSetDefinition, "endDate=${endDateGC}"));
+		reportDefinition.addDataSetDefinition("List of Patients with TPT",
+		    EthiOhriUtil.map(tptLineListDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
 		return reportDefinition;
 	}
 	
 	@Override
 	public List<ReportDesign> constructReportDesigns(ReportDefinition reportDefinition) {
-		ReportDesign design = ReportManagerUtil.createExcelDesign("4f815b74-0a80-423c-873d-05ae882e669c", reportDefinition);
+		
+		ReportDesign design = ReportManagerUtil.createExcelDesign("77dcf287-1665-4f77-b02e-c920c4bf60e6", reportDefinition);
 		
 		return Collections.singletonList(design);
 	}
 	
 	@Override
 	public List<ReportRequest> constructScheduledRequests(ReportDefinition reportDefinition) {
-		return new ArrayList<>();
+		return null;
 	}
 	
 	@Override

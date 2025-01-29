@@ -1,8 +1,6 @@
-package org.openmrs.module.mambaetl.reports.linelist.migrated;
+package org.openmrs.module.mambaetl.reports.linelist;
 
-import org.openmrs.module.mambaetl.datasetdefinition.migrated.CXCADatasetDefinition;
-import org.openmrs.module.mambaetl.datasetdefinition.migrated.VLEligibilityDatasetDefinition;
-import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
+import org.openmrs.module.mambaetl.datasetdefinition.linelist.VLEligibilityLineListDatasetDefinition;
 import org.openmrs.module.reporting.evaluation.parameter.Mapped;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.evaluation.parameter.Parameterizable;
@@ -20,7 +18,7 @@ import java.util.Date;
 import java.util.List;
 
 @Component
-public class VLEligibilityReport implements ReportManager {
+public class VLEligibilityLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getUuid() {
@@ -57,11 +55,11 @@ public class VLEligibilityReport implements ReportManager {
 		
 		reportDefinition.setParameters(getParameters());
 		
-		VLEligibilityDatasetDefinition vlEligibilityDatasetDefinition = new VLEligibilityDatasetDefinition();
-		vlEligibilityDatasetDefinition.addParameters(getParameters());
+		VLEligibilityLineListDatasetDefinition vlEligibilityLineListDatasetDefinition = new VLEligibilityLineListDatasetDefinition();
+		vlEligibilityLineListDatasetDefinition.addParameters(getParameters());
 		
 		reportDefinition.addDataSetDefinition("List of Patients eligible for VL",
-		    map(vlEligibilityDatasetDefinition, "endDate=${endDateGC}"));
+		    map(vlEligibilityLineListDatasetDefinition, "endDate=${endDateGC}"));
 		
 		return reportDefinition;
 	}

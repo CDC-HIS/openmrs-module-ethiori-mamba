@@ -1,7 +1,7 @@
 package org.openmrs.module.mambaetl.datasetevaluator.linelist;
 
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.mambaetl.datasetdefinition.migrated.PediatricAgeOutDatasetDefinition;
+import org.openmrs.module.mambaetl.datasetdefinition.linelist.VLEligibilityLineListDatasetDefinition;
 import org.openmrs.module.mambaetl.helpers.ConnectionPoolManager;
 import org.openmrs.module.mambaetl.helpers.ValidationHelper;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
@@ -18,26 +18,26 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-@Handler(supports = { PediatricAgeOutDatasetDefinition.class })
-public class PediatricAgeOutDataSetEvaluator implements DataSetEvaluator {
+@Handler(supports = { VLEligibilityLineListDatasetDefinition.class })
+public class VLEligibilityLineListDataSetEvaluator implements DataSetEvaluator {
 	
 	@Override
 	public DataSet evaluate(DataSetDefinition dataSetDefinition, EvaluationContext evalContext) throws EvaluationException {
 
-		PediatricAgeOutDatasetDefinition pediatricAgeOutDatasetDefinition = (PediatricAgeOutDatasetDefinition) dataSetDefinition;
+		VLEligibilityLineListDatasetDefinition vlEligibilityLineListDatasetDefinition = (VLEligibilityLineListDatasetDefinition) dataSetDefinition;
 		SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
 
 		ValidationHelper validationHelper = new ValidationHelper();
 		ResultSetMapper resultSetMapper = new ResultSetMapper();
 
 		// Validate start and end dates
-		validationHelper.validateDates(pediatricAgeOutDatasetDefinition, data);
+		validationHelper.validateDates(vlEligibilityLineListDatasetDefinition, data);
 
 		// Get ResultSet from the database
 		try (Connection connection = getDataSource().getConnection();
-			 CallableStatement statement = connection.prepareCall("{call sp_fact_pediatric_age_out_query(?,?)}")) {
-			statement.setDate(1, new java.sql.Date(pediatricAgeOutDatasetDefinition.getStartDate().getTime()));
-			statement.setDate(2, new java.sql.Date(pediatricAgeOutDatasetDefinition.getEndDate().getTime()));
+			 CallableStatement statement = connection.prepareCall("{call sp_fact_vl_eligibility_query(?)}")) {
+			statement.setDate(1, new java.sql.Date(vlEligibilityLineListDatasetDefinition.getEndDate().getTime()));
+
 
 			try (ResultSet resultSet = statement.executeQuery()) {
 				if (resultSet != null) {

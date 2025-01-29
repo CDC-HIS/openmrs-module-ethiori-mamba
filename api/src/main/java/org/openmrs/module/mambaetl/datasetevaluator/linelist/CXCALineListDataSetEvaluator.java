@@ -1,7 +1,7 @@
-package org.openmrs.module.mambaetl.datasetevaluator.linelist.tx_curr;
+package org.openmrs.module.mambaetl.datasetevaluator.linelist;
 
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.mambaetl.datasetdefinition.linelist.TxCurrDataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.datasetdefinition.linelist.CXCALineListDatasetDefinition;
 import org.openmrs.module.mambaetl.helpers.ConnectionPoolManager;
 import org.openmrs.module.mambaetl.helpers.ValidationHelper;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
@@ -18,25 +18,28 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-@Handler(supports = { TxCurrDataSetDefinitionMamba.class })
-public class TxCurrDataSetEvaluatorMamba implements DataSetEvaluator {
+@Handler(supports = { CXCALineListDatasetDefinition.class })
+public class CXCALineListDataSetEvaluator implements DataSetEvaluator {
 	
 	@Override
-	public DataSet evaluate(DataSetDefinition dataSetDefinition, EvaluationContext evalContext) throws EvaluationException {
-		
-		TxCurrDataSetDefinitionMamba txCurrDataSetDefinitionMamba = (TxCurrDataSetDefinitionMamba) dataSetDefinition;
+	public DataSet evaluate(DataSetDefinition dataSetDefinition, EvaluationContext evalContext)
+			throws EvaluationException {
+
+		CXCALineListDatasetDefinition cxcaLineListDatasetDefinition = (CXCALineListDatasetDefinition) dataSetDefinition;
 		SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
 
 		ValidationHelper validationHelper = new ValidationHelper();
 		ResultSetMapper resultSetMapper = new ResultSetMapper();
 
 		// Validate start and end dates
-		validationHelper.validateDates(txCurrDataSetDefinitionMamba, data);
+		validationHelper.validateDates(cxcaLineListDatasetDefinition, data);
 
 		// Get ResultSet from the database
 		try (Connection connection = getDataSource().getConnection();
-			 CallableStatement statement = connection.prepareCall("{call sp_fact_tx_curr_query(?)}")) {
-			statement.setDate(1, new java.sql.Date(txCurrDataSetDefinitionMamba.getEndDate().getTime()));
+			 CallableStatement statement = connection
+					 .prepareCall("{call sp_fact_cxca_query(?,?)}")) {
+			statement.setDate(1, new java.sql.Date(cxcaLineListDatasetDefinition.getStartDate().getTime()));
+			statement.setDate(2, new java.sql.Date(cxcaLineListDatasetDefinition.getEndDate().getTime()));
 
 			try (ResultSet resultSet = statement.executeQuery()) {
 				if (resultSet != null) {

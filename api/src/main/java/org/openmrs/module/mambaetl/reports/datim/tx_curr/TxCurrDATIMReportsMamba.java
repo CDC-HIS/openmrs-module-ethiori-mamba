@@ -2,7 +2,6 @@ package org.openmrs.module.mambaetl.reports.datim.tx_curr;
 
 import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_curr.CurrCoarseByAgeAndSexAndCD4DataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_curr.CurrFineByAgeAndSexAndCD4DataSetDefinitionMamba;
-import org.openmrs.module.mambaetl.datasetdefinition.linelist.TxCurrDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.mapper.Cd4Status;
 import org.openmrs.module.reporting.evaluation.parameter.Mapped;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
