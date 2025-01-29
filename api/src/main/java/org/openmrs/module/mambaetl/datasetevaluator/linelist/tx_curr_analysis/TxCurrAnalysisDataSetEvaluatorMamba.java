@@ -34,7 +34,7 @@ public class TxCurrAnalysisDataSetEvaluatorMamba implements DataSetEvaluator {
         validationHelper.validateDates(txCurrAnalysisDataSetDefinitionMamba, data);
         try (Connection connection = getDataSource().getConnection();
                 CallableStatement statement = connection
-                        .prepareCall("{call sp_fact_encounter_tx_curr_analytics_query(?,?)}")) {
+                        .prepareCall("{call sp_fact_tx_curr_analysis_query(?,?)}")) {
             statement.setDate(1, new java.sql.Date(txCurrAnalysisDataSetDefinitionMamba.getStartDate().getTime()));
             statement.setDate(2, new java.sql.Date(txCurrAnalysisDataSetDefinitionMamba.getEndDate().getTime()));
             try (ResultSet resultSet = statement.executeQuery()) {
