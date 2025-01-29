@@ -267,7 +267,7 @@
                                     <argument>compile.sh</argument>
 
                                     <!-- The source database (OpenMRS database) -->
-                                    <argument>-d server</argument>
+                                    <argument>-d openmrs_areket</argument>
 
                                     <!-- The target or analysis Database where the ETL data is stored -->
                                     <argument>-a analytics_db</argument>

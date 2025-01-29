@@ -10,18 +10,7 @@ import java.util.Date;
 public class TxCurrDataSetDefinitionMamba extends BaseDataSetDefinition {
 	
 	@ConfigurationProperty
-	private Date startDate;
-	
-	public Date getStartDate() {
-		return startDate;
-	}
-	
-	@ConfigurationProperty
 	private Date endDate;
-	
-	public void setStartDate(Date startDate) {
-		this.startDate = startDate;
-	}
 	
 	public Date getEndDate() {
 		return endDate;

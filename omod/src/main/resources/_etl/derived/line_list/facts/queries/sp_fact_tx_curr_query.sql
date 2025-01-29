@@ -139,7 +139,7 @@ BEGIN
              left join mamba_dim_client client on tx_curr.PatientId = client.client_id
     where tx_curr.treatment_end_date >= REPORT_END_DATE
       AND tx_curr.follow_up_status in ('Alive', 'Restart medication')
-      and TIMESTAMPDIFF(DAY, art_start_date, REPORT_END_DATE) >= 0;
+      and TIMESTAMPDIFF(DAY, art_start_date, REPORT_END_DATE) >= 0 order by client.patient_name;
 END //
 
 DELIMITER ;

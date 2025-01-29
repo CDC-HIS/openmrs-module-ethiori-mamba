@@ -44,7 +44,7 @@ BEGIN
                                LEFT JOIN mamba_flat_encounter_intake_b intake_b
                                          on follow_up.client_id = intake_b.client_id),
          -- TX new
-         tx_new_all AS (SELECT PatientId,
+         tmp_tx_new AS (SELECT PatientId,
                                follow_up_date                                                                             AS FollowupDate,
                                encounter_id,
                                art_start_date,
@@ -56,8 +56,17 @@ BEGIN
                         WHERE follow_up_status IS NOT NULL
                           AND art_start_date IS NOT NULL
                           AND follow_up_date <= REPORT_END_DATE),
+        tmp_first_follow_up_status as ( SELECT PatientId,
+                                           follow_up_date                                                                             AS FollowupDate,
+                                           encounter_id,
+                                           follow_up_status,
+                                           ROW_NUMBER() OVER (PARTITION BY PatientId ORDER BY follow_up_date , encounter_id ) AS row_num
+                                    FROM FollowUp
+                                    where regimen is not null
+                                    ),
+         first_follow_up_status as (select PatientId,follow_up_status from tmp_first_follow_up_status where row_num=1),
          tx_new as (select *
-                    from tx_new_all
+                    from tmp_tx_new
                     where row_num = 1
                       and art_start_date between REPORT_START_DATE and REPORT_END_DATE
                       and TIStatus = 'NTI'
@@ -86,7 +95,10 @@ BEGIN
     FROM tx_new
              INNER JOIN FollowUp
                         on tx_new.encounter_id = FollowUp.encounter_id
-             INNER JOIN mamba_dim_client client on tx_new.PatientId = client.client_id;
+             INNER JOIN first_follow_up_status on tx_new.PatientId=first_follow_up_status.PatientId
+             INNER JOIN mamba_dim_client client on tx_new.PatientId = client.client_id
+    WHERE first_follow_up_status.follow_up_status in ('Alive','Restart medication')
+    ;
 END //
 
 DELIMITER ;

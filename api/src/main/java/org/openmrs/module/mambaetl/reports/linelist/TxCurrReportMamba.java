@@ -20,7 +20,7 @@ public class TxCurrReportMamba implements ReportManager {
 	
 	@Override
 	public String getUuid() {
-		return "86a28f40-7987-482b-bc49-2d32451d00d9";
+		return "e9f07911-dd8f-410c-aa00-4d753cf47b00";
 	}
 	
 	@Override
@@ -56,19 +56,9 @@ public class TxCurrReportMamba implements ReportManager {
 		return reportDefinition;
 	}
 	
-	//	public static <T extends Parameterizable> Mapped<T> map(T parameterizable, String mappings) {
-	//		if (parameterizable == null) {
-	//			throw new IllegalArgumentException("Parameterizable cannot be null");
-	//		}
-	//		if (mappings == null) {
-	//			mappings = ""; // probably not necessary, just to be safe
-	//		}
-	//		return new Mapped<>(parameterizable, ParameterizableUtil.createParameterMappings(mappings));
-	//	}
-	//
 	@Override
 	public List<ReportDesign> constructReportDesigns(ReportDefinition reportDefinition) {
-		ReportDesign design = ReportManagerUtil.createExcelDesign("a1ee4c33-f087-4af9-8efc-edf007e5c277", reportDefinition);
+		ReportDesign design = ReportManagerUtil.createExcelDesign("4f815b74-0a80-423c-873d-05ae882e669c", reportDefinition);
 		
 		return Collections.singletonList(design);
 	}
