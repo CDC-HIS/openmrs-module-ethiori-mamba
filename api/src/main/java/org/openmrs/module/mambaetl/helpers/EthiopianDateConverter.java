@@ -22,7 +22,6 @@ public class EthiopianDateConverter {
 	}
 	
 	private static EthiopianDate ToEthiopianDate(int jdn) throws Exception {
-		//Formula from Dr. Berhanu Beyene and Manfred Kudlek
 		int year, month, day, r, n;
 		
 		r = (jdn - JdOffset) % 1461;
@@ -46,9 +45,7 @@ public class EthiopianDateConverter {
 		int year = localDate.getYear();
 		int month = localDate.getMonth();
 		int day = localDate.getDay();
-		validate(year, month, day);
-		int jdn = fromEthiopianDateToJDN(year, month, day);
-		return toGregorianDate(jdn);
+		return ToGregorianDate(year, month, day);
 	}
 	
 	private static LocalDate toGregorianDate(int jdn) {

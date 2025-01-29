@@ -59,7 +59,7 @@ public class TxCurrAnalysisReportMamba implements ReportManager {
 	@Override
 	public List<ReportDesign> constructReportDesigns(ReportDefinition reportDefinition) {
 		
-		ReportDesign design = ReportManagerUtil.createExcelDesign("5a289fef-38ce-4635-8a51-422ccf599b14", reportDefinition);
+		ReportDesign design = ReportManagerUtil.createExcelDesign("ef7db8b4-aabd-4c57-a3f9-7cfb6aac7e3a", reportDefinition);
 		
 		return Collections.singletonList(design);
 	}
