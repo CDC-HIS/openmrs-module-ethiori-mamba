@@ -8,14 +8,14 @@
 #############################################################################
 
 ############################ LINE LIST QUERIES #######################
-facts/line_list_queries/sp_fact_tx_curr_query.sql
-facts/line_list_queries/sp_fact_tx_new_query.sql
-facts/line_list_queries/sp_fact_cxca_query.sql
-facts/line_list_queries/sp_fact_pediatric_age_out_query.sql
-facts/line_list_queries/sp_fact_tpt_linelist_query.sql
-facts/line_list_queries/sp_fact_tx_curr_analysis_query.sql
-facts/line_list_queries/sp_fact_vl_eligibility_query.sql
-# facts/queries/sp_fact_vl_received_query.sql
+facts/hmis_dhis_2_queries/sp_fact_dhis_tx_curr_query.sql
+facts/hmis_dhis_2_queries/sp_fact_dhis_tx_new_query.sql
+facts/hmis_dhis_2_queries/sp_fact_hmis_hiv_art_ret_net_query.sql
+facts/hmis_dhis_2_queries/sp_fact_hmis_hiv_art_ret_query.sql
+facts/hmis_dhis_2_queries/sp_fact_hmis_hiv_dsd_query.sql
+facts/hmis_dhis_2_queries/sp_fact_hmis_hiv_prep_query.sql
+facts/hmis_dhis_2_queries/sp_fact_hmis_hiv_tb_scrn_query.sql
+# facts/hmis_dhis_2_queries/sp_fact_hmis_hiv_tx_pvls_query.sql
 #############################################################################
 ##### A single SP that CALLs all SPs inside the derived & base folders ######
 #############################################################################
