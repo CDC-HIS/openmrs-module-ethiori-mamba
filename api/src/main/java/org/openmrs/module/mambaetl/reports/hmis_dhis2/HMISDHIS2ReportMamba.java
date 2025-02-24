@@ -49,7 +49,8 @@ public class HMISDHIS2ReportMamba implements ReportManager {
 		CXCALineListDatasetDefinition cxcaLineListDatasetDefinition = new CXCALineListDatasetDefinition();
 		cxcaLineListDatasetDefinition.addParameters(getParameters());
 		
-		reportDefinition.addDataSetDefinition("06 - HIV | Hospital, Health center, Clinic | Monthly (Federal Ministry Of Health) ",
+		reportDefinition.addDataSetDefinition(
+		    "06 - HIV | Hospital, Health center, Clinic | Monthly (Federal Ministry Of Health) ",
 		    EthiOhriUtil.map(cxcaLineListDatasetDefinition, "startDate=${startDateGC},endDate=${endDateGC}"));
 		return reportDefinition;
 	}
