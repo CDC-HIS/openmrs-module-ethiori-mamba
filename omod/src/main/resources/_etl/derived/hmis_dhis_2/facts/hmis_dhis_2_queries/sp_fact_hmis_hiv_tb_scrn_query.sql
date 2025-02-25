@@ -1,5 +1,4 @@
-DELIMITER
-//
+DELIMITER //
 
 DROP PROCEDURE IF EXISTS sp_fact_hmis_hiv_tb_scrn_query;
 
@@ -277,7 +276,6 @@ WHERE screening_result='Positive'
     , date_of_birth
     , REPORT_END_DATE) >= 15
   AND sex='Female';
-END
-//
+END //
 
 DELIMITER ;

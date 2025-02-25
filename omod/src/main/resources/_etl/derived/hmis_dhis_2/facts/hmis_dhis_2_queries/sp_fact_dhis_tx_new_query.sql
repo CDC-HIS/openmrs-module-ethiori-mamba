@@ -1,5 +1,4 @@
-DELIMITER
-//
+DELIMITER //
 
 DROP PROCEDURE IF EXISTS sp_fact_dhis_tx_new_query;
 
@@ -334,7 +333,6 @@ BEGIN
     WHERE TIMESTAMPDIFF(YEAR,date_of_birth, REPORT_END_DATE) >= 50
       AND sex = 'Female'
       AND (pregnancy_status = 'No' or pregnancy_status is null);
-END
-//
+END //
 
 DELIMITER ;
