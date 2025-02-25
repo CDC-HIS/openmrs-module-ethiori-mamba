@@ -1,6 +1,6 @@
 DELIMITER //
 
-DROP PROCEDURE IF EXISTS sp_fact_hmis_hiv_prep_query;
+DROP PROCEDURE IF EXISTS sp_fact_hmis_hiv_pep_query;
 
 CREATE PROCEDURE  sp_fact_hmis_hiv_pep_query(
     IN REPORT_END_DATE DATE

@@ -1,5 +1,4 @@
-DELIMITER
-//
+DELIMITER //
 
 DROP PROCEDURE IF EXISTS sp_fact_dhis_tx_curr_query;
 
@@ -2768,8 +2767,7 @@ WHERE TIMESTAMPDIFF(YEAR,date_of_birth,REPORT_END_DATE) >= 20
   AND (regimen_line = '3' or regimen_line = '6')
   AND sex = 'Female'
   AND (pregnancy_status = 'No' or pregnancy_status is null);
-END
-//
+END //
 
 DELIMITER ;
 

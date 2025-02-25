@@ -346,7 +346,7 @@ SELECT 'HIV_ART_RET.1.35'                   AS S_NO,
        COUNT(*)
 FROM tx_curr_twelve_months
 WHERE TIMESTAMPDIFF(YEAR,date_of_birth,REPORT_END_DATE) >= 50
-  AND sex = 'Female'
+  AND sex = 'Female';
 
 END //
 
