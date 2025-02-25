@@ -33,13 +33,13 @@ WITH FollowUp AS (select follow_up.encounter_id,
                      FROM FollowUp
                      WHERE follow_up_status IS NOT NULL
                        AND art_start_date IS NOT NULL
-                       AND follow_up_date <= '2022-09-30'),
+                       AND follow_up_date <= REPORT_END_DATE),
 
      tx_curr AS (select *
                  from tx_curr_all
                  where row_num = 1
                    AND follow_up_status in ('Alive', 'Restart medication')
-                   AND treatment_end_date > '2022-09-30'),
+                   AND treatment_end_date > REPORT_END_DATE),
      dsd as (select tx_curr.*,
                     client.sex,
                     client.date_of_birth,
@@ -76,7 +76,7 @@ SELECT 'HIV_TX_3MMD1'            AS S_NO,
        'Less than  1 year, Male' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') < 1
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 1
   AND dsd_category = '3MMD'
   AND sex = 'Male'
 -- 2 Less than  1 year, Female
@@ -85,7 +85,7 @@ SELECT 'HIV_TX_3MMD2'              AS S_NO,
        'Less than  1 year, Female' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') < 1
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 1
   AND dsd_category = '3MMD'
   AND sex = 'Female'
 -- 3 1 - 4 years, Male
@@ -94,7 +94,7 @@ SELECT 'HIV_TX_3MMD3'      AS S_NO,
        '1 - 4 years, Male' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 1 AND 4
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 1 AND 4
   AND dsd_category = '3MMD'
   AND sex = 'Male'
 -- 4 1 - 4 years, Female
@@ -103,7 +103,7 @@ SELECT 'HIV_TX_3MMD4'        AS S_NO,
        '1 - 4 years, Female' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 1 AND 4
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 1 AND 4
   AND dsd_category = '3MMD'
   AND sex = 'Female'
 -- 5 5 - 9 years, Male
@@ -112,7 +112,7 @@ SELECT 'HIV_TX_3MMD5'      AS S_NO,
        '5 - 9 years, Male' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 5 AND 9
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 5 AND 9
   AND dsd_category = '3MMD'
   AND sex = 'Male'
 -- 6 5 - 9 years, Female
@@ -121,7 +121,7 @@ SELECT 'HIV_TX_3MMD6'        AS S_NO,
        '5 - 9 years, Female' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 5 AND 9
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 5 AND 9
   AND dsd_category = '3MMD'
   AND sex = 'Female'
 -- 7 10 - 14 years, Male
@@ -130,7 +130,7 @@ SELECT 'HIV_TX_3MMD7'        AS S_NO,
        '10 - 14 years, Male' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 10 AND 14
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 10 AND 14
   AND dsd_category = '3MMD'
   AND sex = 'Male'
 -- 8 10 - 14 years, Female
@@ -139,7 +139,7 @@ SELECT 'HIV_TX_3MMD8'          AS S_NO,
        '10 - 14 years, Female' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 10 AND 14
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 10 AND 14
   AND dsd_category = '3MMD'
   AND sex = 'Female'
 -- 9 15 - 19 years, Male
@@ -148,7 +148,7 @@ SELECT 'HIV_TX_3MMD9'        AS S_NO,
        '15 - 19 years, Male' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 15 AND 19
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
   AND dsd_category = '3MMD'
   AND sex = 'Male'
 -- 10 15 - 19 years, Female
@@ -157,7 +157,7 @@ SELECT 'HIV_TX_3MMD10'         AS S_NO,
        '15 - 19 years, Female' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 15 AND 19
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
   AND dsd_category = '3MMD'
   AND sex = 'Female'
 -- 11 20 - 24 years, Male
@@ -166,7 +166,7 @@ SELECT 'HIV_TX_3MMD11'       AS S_NO,
        '20 - 24 years, Male' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 20 AND 24
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 20 AND 24
   AND dsd_category = '3MMD'
   AND sex = 'Male'
 -- 12 20 - 24 years, Female
@@ -175,7 +175,7 @@ SELECT 'HIV_TX_3MMD12'         AS S_NO,
        '20 - 24 years, Female' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 20 AND 24
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 20 AND 24
   AND dsd_category = '3MMD'
   AND sex = 'Female'
 -- 13 25 - 49 years, Male
@@ -184,7 +184,7 @@ SELECT 'HIV_TX_3MMD13'       AS S_NO,
        '25 - 49 years, Male' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 25 AND 49
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 25 AND 49
   AND dsd_category = '3MMD'
   AND sex = 'Male'
 -- 14 25 - 49 years, Female
@@ -193,7 +193,7 @@ SELECT 'HIV_TX_3MMD14'         AS S_NO,
        '25 - 49 years, Female' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 25 AND 49
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 25 AND 49
   AND dsd_category = '3MMD'
   AND sex = 'Female'
 -- 15 Greater than or equal to  50 years, Male
@@ -202,7 +202,7 @@ SELECT 'HIV_TX_3MMD15'                            AS S_NO,
        'Greater than or equal to  50 years, Male' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') >= 50
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 50
   AND dsd_category = '3MMD'
   AND sex = 'Male'
 -- 16 Greater than or equal to  50 years, Female
@@ -211,7 +211,7 @@ SELECT 'HIV_TX_3MMD16'                              AS S_NO,
        'Greater than or equal to  50 years, Female' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') >= 50
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 50
   AND dsd_category = '3MMD'
   AND sex = 'Female'
 -- Total number of clients on ASM(6MMD)
@@ -227,7 +227,7 @@ SELECT 'HIV_TX_ASM1'         AS S_NO,
        '15 - 19 years, Male' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 15 AND 19
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
   AND dsd_category = 'Appointment spacing model / 6MMD'
   AND sex = 'Male'
 -- 2 15 - 19 years, Female
@@ -236,7 +236,7 @@ SELECT 'HIV_TX_ASM2'           AS S_NO,
        '15 - 19 years, Female' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 15 AND 19
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
   AND dsd_category = 'Appointment spacing model / 6MMD'
   AND sex = 'Female'
 -- 3 20 - 24 years, Male
@@ -245,7 +245,7 @@ SELECT 'HIV_TX_ASM3'         AS S_NO,
        '20 - 24 years, Male' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 20 AND 24
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 20 AND 24
   AND dsd_category = 'Appointment spacing model / 6MMD'
   AND sex = 'Male'
 -- 4 20 - 24 years, Female
@@ -254,7 +254,7 @@ SELECT 'HIV_TX_ASM4'           AS S_NO,
        '20 - 24 years, Female' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 20 AND 24
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 20 AND 24
   AND dsd_category = 'Appointment spacing model / 6MMD'
   AND sex = 'Female'
 -- 5 25 - 49 years, Male
@@ -263,7 +263,7 @@ SELECT 'HIV_TX_ASM5'         AS S_NO,
        '25 - 49 years, Male' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 25 AND 49
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 25 AND 49
   AND dsd_category = 'Appointment spacing model / 6MMD'
   AND sex = 'Male'
 -- 6 25 - 49 years, Female
@@ -272,7 +272,7 @@ SELECT 'HIV_TX_ASM6'           AS S_NO,
        '25 - 49 years, Female' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 25 AND 49
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 25 AND 49
   AND dsd_category = 'Appointment spacing model / 6MMD'
   AND sex = 'Female'
 -- 7 Greater than or equal to  50 years, Male
@@ -281,7 +281,7 @@ SELECT 'HIV_TX_ASM7'                              AS S_NO,
        'Greater than or equal to  50 years, Male' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') >= 50
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 50
   AND dsd_category = 'Appointment spacing model / 6MMD'
   AND sex = 'Male'
 -- 8 Greater than or equal to  50 years, Female
@@ -290,7 +290,7 @@ SELECT 'HIV_TX_ASM8'                                AS S_NO,
        'Greater than or equal to  50 years, Female' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') >= 50
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 50
   AND dsd_category = 'Appointment spacing model / 6MMD'
   AND sex = 'Female'
 -- Total number of clients on FTAR
@@ -306,7 +306,7 @@ SELECT 'HIV_TX_FTAR1'        AS S_NO,
        '15 - 19 years, Male' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 15 AND 19
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
   AND dsd_category = 'Fast track antiretroviral refill'
   AND sex = 'Male'
 -- 2 15 - 19 years, Female
@@ -315,7 +315,7 @@ SELECT 'HIV_TX_FTAR2'          AS S_NO,
        '15 - 19 years, Female' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 15 AND 19
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
   AND dsd_category = 'Fast track antiretroviral refill'
   AND sex = 'Female'
 -- 3 20 - 24 years, Male
@@ -324,7 +324,7 @@ SELECT 'HIV_TX_FTAR3'        AS S_NO,
        '20 - 24 years, Male' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 20 AND 24
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 20 AND 24
   AND dsd_category = 'Fast track antiretroviral refill'
   AND sex = 'Male'
 -- 4 20 - 24 years, Female
@@ -333,7 +333,7 @@ SELECT 'HIV_TX_FTAR4'          AS S_NO,
        '20 - 24 years, Female' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 20 AND 24
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 20 AND 24
   AND dsd_category = 'Fast track antiretroviral refill'
   AND sex = 'Female'
 -- 5 25 - 49 years, Male
@@ -342,7 +342,7 @@ SELECT 'HIV_TX_FTAR5'        AS S_NO,
        '25 - 49 years, Male' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 25 AND 49
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 25 AND 49
   AND dsd_category = 'Fast track antiretroviral refill'
   AND sex = 'Male'
 -- 6 25 - 49 years, Female
@@ -351,7 +351,7 @@ SELECT 'HIV_TX_FTAR6'          AS S_NO,
        '25 - 49 years, Female' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 25 AND 49
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 25 AND 49
   AND dsd_category = 'Fast track antiretroviral refill'
   AND sex = 'Female'
 -- 7 Greater than or equal to  50 years, Male
@@ -360,7 +360,7 @@ SELECT 'HIV_TX_FTAR7'                             AS S_NO,
        'Greater than or equal to  50 years, Male' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') >= 50
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 50
   AND dsd_category = 'Fast track antiretroviral refill'
   AND sex = 'Male'
 -- 8 Greater than or equal to  50 years, Female
@@ -369,7 +369,7 @@ SELECT 'HIV_TX_FTAR8'                               AS S_NO,
        'Greater than or equal to  50 years, Female' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') >= 50
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 50
   AND dsd_category = 'Fast track antiretroviral refill'
   AND sex = 'Female'
 -- Total number of clients on CAG
@@ -385,7 +385,7 @@ SELECT 'HIV_TX_CAG1'         AS S_NO,
        '15 - 19 years, Male' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 15 AND 19
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
   AND dsd_category = 'Health extension professional led community'
   AND sex = 'Male'
 -- 2 15 - 19 years, Female
@@ -394,7 +394,7 @@ SELECT 'HIV_TX_CAG2'           AS S_NO,
        '15 - 19 years, Female' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 15 AND 19
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
   AND dsd_category = 'Health extension professional led community'
   AND sex = 'Female'
 -- 3 20 - 24 years, Male
@@ -403,7 +403,7 @@ SELECT 'HIV_TX_CAG3'         AS S_NO,
        '20 - 24 years, Male' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 20 AND 24
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 20 AND 24
   AND dsd_category = 'Health extension professional led community'
   AND sex = 'Male'
 -- 4 20 - 24 years, Female
@@ -412,7 +412,7 @@ SELECT 'HIV_TX_CAG4'           AS S_NO,
        '20 - 24 years, Female' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 20 AND 24
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 20 AND 24
   AND dsd_category = 'Health extension professional led community'
   AND sex = 'Female'
 -- 5 25 - 49 years, Male
@@ -421,7 +421,7 @@ SELECT 'HIV_TX_CAG5'         AS S_NO,
        '25 - 49 years, Male' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 25 AND 49
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 25 AND 49
   AND dsd_category = 'Health extension professional led community'
   AND sex = 'Male'
 -- 6 25 - 49 years, Female
@@ -430,7 +430,7 @@ SELECT 'HIV_TX_CAG6'           AS S_NO,
        '25 - 49 years, Female' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 25 AND 49
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 25 AND 49
   AND dsd_category = 'Health extension professional led community'
   AND sex = 'Female'
 -- 7 Greater than or equal to  50 years, Male
@@ -439,7 +439,7 @@ SELECT 'HIV_TX_CAG7'                              AS S_NO,
        'Greater than or equal to  50 years, Male' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') >= 50
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 50
   AND dsd_category = 'Health extension professional led community'
   AND sex = 'Male'
 -- 8 Greater than or equal to  50 years, Female
@@ -448,7 +448,7 @@ SELECT 'HIV_TX_CAG8'                                AS S_NO,
        'Greater than or equal to  50 years, Female' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') >= 50
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 50
   AND dsd_category = 'Health extension professional led community'
   AND sex = 'Female'
 -- Total number of clients on PCAD
@@ -464,7 +464,7 @@ SELECT 'HIV_TX_PCAD1'        AS S_NO,
        '15 - 19 years, Male' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 15 AND 19
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
   AND dsd_category = 'Community based group model by peer'
   AND sex = 'Male'
 -- 2 15 - 19 years, Female
@@ -473,7 +473,7 @@ SELECT 'HIV_TX_PCAD2'          AS S_NO,
        '15 - 19 years, Female' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 15 AND 19
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
   AND dsd_category = 'Community based group model by peer'
   AND sex = 'Female'
 -- 3 20 - 24 years, Male
@@ -482,7 +482,7 @@ SELECT 'HIV_TX_PCAD3'        AS S_NO,
        '20 - 24 years, Male' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 20 AND 24
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 20 AND 24
   AND dsd_category = 'Community based group model by peer'
   AND sex = 'Male'
 -- 4 20 - 24 years, Female
@@ -491,7 +491,7 @@ SELECT 'HIV_TX_PCAD4'          AS S_NO,
        '20 - 24 years, Female' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 20 AND 24
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 20 AND 24
   AND dsd_category = 'Community based group model by peer'
   AND sex = 'Female'
 -- 5 25 - 49 years, Male
@@ -500,7 +500,7 @@ SELECT 'HIV_TX_PCAD5'        AS S_NO,
        '25 - 49 years, Male' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 25 AND 49
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 25 AND 49
   AND dsd_category = 'Community based group model by peer'
   AND sex = 'Male'
 -- 6 25 - 49 years, Female
@@ -509,7 +509,7 @@ SELECT 'HIV_TX_PCAD6'          AS S_NO,
        '25 - 49 years, Female' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 25 AND 49
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 25 AND 49
   AND dsd_category = 'Community based group model by peer'
   AND sex = 'Female'
 -- 7 Greater than or equal to  50 years, Male
@@ -518,7 +518,7 @@ SELECT 'HIV_TX_PCAD7'                             AS S_NO,
        'Greater than or equal to  50 years, Male' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') >= 50
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 50
   AND dsd_category = 'Community based group model by peer'
   AND sex = 'Male'
 -- 8 Greater than or equal to  50 years, Female
@@ -527,7 +527,7 @@ SELECT 'HIV_TX_PCAD8'                               AS S_NO,
        'Greater than or equal to  50 years, Female' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') >= 50
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 50
   AND dsd_category = 'Community based group model by peer'
   AND sex = 'Female'
 -- Total number of clients on Adolescent DSD
@@ -573,7 +573,7 @@ SELECT 'HIV_TX_AHDCM1'           AS S_NO,
        'Less than  1 year, Male' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') < 1
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 1
   AND dsd_category = 'Advanced HIV disease model'
   AND sex = 'Male'
 -- 2 Less than  1 year, Female
@@ -582,7 +582,7 @@ SELECT 'HIV_TX_AHDCM2'             AS S_NO,
        'Less than  1 year, Female' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') < 1
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 1
   AND dsd_category = 'Advanced HIV disease model'
   AND sex = 'Female'
 -- 3 1 - 4 years, Male
@@ -591,7 +591,7 @@ SELECT 'HIV_TX_AHDCM3'     AS S_NO,
        '1 - 4 years, Male' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 1 AND 4
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 1 AND 4
   AND dsd_category = 'Advanced HIV disease model'
   AND sex = 'Male'
 -- 4 1 - 4 years, Female
@@ -600,7 +600,7 @@ SELECT 'HIV_TX_AHDCM4'       AS S_NO,
        '1 - 4 years, Female' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 1 AND 4
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 1 AND 4
   AND dsd_category = 'Advanced HIV disease model'
   AND sex = 'Female'
 -- 5 5 - 9 years, Male
@@ -609,7 +609,7 @@ SELECT 'HIV_TX_AHDCM5'     AS S_NO,
        '5 - 9 years, Male' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 5 AND 9
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 5 AND 9
   AND dsd_category = 'Advanced HIV disease model'
   AND sex = 'Male'
 -- 6 5 - 9 years, Female
@@ -618,7 +618,7 @@ SELECT 'HIV_TX_AHDCM6'       AS S_NO,
        '5 - 9 years, Female' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 5 AND 9
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 5 AND 9
   AND dsd_category = 'Advanced HIV disease model'
   AND sex = 'Female'
 -- 7 10 - 14 years, Male
@@ -627,7 +627,7 @@ SELECT 'HIV_TX_AHDCM7'       AS S_NO,
        '10 - 14 years, Male' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 10 AND 14
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 10 AND 14
   AND dsd_category = 'Advanced HIV disease model'
   AND sex = 'Male'
 -- 8 10 - 14 years, Female
@@ -636,7 +636,7 @@ SELECT 'HIV_TX_AHDCM8'         AS S_NO,
        '10 - 14 years, Female' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 10 AND 14
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 10 AND 14
   AND dsd_category = 'Advanced HIV disease model'
   AND sex = 'Female'
 -- 9 15 - 19 years, Male
@@ -645,7 +645,7 @@ SELECT 'HIV_TX_AHDCM9'       AS S_NO,
        '15 - 19 years, Male' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 15 AND 19
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
   AND dsd_category = 'Advanced HIV disease model'
   AND sex = 'Male'
 -- 10 15 - 19 years, Female
@@ -654,7 +654,7 @@ SELECT 'HIV_TX_AHDCM10'        AS S_NO,
        '15 - 19 years, Female' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 15 AND 19
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
   AND dsd_category = 'Advanced HIV disease model'
   AND sex = 'Female'
 -- 11 20 - 24 years, Male
@@ -663,7 +663,7 @@ SELECT 'HIV_TX_AHDCM11'      AS S_NO,
        '20 - 24 years, Male' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 20 AND 24
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 20 AND 24
   AND dsd_category = 'Advanced HIV disease model'
   AND sex = 'Male'
 -- 12 20 - 24 years, Female
@@ -672,7 +672,7 @@ SELECT 'HIV_TX_AHDCM12'        AS S_NO,
        '20 - 24 years, Female' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 20 AND 24
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 20 AND 24
   AND dsd_category = 'Advanced HIV disease model'
   AND sex = 'Female'
 -- 13 25 - 49 years, Male
@@ -681,7 +681,7 @@ SELECT 'HIV_TX_AHDCM13'      AS S_NO,
        '25 - 49 years, Male' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 25 AND 49
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 25 AND 49
   AND dsd_category = 'Advanced HIV disease model'
   AND sex = 'Male'
 -- 14 25 - 49 years, Female
@@ -690,7 +690,7 @@ SELECT 'HIV_TX_AHDCM14'        AS S_NO,
        '25 - 49 years, Female' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') BETWEEN 25 AND 49
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 25 AND 49
   AND dsd_category = 'Advanced HIV disease model'
   AND sex = 'Female'
 -- 15 Greater than or equal to  50 years, Male
@@ -699,7 +699,7 @@ SELECT 'HIV_TX_AHDCM15'                           AS S_NO,
        'Greater than or equal to  50 years, Male' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') >= 50
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 50
   AND dsd_category = 'Advanced HIV disease model'
   AND sex = 'Male'
 -- 16 Greater than or equal to  50 years, Female
@@ -708,7 +708,7 @@ SELECT 'HIV_TX_AHDCM16'                             AS S_NO,
        'Greater than or equal to  50 years, Female' as Activity,
        COUNT(*)
 FROM dsd
-WHERE TIMESTAMPDIFF(YEAR, date_of_birth, '2022-09-30') >= 50
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 50
   AND dsd_category = 'Advanced HIV disease model'
   AND sex = 'Female';
 END //
