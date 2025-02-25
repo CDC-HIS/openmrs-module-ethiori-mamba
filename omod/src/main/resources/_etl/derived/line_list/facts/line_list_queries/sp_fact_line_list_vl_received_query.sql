@@ -1,8 +1,8 @@
 DELIMITER //
 
-DROP PROCEDURE IF EXISTS sp_fact_vl_received_query;
+DROP PROCEDURE IF EXISTS sp_fact_line_list_vl_received_query;
 
-CREATE PROCEDURE sp_fact_vl_received_query(IN REPORT_START_DATE DATE, IN REPORT_END_DATE DATE)
+CREATE PROCEDURE sp_fact_line_list_vl_received_query(IN REPORT_START_DATE DATE, IN REPORT_END_DATE DATE)
 BEGIN
 
 WITH FollowUp AS (SELECT follow_up.client_id,

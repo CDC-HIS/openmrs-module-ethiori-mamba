@@ -25,11 +25,7 @@ public class BreastFeedingStatusEvaluatorMamba implements DataSetEvaluator {
     public DataSet evaluate(DataSetDefinition dataSetDefinition, EvaluationContext evalContext) throws EvaluationException {
         BreastFeedingStatusDataSetDefinitionMamba dataSetDefinitionMamba = new BreastFeedingStatusDataSetDefinitionMamba();
         SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
-        ValidationHelper validationHelper = new ValidationHelper();
         ResultSetMapper resultSetMapper = new ResultSetMapper();
-
-        validationHelper.validateDates(dataSetDefinitionMamba, data);
-
         // Get ResultSet from the database
         try (Connection connection = getDataSource().getConnection();
              CallableStatement statement = connection.prepareCall("{call sp_dim_tx_new_datim_query(?,?,?,?)}")) {

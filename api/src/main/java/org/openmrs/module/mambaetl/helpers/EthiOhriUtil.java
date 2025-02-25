@@ -11,8 +11,6 @@ import java.util.*;
 
 public class EthiOhriUtil {
 	
-	private static final int MONTHS_IN_A_YEAR = 12;
-	
 	public static List<Parameter> getDateRangeParameters() {
 		Parameter startDate = new Parameter("startDate", "Start Date", Date.class);
 		startDate.setRequired(true);
@@ -65,7 +63,6 @@ public class EthiOhriUtil {
 			ethiopianDate = EthiopianDateConverter.ToEthiopianDate(lDate);
 		}
 		catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return ethiopianDate == null ? "" : ethiopianDate.getDay() + "/" + ethiopianDate.getMonth() + "/"

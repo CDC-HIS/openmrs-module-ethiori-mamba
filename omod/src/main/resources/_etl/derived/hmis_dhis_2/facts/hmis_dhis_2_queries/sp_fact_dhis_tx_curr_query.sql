@@ -54,7 +54,7 @@ from FollowUp
 -- Number of adults and children who are currently on ART by age, sex and regimen category
 SELECT 'HIV_TX_CURR_ALL'                                                                         AS S_NO,
        'Number of adults and children who are currently on ART by age, sex and regimen category' as Activity,
-       COUNT(*)                                                                                  AS Number
+       COUNT(*)                                                                                  AS Value
 FROM tx_curr_with_client
 
 -- Number of children (<15) who are currently on ART

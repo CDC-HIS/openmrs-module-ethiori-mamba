@@ -6,7 +6,7 @@ import org.openmrs.module.reporting.dataset.DataSetColumn;
 
 public class DynamicDataSet {
 
-    private Map<String, DataSetColumn> columnMap = new HashMap<>();
+    private final Map<String, DataSetColumn> columnMap = new HashMap<>();
 
     public void addColumn(DataSetColumn column) {
         columnMap.put(column.getName(), column);
@@ -16,5 +16,4 @@ public class DynamicDataSet {
         return columnMap.get(columnName);
     }
 
-    // Other methods as needed
 }
