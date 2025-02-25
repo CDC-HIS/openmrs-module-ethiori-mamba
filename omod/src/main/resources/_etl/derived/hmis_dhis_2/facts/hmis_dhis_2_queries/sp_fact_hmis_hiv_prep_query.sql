@@ -7,189 +7,362 @@ CREATE PROCEDURE  sp_fact_hmis_hiv_prep_query(
     IN REPORT_END_DATE DATE
 )
 BEGIN
-WITH client_identifier as (select person.person_id,
-                                  MAX(CASE WHEN pid.identifier_type = 5 THEN pid.identifier END) AS MRN,
-                                  MAX(CASE WHEN pid.identifier_type = 6 THEN pid.identifier END) AS UAN
-                           from mamba_dim_person person
-                                    left join mamba_dim_patient_identifier pid on person.person_id = pid.patient_id
-                           group by person_id),
-     FollowUp AS (SELECT follow_up.encounter_id,
-                         follow_up.client_id,
-                         date_of_event                       as hiv_confirmed_date,
-                         art_antiretroviral_start_date       as art_start_date,
-                         follow_up_date_followup_            as followup_date,
-                         weight_text_                        as weight_in_kg,
-                         pregnancy_status,
-                         regimen,
-                         antiretroviral_art_dispensed_dose_i as art_dose_days,
-                         follow_up_status,
-                         anitiretroviral_adherence_level,
-                         next_visit_date,
-                         dsd_category,
-                         date_started_on_tuberculosis_prophy as tpt_start_date,
-                         date_completed_tuberculosis_prophyl as tpt_completed_date,
-                         date_discontinued_tuberculosis_prop as tpt_discontinued_date,
-                         date_viral_load_results_received    as viral_load_performed_date,
-                         viral_load_test_status,
-                         treatment_end_date                  as art_end_date,
-                         current_who_hiv_stage,
-                         cd4_count,
-                         cotrimoxazole_prophylaxis_start_dat,
-                         cotrimoxazole_prophylaxis_stop_date,
-                         patient_diagnosed_with_active_tuber as active_tb_dx,
-                         diagnosis_date,
-                         tuberculosis_drug_treatment_start_d,
-                         date_active_tbrx_completed,
-                         tb_prophylaxis_type                 AS TB_ProphylaxisType,
-                         tb_prophylaxis_type_alternate_      AS TB_ProphylaxisTypeALT,
-                         tpt_followup_6h_                       tpt_follow_up_inh,
-                         date_started_on_tuberculosis_prophy AS inhprophylaxis_started_date,
-                         date_completed_tuberculosis_prophyl AS InhprophylaxisCompletedDate,
-                         why_eligible_reason_,
-                         tb_diagnostic_test_result              tb_specimen_type,
-                         gender,
-                         age,
-                         uuid,
-                         fluconazole_start_date              AS Fluconazole_Start_Date,
-                         fluconazole_stop_date               as Fluconazole_End_Date,
-                         transfer_in
-                  FROM mamba_flat_encounter_follow_up follow_up
-                           join mamba_flat_encounter_follow_up_1 follow_up_1
-                                on follow_up.encounter_id = follow_up_1.encounter_id
-                           join mamba_flat_encounter_follow_up_2 follow_up_2
-                                on follow_up.encounter_id = follow_up_2.encounter_id
-                           join mamba_flat_encounter_follow_up_3 follow_up_3
-                                on follow_up.encounter_id = follow_up_3.encounter_id
-                           join mamba_dim_person person on follow_up.client_id = person_id
-                           join client_identifier pid on follow_up.client_id = pid.person_id),
-     tmp_tpt_type as (SELECT encounter_id,
-                             client_id,
-                             TB_ProphylaxisType                                                                                                     AS TptType,
-                             TB_ProphylaxisTypeAlt                                                                                                  AS TptTypeAlt,
-                             tpt_follow_up_inh                                                                                                      As TPTFollowup,
-                             followup_date                                                                                                          AS FollowupDate,
-                             ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY FollowUp.followup_date DESC , FollowUp.encounter_id DESC ) AS row_num
-                      FROM FollowUp
-                      where followup_date <= REPORT_END_DATE
-                        and (TB_ProphylaxisType is not null OR TB_ProphylaxisTypeAlt is not null OR
-                             tpt_follow_up_inh is not null)),
-
-     tmp_tpt_start as (select encounter_id,
-                              client_id,
-                              inhprophylaxis_started_date                                                                                                          as inhprophylaxis_started_date,
-                              ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY FollowUp.inhprophylaxis_started_date DESC , FollowUp.encounter_id DESC ) AS row_num
-                       from FollowUp
-                       where inhprophylaxis_started_date is not null
-                         and followup_date <= REPORT_END_DATE),
-     tmp_tpt_completed as (select encounter_id,
-                                  client_id,
-                                  InhprophylaxisCompletedDate                                                                                                          as InhprophylaxisCompletedDate,
-                                  ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY FollowUp.InhprophylaxisCompletedDate DESC , FollowUp.encounter_id DESC ) AS row_num
-                           from FollowUp
-                           where InhprophylaxisCompletedDate is not null
-                             and followup_date <= REPORT_END_DATE),
-
-     tmp_latest_follow_up as (SELECT encounter_id,
-                                     client_id,
-                                     followup_date                                                                                                         AS FollowupDate,
-                                     ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY FollowUp.followup_date DESC, FollowUp.encounter_id DESC ) AS row_num
-                              FROM FollowUp
-                              WHERE follow_up_status IS NOT NULL
-                                AND followup_date <= REPORT_END_DATE),
-     tpt_type as (select * from tmp_tpt_type where row_num = 1),
-     tpt_start as (select * from tmp_tpt_start where row_num = 1),
-     tpt_completed as (select * from tmp_tpt_completed where row_num = 1),
-     latest_follow_up as (select * from tmp_latest_follow_up where row_num = 1),
-     tmp_tpt as (SELECT f_case.encounter_id,
-                        f_case.client_id,
-                        f_case.gender,
-                        f_case.weight_in_kg,
-                        f_case.age,
-                        f_case.hiv_confirmed_date,
-                        f_case.art_start_date,
-                        f_case.followup_date,
-                        f_case.why_eligible_reason_,
-                        art_dose_days                       as artdosecode,
-                        f_case.next_visit_date,
-                        f_case.follow_up_status,
-                        f_case.follow_up_status             as statuscode,
-                        f_case.art_end_date,
-                        f_case.current_who_hiv_stage        AS WHOStage,
-                        cd4_count                              AdultCD4Count,
-                        cd4_count                              ChildCD4Count,
-                        cotrimoxazole_prophylaxis_start_dat As CPT_StartDate,
-                        cotrimoxazole_prophylaxis_start_dat As CPT_StartDate_GC,
-                        cotrimoxazole_prophylaxis_stop_date As CPT_StopDate,
-                        cotrimoxazole_prophylaxis_stop_date As CPT_StopDate_GC,
-                        tb_specimen_type                    AS TB_SpecimenType,
-                        active_tb_dx                        As ActiveTBDiagnosed,
-                        diagnosis_date                      As ActiveTBDignosedDate,
-                        diagnosis_date                      As ActiveTBDignosedDate_GC,
-                        tuberculosis_drug_treatment_start_d As TBTx_StartDate,
-                        tuberculosis_drug_treatment_start_d As TBTx_StartDate_GC,
-                        date_active_tbrx_completed          As TBTx_CompletedDate,
-                        date_active_tbrx_completed          As TBTx_CompletedDate_GC,
-                        uuid                                as PatientGUID
-                 FROM FollowUp AS f_case
-                          INNER JOIN latest_follow_up ON f_case.encounter_id = latest_follow_up.encounter_id)
-
-select tmp_tpt.gender                                                         Sex,
-       tmp_tpt.weight_in_kg                                                as Weight,
-       tmp_tpt.age                                                         as Age,
-       tpt_start.inhprophylaxis_started_date                               as TPT_Started_Date,
-       tpt_completed.InhprophylaxisCompletedDate                           as TPT_Completed_Date,
-       tpt_type.TptType                                                    as TPT_Type,
-       tpt_type.TptTypeAlt                                                    TPT_TypeAlt,
-       CASE
-           WHEN tpt_type.TptType = '6H' THEN 'INH'
-           WHEN tpt_type.TptType = '3HP' THEN '3HP'
-           ELSE '' END                                                     AS TPT_TypeChar,
-       tmp_tpt.hiv_confirmed_date                                          as HIV_Confirmed_Date,
-       tmp_tpt.art_start_date                                              as ART_Start_Date,
-       tmp_tpt.followup_date                                               as FollowUpDate,
-       Transfer_In,
-       tmp_tpt.artdosecode                                                 as ARTDoseDays,
-       tmp_tpt.next_visit_date                                             as Next_visit_Date,
-       CASE
-           WHEN tmp_tpt.follow_up_status = 'Transferred out' THEN 0
-           WHEN tmp_tpt.follow_up_status = 'Stop all' THEN 1
-           WHEN tmp_tpt.follow_up_status = 'Loss to follow-up (LTFU)' THEN 2
-           WHEN tmp_tpt.follow_up_status = 'Ran away' THEN 3
-           WHEN tmp_tpt.follow_up_status = 'Dead' THEN 4
-           WHEN tmp_tpt.follow_up_status = 'Alive' THEN 5
-           WHEN tmp_tpt.follow_up_status = 'Restart medication' THEN 6 END
-                                                                           as FollowupStatus,
-       tmp_tpt.follow_up_status                                            as FollowupStatusChar,
-       tmp_tpt.art_end_date                                                as ARTDoseEndDate,
-       tmp_tpt.PatientGUID                                                 as PatientGUID,
-       tmp_tpt.WHOStage                                                    as WHOStage,
-       AdultCD4Count,
-       ChildCD4Count,
-       fn_gregorian_to_ethiopian_calendar(CPT_StartDate, 'Y-M-D')          as CPT_StartDate,
-       CPT_StartDate_GC,
-       fn_gregorian_to_ethiopian_calendar(CPT_StopDate, 'Y-M-D')           as CPT_StopDate,
-       CPT_StopDate_GC,
-       TB_SpecimenType,
-       ActiveTBDiagnosed,
-       fn_gregorian_to_ethiopian_calendar(ActiveTBDignosedDate, 'Y-M-D')   as ActiveTBDignosedDate,
-       ActiveTBDignosedDate_GC,
-       fn_gregorian_to_ethiopian_calendar(TBTx_StartDate, 'Y-M-D')         as TBTx_StartDate,
-       TBTx_StartDate_GC,
-       fn_gregorian_to_ethiopian_calendar(TBTx_CompletedDate, 'Y-M-D')     as TBTx_CompletedDate,
-       TBTx_CompletedDate_GC,
-       fn_gregorian_to_ethiopian_calendar(Fluconazole_Start_Date, 'Y-M-D') as FluconazoleStartDate,
-       Fluconazole_Start_Date                                              as FluconazoleStartDate_GC,
-       fn_gregorian_to_ethiopian_calendar(Fluconazole_End_Date, 'Y-M-D')   as FluconazoleEndDate,
-       Fluconazole_End_Date                                                as FluconazoleEndDate_GC
-
-FROM FollowUp
-         inner join tmp_tpt on tmp_tpt.encounter_id = FollowUp.encounter_id
-         Left join tpt_start on tmp_tpt.client_id = tpt_start.client_id
-         Left join tpt_completed on tmp_tpt.client_id = tpt_completed.client_id
-         Left join tpt_type on tmp_tpt.client_id = tpt_type.client_id
-where tmp_tpt.art_end_date >= REPORT_END_DATE
-  AND tmp_tpt.follow_up_status in ('Alive', 'Restart medication')
-  AND tmp_tpt.art_start_date <= REPORT_END_DATE;
+WITH PreExposure AS (select screening.client_id,
+                            screening.encounter_id,
+                            screening.encounter_datetime,
+                            screening.sex_worker,
+                            screening.prep_started,
+                            screening.treatment_start_date,
+                            screening.do_you_have_an_hiv_positive_partner,
+                            follow_up.follow_up_status,
+                            follow_up.pregnancy_status as f_pregnancy_status,
+                            follow_up.prep_dose_end_date,
+                            follow_up.follow_up_date_followup_
+                     FROM mamba_flat_encounter_pre_exposure_scree screening
+                              LEFT JOIN mamba_flat_encounter_pre_exposure_follo follow_up
+                                        on screening.client_id = follow_up.client_id),
+     tmp_latest_follow_up as (select prep_dose_end_date,
+                                     prep_started,
+                                     date_of_birth,
+                                     sex,
+                                     do_you_have_an_hiv_positive_partner,
+                                     sex_worker,
+                                     treatment_start_date,
+                                     follow_up_status,
+                                     ROW_NUMBER() over (PARTITION BY PreExposure.client_id ORDER BY follow_up_date_followup_ DESC, encounter_id DESC) as row_num
+                              from PreExposure
+                                       join mamba_dim_client client on PreExposure.client_id = client.client_id
+                              where follow_up_date_followup_ <= REPORT_END_DATE),
+     tx_new as (select *
+                from tmp_latest_follow_up
+                WHERE treatment_start_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE
+                  AND row_num = 1
+         -- AND follow_up_status
+     ),
+     tx_curr as (select *
+                 from tmp_latest_follow_up
+                 where row_num = 1
+                   and prep_dose_end_date >= REPORT_END_DATE
+                   and prep_started = 'Yes')
+-- Number of individuals receiving Pre-Exposure Prophylaxis
+SELECT 'HIV_PrEP'                                                 AS S_NO,
+       'Number of individuals receiving Pre-Exposure Prophylaxis' as Activity,
+       COUNT(*)                                                   as Value
+FROM tx_new
+-- PrEP (New Number of individuals who were newly enrolled on PrEP)
+UNION ALL
+SELECT 'HIV_PrEP.1.1'   AS S_NO,
+       'By age and Sex' as Activity,
+       COUNT(*)         as Value
+FROM tx_new
+-- 15 - 19 years, Male
+UNION ALL
+SELECT 'HIV_PrEP.1.11'       AS S_NO,
+       '15 - 19 years, Male' as Activity,
+       COUNT(*)              as Value
+FROM tx_new
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
+  AND sex = 'Male'
+-- 15 - 19 years, Female
+UNION ALL
+SELECT 'HIV_PrEP.1.12'         AS S_NO,
+       '15 - 19 years, Female' as Activity,
+       COUNT(*)                as Value
+FROM tx_new
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
+  AND sex = 'Female'
+-- 20 - 24 years, Male
+UNION ALL
+SELECT 'HIV_PrEP.1.13'       AS S_NO,
+       '20 - 24 years, Male' as Activity,
+       COUNT(*)              as Value
+FROM tx_new
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 20 AND 24
+  AND sex = 'Male'
+-- 20 - 24 years, Female
+UNION ALL
+SELECT 'HIV_PrEP.1.13'         AS S_NO,
+       '20 - 24 years, Female' as Activity,
+       COUNT(*)                as Value
+FROM tx_new
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 20 AND 24
+  AND sex = 'Female'
+-- 25 - 29 years, Male
+UNION ALL
+SELECT 'HIV_PrEP.1.15'       AS S_NO,
+       '25 - 29 years, Male' as Activity,
+       COUNT(*)              as Value
+FROM tx_new
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 25 AND 29
+  AND sex = 'Male'
+-- 25 - 29 years, Female
+UNION ALL
+SELECT 'HIV_PrEP.1.16'         AS S_NO,
+       '25 - 29 years, Female' as Activity,
+       COUNT(*)                as Value
+FROM tx_new
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 25 AND 29
+  AND sex = 'Female'
+-- 30 - 34 years, Male
+UNION ALL
+SELECT 'HIV_PrEP.1.17'       AS S_NO,
+       '30 - 34 years, Male' as Activity,
+       COUNT(*)              as Value
+FROM tx_new
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 30 AND 34
+  AND sex = 'Male'
+-- 30 - 34 years, Female
+UNION ALL
+SELECT 'HIV_PrEP.1.18'         AS S_NO,
+       '30 - 34 years, Female' as Activity,
+       COUNT(*)                as Value
+FROM tx_new
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 30 AND 34
+  AND sex = 'Female'
+-- 35 - 39 years, Male
+UNION ALL
+SELECT 'HIV_PrEP.1.19'       AS S_NO,
+       '35 - 39 years, Male' as Activity,
+       COUNT(*)              as Value
+FROM tx_new
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 35 AND 39
+  AND sex = 'Male'
+-- 35 - 39 years, Female
+UNION ALL
+SELECT 'HIV_PrEP.1.110'        AS S_NO,
+       '35 - 39 years, Female' as Activity,
+       COUNT(*)                as Value
+FROM tx_new
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 35 AND 39
+  AND sex = 'Female'
+-- 40 - 44 years, Male
+UNION ALL
+SELECT 'HIV_PrEP.1.111'      AS S_NO,
+       '40 - 44 years, Male' as Activity,
+       COUNT(*)              as Value
+FROM tx_new
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 40 AND 44
+  AND sex = 'Male'
+-- 40 - 44 years, Female
+UNION ALL
+SELECT 'HIV_PrEP.1.112'        AS S_NO,
+       '40 - 44 years, Female' as Activity,
+       COUNT(*)                as Value
+FROM tx_new
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 40 AND 44
+  AND sex = 'Female'
+-- 45 - 49 years, Male
+UNION ALL
+SELECT 'HIV_PrEP.1.113'      AS S_NO,
+       '45 - 49 years, Male' as Activity,
+       COUNT(*)              as Value
+FROM tx_new
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 45 AND 49
+  AND sex = 'Male'
+-- 45 - 49 years, Female
+UNION ALL
+SELECT 'HIV_PrEP.1.114'        AS S_NO,
+       '45 - 49 years, Female' as Activity,
+       COUNT(*)                as Value
+FROM tx_new
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 45 AND 49
+  AND sex = 'Female'
+-- Greater than or equal to  50 years, Male
+UNION ALL
+SELECT 'HIV_PrEP.1.115'                           AS S_NO,
+       'Greater than or equal to  50 years, Male' as Activity,
+       COUNT(*)                                   as Value
+FROM tx_new
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 50
+  AND sex = 'Male'
+-- Greater than or equal to  50 years, Female
+UNION ALL
+SELECT 'HIV_PrEP.1.116'                             AS S_NO,
+       'Greater than or equal to  50 years, Female' as Activity,
+       COUNT(*)                                     as Value
+FROM tx_new
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 50
+  AND sex = 'Female'
+-- By Client Category
+UNION ALL
+SELECT 'HIV_PrEP.1.2'       AS S_NO,
+       'By Client Category' as Activity,
+       COUNT(*)             as Value
+FROM tx_new
+-- Discordant Couple
+UNION ALL
+SELECT 'HIV_PrEP.1.21'     AS S_NO,
+       'Discordant Couple' as Activity,
+       COUNT(*)            as Value
+FROM tx_new
+WHERE do_you_have_an_hiv_positive_partner = 'Yes'
+-- Female sex worker[FSW]
+UNION ALL
+SELECT 'HIV_PrEP.1.22'          AS S_NO,
+       'Female sex worker[FSW]' as Activity,
+       COUNT(*)                 as Value
+FROM tx_new
+WHERE sex_worker = 'Yes'
+-- HIV_PrEP_CURR.1
+UNION ALL
+SELECT 'HIV_PrEP_CURR.1'                                                                       AS S_NO,
+       'PrEP Curr (Number of individuals that received oral PrEP during the reporting period)' as Activity,
+       COUNT(*)                                                                                as Value
+FROM tx_curr
+-- By age and Sex
+UNION ALL
+SELECT 'HIV_PrEP_CURR.1' AS S_NO,
+       'By age and Sex'  as Activity,
+       COUNT(*)          as Value
+FROM tx_curr
+-- 15 - 19 years, Male
+UNION ALL
+SELECT 'HIV_PrEP_CURR.11'    AS S_NO,
+       '15 - 19 years, Male' as Activity,
+       COUNT(*)              as Value
+FROM tx_curr
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
+  AND sex = 'Male'
+-- 15 - 19 years, Female
+UNION ALL
+SELECT 'HIV_PrEP_CURR.12'      AS S_NO,
+       '15 - 19 years, Female' as Activity,
+       COUNT(*)                as Value
+FROM tx_curr
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
+  AND sex = 'Female'
+-- 20 - 24 years, Male
+UNION ALL
+SELECT 'HIV_PrEP_CURR.13'    AS S_NO,
+       '20 - 24 years, Male' as Activity,
+       COUNT(*)              as Value
+FROM tx_curr
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 20 AND 24
+  AND sex = 'Male'
+-- 20 - 24 years, Female
+UNION ALL
+SELECT 'HIV_PrEP_CURR.14'      AS S_NO,
+       '20 - 24 years, Female' as Activity,
+       COUNT(*)                as Value
+FROM tx_curr
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 20 AND 24
+  AND sex = 'Female'
+-- 25 - 29 years, Male
+UNION ALL
+SELECT 'HIV_PrEP_CURR.15'    AS S_NO,
+       '25 - 29 years, Male' as Activity,
+       COUNT(*)              as Value
+FROM tx_curr
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 25 AND 29
+  AND sex = 'Male'
+-- 25 - 29 years, Female
+UNION ALL
+SELECT 'HIV_PrEP_CURR.16'      AS S_NO,
+       '25 - 29 years, Female' as Activity,
+       COUNT(*)                as Value
+FROM tx_curr
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 25 AND 29
+  AND sex = 'Female'
+-- 30 - 34 years, Male
+UNION ALL
+SELECT 'HIV_PrEP_CURR.17'    AS S_NO,
+       '30 - 34 years, Male' as Activity,
+       COUNT(*)              as Value
+FROM tx_curr
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 30 AND 34
+  AND sex = 'Male'
+-- 30 - 34 years, Female
+UNION ALL
+SELECT 'HIV_PrEP_CURR.18'      AS S_NO,
+       '30 - 34 years, Female' as Activity,
+       COUNT(*)                as Value
+FROM tx_curr
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 30 AND 34
+  AND sex = 'Female'
+-- 35 - 39 years, Male
+UNION ALL
+SELECT 'HIV_PrEP_CURR.19'    AS S_NO,
+       '35 - 39 years, Male' as Activity,
+       COUNT(*)              as Value
+FROM tx_curr
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 35 AND 39
+  AND sex = 'Male'
+-- 35 - 39 years, Female
+UNION ALL
+SELECT 'HIV_PrEP_CURR.110'     AS S_NO,
+       '35 - 39 years, Female' as Activity,
+       COUNT(*)                as Value
+FROM tx_curr
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 35 AND 39
+  AND sex = 'Female'
+-- 40 - 44 years, Male
+UNION ALL
+SELECT 'HIV_PrEP_CURR.111'   AS S_NO,
+       '40 - 44 years, Male' as Activity,
+       COUNT(*)              as Value
+FROM tx_curr
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 40 AND 44
+  AND sex = 'Male'
+-- 40 - 44 years, Female
+UNION ALL
+SELECT 'HIV_PrEP_CURR.112'     AS S_NO,
+       '40 - 44 years, Female' as Activity,
+       COUNT(*)                as Value
+FROM tx_curr
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 40 AND 44
+  AND sex = 'Female'
+-- 45 - 49 years, Male
+UNION ALL
+SELECT 'HIV_PrEP_CURR.113'   AS S_NO,
+       '45 - 49 years, Male' as Activity,
+       COUNT(*)              as Value
+FROM tx_curr
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 45 AND 49
+  AND sex = 'Male'
+-- 45 - 49 years, Female
+UNION ALL
+SELECT 'HIV_PrEP_CURR.114'     AS S_NO,
+       '45 - 49 years, Female' as Activity,
+       COUNT(*)                as Value
+FROM tx_curr
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 45 AND 49
+  AND sex = 'Female'
+-- Greater than or equal to  50 years, Male
+UNION ALL
+SELECT 'HIV_PrEP_CURR.115'                        AS S_NO,
+       'Greater than or equal to  50 years, Male' as Activity,
+       COUNT(*)                                   as Value
+FROM tx_curr
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 50
+  AND sex = 'Male'
+-- Greater than or equal to  50 years, Female
+UNION ALL
+SELECT 'HIV_PrEP_CURR.114'                          AS S_NO,
+       'Greater than or equal to  50 years, Female' as Activity,
+       COUNT(*)                                     as Value
+FROM tx_curr
+WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 50
+  AND sex = 'Female'
+-- By Client Category
+UNION ALL
+SELECT 'HIV_PrEP_CURR.2'    AS S_NO,
+       'By Client Category' as Activity,
+       COUNT(*)             as Value
+FROM tx_curr
+-- Discordant Couple
+UNION ALL
+SELECT 'HIV_PrEP_CURR.21'  AS S_NO,
+       'Discordant Couple' as Activity,
+       COUNT(*)            as Value
+FROM tx_curr
+WHERE do_you_have_an_hiv_positive_partner = 'Yes' and sex_worker != 'Yes'
+-- Female sex worker[FSW]
+UNION ALL
+SELECT 'HIV_PrEP_CURR.22'       AS S_NO,
+       'Female sex worker[FSW]' as Activity,
+       COUNT(*)                 as Value
+FROM tx_curr
+WHERE sex_worker = 'Yes';
 END //
 
 DELIMITER ;
