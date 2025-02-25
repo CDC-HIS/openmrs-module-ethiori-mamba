@@ -1,8 +1,8 @@
 DELIMITER //
 
-DROP PROCEDURE IF EXISTS sp_fact_tx_curr_query;
+DROP PROCEDURE IF EXISTS sp_fact_line_list_tx_curr_query;
 
-CREATE PROCEDURE sp_fact_tx_curr_query(IN REPORT_END_DATE DATE)
+CREATE PROCEDURE sp_fact_line_list_tx_curr_query(IN REPORT_END_DATE DATE)
 BEGIN
 
     WITH FollowUp AS (select follow_up.encounter_id,

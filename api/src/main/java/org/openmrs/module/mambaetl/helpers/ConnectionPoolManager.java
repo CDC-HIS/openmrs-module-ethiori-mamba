@@ -24,7 +24,6 @@ public class ConnectionPoolManager {
 		
 		Properties properties = Context.getRuntimeProperties();
 		
-		String driver = properties.getProperty("mambaetl.analysis.db.driver");
 		String url = properties.getProperty("mambaetl.analysis.db.url");
 		String userName = properties.getProperty("mambaetl.analysis.db.username");
 		String password = properties.getProperty("mambaetl.analysis.db.password");
@@ -34,7 +33,7 @@ public class ConnectionPoolManager {
 		dataSource.setUsername(userName != null ? userName : properties.getProperty("connection.username"));
 		dataSource.setPassword((password != null ? password : properties.getProperty("connection.password")));
 		dataSource.setUrl((url != null ? url : properties
-		        .getProperty("jdbc:mysql://localhost:3306/analysis_db?autoReconnect=true&useSSL=false")));
+		        .getProperty("jdbc:mysql://localhost:3306/analytics_db?autoReconnect=true&useSSL=false")));
 		
 		dataSource.setInitialSize(4);
 		dataSource.setMaxTotal(20);

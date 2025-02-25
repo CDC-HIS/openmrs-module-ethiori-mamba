@@ -1,7 +1,6 @@
 package org.openmrs.module.mambaetl.reports.hmis_dhis2;
 
 import org.openmrs.module.mambaetl.datasetdefinition.hmis_dhis2.HMISDHIS2DatasetDefinition;
-import org.openmrs.module.mambaetl.datasetdefinition.linelist.CXCALineListDatasetDefinition;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.report.ReportDesign;
@@ -52,8 +51,12 @@ public class HMISDHIS2ReportMamba implements ReportManager {
 		
 		reportDefinition.addDataSetDefinition(
 		    "06 - HIV | Hospital, Health center, Clinic | Monthly (Federal Ministry Of Health) ",
-		    EthiOhriUtil.map(hmisdhis2DatasetDefinition, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(hmisdhis2DatasetDefinition, getParameterMappings()));
 		return reportDefinition;
+	}
+	
+	private String getParameterMappings() {
+		return "startDate=${startDateGC},endDate=${endDateGC}";
 	}
 	
 	@Override

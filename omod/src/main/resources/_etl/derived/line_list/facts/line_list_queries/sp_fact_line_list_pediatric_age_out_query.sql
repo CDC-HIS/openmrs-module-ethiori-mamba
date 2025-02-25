@@ -1,8 +1,8 @@
 DELIMITER //
 
-DROP PROCEDURE IF EXISTS sp_fact_pediatric_age_out_query;
+DROP PROCEDURE IF EXISTS sp_fact_line_list_pediatric_age_out_query;
 
-CREATE PROCEDURE sp_fact_pediatric_age_out_query(IN REPORT_START_DATE DATE, IN REPORT_END_DATE DATE)
+CREATE PROCEDURE sp_fact_line_list_pediatric_age_out_query(IN REPORT_START_DATE DATE, IN REPORT_END_DATE DATE)
 BEGIN
 WITH Follow_up AS (SELECT follow_up_date_followup_                                      AS follow_up_date,
                           follow_up.client_id                                           AS patient_id,
