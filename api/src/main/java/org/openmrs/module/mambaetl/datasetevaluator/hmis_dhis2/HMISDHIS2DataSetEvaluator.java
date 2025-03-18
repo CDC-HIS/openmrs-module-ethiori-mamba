@@ -1,5 +1,6 @@
 package org.openmrs.module.mambaetl.datasetevaluator.hmis_dhis2;
 
+import org.openmrs.api.context.Context;
 import org.openmrs.module.mambaetl.datasetdefinition.hmis_dhis2.HMISDHIS2DatasetDefinition;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -17,8 +18,7 @@ import org.openmrs.module.reporting.evaluation.EvaluationException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import static org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper.*; //Static import DataSetEvaluatorHelper methods and inner classes
 
@@ -71,7 +71,22 @@ public class HMISDHIS2DataSetEvaluator implements DataSetEvaluator {
 		java.sql.Date startDate = new java.sql.Date(hmisdhis2DatasetDefinition.getStartDate().getTime());
 		java.sql.Date endDate = new java.sql.Date(hmisdhis2DatasetDefinition.getEndDate().getTime());
 
-		return Arrays.asList(
+		java.sql.Date startDateVL12Month;
+
+		Properties properties=Context.getConfigProperties();
+		String viralLoadType = properties.getProperty("_viralLoad12MSetting", "NO");
+
+		if( Objects.nonNull(viralLoadType) && viralLoadType.equalsIgnoreCase("YES")){
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime(endDate);
+			calendar.add(Calendar.MONTH,-12);
+			startDateVL12Month = new java.sql.Date(calendar.getTime().getTime());
+		} else {
+            startDateVL12Month = startDate;
+        }
+
+
+        return Arrays.asList(
 				new ProcedureCall("{call sp_fact_dhis_tx_curr_query(?)}", statement -> {
 					statement.setDate(1, endDate);
 				}),
@@ -106,7 +121,7 @@ public class HMISDHIS2DataSetEvaluator implements DataSetEvaluator {
 					statement.setDate(2, endDate);
 				}),
 				new ProcedureCall("{call sp_fact_hmis_hiv_tx_pvls_query(?,?)}", statement -> {
-					statement.setDate(1, startDate);
+					statement.setDate(1, startDateVL12Month);
 					statement.setDate(2, endDate);
 				})
 		);
