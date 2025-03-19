@@ -1,5 +1,6 @@
 package org.openmrs.module.mambaetl.datasetevaluator.hmis_dhis2;
 
+import org.openmrs.api.AdministrationService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.mambaetl.datasetdefinition.hmis_dhis2.HMISDHIS2DatasetDefinition;
 import org.apache.commons.logging.Log;
@@ -73,9 +74,7 @@ public class HMISDHIS2DataSetEvaluator implements DataSetEvaluator {
 
 		java.sql.Date startDateVL12Month;
 
-		Properties properties=Context.getConfigProperties();
-		String viralLoadType = properties.getProperty("_viralLoad12MSetting", "NO");
-
+		String viralLoadType = Context.getService(AdministrationService.class).getGlobalProperty("_viralLoad12MSetting");
 		if( Objects.nonNull(viralLoadType) && viralLoadType.equalsIgnoreCase("YES")){
 			Calendar calendar = Calendar.getInstance();
 			calendar.setTime(endDate);
@@ -84,13 +83,13 @@ public class HMISDHIS2DataSetEvaluator implements DataSetEvaluator {
 		} else {
             startDateVL12Month = startDate;
         }
-
+		System.out.println("VL property "+ startDateVL12Month);
 
         return Arrays.asList(
-				new ProcedureCall("{call sp_fact_dhis_tx_curr_query(?)}", statement -> {
+				new ProcedureCall("{call sp_fact_hmis_tx_curr_query(?)}", statement -> {
 					statement.setDate(1, endDate);
 				}),
-				new ProcedureCall("{call sp_fact_dhis_tx_new_query(?,?)}", statement -> {
+				new ProcedureCall("{call sp_fact_hmis_tx_new_query(?,?)}", statement -> {
 					statement.setDate(1, startDate);
 					statement.setDate(2, endDate);
 				}),
@@ -122,6 +121,14 @@ public class HMISDHIS2DataSetEvaluator implements DataSetEvaluator {
 				}),
 				new ProcedureCall("{call sp_fact_hmis_hiv_tx_pvls_query(?,?)}", statement -> {
 					statement.setDate(1, startDateVL12Month);
+					statement.setDate(2, endDate);
+				}),
+				new ProcedureCall("{call sp_fact_hmis_cxca_scrn_query(?,?)}", statement -> {
+					statement.setDate(1, startDate);
+					statement.setDate(2, endDate);
+				}),
+				new ProcedureCall("{call sp_fact_hmis_cxca_rx_query(?,?)}", statement -> {
+					statement.setDate(1, startDate);
 					statement.setDate(2, endDate);
 				})
 		);

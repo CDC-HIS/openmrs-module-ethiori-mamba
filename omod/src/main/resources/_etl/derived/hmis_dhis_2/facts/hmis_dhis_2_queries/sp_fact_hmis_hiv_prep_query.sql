@@ -12,6 +12,7 @@ WITH PreExposure AS (select screening.client_id,
                             screening.encounter_datetime,
                             screening.sex_worker,
                             screening.prep_started,
+                            screening.type_of_client,
                             screening.treatment_start_date,
                             screening.do_you_have_an_hiv_positive_partner,
                             follow_up.follow_up_status,
@@ -29,6 +30,7 @@ WITH PreExposure AS (select screening.client_id,
                                      sex_worker,
                                      treatment_start_date,
                                      follow_up_status,
+                                     type_of_client,
                                      ROW_NUMBER() over (PARTITION BY PreExposure.client_id ORDER BY follow_up_date_followup_ DESC, encounter_id DESC) as row_num
                               from PreExposure
                                        join mamba_dim_client client on PreExposure.client_id = client.client_id
@@ -36,6 +38,7 @@ WITH PreExposure AS (select screening.client_id,
      tx_new as (select *
                 from tmp_latest_follow_up
                 WHERE treatment_start_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE
+                  AND type_of_client='New client'
                   AND row_num = 1
          -- AND follow_up_status
      ),
@@ -47,6 +50,12 @@ WITH PreExposure AS (select screening.client_id,
 -- Number of individuals receiving Pre-Exposure Prophylaxis
 SELECT 'HIV_PrEP'                                                 AS S_NO,
        'Number of individuals receiving Pre-Exposure Prophylaxis' as Activity,
+       COUNT(*)                                                   as Value
+FROM tx_new
+UNION ALL
+-- Number of individuals receiving Pre-Exposure Prophylaxis
+SELECT 'HIV_PrEP.1'                                                 AS S_NO,
+       'PrEP (New Number of individuals who were newly enrolled on PrEP)' as Activity,
        COUNT(*)                                                   as Value
 FROM tx_new
 -- PrEP (New Number of individuals who were newly enrolled on PrEP)
@@ -81,7 +90,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 20 AND 24
   AND sex = 'Male'
 -- 20 - 24 years, Female
 UNION ALL
-SELECT 'HIV_PrEP.1.13'         AS S_NO,
+SELECT 'HIV_PrEP.1.14'         AS S_NO,
        '20 - 24 years, Female' as Activity,
        COUNT(*)                as Value
 FROM tx_new
@@ -330,15 +339,15 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 45 AND 49
 -- Greater than or equal to  50 years, Male
 UNION ALL
 SELECT 'HIV_PrEP_CURR.115'                        AS S_NO,
-       'Greater than or equal to  50 years, Male' as Activity,
+       '>= 50 years, Male' as Activity,
        COUNT(*)                                   as Value
 FROM tx_curr
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 50
   AND sex = 'Male'
 -- Greater than or equal to  50 years, Female
 UNION ALL
-SELECT 'HIV_PrEP_CURR.114'                          AS S_NO,
-       'Greater than or equal to  50 years, Female' as Activity,
+SELECT 'HIV_PrEP_CURR.116'                          AS S_NO,
+       '>= 50 years, Female' as Activity,
        COUNT(*)                                     as Value
 FROM tx_curr
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 50

@@ -1,8 +1,8 @@
 DELIMITER //
 
-DROP PROCEDURE IF EXISTS sp_fact_dhis_tx_new_query;
+DROP PROCEDURE IF EXISTS sp_fact_hmis_tx_new_query;
 
-CREATE PROCEDURE sp_fact_dhis_tx_new_query(IN REPORT_START_DATE DATE, IN REPORT_END_DATE DATE)
+CREATE PROCEDURE sp_fact_hmis_tx_new_query(IN REPORT_START_DATE DATE, IN REPORT_END_DATE DATE)
 BEGIN
 
     WITH FollowUp AS (select follow_up.encounter_id,
@@ -110,7 +110,7 @@ BEGIN
 -- 9 5-9 year, Female-non-pregnant
     UNION ALL
     SELECT 'HIV_TX_NEW. 9'                 AS S_NO,
-           '1-4 year, Female-non-pregnant' as Activity,
+           '5 - 9 years, Female - non-pregnant' as Activity,
            COUNT(*)
     FROM tx_new
     WHERE TIMESTAMPDIFF(YEAR,date_of_birth, REPORT_END_DATE) BETWEEN 5 AND 9
@@ -324,9 +324,9 @@ BEGIN
     FROM tx_new
     WHERE TIMESTAMPDIFF(YEAR,date_of_birth, REPORT_END_DATE) >= 50
       AND sex = 'Male'
--- 35 >=50 year, Female-non-pregnant
+-- 36 >=50 year, Female-non-pregnant
     UNION ALL
-    SELECT 'HIV_TX_NEW. 35'                 AS S_NO,
+    SELECT 'HIV_TX_NEW. 36'                 AS S_NO,
            '>=50 year, Female-non-pregnant' as Activity,
            COUNT(*)
     FROM tx_new
