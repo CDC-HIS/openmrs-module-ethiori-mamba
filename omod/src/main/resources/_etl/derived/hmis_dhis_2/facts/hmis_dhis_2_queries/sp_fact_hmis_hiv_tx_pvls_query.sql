@@ -494,7 +494,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 20 AND 24
   and viral_load_test_status = 'Suppressed'
 -- 17 20 - 24 years, Female - pregnant
 UNION ALL
-SELECT 'HIV_TX_PVLS_UN15'                 AS S_NO,
+SELECT 'HIV_TX_PVLS_UN17'                 AS S_NO,
        '20 - 24 years, Female - pregnant' as Activity,
        COUNT(*)
 FROM pvls
@@ -831,7 +831,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 20 AND 24
 
 -- 17 20 - 24 years, Female - pregnant
 UNION ALL
-SELECT 'HIV_TX_PVLS_LV15'                 AS S_NO,
+SELECT 'HIV_TX_PVLS_LV17'                 AS S_NO,
        '20 - 24 years, Female - pregnant' as Activity,
        COUNT(*)
 FROM pvls
@@ -1029,7 +1029,7 @@ SELECT 'HIV_TX_PVLS_LV36'                   AS S_NO,
 FROM pvls
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 50
   AND sex = 'Female'
-  AND viral_load_count BETWEEN 50 AND 1000 ;
+  AND viral_load_count BETWEEN 50 AND 1000;
 END //
 
 DELIMITER ;
