@@ -93,23 +93,27 @@ public class HMISDHIS2DataSetEvaluator implements DataSetEvaluator {
 					statement.setDate(1, startDate);
 					statement.setDate(2, endDate);
 				}),
+				new ProcedureCall("{call sp_fact_hmis_hiv_art_ret_query(?,?)}", statement -> {
+					statement.setDate(1, startDate);
+					statement.setDate(2, endDate);
+				}),
 				new ProcedureCall("{call sp_fact_hmis_hiv_art_ret_net_query(?,?)}", statement -> {
 					statement.setDate(1, startDate);
 					statement.setDate(2, endDate);
 				}),
-				new ProcedureCall("{call sp_fact_hmis_hiv_art_ret_query(?,?)}", statement -> {
-					statement.setDate(1, startDate);
+				new ProcedureCall("{call sp_fact_hmis_hiv_tx_pvls_query(?,?)}", statement -> {
+					statement.setDate(1, startDateVL12Month);
 					statement.setDate(2, endDate);
 				}),
 				new ProcedureCall("{call sp_fact_hmis_hiv_dsd_query(?)}", statement -> {
 					statement.setDate(1, endDate);
 				}),
-				new ProcedureCall("{call sp_fact_hmis_hiv_pep_query(?)}", statement -> {
-					statement.setDate(1, endDate);
-				}),
 				new ProcedureCall("{call sp_fact_hmis_hiv_prep_query(?,?)}", statement -> {
 					statement.setDate(1, startDate);
 					statement.setDate(2, endDate);
+				}),
+				new ProcedureCall("{call sp_fact_hmis_hiv_pep_query(?)}", statement -> {
+					statement.setDate(1, endDate);
 				}),
 				new ProcedureCall("{call sp_fact_hmis_hiv_tb_scrn_query(?,?)}", statement -> {
 					statement.setDate(1, startDate);
@@ -117,10 +121,6 @@ public class HMISDHIS2DataSetEvaluator implements DataSetEvaluator {
 				}),
 				new ProcedureCall("{call sp_fact_hmis_hiv_tpt_query(?,?)}", statement -> {
 					statement.setDate(1, startDate);
-					statement.setDate(2, endDate);
-				}),
-				new ProcedureCall("{call sp_fact_hmis_hiv_tx_pvls_query(?,?)}", statement -> {
-					statement.setDate(1, startDateVL12Month);
 					statement.setDate(2, endDate);
 				}),
 				new ProcedureCall("{call sp_fact_hmis_cxca_scrn_query(?,?)}", statement -> {
