@@ -83,7 +83,6 @@ public class HMISDHIS2DataSetEvaluator implements DataSetEvaluator {
 		} else {
             startDateVL12Month = startDate;
         }
-		System.out.println("VL property "+ startDateVL12Month);
 
         return Arrays.asList(
 				new ProcedureCall("{call sp_fact_hmis_tx_curr_query(?)}", statement -> {
@@ -101,6 +100,10 @@ public class HMISDHIS2DataSetEvaluator implements DataSetEvaluator {
 					statement.setDate(1, startDate);
 					statement.setDate(2, endDate);
 				}),
+				new ProcedureCall("{call sp_fact_hmis_hiv_linkage_query(?,?)}", statement -> {
+					statement.setDate(1, startDate);
+					statement.setDate(2, endDate);
+				}),
 				new ProcedureCall("{call sp_fact_hmis_hiv_tx_pvls_query(?,?)}", statement -> {
 					statement.setDate(1, startDateVL12Month);
 					statement.setDate(2, endDate);
@@ -108,12 +111,24 @@ public class HMISDHIS2DataSetEvaluator implements DataSetEvaluator {
 				new ProcedureCall("{call sp_fact_hmis_hiv_dsd_query(?)}", statement -> {
 					statement.setDate(1, endDate);
 				}),
+				new ProcedureCall("{call sp_fact_hmis_art_intr_query(?,?)}", statement -> {
+					statement.setDate(1, startDate);
+					statement.setDate(2, endDate);
+				}),
 				new ProcedureCall("{call sp_fact_hmis_hiv_prep_query(?,?)}", statement -> {
 					statement.setDate(1, startDate);
 					statement.setDate(2, endDate);
 				}),
 				new ProcedureCall("{call sp_fact_hmis_hiv_pep_query(?)}", statement -> {
 					statement.setDate(1, endDate);
+				}),
+				new ProcedureCall("{call sp_fact_hmis_phliv_tsp_query(?,?)}", statement -> {
+					statement.setDate(1, startDate);
+					statement.setDate(2, endDate);
+				}),
+				new ProcedureCall("{call sp_fact_hmis_hiv_fp_query(?,?)}", statement -> {
+					statement.setDate(1, startDate);
+					statement.setDate(2, endDate);
 				}),
 				new ProcedureCall("{call sp_fact_hmis_hiv_tb_scrn_query(?,?)}", statement -> {
 					statement.setDate(1, startDate);
