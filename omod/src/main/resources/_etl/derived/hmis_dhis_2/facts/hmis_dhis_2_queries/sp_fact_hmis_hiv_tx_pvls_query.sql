@@ -42,7 +42,8 @@ WITH FollowUp AS (select follow_up.encounter_id,
      latest_follow_up AS (select *
                           from tmp_latest_follow_up
                           where row_num = 1
-                            AND follow_up_status in ('Alive', 'Restart medication')),
+                          --  AND follow_up_status in ('Alive', 'Restart medication')
+                          ),
      tmp_pvls as (select encounter_id,
                          client_id,
                          follow_up_status,
