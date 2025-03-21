@@ -425,7 +425,7 @@ BEGIN
 
 -- 19 Adult currently on ART aged 15-19 yr
     UNION ALL
-    SELECT 'HIV_TX_CURR_U19'                                                   AS S_NO,
+    SELECT 'HIV_TX_CURR_U19'                   AS S_NO,
            'Adult currently on ART aged 15-19' as Activity,
            COUNT(*)
     FROM tx_curr_with_client
@@ -1143,11 +1143,11 @@ BEGIN
 
 -- 19 Number of children (<19) who are currently on ART by regimen type
     UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U19'                                               AS S_NO, -- // TODO check mismatch 18 14
+    SELECT 'HIV_TX_CURR_REG_U19'                                               AS S_NO,
            'Number of children (<19) who are currently on ART by regimen type' as Activity,
            COUNT(*)
     FROM tx_curr_with_client
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 19
+    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) <= 19
 
 -- 1 Children currently on ART aged <1 yr by regimen type
     UNION ALL
@@ -2010,8 +2010,8 @@ BEGIN
            COUNT(*)
     FROM tx_curr_with_client
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
-      AND
-        regimen not in ('1d - AZT+3TC+EFV', '1e - TDF+3TC+EFV', '1g - ABC+3TC+EFV', '1j - TDF+3TC+DTG', '1k - AZT+3TC+DTG')
+      AND regimen not in
+          ('1d - AZT+3TC+EFV', '1e - TDF+3TC+EFV', '1g - ABC+3TC+EFV', '1j - TDF+3TC+DTG', '1k - AZT+3TC+DTG')
       AND (regimen_line = '1' or regimen_line = '4')
 -- 19.2 Adult currently on ART aged 15-19 on Second line regimen by regimen type
     UNION ALL
@@ -2313,8 +2313,8 @@ BEGIN
            COUNT(*)
     FROM tx_curr_with_client
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND
-        regimen not in ('1d - AZT+3TC+EFV', '1e - TDF+3TC+EFV', '1g - ABC+3TC+EFV', '1j - TDF+3TC+DTG', '1k - AZT+3TC+DTG')
+      AND regimen not in
+          ('1d - AZT+3TC+EFV', '1e - TDF+3TC+EFV', '1g - ABC+3TC+EFV', '1j - TDF+3TC+DTG', '1k - AZT+3TC+DTG')
       AND (regimen_line = '1' or regimen_line = '4')
       AND sex = 'Male'
 -- 20.1.17 1i - Other Adult 1st line regimen, Female - pregnant
@@ -2324,8 +2324,8 @@ BEGIN
            COUNT(*)
     FROM tx_curr_with_client
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND
-        regimen not in ('1d - AZT+3TC+EFV', '1e - TDF+3TC+EFV', '1g - ABC+3TC+EFV', '1j - TDF+3TC+DTG', '1k - AZT+3TC+DTG')
+      AND regimen not in
+          ('1d - AZT+3TC+EFV', '1e - TDF+3TC+EFV', '1g - ABC+3TC+EFV', '1j - TDF+3TC+DTG', '1k - AZT+3TC+DTG')
       AND (regimen_line = '1' or regimen_line = '4')
       AND sex = 'Female'
       AND pregnancy_status = 'Yes'
@@ -2336,8 +2336,8 @@ BEGIN
            COUNT(*)
     FROM tx_curr_with_client
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND
-        regimen not in ('1d - AZT+3TC+EFV', '1e - TDF+3TC+EFV', '1g - ABC+3TC+EFV', '1j - TDF+3TC+DTG', '1k - AZT+3TC+DTG')
+      AND regimen not in
+          ('1d - AZT+3TC+EFV', '1e - TDF+3TC+EFV', '1g - ABC+3TC+EFV', '1j - TDF+3TC+DTG', '1k - AZT+3TC+DTG')
       AND (regimen_line = '1' or regimen_line = '4')
       AND sex = 'Female'
       AND (pregnancy_status = 'No' or pregnancy_status is null)
