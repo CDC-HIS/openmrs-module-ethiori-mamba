@@ -84,5 +84,6 @@ FROM mamba_dim_person person
      (SELECT pa.person_id,
              pa.value phone_no
       FROM mamba_dim_person_attribute pa
-      WHERE pa.person_attribute_type_id = 16) e ON e.person_id = person.person_id;
+      WHERE pa.person_attribute_type_id = 16) e ON e.person_id = person.person_id
+where p_add.preferred=1 and p_name.preferred=1;
 -- $END
