@@ -18,6 +18,8 @@ BEGIN
                                    ON follow_up.encounter_id = follow_up_2.encounter_id
                               JOIN mamba_flat_encounter_follow_up_3 follow_up_3
                                    ON follow_up.encounter_id = follow_up_3.encounter_id
+                              left JOIN mamba_flat_encounter_follow_up_4 follow_up_4
+                                        ON follow_up.encounter_id = follow_up_4.encounter_id
                      WHERE follow_up_status IS NOT NULL
                        AND art_antiretroviral_start_date IS NOT NULL
                        AND transferred_in_check_this_for_all_t IS NOT NULL
