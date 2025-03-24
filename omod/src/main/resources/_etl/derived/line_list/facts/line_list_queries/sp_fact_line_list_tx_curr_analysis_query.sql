@@ -13,10 +13,15 @@ BEGIN
                      art_antiretroviral_start_date,
                      treatment_end_date
               from mamba_flat_encounter_follow_up follow_up
-                       join mamba_flat_encounter_follow_up_1 follow_up_1
-                            on follow_up.encounter_id = follow_up_1.encounter_id
-                       join mamba_flat_encounter_follow_up_2 follow_up_2
-                            on follow_up.encounter_id = follow_up_2.encounter_id),
+                       left join mamba_flat_encounter_follow_up_1 follow_up_1
+                                 on follow_up.encounter_id = follow_up_1.encounter_id
+                       left join mamba_flat_encounter_follow_up_2 follow_up_2
+                                 on follow_up.encounter_id = follow_up_2.encounter_id
+                       left join mamba_flat_encounter_follow_up_3 follow_up_3
+                                 on follow_up.encounter_id = follow_up_3.encounter_id
+                       left join mamba_flat_encounter_follow_up_4 follow_up_4
+                                 on follow_up.encounter_id = follow_up_4.encounter_id
+             ),
          -- all followups before end_date
          tmp_latest_follow_up as
              (select client_id,
@@ -28,57 +33,56 @@ BEGIN
                      ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC,encounter_id DESC ) AS row_num
               from followup
               where follow_up_date <= REPORT_END_DATE),
-
+         -- latest follow up is alive or restart and art start date is < report end date
          latest_follow_up as
-             (select *, fn_get_ti_status(client_id, REPORT_END_DATE, REPORT_START_DATE) AS TIStatus
+             (select *, fn_get_ti_status(client_id, REPORT_START_DATE, REPORT_END_DATE) AS TIStatus
               from tmp_latest_follow_up
-              where row_num = 1),
-
+              where row_num = 1
+                and follow_up_status in ('Alive', 'Restart medication')
+                and (art_antiretroviral_start_date is not null and art_antiretroviral_start_date <= REPORT_END_DATE)),
+         -- Latest follow up before reporting period
          tmp_previous_follow_up as
-             (select client_id,
-                     encounter_id,
-                     follow_up_date                                                                             as followupdate,
-                     ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC,encounter_id DESC ) AS row_num
-              from followup ff
-              where follow_up_date <= DATE_ADD(REPORT_START_DATE, INTERVAL -1 DAY)
-                AND follow_up_status IS NOT NULL
-                and art_antiretroviral_start_date is not null),
-
-
-         previous_follow_up as
-             (select * from tmp_previous_follow_up where row_num = 1),
-
-         followup_curr_prev as
              (select followup.encounter_id,
                      followup.client_id,
                      follow_up_date,
                      follow_up_status,
                      treatment_end_date,
                      art_antiretroviral_start_date,
-                     fn_get_ti_status(followup.client_id, REPORT_END_DATE, REPORT_START_DATE) AS TIStatus
+                     fn_get_ti_status(followup.client_id, REPORT_START_DATE,
+                                      REPORT_END_DATE) AS TIStatus,
+                     ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC,encounter_id DESC ) AS row_num
               from followup
-                       inner join previous_follow_up on
-                  previous_follow_up.encounter_id = followup.encounter_id and
-                  followup.treatment_end_date >= DATE_ADD(REPORT_START_DATE, INTERVAL -1 DAY) and
-                  follow_up_status in ('Alive', 'Restart medication') and
-                  art_antiretroviral_start_date <= DATE_ADD(REPORT_START_DATE, INTERVAL -1 DAY))
-            ,
+              where follow_up_date <= DATE_ADD(REPORT_START_DATE, INTERVAL -1 DAY)
+                AND follow_up_status IS NOT NULL
+                and art_antiretroviral_start_date is not null),
+
+
+         previous_follow_up as
+             (select *
+              from tmp_previous_follow_up
+              where row_num = 1
+                and follow_up_status in ('Alive', 'Restart medication')
+                and art_antiretroviral_start_date <= DATE_ADD(REPORT_START_DATE, INTERVAL -1 DAY)
+                and treatment_end_date >= DATE_ADD(REPORT_START_DATE, INTERVAL -1 DAY)),
+
          f_result as
              (select latest.client_id,
-                     latest.follow_up_date                                    as FollowUpDate_curr,
-                     latest.treatment_end_date                                as art_dose_End_curr,
-                     latest.follow_up_status                                  as follow_up_status_curr,
+                     latest.follow_up_date                                      as FollowUpDate_curr,
+                     latest.treatment_end_date                                  as art_dose_End_curr,
+                     latest.follow_up_status                                    as follow_up_status_curr,
                      previous.follow_up_date                                    as FollowUpDate_prev,
                      previous.treatment_end_date                                as art_dose_End_prev,
                      previous.follow_up_status                                     follow_up_status_prev,
                      case
                          when
-                             latest.art_antiretroviral_start_date between REPORT_START_DATE and REPORT_END_DATE and
-                             latest.follow_up_date <= REPORT_END_DATE and latest.treatment_end_date >= REPORT_END_DATE and
+                             latest.art_antiretroviral_start_date between '2024-08-27' and REPORT_END_DATE and
+                             latest.follow_up_date <= REPORT_END_DATE and
+                             latest.treatment_end_date >= REPORT_END_DATE and
                              latest.TIStatus = 'NTI' and latest.follow_up_status in ('Alive', 'Restart medication')
                              then 'NEWLY STARTED'
                          when
-                             latest.follow_up_date <= REPORT_END_DATE and latest.treatment_end_date >= REPORT_END_DATE and
+                             latest.follow_up_date <= REPORT_END_DATE and
+                             latest.treatment_end_date >= REPORT_END_DATE and
                              latest.follow_up_status in ('Alive', 'Restart medication') AND
                              previous.client_id is not null -- also in prev curr
                              then 'STILL ON CARE'
@@ -107,21 +111,20 @@ BEGIN
 
                          when
                              previous.client_id is not null And
-                             not (latest.follow_up_date <= REPORT_END_DATE and latest.treatment_end_date >= REPORT_END_DATE) AND
+                             not (latest.follow_up_date <= REPORT_END_DATE and
+                                  latest.treatment_end_date >= REPORT_END_DATE) AND
                              latest.follow_up_status in ('Alive', 'Restart medication')
                              then 'NOT UPDATED'
 
 
                          when previous.client_id is not null then latest.follow_up_status
-                         end                                              as factor,
+                         end                                                    as factor,
 
                      case when previous.client_id is not null then 1 else 0 end as prev_curr
 
 
               from latest_follow_up latest
-                       left join followup_curr_prev previous on latest.client_id = previous.client_id)
-
-
+                       left join previous_follow_up previous on latest.client_id = previous.client_id)
     select dim_client.mrn as MRN,
            dim_client.patient_name,
            dim_client.date_of_birth,
