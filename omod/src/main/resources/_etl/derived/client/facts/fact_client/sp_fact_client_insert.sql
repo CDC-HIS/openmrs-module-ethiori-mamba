@@ -88,9 +88,10 @@ SELECT follow_up.client_id,
        tuberculosis_drug_treatment_start_d,
        fluconazole_start_date
 FROM mamba_flat_encounter_follow_up follow_up
-         JOIN mamba_flat_encounter_follow_up_1 enc_follow_up_1        on enc_follow_up_1.encounter_id = follow_up.encounter_id
-         JOIN mamba_flat_encounter_follow_up_2 enc_follow_up_2        on enc_follow_up_2.encounter_id = follow_up.encounter_id
-         JOIN mamba_flat_encounter_follow_up_3 enc_follow_up_3        on enc_follow_up_3.encounter_id = follow_up.encounter_id
-         JOIN mamba_flat_encounter_intake_a int_a on follow_up.client_id = int_a.client_id
+        LEFT JOIN mamba_flat_encounter_follow_up_1 enc_follow_up_1        on enc_follow_up_1.encounter_id = follow_up.encounter_id
+        LEFT JOIN mamba_flat_encounter_follow_up_2 enc_follow_up_2        on enc_follow_up_2.encounter_id = follow_up.encounter_id
+        LEFT JOIN mamba_flat_encounter_follow_up_3 enc_follow_up_3        on enc_follow_up_3.encounter_id = follow_up.encounter_id
+        LEFT JOIN mamba_flat_encounter_follow_up_4 enc_follow_up_4        on enc_follow_up_4.encounter_id = follow_up.encounter_id
+        LEFT JOIN mamba_flat_encounter_intake_a int_a on follow_up.client_id = int_a.client_id
 where art_antiretroviral_start_date is not null;
 -- $END
