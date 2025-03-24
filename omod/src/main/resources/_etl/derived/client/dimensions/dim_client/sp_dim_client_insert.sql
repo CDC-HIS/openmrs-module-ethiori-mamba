@@ -54,36 +54,36 @@ FROM mamba_dim_person person
      (SELECT pa.patient_id,
              pa.identifier mrn
       FROM mamba_dim_patient_identifier pa
-      WHERE pa.identifier_type = 5) mrn ON mrn.patient_id = person.person_id
+      WHERE pa.identifier_type = 5 and preferred=1) mrn ON mrn.patient_id = person.person_id
          LEFT JOIN
      (SELECT pa.patient_id,
              pa.identifier uan
       FROM mamba_dim_patient_identifier pa
-      WHERE pa.identifier_type = 6) uan ON uan.patient_id = person.person_id
+      WHERE pa.identifier_type = 6 and preferred=1) uan ON uan.patient_id = person.person_id
          LEFT JOIN
      (SELECT pa.person_id,
              pa.value key_population
       FROM mamba_dim_person_attribute pa
-      WHERE pa.person_attribute_type_id = 25) a ON a.person_id = person.person_id
+      WHERE pa.person_attribute_type_id = 25 and voided=0) a ON a.person_id = person.person_id
          LEFT JOIN
      (SELECT pa.person_id,
              pa.value marital_status
       FROM mamba_dim_person_attribute pa
-      WHERE pa.person_attribute_type_id = 5) b ON b.person_id = person.person_id
+      WHERE pa.person_attribute_type_id = 5 and voided=0) b ON b.person_id = person.person_id
          LEFT JOIN
      (SELECT pa.person_id,
              pa.value education_level
       FROM mamba_dim_person_attribute pa
-      WHERE pa.person_attribute_type_id = 24) c ON c.person_id = person.person_id
+      WHERE pa.person_attribute_type_id = 24 and voided=0) c ON c.person_id = person.person_id
          LEFT JOIN
      (SELECT pa.person_id,
              pa.value mobile_no
       FROM mamba_dim_person_attribute pa
-      WHERE pa.person_attribute_type_id = 26) d ON d.person_id = person.person_id
+      WHERE pa.person_attribute_type_id = 26 and voided=0) d ON d.person_id = person.person_id
          LEFT JOIN
      (SELECT pa.person_id,
              pa.value phone_no
       FROM mamba_dim_person_attribute pa
-      WHERE pa.person_attribute_type_id = 16) e ON e.person_id = person.person_id
+      WHERE pa.person_attribute_type_id = 16 and voided=0) e ON e.person_id = person.person_id
 where p_add.preferred=1 and p_name.preferred=1;
 -- $END
