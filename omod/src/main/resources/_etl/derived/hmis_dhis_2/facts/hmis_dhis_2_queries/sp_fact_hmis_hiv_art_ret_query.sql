@@ -337,9 +337,9 @@ SELECT 'HIV_ART_RET.1.34'  AS S_NO,
 FROM tx_curr_ret
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 50
   AND sex = 'Male'
--- 1.35 >= 50 years, Female - non-pregnant
+-- 1.36 >= 50 years, Female - non-pregnant
 UNION ALL
-SELECT 'HIV_ART_RET.1.35'                   AS S_NO,
+SELECT 'HIV_ART_RET.1.36'                   AS S_NO,
        '>= 50 years, Female - non-pregnant' AS Activity,
        COUNT(*)
 FROM tx_curr_ret

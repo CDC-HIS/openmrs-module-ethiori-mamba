@@ -82,7 +82,7 @@ FROM tx_new_tb_screened
 -- Less than  15 years, Male
 UNION ALL
 SELECT 'HIV_TB_SCRN.1.1'            AS S_NO,
-       'Less than  15 years, Male' as Activity,
+       '< 15 years, Male' as Activity,
        COUNT(*)                    as Value
 FROM tx_new_tb_screened
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
@@ -90,7 +90,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
 -- Less than  15 years, Female
 UNION ALL
 SELECT 'HIV_TB_SCRN.1.2'            AS S_NO,
-       'Less than  15 years, Female' as Activity,
+       '< 15 years, Female' as Activity,
        COUNT(*)                    as Value
 FROM tx_new_tb_screened
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
@@ -98,7 +98,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
 -- Greater than or equal to  15 years, Male
 UNION ALL
 SELECT 'HIV_TB_SCRN.1.3'            AS S_NO,
-       'Greater than or equal to  15 years, Male' as Activity,
+       '>= 15 years, Male' as Activity,
        COUNT(*)                    as Value
 FROM tx_new_tb_screened
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
@@ -106,7 +106,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
 -- Greater than or equal to  15 years, Female
 UNION ALL
 SELECT 'HIV_TB_SCRN.1.4'            AS S_NO,
-       'Greater than or equal to  15 years, Female' as Activity,
+       '>= 15 years, Female' as Activity,
        COUNT(*)                    as Value
 FROM tx_new_tb_screened
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
