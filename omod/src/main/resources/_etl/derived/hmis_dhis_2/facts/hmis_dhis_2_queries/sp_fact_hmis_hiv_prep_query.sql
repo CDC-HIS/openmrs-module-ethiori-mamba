@@ -66,7 +66,7 @@ SELECT 'HIV_PrEP.1.1'   AS S_NO,
 FROM tx_new
 -- 15 - 19 years, Male
 UNION ALL
-SELECT 'HIV_PrEP.1.11'       AS S_NO,
+SELECT 'HIV_PrEP.1.1.1'       AS S_NO,
        '15 - 19 years, Male' as Activity,
        COUNT(*)              as Value
 FROM tx_new
@@ -74,7 +74,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
   AND sex = 'Male'
 -- 15 - 19 years, Female
 UNION ALL
-SELECT 'HIV_PrEP.1.12'         AS S_NO,
+SELECT 'HIV_PrEP.1.1.2'         AS S_NO,
        '15 - 19 years, Female' as Activity,
        COUNT(*)                as Value
 FROM tx_new
@@ -82,7 +82,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
   AND sex = 'Female'
 -- 20 - 24 years, Male
 UNION ALL
-SELECT 'HIV_PrEP.1.13'       AS S_NO,
+SELECT 'HIV_PrEP.1.1.3'       AS S_NO,
        '20 - 24 years, Male' as Activity,
        COUNT(*)              as Value
 FROM tx_new
@@ -90,7 +90,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 20 AND 24
   AND sex = 'Male'
 -- 20 - 24 years, Female
 UNION ALL
-SELECT 'HIV_PrEP.1.14'         AS S_NO,
+SELECT 'HIV_PrEP.1.1.4'         AS S_NO,
        '20 - 24 years, Female' as Activity,
        COUNT(*)                as Value
 FROM tx_new
@@ -98,7 +98,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 20 AND 24
   AND sex = 'Female'
 -- 25 - 29 years, Male
 UNION ALL
-SELECT 'HIV_PrEP.1.15'       AS S_NO,
+SELECT 'HIV_PrEP.1.1.5'       AS S_NO,
        '25 - 29 years, Male' as Activity,
        COUNT(*)              as Value
 FROM tx_new
@@ -106,7 +106,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 25 AND 29
   AND sex = 'Male'
 -- 25 - 29 years, Female
 UNION ALL
-SELECT 'HIV_PrEP.1.16'         AS S_NO,
+SELECT 'HIV_PrEP.1.1.6'         AS S_NO,
        '25 - 29 years, Female' as Activity,
        COUNT(*)                as Value
 FROM tx_new
@@ -114,7 +114,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 25 AND 29
   AND sex = 'Female'
 -- 30 - 34 years, Male
 UNION ALL
-SELECT 'HIV_PrEP.1.17'       AS S_NO,
+SELECT 'HIV_PrEP.1.1.7'       AS S_NO,
        '30 - 34 years, Male' as Activity,
        COUNT(*)              as Value
 FROM tx_new
@@ -122,7 +122,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 30 AND 34
   AND sex = 'Male'
 -- 30 - 34 years, Female
 UNION ALL
-SELECT 'HIV_PrEP.1.18'         AS S_NO,
+SELECT 'HIV_PrEP.1.1.8'         AS S_NO,
        '30 - 34 years, Female' as Activity,
        COUNT(*)                as Value
 FROM tx_new
@@ -130,7 +130,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 30 AND 34
   AND sex = 'Female'
 -- 35 - 39 years, Male
 UNION ALL
-SELECT 'HIV_PrEP.1.19'       AS S_NO,
+SELECT 'HIV_PrEP.1.1.9'       AS S_NO,
        '35 - 39 years, Male' as Activity,
        COUNT(*)              as Value
 FROM tx_new
@@ -138,7 +138,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 35 AND 39
   AND sex = 'Male'
 -- 35 - 39 years, Female
 UNION ALL
-SELECT 'HIV_PrEP.1.110'        AS S_NO,
+SELECT 'HIV_PrEP.1.1.10'        AS S_NO,
        '35 - 39 years, Female' as Activity,
        COUNT(*)                as Value
 FROM tx_new
@@ -146,7 +146,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 35 AND 39
   AND sex = 'Female'
 -- 40 - 44 years, Male
 UNION ALL
-SELECT 'HIV_PrEP.1.111'      AS S_NO,
+SELECT 'HIV_PrEP.1.1.11'      AS S_NO,
        '40 - 44 years, Male' as Activity,
        COUNT(*)              as Value
 FROM tx_new
@@ -154,7 +154,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 40 AND 44
   AND sex = 'Male'
 -- 40 - 44 years, Female
 UNION ALL
-SELECT 'HIV_PrEP.1.112'        AS S_NO,
+SELECT 'HIV_PrEP.1.1.12'        AS S_NO,
        '40 - 44 years, Female' as Activity,
        COUNT(*)                as Value
 FROM tx_new
@@ -162,7 +162,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 40 AND 44
   AND sex = 'Female'
 -- 45 - 49 years, Male
 UNION ALL
-SELECT 'HIV_PrEP.1.113'      AS S_NO,
+SELECT 'HIV_PrEP.1.1.13'      AS S_NO,
        '45 - 49 years, Male' as Activity,
        COUNT(*)              as Value
 FROM tx_new
@@ -170,7 +170,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 45 AND 49
   AND sex = 'Male'
 -- 45 - 49 years, Female
 UNION ALL
-SELECT 'HIV_PrEP.1.114'        AS S_NO,
+SELECT 'HIV_PrEP.1.1.14'        AS S_NO,
        '45 - 49 years, Female' as Activity,
        COUNT(*)                as Value
 FROM tx_new
@@ -178,16 +178,16 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 45 AND 49
   AND sex = 'Female'
 -- Greater than or equal to  50 years, Male
 UNION ALL
-SELECT 'HIV_PrEP.1.115'                           AS S_NO,
-       'Greater than or equal to  50 years, Male' as Activity,
+SELECT 'HIV_PrEP.1.1.15'                           AS S_NO,
+       '>= 50 years, Male' as Activity,
        COUNT(*)                                   as Value
 FROM tx_new
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 50
   AND sex = 'Male'
 -- Greater than or equal to  50 years, Female
 UNION ALL
-SELECT 'HIV_PrEP.1.116'                             AS S_NO,
-       'Greater than or equal to  50 years, Female' as Activity,
+SELECT 'HIV_PrEP.1.1.16'                             AS S_NO,
+       '>= 50 years, Female' as Activity,
        COUNT(*)                                     as Value
 FROM tx_new
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 50
@@ -200,21 +200,21 @@ SELECT 'HIV_PrEP.1.2'       AS S_NO,
 FROM tx_new
 -- Discordant Couple
 UNION ALL
-SELECT 'HIV_PrEP.1.21'     AS S_NO,
+SELECT 'HIV_PrEP.1.2.1'     AS S_NO,
        'Discordant Couple' as Activity,
        COUNT(*)            as Value
 FROM tx_new
 WHERE do_you_have_an_hiv_positive_partner = 'Yes'
 -- Female sex worker[FSW]
 UNION ALL
-SELECT 'HIV_PrEP.1.22'          AS S_NO,
+SELECT 'HIV_PrEP.1.2.2'          AS S_NO,
        'Female sex worker[FSW]' as Activity,
        COUNT(*)                 as Value
 FROM tx_new
 WHERE sex_worker = 'Yes'
--- HIV_PrEP_CURR.1
+-- HIV_PrEP_CURR.1.
 UNION ALL
-SELECT 'HIV_PrEP_CURR.1'                                                                       AS S_NO,
+SELECT 'HIV_PrEP_CURR.1.'                                                                       AS S_NO,
        'PrEP Curr (Number of individuals that received oral PrEP during the reporting period)' as Activity,
        COUNT(*)                                                                                as Value
 FROM tx_curr
@@ -226,7 +226,7 @@ SELECT 'HIV_PrEP_CURR.1' AS S_NO,
 FROM tx_curr
 -- 15 - 19 years, Male
 UNION ALL
-SELECT 'HIV_PrEP_CURR.11'    AS S_NO,
+SELECT 'HIV_PrEP_CURR.1.1'    AS S_NO,
        '15 - 19 years, Male' as Activity,
        COUNT(*)              as Value
 FROM tx_curr
@@ -234,7 +234,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
   AND sex = 'Male'
 -- 15 - 19 years, Female
 UNION ALL
-SELECT 'HIV_PrEP_CURR.12'      AS S_NO,
+SELECT 'HIV_PrEP_CURR.1.2'      AS S_NO,
        '15 - 19 years, Female' as Activity,
        COUNT(*)                as Value
 FROM tx_curr
@@ -242,7 +242,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
   AND sex = 'Female'
 -- 20 - 24 years, Male
 UNION ALL
-SELECT 'HIV_PrEP_CURR.13'    AS S_NO,
+SELECT 'HIV_PrEP_CURR.1.3'    AS S_NO,
        '20 - 24 years, Male' as Activity,
        COUNT(*)              as Value
 FROM tx_curr
@@ -250,7 +250,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 20 AND 24
   AND sex = 'Male'
 -- 20 - 24 years, Female
 UNION ALL
-SELECT 'HIV_PrEP_CURR.14'      AS S_NO,
+SELECT 'HIV_PrEP_CURR.1.4'      AS S_NO,
        '20 - 24 years, Female' as Activity,
        COUNT(*)                as Value
 FROM tx_curr
@@ -258,7 +258,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 20 AND 24
   AND sex = 'Female'
 -- 25 - 29 years, Male
 UNION ALL
-SELECT 'HIV_PrEP_CURR.15'    AS S_NO,
+SELECT 'HIV_PrEP_CURR.1.5'    AS S_NO,
        '25 - 29 years, Male' as Activity,
        COUNT(*)              as Value
 FROM tx_curr
@@ -266,7 +266,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 25 AND 29
   AND sex = 'Male'
 -- 25 - 29 years, Female
 UNION ALL
-SELECT 'HIV_PrEP_CURR.16'      AS S_NO,
+SELECT 'HIV_PrEP_CURR.1.6'      AS S_NO,
        '25 - 29 years, Female' as Activity,
        COUNT(*)                as Value
 FROM tx_curr
@@ -274,7 +274,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 25 AND 29
   AND sex = 'Female'
 -- 30 - 34 years, Male
 UNION ALL
-SELECT 'HIV_PrEP_CURR.17'    AS S_NO,
+SELECT 'HIV_PrEP_CURR.1.7'    AS S_NO,
        '30 - 34 years, Male' as Activity,
        COUNT(*)              as Value
 FROM tx_curr
@@ -282,7 +282,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 30 AND 34
   AND sex = 'Male'
 -- 30 - 34 years, Female
 UNION ALL
-SELECT 'HIV_PrEP_CURR.18'      AS S_NO,
+SELECT 'HIV_PrEP_CURR.1.8'      AS S_NO,
        '30 - 34 years, Female' as Activity,
        COUNT(*)                as Value
 FROM tx_curr
@@ -290,7 +290,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 30 AND 34
   AND sex = 'Female'
 -- 35 - 39 years, Male
 UNION ALL
-SELECT 'HIV_PrEP_CURR.19'    AS S_NO,
+SELECT 'HIV_PrEP_CURR.1.9'    AS S_NO,
        '35 - 39 years, Male' as Activity,
        COUNT(*)              as Value
 FROM tx_curr
@@ -298,7 +298,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 35 AND 39
   AND sex = 'Male'
 -- 35 - 39 years, Female
 UNION ALL
-SELECT 'HIV_PrEP_CURR.110'     AS S_NO,
+SELECT 'HIV_PrEP_CURR.1.10'     AS S_NO,
        '35 - 39 years, Female' as Activity,
        COUNT(*)                as Value
 FROM tx_curr
@@ -306,7 +306,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 35 AND 39
   AND sex = 'Female'
 -- 40 - 44 years, Male
 UNION ALL
-SELECT 'HIV_PrEP_CURR.111'   AS S_NO,
+SELECT 'HIV_PrEP_CURR.1.11'   AS S_NO,
        '40 - 44 years, Male' as Activity,
        COUNT(*)              as Value
 FROM tx_curr
@@ -314,7 +314,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 40 AND 44
   AND sex = 'Male'
 -- 40 - 44 years, Female
 UNION ALL
-SELECT 'HIV_PrEP_CURR.112'     AS S_NO,
+SELECT 'HIV_PrEP_CURR.1.12'     AS S_NO,
        '40 - 44 years, Female' as Activity,
        COUNT(*)                as Value
 FROM tx_curr
@@ -322,7 +322,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 40 AND 44
   AND sex = 'Female'
 -- 45 - 49 years, Male
 UNION ALL
-SELECT 'HIV_PrEP_CURR.113'   AS S_NO,
+SELECT 'HIV_PrEP_CURR.1.13'   AS S_NO,
        '45 - 49 years, Male' as Activity,
        COUNT(*)              as Value
 FROM tx_curr
@@ -330,7 +330,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 45 AND 49
   AND sex = 'Male'
 -- 45 - 49 years, Female
 UNION ALL
-SELECT 'HIV_PrEP_CURR.114'     AS S_NO,
+SELECT 'HIV_PrEP_CURR.1.14'     AS S_NO,
        '45 - 49 years, Female' as Activity,
        COUNT(*)                as Value
 FROM tx_curr
@@ -338,7 +338,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 45 AND 49
   AND sex = 'Female'
 -- Greater than or equal to  50 years, Male
 UNION ALL
-SELECT 'HIV_PrEP_CURR.115'                        AS S_NO,
+SELECT 'HIV_PrEP_CURR.1.15'                        AS S_NO,
        '>= 50 years, Male' as Activity,
        COUNT(*)                                   as Value
 FROM tx_curr
@@ -346,7 +346,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 50
   AND sex = 'Male'
 -- Greater than or equal to  50 years, Female
 UNION ALL
-SELECT 'HIV_PrEP_CURR.116'                          AS S_NO,
+SELECT 'HIV_PrEP_CURR.1.16'                          AS S_NO,
        '>= 50 years, Female' as Activity,
        COUNT(*)                                     as Value
 FROM tx_curr
@@ -360,14 +360,14 @@ SELECT 'HIV_PrEP_CURR.2'    AS S_NO,
 FROM tx_curr
 -- Discordant Couple
 UNION ALL
-SELECT 'HIV_PrEP_CURR.21'  AS S_NO,
+SELECT 'HIV_PrEP_CURR.2.1'  AS S_NO,
        'Discordant Couple' as Activity,
        COUNT(*)            as Value
 FROM tx_curr
 WHERE do_you_have_an_hiv_positive_partner = 'Yes' and sex_worker != 'Yes'
 -- Female sex worker[FSW]
 UNION ALL
-SELECT 'HIV_PrEP_CURR.22'       AS S_NO,
+SELECT 'HIV_PrEP_CURR.2.2'       AS S_NO,
        'Female sex worker[FSW]' as Activity,
        COUNT(*)                 as Value
 FROM tx_curr

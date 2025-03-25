@@ -231,11 +231,10 @@ where screening_type='Visual Inspection of the Cervix with Acetic Acid (VIA)'
   and via_screening_result='suspected cervical cancer'
   and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 50
 
-
 --  HPV DNA test positive:
 UNION ALL
 SELECT 'HIV_CXCA_SCRN.2.5'                     AS S_NO,
-       'Suspecious cancerous Lesion:' as Activity,
+       'HPV DNA test positive:' as Activity,
        COUNT(*)                          as Value
 FROM cx_screened
 where screening_type='Human Papillomavirus test'

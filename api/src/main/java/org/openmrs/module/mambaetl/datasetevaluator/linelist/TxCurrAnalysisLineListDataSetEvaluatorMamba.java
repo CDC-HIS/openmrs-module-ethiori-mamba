@@ -74,7 +74,7 @@ public class TxCurrAnalysisLineListDataSetEvaluatorMamba implements DataSetEvalu
 
         return Collections.singletonList(
 
-                new ProcedureCall("{call sp_fact_dhis_tx_new_query(?,?)}", statement -> {
+                new ProcedureCall("{call sp_fact_line_list_tx_curr_analysis_query(?,?)}", statement -> {
                     statement.setDate(1, startDate);
                     statement.setDate(2, endDate);
                 })
