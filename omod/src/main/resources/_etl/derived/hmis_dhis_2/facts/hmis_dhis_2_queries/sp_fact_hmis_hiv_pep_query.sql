@@ -2,7 +2,7 @@ DELIMITER //
 
 DROP PROCEDURE IF EXISTS sp_fact_hmis_hiv_pep_query;
 
-CREATE PROCEDURE  sp_fact_hmis_hiv_pep_query(
+CREATE PROCEDURE  sp_fact_hmis_hiv_pep_query(IN REPORT_START_DATE DATE,
     IN REPORT_END_DATE DATE
 )
 BEGIN
@@ -23,7 +23,7 @@ WITH PostExposure AS (select client_id,
                                      ROW_NUMBER() over (PARTITION BY client_id ORDER BY reporting_date DESC, encounter_id DESC) as row_num
                               from PostExposure
 
-                              where reporting_date <= REPORT_END_DATE),
+                              where reporting_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE),
      tx_new as (select *
                 from tmp_latest_follow_up
                 WHERE
