@@ -9,8 +9,6 @@
 
 ############################ LINE LIST QUERIES #######################
 facts/line_list_queries/sp_fact_line_list_tx_curr_analysis_query.sql
-facts/line_list_queries/sp_fact_line_list_cxca_query.sql
-facts/line_list_queries/sp_fact_line_list_pediatric_age_out_query.sql
 #############################################################################
 ##### A single SP that CALLs all SPs inside the derived & base folders ######
 #############################################################################

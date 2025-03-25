@@ -158,7 +158,8 @@ BEGIN
 
     from f_result r
              inner join mamba_dim_client dim_client on r.client_id = dim_client.client_id
-    where r.prev_curr = 1;
+    -- where r.prev_curr = 1
+    ;
 
 END //
 
