@@ -237,28 +237,7 @@ SELECT 'HIV_TB_SCRN_ART_P. 4'            AS S_NO,
 FROM prev_art_new_tb_screened
 WHERE screening_result='Positive'
   AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
-  AND sex='Female'
--- Total Number of tests performed using Lateral Flow Urine Lipoarabinomannan (LF-LAM) assay
-UNION ALL
-SELECT 'TB_LB_LF-LAM'                                                                              AS S_NO,
-       'Total Number of tests performed using Lateral Flow Urine Lipoarabinomannan (LF-LAM) assay' as Activity,
-       COUNT(*)                                                                                    as Value
-FROM prev_art_new_tb_screened
-WHERE lf_lam_result is not null
--- Positive
-UNION ALL
-SELECT 'TB_LB_LF-LAM. 1'                                                                              AS S_NO,
-       'Positive' as Activity,
-       COUNT(*)                                                                                    as Value
-FROM prev_art_new_tb_screened
-WHERE lf_lam_result = 'Positive'
--- Negative
-UNION ALL
-SELECT 'TB_LB_LF-LAM. 2'                                                                              AS S_NO,
-       'Negative' as Activity,
-       COUNT(*)                                                                                    as Value
-FROM prev_art_new_tb_screened
-WHERE lf_lam_result = 'Negative result';
+  AND sex='Female';
 END //
 
 DELIMITER ;
