@@ -85,6 +85,10 @@ public class HMISDHIS2DataSetEvaluator implements DataSetEvaluator {
         }
 
         return Arrays.asList(
+				new ProcedureCall("{call sp_fact_hmis_hiv_hts_tst_index_query(?,?)}", statement -> {
+					statement.setDate(1, startDate);
+					statement.setDate(2, endDate);
+				}),
 				new ProcedureCall("{call sp_fact_hmis_tx_curr_query(?)}", statement -> {
 					statement.setDate(1, endDate);
 				}),
@@ -144,6 +148,10 @@ public class HMISDHIS2DataSetEvaluator implements DataSetEvaluator {
 					statement.setDate(2, endDate);
 				}),
 				new ProcedureCall("{call sp_fact_hmis_cxca_rx_query(?,?)}", statement -> {
+					statement.setDate(1, startDate);
+					statement.setDate(2, endDate);
+				}),
+				new ProcedureCall("{call sp_fact_hmis_mtct_query(?,?)}", statement -> {
 					statement.setDate(1, startDate);
 					statement.setDate(2, endDate);
 				})
