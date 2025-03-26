@@ -124,7 +124,7 @@ BEGIN
     FROM tx_new
     WHERE TIMESTAMPDIFF(YEAR,date_of_birth, REPORT_END_DATE) BETWEEN 10 AND 14
       AND sex = 'Male'
--- 12 5-9 year, Female-non-pregnant
+-- 12 10-14 year, Female-non-pregnant
     UNION ALL
     SELECT 'HIV_TX_NEW. 12'                  AS S_NO,
            '10-14 year, Female-non-pregnant' as Activity,
@@ -147,7 +147,7 @@ BEGIN
            '15-19 year, Female-pregnant' as Activity,
            COUNT(*)
     FROM tx_new
-    WHERE TIMESTAMPDIFF(YEAR,date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 194
+    WHERE TIMESTAMPDIFF(YEAR,date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
       AND sex = 'Female'
       AND pregnancy_status = 'Yes'
 -- 15 15-19 year, Female-non-pregnant
@@ -156,7 +156,7 @@ BEGIN
            '15-19 year, Female-non-pregnant' as Activity,
            COUNT(*)
     FROM tx_new
-    WHERE TIMESTAMPDIFF(YEAR,date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 194
+    WHERE TIMESTAMPDIFF(YEAR,date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
       AND sex = 'Female'
       AND (pregnancy_status = 'No' or pregnancy_status is null)
 -- 16 20-24 year, Male
