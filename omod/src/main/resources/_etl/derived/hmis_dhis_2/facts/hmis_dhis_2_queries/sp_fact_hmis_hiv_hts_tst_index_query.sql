@@ -1,8 +1,8 @@
 DELIMITER //
 
-DROP PROCEDURE IF EXISTS sp_fact_hmis_hiv_hts_tst_index;
+DROP PROCEDURE IF EXISTS sp_fact_hmis_hiv_hts_tst_index_query;
 
-CREATE PROCEDURE sp_fact_hmis_hiv_hts_tst_index(IN REPORT_START_DATE DATE, IN REPORT_END_DATE DATE)
+CREATE PROCEDURE sp_fact_hmis_hiv_hts_tst_index_query(IN REPORT_START_DATE DATE, IN REPORT_END_DATE DATE)
 BEGIN
 WITH FollowUp as (
     select client_id from mamba_flat_encounter_follow_up
