@@ -47,17 +47,19 @@ SELECT p.person_id,
        mag_normal.normal_agegroup                                                AS coarse_age_group,
        mag_datim.datim_agegroup                                                  AS fine_age_group
 FROM mamba_dim_person p
-         LEFT JOIN mamba_dim_person_name pn ON p.person_id = pn.person_id
-         LEFT JOIN mamba_dim_person_address p_addr ON p.person_id = p_addr.person_id
+         LEFT JOIN (select *, ROW_NUMBER() over (PARTITION BY person_id ORDER BY person_name_id desc) as row_num
+                    from mamba_dim_person_name
+                    where preferred = 1
+                      and voided = 0) pn ON p.person_id = pn.person_id
+         LEFT JOIN (select *, ROW_NUMBER() over (PARTITION BY person_id ORDER BY person_address_id desc) as row_num
+                    from mamba_dim_person_address
+                    where preferred = 1
+                      and voided = 0) p_addr ON p.person_id = p_addr.person_id
          LEFT JOIN mamba_dim_patient_identifier p_id on p.person_id = p_id.patient_id
          LEFT JOIN mamba_dim_person_attribute p_attr on p.person_id = p_attr.person_id
          LEFT JOIN mamba_dim_agegroup mag_normal ON fn_mamba_age_calculator(p.birthdate, CURDATE()) = mag_normal.age
          LEFT JOIN mamba_dim_agegroup mag_datim ON fn_mamba_age_calculator(p.birthdate, CURDATE()) = mag_datim.age
-where pn.preferred = 1
-  and pn.voided = 0
-  and p_addr.preferred = 1
-  and p_addr.voided = 0
-  and p_id.voided = 0
+where pn.row_num=1 and p_addr.row_num=1
 GROUP BY p.person_id,
          pn.prefix,
          pn.given_name,
@@ -65,7 +67,7 @@ GROUP BY p.person_id,
          pn.family_name,
          p.uuid,
          p.birthdate,
-         gender,
+         p.gender,
          p_addr.state_province,
          p_addr.county_district,
          p_addr.city_village,
