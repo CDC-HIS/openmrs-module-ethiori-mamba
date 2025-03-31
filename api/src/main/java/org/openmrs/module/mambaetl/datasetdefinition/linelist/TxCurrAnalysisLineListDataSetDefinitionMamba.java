@@ -2,6 +2,7 @@ package org.openmrs.module.mambaetl.datasetdefinition.linelist;
 
 import java.util.Date;
 
+import org.openmrs.module.mambaetl.helpers.mapper.TxCurrAnalysisCategories;
 import org.openmrs.module.reporting.dataset.definition.BaseDataSetDefinition;
 import org.openmrs.module.reporting.definition.configuration.ConfigurationProperty;
 import org.springframework.stereotype.Component;
@@ -18,6 +19,9 @@ public class TxCurrAnalysisLineListDataSetDefinitionMamba extends BaseDataSetDef
 	
 	@ConfigurationProperty
 	private Date endDate;
+
+	@ConfigurationProperty
+	private TxCurrAnalysisCategories categories;
 	
 	public void setStartDate(Date startDate) {
 		this.startDate = startDate;

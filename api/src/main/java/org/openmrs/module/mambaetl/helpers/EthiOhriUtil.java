@@ -23,25 +23,25 @@ public class EthiOhriUtil {
 		return Arrays.asList(startDate, startDateGC, endDate, endDateGC);
 	}
 	
-	public static List<Parameter> getEndDateParameters() {
-		
-		Parameter endDate = new Parameter("endDate", "On Month", Date.class);
-		endDate.setRequired(false);
-		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
-		endDateGC.setRequired(false);
-		return Arrays.asList(endDate, endDateGC);
-		
-	}
-	
-	public List<Parameter> getStartDateParameters() {
-		
-		Parameter endDate = new Parameter("startDate", "On Month", Date.class);
-		endDate.setRequired(false);
-		Parameter endDateGC = new Parameter("startDateGC", " ", Date.class);
-		endDateGC.setRequired(false);
-		return Arrays.asList(endDate, endDateGC);
-		
-	}
+//	public static List<Parameter> getEndDateParameters() {
+//
+//		Parameter endDate = new Parameter("endDate", "On Month", Date.class);
+//		endDate.setRequired(false);
+//		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
+//		endDateGC.setRequired(false);
+//		return Arrays.asList(endDate, endDateGC);
+//
+//	}
+//
+//	public List<Parameter> getStartDateParameters() {
+//
+//		Parameter endDate = new Parameter("startDate", "On Month", Date.class);
+//		endDate.setRequired(false);
+//		Parameter endDateGC = new Parameter("startDateGC", " ", Date.class);
+//		endDateGC.setRequired(false);
+//		return Arrays.asList(endDate, endDateGC);
+//
+//	}
 	
 	public static <T extends Parameterizable> Mapped<T> map(T parameterizable, String mappings) {
 		if (parameterizable == null) {
