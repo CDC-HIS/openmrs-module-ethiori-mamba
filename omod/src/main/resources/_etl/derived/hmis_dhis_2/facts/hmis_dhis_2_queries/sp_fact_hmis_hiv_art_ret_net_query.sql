@@ -62,7 +62,7 @@ BEGIN
     FROM art_start_date_before_12_months
 -- 1 < 1 year, Male
     UNION ALL
-    SELECT 'HIV_ART_RET_NET.1' AS S_NO,
+    SELECT 'HIV_ART_RET_NET. 1' AS S_NO,
            '< 1 year, Male'    as Activity,
            COUNT(*)
     FROM art_start_date_before_12_months
@@ -70,7 +70,7 @@ BEGIN
       AND sex = 'Male'
 -- 2 < 1 year, Female - non-pregnant
     UNION ALL
-    SELECT 'HIV_ART_RET_NET.3'               AS S_NO,
+    SELECT 'HIV_ART_RET_NET. 3'               AS S_NO,
            '< 1 year, Female - non-pregnant' as Activity,
            COUNT(*)
     FROM art_start_date_before_12_months
@@ -78,7 +78,7 @@ BEGIN
       AND sex = 'Female'
 -- 4 1 - 4 years, Male
     UNION ALL
-    SELECT 'HIV_ART_RET_NET.4' AS S_NO,
+    SELECT 'HIV_ART_RET_NET. 4' AS S_NO,
            '1 - 4 years, Male' as Activity,
            COUNT(*)
     FROM art_start_date_before_12_months
@@ -86,7 +86,7 @@ BEGIN
       AND sex = 'Male'
 -- 6 1 - 4 years, Female - non-pregnant
     UNION ALL
-    SELECT 'HIV_ART_RET_NET.6'                  AS S_NO,
+    SELECT 'HIV_ART_RET_NET. 6'                  AS S_NO,
            '1 - 4 years, Female - non-pregnant' as Activity,
            COUNT(*)
     FROM art_start_date_before_12_months
@@ -94,7 +94,7 @@ BEGIN
       AND sex = 'Female'
 -- 7 5 - 9 years, Male
     UNION ALL
-    SELECT 'HIV_ART_RET_NET.7' AS S_NO,
+    SELECT 'HIV_ART_RET_NET. 7' AS S_NO,
            '5 - 9 years, Male' as Activity,
            COUNT(*)
     FROM art_start_date_before_12_months
@@ -102,7 +102,7 @@ BEGIN
       AND sex = 'Male'
 -- 9 5 - 9 years, Female - non-pregnant
     UNION ALL
-    SELECT 'HIV_ART_RET_NET.9'                  AS S_NO,
+    SELECT 'HIV_ART_RET_NET. 9'                  AS S_NO,
            '5 - 9 years, Female - non-pregnant' as Activity,
            COUNT(*)
     FROM art_start_date_before_12_months
@@ -110,7 +110,7 @@ BEGIN
       AND sex = 'Female'
 -- 10 10 - 14 years, Male
     UNION ALL
-    SELECT 'HIV_ART_RET_NET.10'  AS S_NO,
+    SELECT 'HIV_ART_RET_NET. 10'  AS S_NO,
            '10 - 14 years, Male' as Activity,
            COUNT(*)
     FROM art_start_date_before_12_months
@@ -118,7 +118,7 @@ BEGIN
       AND sex = 'Male'
 -- 12 10 - 14 years, Female - non-pregnant
     UNION ALL
-    SELECT 'HIV_ART_RET_NET.12'                   AS S_NO,
+    SELECT 'HIV_ART_RET_NET. 12'                   AS S_NO,
            '10 - 14 years, Female - non-pregnant' as Activity,
            COUNT(*)
     FROM art_start_date_before_12_months
@@ -126,7 +126,7 @@ BEGIN
       AND sex = 'Female'
 -- 13 15 - 19 years, Male
     UNION ALL
-    SELECT 'HIV_ART_RET_NET.13'  AS S_NO,
+    SELECT 'HIV_ART_RET_NET. 13'  AS S_NO,
            '15 - 19 years, Male' as Activity,
            COUNT(*)
     FROM art_start_date_before_12_months
@@ -134,7 +134,7 @@ BEGIN
       AND sex = 'Male'
 -- 14 15 - 19 years, Female - pregnant
     UNION ALL
-    SELECT 'HIV_ART_RET_NET.14'               AS S_NO,
+    SELECT 'HIV_ART_RET_NET. 14'               AS S_NO,
            '15 - 19 years, Female - pregnant' as Activity,
            COUNT(*)
     FROM art_start_date_before_12_months
@@ -143,7 +143,7 @@ BEGIN
       AND pregnancy_status = 'Yes'
 -- 15 15 - 19 years, Female - non-pregnant
     UNION ALL
-    SELECT 'HIV_ART_RET_NET.15'                   AS S_NO,
+    SELECT 'HIV_ART_RET_NET. 15'                   AS S_NO,
            '15 - 19 years, Female - non-pregnant' as Activity,
            COUNT(*)
     FROM art_start_date_before_12_months
@@ -152,7 +152,7 @@ BEGIN
       AND (pregnancy_status = 'No' or pregnancy_status is null)
 -- 16 20 - 24 years, Male
     UNION ALL
-    SELECT 'HIV_ART_RET_NET.16'  AS S_NO,
+    SELECT 'HIV_ART_RET_NET. 16'  AS S_NO,
            '20 - 24 years, Male' as Activity,
            COUNT(*)
     FROM art_start_date_before_12_months
@@ -160,7 +160,7 @@ BEGIN
       AND sex = 'Male'
 -- 17 20 - 24 years, Female - pregnant
     UNION ALL
-    SELECT 'HIV_ART_RET_NET.17'               AS S_NO,
+    SELECT 'HIV_ART_RET_NET. 17'               AS S_NO,
            '20 - 24 years, Female - pregnant' as Activity,
            COUNT(*)
     FROM art_start_date_before_12_months
@@ -169,7 +169,7 @@ BEGIN
       AND pregnancy_status = 'Yes'
 -- 18 20 - 24 years, Female - non-pregnant
     UNION ALL
-    SELECT 'HIV_ART_RET_NET.18'                   AS S_NO,
+    SELECT 'HIV_ART_RET_NET. 18'                   AS S_NO,
            '20 - 24 years, Female - non-pregnant' as Activity,
            COUNT(*)
     FROM art_start_date_before_12_months
@@ -178,7 +178,7 @@ BEGIN
       AND (pregnancy_status = 'No' or pregnancy_status is null)
 -- 19 25 - 29 years, Male
     UNION ALL
-    SELECT 'HIV_ART_RET_NET.19'  AS S_NO,
+    SELECT 'HIV_ART_RET_NET. 19'  AS S_NO,
            '25 - 29 years, Male' as Activity,
            COUNT(*)
     FROM art_start_date_before_12_months
@@ -186,7 +186,7 @@ BEGIN
       AND sex = 'Male'
 -- 20 25 - 29 years, Female - pregnant
     UNION ALL
-    SELECT 'HIV_ART_RET_NET.20'               AS S_NO,
+    SELECT 'HIV_ART_RET_NET. 20'               AS S_NO,
            '25 - 29 years, Female - pregnant' as Activity,
            COUNT(*)
     FROM art_start_date_before_12_months
@@ -195,7 +195,7 @@ BEGIN
       AND pregnancy_status = 'Yes'
 -- 21 25 - 29 years, Female - non-pregnant
     UNION ALL
-    SELECT 'HIV_ART_RET_NET.21'                   AS S_NO,
+    SELECT 'HIV_ART_RET_NET. 21'                   AS S_NO,
            '25 - 29 years, Female - non-pregnant' as Activity,
            COUNT(*)
     FROM art_start_date_before_12_months
@@ -204,7 +204,7 @@ BEGIN
       AND (pregnancy_status = 'No' or pregnancy_status is null)
 -- 22 30 - 34 years, Male
     UNION ALL
-    SELECT 'HIV_ART_RET_NET.22'  AS S_NO,
+    SELECT 'HIV_ART_RET_NET. 22'  AS S_NO,
            '30 - 34 years, Male' as Activity,
            COUNT(*)
     FROM art_start_date_before_12_months
@@ -212,7 +212,7 @@ BEGIN
       AND sex = 'Male'
 -- 23 30 - 34 years, Female - pregnant
     UNION ALL
-    SELECT 'HIV_ART_RET_NET.23'               AS S_NO,
+    SELECT 'HIV_ART_RET_NET. 23'               AS S_NO,
            '30 - 34 years, Female - pregnant' as Activity,
            COUNT(*)
     FROM art_start_date_before_12_months
@@ -221,7 +221,7 @@ BEGIN
       AND pregnancy_status = 'Yes'
 -- 24 30 - 34 years, Female - non-pregnant
     UNION ALL
-    SELECT 'HIV_ART_RET_NET.24'                   AS S_NO,
+    SELECT 'HIV_ART_RET_NET. 24'                   AS S_NO,
            '30 - 34 years, Female - non-pregnant' as Activity,
            COUNT(*)
     FROM art_start_date_before_12_months
@@ -230,7 +230,7 @@ BEGIN
       AND (pregnancy_status = 'No' or pregnancy_status is null)
 -- 25 35 - 39 years, Male
     UNION ALL
-    SELECT 'HIV_ART_RET_NET.25'  AS S_NO,
+    SELECT 'HIV_ART_RET_NET. 25'  AS S_NO,
            '35 - 39 years, Male' as Activity,
            COUNT(*)
     FROM art_start_date_before_12_months
@@ -238,7 +238,7 @@ BEGIN
       AND sex = 'Male'
 -- 26 35 - 39 years, Female - pregnant
     UNION ALL
-    SELECT 'HIV_ART_RET_NET.26'               AS S_NO,
+    SELECT 'HIV_ART_RET_NET. 26'               AS S_NO,
            '35 - 39 years, Female - pregnant' as Activity,
            COUNT(*)
     FROM art_start_date_before_12_months
@@ -247,7 +247,7 @@ BEGIN
       AND pregnancy_status = 'Yes'
 -- 27 35 - 39 years, Female - non-pregnant
     UNION ALL
-    SELECT 'HIV_ART_RET_NET.27'                   AS S_NO,
+    SELECT 'HIV_ART_RET_NET. 27'                   AS S_NO,
            '35 - 39 years, Female - non-pregnant' as Activity,
            COUNT(*)
     FROM art_start_date_before_12_months
@@ -256,7 +256,7 @@ BEGIN
       AND (pregnancy_status = 'No' or pregnancy_status is null)
 -- 28 40 - 44 years, Male
     UNION ALL
-    SELECT 'HIV_ART_RET_NET.28'  AS S_NO,
+    SELECT 'HIV_ART_RET_NET. 28'  AS S_NO,
            '40 - 44 years, Male' as Activity,
            COUNT(*)
     FROM art_start_date_before_12_months
@@ -264,7 +264,7 @@ BEGIN
       AND sex = 'Male'
 -- 29 40 - 44 years, Female - pregnant
     UNION ALL
-    SELECT 'HIV_ART_RET_NET.29'               AS S_NO,
+    SELECT 'HIV_ART_RET_NET. 29'               AS S_NO,
            '40 - 44 years, Female - pregnant' as Activity,
            COUNT(*)
     FROM art_start_date_before_12_months
@@ -273,7 +273,7 @@ BEGIN
       AND pregnancy_status = 'Yes'
 -- 30 40 - 44 years, Female - non-pregnant
     UNION ALL
-    SELECT 'HIV_ART_RET_NET.30'                   AS S_NO,
+    SELECT 'HIV_ART_RET_NET. 30'                   AS S_NO,
            '40 - 44 years, Female - non-pregnant' as Activity,
            COUNT(*)
     FROM art_start_date_before_12_months
@@ -282,7 +282,7 @@ BEGIN
       AND (pregnancy_status = 'No' or pregnancy_status is null)
 -- 31 45 - 49 years, Male
     UNION ALL
-    SELECT 'HIV_ART_RET_NET.31'  AS S_NO,
+    SELECT 'HIV_ART_RET_NET. 31'  AS S_NO,
            '45 - 49 years, Male' as Activity,
            COUNT(*)
     FROM art_start_date_before_12_months
@@ -290,7 +290,7 @@ BEGIN
       AND sex = 'Male'
 -- 32 45 - 49 years, Female - pregnant
     UNION ALL
-    SELECT 'HIV_ART_RET_NET.32'               AS S_NO,
+    SELECT 'HIV_ART_RET_NET. 32'               AS S_NO,
            '45 - 49 years, Female - pregnant' as Activity,
            COUNT(*)
     FROM art_start_date_before_12_months
@@ -299,18 +299,16 @@ BEGIN
       AND pregnancy_status = 'Yes'
 -- 33 45 - 49 years, Female - non-pregnant
     UNION ALL
-    SELECT 'HIV_ART_RET_NET.33'                   AS S_NO,
+    SELECT 'HIV_ART_RET_NET. 33'                   AS S_NO,
            '45 - 49 years, Female - non-pregnant' as Activity,
            COUNT(*)
     FROM art_start_date_before_12_months
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 45 AND 49
       AND sex = 'Female'
       AND (pregnancy_status = 'No' or pregnancy_status is null)
-
-
 -- 34 >= 50 years, Male
     UNION ALL
-    SELECT 'HIV_ART_RET_NET.34' AS S_NO,
+    SELECT 'HIV_ART_RET_NET. 34' AS S_NO,
            '>= 50 years, Male'  as Activity,
            COUNT(*)
     FROM art_start_date_before_12_months
@@ -318,7 +316,7 @@ BEGIN
       AND sex = 'Male'
 -- 36 >= 50 years, Female - non-pregnant
     UNION ALL
-    SELECT 'HIV_ART_RET_NET.36'                 AS S_NO,
+    SELECT 'HIV_ART_RET_NET. 36'                 AS S_NO,
            '>= 50 years, Female - non-pregnant' as Activity,
            COUNT(*)
     FROM art_start_date_before_12_months

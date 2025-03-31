@@ -93,7 +93,7 @@ BEGIN
 -- 6 1-4 year, Female-non-pregnant
     UNION ALL
     SELECT 'HIV_TX_NEW. 6'                 AS S_NO,
-           '1-4 year, Female-non-pregnant' as Activity,
+           '1 - 4 years, Female - non-pregnant' as Activity,
            COUNT(*)
     FROM tx_new
     WHERE TIMESTAMPDIFF(YEAR,date_of_birth, REPORT_END_DATE) BETWEEN 1 AND 4
@@ -102,7 +102,7 @@ BEGIN
 -- 7 5-9 year, Male
     UNION ALL
     SELECT 'HIV_TX_NEW. 7'  AS S_NO,
-           '5-9 year, Male' as Activity,
+           '5 - 9 years, Male' as Activity,
            COUNT(*)
     FROM tx_new
     WHERE TIMESTAMPDIFF(YEAR,date_of_birth, REPORT_END_DATE) BETWEEN 5 AND 9
@@ -119,7 +119,7 @@ BEGIN
 -- 10 10-14 year, Male
     UNION ALL
     SELECT 'HIV_TX_NEW. 10'   AS S_NO,
-           '10-14 year, Male' as Activity,
+           '10 - 14 years, Male' as Activity,
            COUNT(*)
     FROM tx_new
     WHERE TIMESTAMPDIFF(YEAR,date_of_birth, REPORT_END_DATE) BETWEEN 10 AND 14
@@ -127,7 +127,7 @@ BEGIN
 -- 12 10-14 year, Female-non-pregnant
     UNION ALL
     SELECT 'HIV_TX_NEW. 12'                  AS S_NO,
-           '10-14 year, Female-non-pregnant' as Activity,
+           '10 - 14 years, Female - non-pregnant' as Activity,
            COUNT(*)
     FROM tx_new
     WHERE TIMESTAMPDIFF(YEAR,date_of_birth, REPORT_END_DATE) BETWEEN 10 AND 14
@@ -136,7 +136,7 @@ BEGIN
 -- 13 15-19 year, Male
     UNION ALL
     SELECT 'HIV_TX_NEW. 13'   AS S_NO,
-           '15-19 year, Male' as Activity,
+           '15 - 19 years, Male' as Activity,
            COUNT(*)
     FROM tx_new
     WHERE TIMESTAMPDIFF(YEAR,date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
@@ -144,7 +144,7 @@ BEGIN
 -- 14 15-19 year, Female-pregnant
     UNION ALL
     SELECT 'HIV_TX_NEW. 14'              AS S_NO,
-           '15-19 year, Female-pregnant' as Activity,
+           '15 - 19 years, Female - pregnant' as Activity,
            COUNT(*)
     FROM tx_new
     WHERE TIMESTAMPDIFF(YEAR,date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
@@ -153,7 +153,7 @@ BEGIN
 -- 15 15-19 year, Female-non-pregnant
     UNION ALL
     SELECT 'HIV_TX_NEW. 15'                  AS S_NO,
-           '15-19 year, Female-non-pregnant' as Activity,
+           '15 - 19 years, Female - non-pregnant' as Activity,
            COUNT(*)
     FROM tx_new
     WHERE TIMESTAMPDIFF(YEAR,date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
@@ -162,7 +162,7 @@ BEGIN
 -- 16 20-24 year, Male
     UNION ALL
     SELECT 'HIV_TX_NEW. 16'   AS S_NO,
-           '20-24 year, Male' as Activity,
+           '20 - 24 years, Male' as Activity,
            COUNT(*)
     FROM tx_new
     WHERE TIMESTAMPDIFF(YEAR,date_of_birth, REPORT_END_DATE) BETWEEN 20 AND 24
@@ -170,7 +170,7 @@ BEGIN
 -- 17 20-24 year, Female-pregnant
     UNION ALL
     SELECT 'HIV_TX_NEW. 17'              AS S_NO,
-           '20-24 year, Female-pregnant' as Activity,
+           '20 - 24 years, Female - pregnant' as Activity,
            COUNT(*)
     FROM tx_new
     WHERE TIMESTAMPDIFF(YEAR,date_of_birth, REPORT_END_DATE) BETWEEN 20 AND 24
@@ -179,7 +179,7 @@ BEGIN
 -- 18 20-24 year, Female-non-pregnant
     UNION ALL
     SELECT 'HIV_TX_NEW. 18'                  AS S_NO,
-           '20-24 year, Female-non-pregnant' as Activity,
+           '20 - 24 years, Female - non-pregnant' as Activity,
            COUNT(*)
     FROM tx_new
     WHERE TIMESTAMPDIFF(YEAR,date_of_birth, REPORT_END_DATE) BETWEEN 20 AND 24
@@ -188,7 +188,7 @@ BEGIN
 -- 19 25-29 year, Male
     UNION ALL
     SELECT 'HIV_TX_NEW. 19'   AS S_NO,
-           '25-29 year, Male' as Activity,
+           '25 - 29 years, Male' as Activity,
            COUNT(*)
     FROM tx_new
     WHERE TIMESTAMPDIFF(YEAR,date_of_birth, REPORT_END_DATE) BETWEEN 25 AND 29
@@ -196,7 +196,7 @@ BEGIN
 -- 20 25-29 year, Female-pregnant
     UNION ALL
     SELECT 'HIV_TX_NEW. 20'              AS S_NO,
-           '25-29 year, Female-pregnant' as Activity,
+           '25 - 29 years, Female - pregnant' as Activity,
            COUNT(*)
     FROM tx_new
     WHERE TIMESTAMPDIFF(YEAR,date_of_birth, REPORT_END_DATE) BETWEEN 25 AND 29
@@ -205,7 +205,7 @@ BEGIN
 -- 21 25-29 year, Female-non-pregnant
     UNION ALL
     SELECT 'HIV_TX_NEW. 21'                  AS S_NO,
-           '25-29 year, Female-non-pregnant' as Activity,
+           '25 - 29 years, Female - non-pregnant' as Activity,
            COUNT(*)
     FROM tx_new
     WHERE TIMESTAMPDIFF(YEAR,date_of_birth, REPORT_END_DATE) BETWEEN 25 AND 29
@@ -214,7 +214,7 @@ BEGIN
 -- 22 30-34 year, Male
     UNION ALL
     SELECT 'HIV_TX_NEW. 22'   AS S_NO,
-           '30-34 year, Male' as Activity,
+           '30 - 34 years, Male' as Activity,
            COUNT(*)
     FROM tx_new
     WHERE TIMESTAMPDIFF(YEAR,date_of_birth, REPORT_END_DATE) BETWEEN 30 AND 34
@@ -222,7 +222,7 @@ BEGIN
 -- 23 30-34 year, Female-pregnant
     UNION ALL
     SELECT 'HIV_TX_NEW. 23'              AS S_NO,
-           '30-34 year, Female-pregnant' as Activity,
+           '30 - 34 years, Female - pregnant' as Activity,
            COUNT(*)
     FROM tx_new
     WHERE TIMESTAMPDIFF(YEAR,date_of_birth, REPORT_END_DATE) BETWEEN 30 AND 34
@@ -231,7 +231,7 @@ BEGIN
 -- 24 30-34 year, Female-non-pregnant
     UNION ALL
     SELECT 'HIV_TX_NEW. 24'                  AS S_NO,
-           '30-34 year, Female-non-pregnant' as Activity,
+           '30 - 34 years, Female - non-pregnant' as Activity,
            COUNT(*)
     FROM tx_new
     WHERE TIMESTAMPDIFF(YEAR,date_of_birth, REPORT_END_DATE) BETWEEN 30 AND 34
@@ -240,7 +240,7 @@ BEGIN
 -- 25 35-39 year, Male
     UNION ALL
     SELECT 'HIV_TX_NEW. 25'   AS S_NO,
-           '35-39 year, Male' as Activity,
+           '35 - 39 years, Male' as Activity,
            COUNT(*)
     FROM tx_new
     WHERE TIMESTAMPDIFF(YEAR,date_of_birth, REPORT_END_DATE) BETWEEN 35 AND 39
@@ -248,7 +248,7 @@ BEGIN
 -- 26 35-39 year, Female-pregnant
     UNION ALL
     SELECT 'HIV_TX_NEW. 26'              AS S_NO,
-           '35-39 year, Female-pregnant' as Activity,
+           '35 - 39 years, Female - pregnant' as Activity,
            COUNT(*)
     FROM tx_new
     WHERE TIMESTAMPDIFF(YEAR,date_of_birth, REPORT_END_DATE) BETWEEN 35 AND 39
@@ -257,7 +257,7 @@ BEGIN
 -- 27 35-39 year, Female-non-pregnant
     UNION ALL
     SELECT 'HIV_TX_NEW. 27'                  AS S_NO,
-           '35-39 year, Female-non-pregnant' as Activity,
+           '35 - 39 years, Female - non-pregnant' as Activity,
            COUNT(*)
     FROM tx_new
     WHERE TIMESTAMPDIFF(YEAR,date_of_birth, REPORT_END_DATE) BETWEEN 35 AND 39
@@ -266,7 +266,7 @@ BEGIN
 -- 28 35-39 year, Male
     UNION ALL
     SELECT 'HIV_TX_NEW. 28'   AS S_NO,
-           '40-44 year, Male' as Activity,
+           '40 - 44 years, Male' as Activity,
            COUNT(*)
     FROM tx_new
     WHERE TIMESTAMPDIFF(YEAR,date_of_birth, REPORT_END_DATE) BETWEEN 40 AND 44
@@ -274,7 +274,7 @@ BEGIN
 -- 29 40-44 year, Female-pregnant
     UNION ALL
     SELECT 'HIV_TX_NEW. 29'              AS S_NO,
-           '40-44 year, Female-pregnant' as Activity,
+           '40 - 44 years, Female - pregnant' as Activity,
            COUNT(*)
     FROM tx_new
     WHERE TIMESTAMPDIFF(YEAR,date_of_birth, REPORT_END_DATE) BETWEEN 40 AND 44
@@ -283,7 +283,7 @@ BEGIN
 -- 30 40-44 year, Female-non-pregnant
     UNION ALL
     SELECT 'HIV_TX_NEW. 30'                  AS S_NO,
-           '40-44 year, Female-non-pregnant' as Activity,
+           '40 - 44 years, Female - non-pregnant' as Activity,
            COUNT(*)
     FROM tx_new
     WHERE TIMESTAMPDIFF(YEAR,date_of_birth, REPORT_END_DATE) BETWEEN 40 AND 44
@@ -292,7 +292,7 @@ BEGIN
 -- 31 45-49 year, Male
     UNION ALL
     SELECT 'HIV_TX_NEW. 31'   AS S_NO,
-           '45-49 year, Male' as Activity,
+           '45 - 49 years, Male' as Activity,
            COUNT(*)
     FROM tx_new
     WHERE TIMESTAMPDIFF(YEAR,date_of_birth, REPORT_END_DATE) BETWEEN 45 AND 49
@@ -300,7 +300,7 @@ BEGIN
 -- 32 45-49 year, Female-pregnant
     UNION ALL
     SELECT 'HIV_TX_NEW. 32'              AS S_NO,
-           '45-49 year, Female-pregnant' as Activity,
+           '45 - 49 years, Female - pregnant' as Activity,
            COUNT(*)
     FROM tx_new
     WHERE TIMESTAMPDIFF(YEAR,date_of_birth, REPORT_END_DATE) BETWEEN 45 AND 49
@@ -309,7 +309,7 @@ BEGIN
 -- 33 45-49 year, Female-non-pregnant
     UNION ALL
     SELECT 'HIV_TX_NEW. 33'                  AS S_NO,
-           '45-49 year, Female-non-pregnant' as Activity,
+           '45 - 49 years, Female - non-pregnant' as Activity,
            COUNT(*)
     FROM tx_new
     WHERE TIMESTAMPDIFF(YEAR,date_of_birth, REPORT_END_DATE) BETWEEN 45 AND 49
@@ -319,7 +319,7 @@ BEGIN
 -- 34 >=50 year, Male
     UNION ALL
     SELECT 'HIV_TX_NEW. 34'  AS S_NO,
-           '>=50 year, Male' as Activity,
+           '>= 50 years, Male' as Activity,
            COUNT(*)
     FROM tx_new
     WHERE TIMESTAMPDIFF(YEAR,date_of_birth, REPORT_END_DATE) >= 50
@@ -327,7 +327,7 @@ BEGIN
 -- 36 >=50 year, Female-non-pregnant
     UNION ALL
     SELECT 'HIV_TX_NEW. 36'                 AS S_NO,
-           '>=50 year, Female-non-pregnant' as Activity,
+           '>= 50 years, Female - non-pregnant' as Activity,
            COUNT(*)
     FROM tx_new
     WHERE TIMESTAMPDIFF(YEAR,date_of_birth, REPORT_END_DATE) >= 50
