@@ -37,19 +37,19 @@ SELECT 'HIV_PEP'                                                                
 FROM tx_new
 
 UNION ALL
-SELECT 'HIV_PEP1'                                                                       AS S_NO,
+SELECT 'HIV_PEP. 1'                                                                       AS S_NO,
        'Occupational' as Activity,
        COUNT(*)                                                                                as Value
 FROM tx_new
 where exposure_type='Occupational'
 UNION ALL
-SELECT 'HIV_PEP2'                                                                       AS S_NO,
+SELECT 'HIV_PEP. 2'                                                                       AS S_NO,
        'Sexual violence' as Activity,
        COUNT(*)                                                                                as Value
 FROM tx_new
 where exposure_type='Sexual violence'
 UNION ALL
-SELECT 'HIV_PEP3'                                                                       AS S_NO,
+SELECT 'HIV_PEP. 3'                                                                       AS S_NO,
        'Other Non occupational' as Activity,
        COUNT(*)                                                                                as Value
 FROM tx_new

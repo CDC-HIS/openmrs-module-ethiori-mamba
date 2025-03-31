@@ -28,7 +28,7 @@ BEGIN
 -- < 1 year, Female
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.1. 2'                                                                         AS S_NO,
-           '< 1 Female, Male' as Activity,
+           '< 1 year, Female' as Activity,
            COUNT(*)                                                                                  AS Value
     FROM FollowUp
 -- 1 - 4 years, Male

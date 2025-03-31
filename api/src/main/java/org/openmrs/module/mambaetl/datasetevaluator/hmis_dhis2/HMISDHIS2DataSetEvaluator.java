@@ -83,7 +83,6 @@ public class HMISDHIS2DataSetEvaluator implements DataSetEvaluator {
 		} else {
             startDateVL12Month = startDate;
         }
-
         return Arrays.asList(
 				new ProcedureCall("{call sp_fact_hmis_hiv_hts_tst_index_query(?,?)}", statement -> {
 					statement.setDate(1, startDate);
