@@ -67,11 +67,8 @@ where final_outcome = 'Refusal of treatment by patient'
    or (reason_art_not_started_the_same_day = 'On OI management' and final_outcome is null)
    or (reason_art_not_started_the_same_day = 'Other' and final_outcome is null)
    or (
--- [
     (linked_to_hiv_care is null or linked_to_hiv_care = 'No')
-  and (on_antiretroviral_therapy is null or on_antiretroviral_therapy = 'No') and final_outcome is null)
--- ]
-;
+  and (on_antiretroviral_therapy is null or on_antiretroviral_therapy = 'No') and final_outcome is null);
 END //
 
 DELIMITER ;

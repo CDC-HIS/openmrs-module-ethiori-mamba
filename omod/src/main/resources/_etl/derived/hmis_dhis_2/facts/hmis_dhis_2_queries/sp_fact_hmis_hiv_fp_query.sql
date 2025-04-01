@@ -2,7 +2,7 @@ DELIMITER //
 
 DROP PROCEDURE IF EXISTS sp_fact_hmis_hiv_fp_query;
 
-CREATE PROCEDURE sp_fact_hmis_hiv_fp_query(IN REPORT_START_DATE DATE, IN REPORT_END_DATE DATE)
+CREATE PROCEDURE sp_fact_hmis_hiv_fp_query(IN REPORT_END_DATE DATE)
 BEGIN
 
 WITH FollowUp as (select follow_up.encounter_id,

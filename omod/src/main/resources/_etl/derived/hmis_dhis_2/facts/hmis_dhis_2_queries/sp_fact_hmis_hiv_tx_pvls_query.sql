@@ -1022,8 +1022,6 @@ FROM pvls
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) >= 50
   AND sex = 'Male'
   AND viral_load_count BETWEEN 50 AND 1000
-
-
 UNION ALL
 SELECT 'HIV_TX_PVLS_LV. 36'                 AS S_NO,
        '>= 50 years, Female - non-pregnant' as Activity,
