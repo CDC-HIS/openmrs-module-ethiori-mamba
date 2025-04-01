@@ -42,7 +42,7 @@ WITH FollowUp AS (select follow_up.encounter_id,
      latest_follow_up AS (select *
                           from tmp_latest_follow_up
                           where row_num = 1
-         --    AND follow_up_status in ('Alive', 'Restart medication')
+
      ),
      tmp_pvls as (select encounter_id,
                          client_id,
@@ -64,7 +64,8 @@ WITH FollowUp AS (select follow_up.encounter_id,
                      sex,
                      date_of_birth,
                      viral_load_count,
-                     viral_load_test_status
+                     viral_load_test_status,
+                     follow_up_date
               from tmp_pvls_2
                        inner join mamba_dim_client client on tmp_pvls_2.client_id = client.client_id
                        inner join latest_follow_up on tmp_pvls_2.client_id = latest_follow_up.client_id)
@@ -88,13 +89,13 @@ SELECT S_NO,
        Activity,
        Value
 FROM pvls_percentage
---
+
 UNION ALL
 SELECT 'HIV_TX_PVLS.1'                                                                                                                            AS S_NO,
        'Number of adult and pediatric ART patients for whom viral load test result received in the reporting period (with in the past 12 months)' as Activity,
        COUNT(*)                                                                                                                                   as Value
 FROM pvls
--- 1.1 < 1 year, Male
+
 UNION ALL
 SELECT 'HIV_TX_PVLS.1. 1' AS S_NO,
        '< 1 year, Male'   as Activity,
@@ -102,7 +103,7 @@ SELECT 'HIV_TX_PVLS.1. 1' AS S_NO,
 FROM pvls
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) < 1
   AND sex = 'Male'
--- 1.3 < 1 year, Female - non-pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS.1. 3'                AS S_NO,
        '< 1 year, Female - non-pregnant' as Activity,
@@ -110,8 +111,8 @@ SELECT 'HIV_TX_PVLS.1. 3'                AS S_NO,
 FROM pvls
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) < 1
   AND sex = 'Female'
---  AND (pregnancy_status = 'No' or pregnancy_status is null)
--- 1.4 1 - 4 years, Male
+
+
 UNION ALL
 SELECT 'HIV_TX_PVLS.1. 4'  AS S_NO,
        '1 - 4 years, Male' as Activity,
@@ -119,7 +120,7 @@ SELECT 'HIV_TX_PVLS.1. 4'  AS S_NO,
 FROM pvls
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 1 AND 4
   AND sex = 'Male'
--- 1.6 1 - 4 years, Female - non-pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS.1. 6'                   AS S_NO,
        '1 - 4 years, Female - non-pregnant' as Activity,
@@ -127,8 +128,8 @@ SELECT 'HIV_TX_PVLS.1. 6'                   AS S_NO,
 FROM pvls
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 1 AND 4
   AND sex = 'Female'
---  AND (pregnancy_status = 'No' or pregnancy_status is null)
--- 1.7 5 - 9 years, Male
+
+
 UNION ALL
 SELECT 'HIV_TX_PVLS.1. 7'  AS S_NO,
        '5 - 9 years, Male' as Activity,
@@ -136,7 +137,7 @@ SELECT 'HIV_TX_PVLS.1. 7'  AS S_NO,
 FROM pvls
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 5 AND 9
   AND sex = 'Male'
--- 1.9 5 - 9 years, Female - non-pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS.1. 9'                   AS S_NO,
        '5 - 9 years, Female - non-pregnant' as Activity,
@@ -144,8 +145,8 @@ SELECT 'HIV_TX_PVLS.1. 9'                   AS S_NO,
 FROM pvls
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 5 AND 9
   AND sex = 'Female'
---  AND (pregnancy_status = 'No' or pregnancy_status is null)
--- 1.10 10 - 14 years, Male
+
+
 UNION ALL
 SELECT 'HIV_TX_PVLS.1. 10'   AS S_NO,
        '10 - 14 years, Male' as Activity,
@@ -153,7 +154,7 @@ SELECT 'HIV_TX_PVLS.1. 10'   AS S_NO,
 FROM pvls
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 10 AND 14
   AND sex = 'Male'
--- 1.12 10 - 14 years, Female - non-pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS.1. 12'                    AS S_NO,
        '10 - 14 years, Female - non-pregnant' as Activity,
@@ -161,8 +162,8 @@ SELECT 'HIV_TX_PVLS.1. 12'                    AS S_NO,
 FROM pvls
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 10 AND 14
   AND sex = 'Female'
---  AND (pregnancy_status = 'No' or pregnancy_status is null)
--- 1.13 15 - 19 years, Male
+
+
 UNION ALL
 SELECT 'HIV_TX_PVLS.1. 13'   AS S_NO,
        '15 - 19 years, Male' as Activity,
@@ -170,7 +171,7 @@ SELECT 'HIV_TX_PVLS.1. 13'   AS S_NO,
 FROM pvls
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 15 AND 19
   AND sex = 'Male'
--- 1.14 15 - 19 years, Female - pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS.1. 14'                AS S_NO,
        '15 - 19 years, Female - pregnant' as Activity,
@@ -179,7 +180,7 @@ FROM pvls
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 15 AND 19
   AND sex = 'Female'
   AND pregnancy_status = 'Yes'
--- 1.15 15 - 19 years, Female - non-pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS.1. 15'                    AS S_NO,
        '15 - 19 years, Female - non-pregnant' as Activity,
@@ -188,7 +189,7 @@ FROM pvls
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 15 AND 19
   AND sex = 'Female'
   AND (pregnancy_status = 'No' or pregnancy_status is null)
--- 1.16 20 - 24 years, Male
+
 UNION ALL
 SELECT 'HIV_TX_PVLS.1. 16'   AS S_NO,
        '20 - 24 years, Male' as Activity,
@@ -196,7 +197,7 @@ SELECT 'HIV_TX_PVLS.1. 16'   AS S_NO,
 FROM pvls
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 20 AND 24
   AND sex = 'Male'
--- 1.17 20 - 24 years, Female - pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS.1. 17'                AS S_NO,
        '20 - 24 years, Female - pregnant' as Activity,
@@ -205,7 +206,7 @@ FROM pvls
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 20 AND 24
   AND sex = 'Female'
   AND pregnancy_status = 'Yes'
--- 1.18 20 - 24 years, Female - non-pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS.1. 18'                    AS S_NO,
        '20 - 24 years, Female - non-pregnant' as Activity,
@@ -214,7 +215,7 @@ FROM pvls
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 20 AND 24
   AND sex = 'Female'
   AND (pregnancy_status = 'No' or pregnancy_status is null)
--- 1.19 25 - 29 years, Male
+
 UNION ALL
 SELECT 'HIV_TX_PVLS.1. 19'   AS S_NO,
        '25 - 29 years, Male' as Activity,
@@ -222,7 +223,7 @@ SELECT 'HIV_TX_PVLS.1. 19'   AS S_NO,
 FROM pvls
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 25 AND 29
   AND sex = 'Male'
--- 1.20 25 - 29 years, Female - pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS.1. 20'                AS S_NO,
        '25 - 29 years, Female - pregnant' as Activity,
@@ -231,7 +232,7 @@ FROM pvls
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 25 AND 29
   AND sex = 'Female'
   AND pregnancy_status = 'Yes'
--- 1.21 25 - 29 years, Female - non-pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS.1. 21'                    AS S_NO,
        '25 - 29 years, Female - non-pregnant' as Activity,
@@ -240,7 +241,7 @@ FROM pvls
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 25 AND 29
   AND sex = 'Female'
   AND (pregnancy_status = 'No' or pregnancy_status is null)
--- 1.22 30 - 34 years, Male
+
 UNION ALL
 SELECT 'HIV_TX_PVLS.1. 22'   AS S_NO,
        '30 - 34 years, Male' as Activity,
@@ -248,7 +249,7 @@ SELECT 'HIV_TX_PVLS.1. 22'   AS S_NO,
 FROM pvls
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 30 AND 34
   AND sex = 'Male'
--- 1.23 30 - 34 years, Female - pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS.1. 23'                AS S_NO,
        '30 - 34 years, Female - pregnant' as Activity,
@@ -257,7 +258,7 @@ FROM pvls
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 30 AND 34
   AND sex = 'Female'
   AND pregnancy_status = 'Yes'
--- 1.24 30 - 34 years, Female - non-pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS.1. 24'                    AS S_NO,
        '30 - 34 years, Female - non-pregnant' as Activity,
@@ -266,7 +267,7 @@ FROM pvls
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 30 AND 34
   AND sex = 'Female'
   AND (pregnancy_status = 'No' or pregnancy_status is null)
--- 1.25 35 - 39 years, Male
+
 UNION ALL
 SELECT 'HIV_TX_PVLS.1. 25'   AS S_NO,
        '35 - 39 years, Male' as Activity,
@@ -274,7 +275,7 @@ SELECT 'HIV_TX_PVLS.1. 25'   AS S_NO,
 FROM pvls
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 35 AND 39
   AND sex = 'Male'
--- 1.26 35 - 39 years, Female - pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS.1. 26'                AS S_NO,
        '35 - 39 years, Female - pregnant' as Activity,
@@ -283,7 +284,7 @@ FROM pvls
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 35 AND 39
   AND sex = 'Female'
   AND pregnancy_status = 'Yes'
--- 1.27 35 - 39 years, Female - non-pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS.1. 27'                    AS S_NO,
        '35 - 39 years, Female - non-pregnant' as Activity,
@@ -292,7 +293,7 @@ FROM pvls
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 35 AND 39
   AND sex = 'Female'
   AND (pregnancy_status = 'No' or pregnancy_status is null)
--- 1.28 40 - 44 years, Male
+
 UNION ALL
 SELECT 'HIV_TX_PVLS.1. 28'   AS S_NO,
        '40 - 44 years, Male' as Activity,
@@ -300,7 +301,7 @@ SELECT 'HIV_TX_PVLS.1. 28'   AS S_NO,
 FROM pvls
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 40 AND 44
   AND sex = 'Male'
--- 1.29 40 - 44 years, Female - pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS.1. 29'                AS S_NO,
        '40 - 44 years, Female - pregnant' as Activity,
@@ -309,7 +310,7 @@ FROM pvls
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 40 AND 44
   AND sex = 'Female'
   AND pregnancy_status = 'Yes'
--- 1.30 40 - 44 years, Female - non-pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS.1. 30'                    AS S_NO,
        '40 - 44 years, Female - non-pregnant' as Activity,
@@ -318,7 +319,7 @@ FROM pvls
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 40 AND 44
   AND sex = 'Female'
   AND (pregnancy_status = 'No' or pregnancy_status is null)
--- 1.31 45 - 49 years, Male
+
 UNION ALL
 SELECT 'HIV_TX_PVLS.1. 31'   AS S_NO,
        '45 - 49 years, Male' as Activity,
@@ -326,7 +327,7 @@ SELECT 'HIV_TX_PVLS.1. 31'   AS S_NO,
 FROM pvls
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 45 AND 49
   AND sex = 'Male'
--- 1.32 45 - 49 years, Female - pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS.1. 32'                AS S_NO,
        '45 - 49 years, Female - pregnant' as Activity,
@@ -335,7 +336,7 @@ FROM pvls
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 45 AND 49
   AND sex = 'Female'
   AND pregnancy_status = 'Yes'
--- 1.33 45 - 49 years, Female - non-pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS.1. 33'                    AS S_NO,
        '45 - 49 years, Female - non-pregnant' as Activity,
@@ -344,7 +345,7 @@ FROM pvls
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 45 AND 49
   AND sex = 'Female'
   AND (pregnancy_status = 'No' or pregnancy_status is null)
--- 1.34 >= 50 years, Male
+
 UNION ALL
 SELECT 'HIV_TX_PVLS.1. 34' AS S_NO,
        '>= 50 years, Male' as Activity,
@@ -352,7 +353,7 @@ SELECT 'HIV_TX_PVLS.1. 34' AS S_NO,
 FROM pvls
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) >= 50
   AND sex = 'Male'
--- 1.35 >= 50 years, Female - non-pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS.1. 36'                  AS S_NO,
        '>= 50 years, Female - non-pregnant' as Activity,
@@ -361,7 +362,7 @@ FROM pvls
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) >= 50
   AND sex = 'Female'
 
--- Undetectable viral load
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_UN'                                                                                                                                         AS S_NO,
        'Total number of adult and paediatric ART patients with an undetectable viral load(<50 copies/ml) in the reporting period  (with in the past 12 months)' as Activity,
@@ -369,7 +370,7 @@ SELECT 'HIV_TX_PVLS_UN'                                                         
 FROM pvls
 where (viral_load_count < 50 or viral_load_count is null)
   and viral_load_test_status = 'Suppressed'
--- 1 < 1 year, Male
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_UN. 1' AS S_NO,
        '< 1 year, Male'    as Activity,
@@ -379,7 +380,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) < 1
   AND sex = 'Male'
   AND (viral_load_count < 50 or viral_load_count is null)
   and viral_load_test_status = 'Suppressed'
--- 3 < 1 year, Female - non-pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_UN. 3'               AS S_NO,
        '< 1 year, Female - non-pregnant' as Activity,
@@ -389,8 +390,8 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) < 1
   AND sex = 'Female'
   AND (viral_load_count < 50 or viral_load_count is null)
   and viral_load_test_status = 'Suppressed'
---  AND (pregnancy_status = 'No' or pregnancy_status is null)
--- 1.4 1 - 4 years, Male
+
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_UN. 4' AS S_NO,
        '1 - 4 years, Male' as Activity,
@@ -400,7 +401,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 1 AND 4
   AND sex = 'Male'
   AND (viral_load_count < 50 or viral_load_count is null)
   and viral_load_test_status = 'Suppressed'
--- 6 - 4 years, Female - non-pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_UN. 6'                  AS S_NO,
        '1 - 4 years, Female - non-pregnant' as Activity,
@@ -410,8 +411,8 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 1 AND 4
   AND sex = 'Female'
   AND (viral_load_count < 50 or viral_load_count is null)
   and viral_load_test_status = 'Suppressed'
---  AND (pregnancy_status = 'No' or pregnancy_status is null)
--- 7 5 - 9 years, Male
+
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_UN. 7' AS S_NO,
        '5 - 9 years, Male' as Activity,
@@ -421,7 +422,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 5 AND 9
   AND sex = 'Male'
   AND (viral_load_count < 50 or viral_load_count is null)
   and viral_load_test_status = 'Suppressed'
--- 9 5 - 9 years, Female - non-pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_UN. 9'                  AS S_NO,
        '5 - 9 years, Female - non-pregnant' as Activity,
@@ -431,8 +432,8 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 5 AND 9
   AND sex = 'Female'
   AND (viral_load_count < 50 or viral_load_count is null)
   and viral_load_test_status = 'Suppressed'
---  AND (pregnancy_status = 'No' or pregnancy_status is null)
--- 10 10 - 14 years, Male
+
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_UN. 10'  AS S_NO,
        '10 - 14 years, Male' as Activity,
@@ -442,7 +443,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 10 AND 14
   AND sex = 'Male'
   AND (viral_load_count < 50 or viral_load_count is null)
   and viral_load_test_status = 'Suppressed'
--- 12 10 - 14 years, Female - non-pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_UN. 12'                   AS S_NO,
        '10 - 14 years, Female - non-pregnant' as Activity,
@@ -452,8 +453,8 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 10 AND 14
   AND sex = 'Female'
   AND (viral_load_count < 50 or viral_load_count is null)
   and viral_load_test_status = 'Suppressed'
---  AND (pregnancy_status = 'No' or pregnancy_status is null)
--- 13 15 - 19 years, Male
+
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_UN. 13'  AS S_NO,
        '15 - 19 years, Male' as Activity,
@@ -463,7 +464,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 15 AND 19
   AND sex = 'Male'
   AND (viral_load_count < 50 or viral_load_count is null)
   and viral_load_test_status = 'Suppressed'
--- 14 15 - 19 years, Female - pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_UN. 14'               AS S_NO,
        '15 - 19 years, Female - pregnant' as Activity,
@@ -474,7 +475,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 15 AND 19
   AND pregnancy_status = 'Yes'
   AND (viral_load_count < 50 or viral_load_count is null)
   and viral_load_test_status = 'Suppressed'
--- 15 15 - 19 years, Female - non-pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_UN. 15'                   AS S_NO,
        '15 - 19 years, Female - non-pregnant' as Activity,
@@ -485,7 +486,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 15 AND 19
   AND (pregnancy_status = 'No' or pregnancy_status is null)
   AND (viral_load_count < 50 or viral_load_count is null)
   and viral_load_test_status = 'Suppressed'
--- 16 20 - 24 years, Male
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_UN. 16'  AS S_NO,
        '20 - 24 years, Male' as Activity,
@@ -495,7 +496,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 20 AND 24
   AND sex = 'Male'
   AND (viral_load_count < 50 or viral_load_count is null)
   and viral_load_test_status = 'Suppressed'
--- 17 20 - 24 years, Female - pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_UN. 17'               AS S_NO,
        '20 - 24 years, Female - pregnant' as Activity,
@@ -506,7 +507,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 20 AND 24
   AND pregnancy_status = 'Yes'
   AND (viral_load_count < 50 or viral_load_count is null)
   and viral_load_test_status = 'Suppressed'
--- 18 20 - 24 years, Female - non-pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_UN. 18'                   AS S_NO,
        '20 - 24 years, Female - non-pregnant' as Activity,
@@ -517,7 +518,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 20 AND 24
   AND (pregnancy_status = 'No' or pregnancy_status is null)
   AND (viral_load_count < 50 or viral_load_count is null)
   and viral_load_test_status = 'Suppressed'
--- 19 25 - 29 years, Male
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_UN. 19'  AS S_NO,
        '25 - 29 years, Male' as Activity,
@@ -527,7 +528,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 25 AND 29
   AND sex = 'Male'
   AND (viral_load_count < 50 or viral_load_count is null)
   and viral_load_test_status = 'Suppressed'
--- 20 25 - 29 years, Female - pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_UN. 20'               AS S_NO,
        '25 - 29 years, Female - pregnant' as Activity,
@@ -538,7 +539,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 25 AND 29
   AND pregnancy_status = 'Yes'
   AND (viral_load_count < 50 or viral_load_count is null)
   and viral_load_test_status = 'Suppressed'
--- 21 25 - 29 years, Female - non-pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_UN. 21'                   AS S_NO,
        '25 - 29 years, Female - non-pregnant' as Activity,
@@ -549,7 +550,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 25 AND 29
   AND (pregnancy_status = 'No' or pregnancy_status is null)
   AND (viral_load_count < 50 or viral_load_count is null)
   and viral_load_test_status = 'Suppressed'
--- 22 30 - 34 years, Male
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_UN. 22'  AS S_NO,
        '30 - 34 years, Male' as Activity,
@@ -559,7 +560,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 30 AND 34
   AND sex = 'Male'
   AND (viral_load_count < 50 or viral_load_count is null)
   and viral_load_test_status = 'Suppressed'
--- 23 30 - 34 years, Female - pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_UN. 23'               AS S_NO,
        '30 - 34 years, Female - pregnant' as Activity,
@@ -570,7 +571,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 30 AND 34
   AND pregnancy_status = 'Yes'
   AND (viral_load_count < 50 or viral_load_count is null)
   and viral_load_test_status = 'Suppressed'
--- 24 30 - 34 years, Female - non-pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_UN. 24'                   AS S_NO,
        '30 - 34 years, Female - non-pregnant' as Activity,
@@ -581,7 +582,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 30 AND 34
   AND (pregnancy_status = 'No' or pregnancy_status is null)
   AND (viral_load_count < 50 or viral_load_count is null)
   and viral_load_test_status = 'Suppressed'
--- 25 35 - 39 years, Male
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_UN. 25'  AS S_NO,
        '35 - 39 years, Male' as Activity,
@@ -591,7 +592,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 35 AND 39
   AND sex = 'Male'
   AND (viral_load_count < 50 or viral_load_count is null)
   and viral_load_test_status = 'Suppressed'
--- 26 35 - 39 years, Female - pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_UN. 26'               AS S_NO,
        '35 - 39 years, Female - pregnant' as Activity,
@@ -602,7 +603,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 35 AND 39
   AND pregnancy_status = 'Yes'
   AND (viral_load_count < 50 or viral_load_count is null)
   and viral_load_test_status = 'Suppressed'
--- 27 35 - 39 years, Female - non-pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_UN. 27'                   AS S_NO,
        '35 - 39 years, Female - non-pregnant' as Activity,
@@ -613,7 +614,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 35 AND 39
   AND (pregnancy_status = 'No' or pregnancy_status is null)
   AND (viral_load_count < 50 or viral_load_count is null)
   and viral_load_test_status = 'Suppressed'
--- 28 40 - 44 years, Male
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_UN. 28'  AS S_NO,
        '40 - 44 years, Male' as Activity,
@@ -623,7 +624,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 40 AND 44
   AND sex = 'Male'
   AND (viral_load_count < 50 or viral_load_count is null)
   and viral_load_test_status = 'Suppressed'
--- 29 40 - 44 years, Female - pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_UN. 29'               AS S_NO,
        '40 - 44 years, Female - pregnant' as Activity,
@@ -634,7 +635,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 40 AND 44
   AND pregnancy_status = 'Yes'
   AND (viral_load_count < 50 or viral_load_count is null)
   and viral_load_test_status = 'Suppressed'
--- 30 40 - 44 years, Female - non-pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_UN. 30'                   AS S_NO,
        '40 - 44 years, Female - non-pregnant' as Activity,
@@ -645,7 +646,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 40 AND 44
   AND (pregnancy_status = 'No' or pregnancy_status is null)
   AND (viral_load_count < 50 or viral_load_count is null)
   and viral_load_test_status = 'Suppressed'
--- 31 45 - 49 years, Male
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_UN. 31'  AS S_NO,
        '45 - 49 years, Male' as Activity,
@@ -655,7 +656,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 45 AND 49
   AND sex = 'Male'
   AND (viral_load_count < 50 or viral_load_count is null)
   and viral_load_test_status = 'Suppressed'
--- 32 45 - 49 years, Female - pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_UN. 32'               AS S_NO,
        '45 - 49 years, Female - pregnant' as Activity,
@@ -666,7 +667,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 45 AND 49
   AND pregnancy_status = 'Yes'
   AND (viral_load_count < 50 or viral_load_count is null)
   and viral_load_test_status = 'Suppressed'
--- 33 45 - 49 years, Female - non-pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_UN. 33'                   AS S_NO,
        '45 - 49 years, Female - non-pregnant' as Activity,
@@ -677,7 +678,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 45 AND 49
   AND (pregnancy_status = 'No' or pregnancy_status is null)
   AND (viral_load_count < 50 or viral_load_count is null)
   and viral_load_test_status = 'Suppressed'
--- 34 >= 50 years, Male
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_UN. 34' AS S_NO,
        '>= 50 years, Male'  as Activity,
@@ -687,7 +688,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) >= 50
   AND sex = 'Male'
   AND (viral_load_count < 50 or viral_load_count is null)
   and viral_load_test_status = 'Suppressed'
--- 36 >= 50 years, Female - non-pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_UN. 36'                 AS S_NO,
        '>= 50 years, Female - non-pregnant' as Activity,
@@ -697,14 +698,14 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) >= 50
   AND sex = 'Female'
   AND (viral_load_count < 50 or viral_load_count is null)
   and viral_load_test_status = 'Suppressed'
--- Low level viral load
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_LV'                                                                                                                                      AS S_NO,
        'Total number of adult and paediatric ART patients with low level viremia (50 -1000 copies/ml) in the reporting period  (with in the past 12 months)' as Activity,
        COUNT(*)                                                                                                                                              as Value
 FROM pvls
 where viral_load_count BETWEEN 50 AND 1000
--- 1 < 1 year, Male
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_LV. 1' AS S_NO,
        '< 1 year, Male'    as Activity,
@@ -714,7 +715,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) < 1
   AND sex = 'Male'
   AND viral_load_count BETWEEN 50 AND 1000
 
--- 3 < 1 year, Female - non-pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_LV. 3'               AS S_NO,
        '< 1 year, Female - non-pregnant' as Activity,
@@ -724,8 +725,8 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) < 1
   AND sex = 'Female'
   AND viral_load_count BETWEEN 50 AND 1000
 
---  AND (pregnancy_status = 'No' or pregnancy_status is null)
--- 1.4 1 - 4 years, Male
+
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_LV. 4' AS S_NO,
        '1 - 4 years, Male' as Activity,
@@ -735,7 +736,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 1 AND 4
   AND sex = 'Male'
   AND viral_load_count BETWEEN 50 AND 1000
 
--- 6 - 4 years, Female - non-pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_LV. 6'                  AS S_NO,
        '1 - 4 years, Female - non-pregnant' as Activity,
@@ -745,8 +746,8 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 1 AND 4
   AND sex = 'Female'
   AND viral_load_count BETWEEN 50 AND 1000
 
---  AND (pregnancy_status = 'No' or pregnancy_status is null)
--- 7 5 - 9 years, Male
+
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_LV. 7' AS S_NO,
        '5 - 9 years, Male' as Activity,
@@ -756,7 +757,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 5 AND 9
   AND sex = 'Male'
   AND viral_load_count BETWEEN 50 AND 1000
 
--- 9 5 - 9 years, Female - non-pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_LV. 9'                  AS S_NO,
        '5 - 9 years, Female - non-pregnant' as Activity,
@@ -766,8 +767,8 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 5 AND 9
   AND sex = 'Female'
   AND viral_load_count BETWEEN 50 AND 1000
 
---  AND (pregnancy_status = 'No' or pregnancy_status is null)
--- 10 10 - 14 years, Male
+
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_LV. 10'  AS S_NO,
        '10 - 14 years, Male' as Activity,
@@ -777,7 +778,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 10 AND 14
   AND sex = 'Male'
   AND viral_load_count BETWEEN 50 AND 1000
 
--- 12 10 - 14 years, Female - non-pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_LV. 12'                   AS S_NO,
        '10 - 14 years, Female - non-pregnant' as Activity,
@@ -787,8 +788,8 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 10 AND 14
   AND sex = 'Female'
   AND viral_load_count BETWEEN 50 AND 1000
 
---  AND (pregnancy_status = 'No' or pregnancy_status is null)
--- 13 15 - 19 years, Male
+
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_LV. 13'  AS S_NO,
        '15 - 19 years, Male' as Activity,
@@ -798,7 +799,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 15 AND 19
   AND sex = 'Male'
   AND viral_load_count BETWEEN 50 AND 1000
 
--- 14 15 - 19 years, Female - pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_LV. 14'               AS S_NO,
        '15 - 19 years, Female - pregnant' as Activity,
@@ -809,7 +810,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 15 AND 19
   AND pregnancy_status = 'Yes'
   AND viral_load_count BETWEEN 50 AND 1000
 
--- 15 15 - 19 years, Female - non-pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_LV. 15'                   AS S_NO,
        '15 - 19 years, Female - non-pregnant' as Activity,
@@ -820,7 +821,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 15 AND 19
   AND (pregnancy_status = 'No' or pregnancy_status is null)
   AND viral_load_count BETWEEN 50 AND 1000
 
--- 16 20 - 24 years, Male
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_LV. 16'  AS S_NO,
        '20 - 24 years, Male' as Activity,
@@ -830,7 +831,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 20 AND 24
   AND sex = 'Male'
   AND viral_load_count BETWEEN 50 AND 1000
 
--- 17 20 - 24 years, Female - pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_LV. 17'               AS S_NO,
        '20 - 24 years, Female - pregnant' as Activity,
@@ -841,7 +842,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 20 AND 24
   AND pregnancy_status = 'Yes'
   AND viral_load_count BETWEEN 50 AND 1000
 
--- 18 20 - 24 years, Female - non-pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_LV. 18'                   AS S_NO,
        '20 - 24 years, Female - non-pregnant' as Activity,
@@ -852,7 +853,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 20 AND 24
   AND (pregnancy_status = 'No' or pregnancy_status is null)
   AND viral_load_count BETWEEN 50 AND 1000
 
--- 19 25 - 29 years, Male
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_LV. 19'  AS S_NO,
        '25 - 29 years, Male' as Activity,
@@ -862,7 +863,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 25 AND 29
   AND sex = 'Male'
   AND viral_load_count BETWEEN 50 AND 1000
 
--- 20 25 - 29 years, Female - pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_LV. 20'               AS S_NO,
        '25 - 29 years, Female - pregnant' as Activity,
@@ -873,7 +874,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 25 AND 29
   AND pregnancy_status = 'Yes'
   AND viral_load_count BETWEEN 50 AND 1000
 
--- 21 25 - 29 years, Female - non-pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_LV. 21'                   AS S_NO,
        '25 - 29 years, Female - non-pregnant' as Activity,
@@ -884,7 +885,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 25 AND 29
   AND (pregnancy_status = 'No' or pregnancy_status is null)
   AND viral_load_count BETWEEN 50 AND 1000
 
--- 22 30 - 34 years, Male
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_LV. 22'  AS S_NO,
        '30 - 34 years, Male' as Activity,
@@ -894,7 +895,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 30 AND 34
   AND sex = 'Male'
   AND viral_load_count BETWEEN 50 AND 1000
 
--- 23 30 - 34 years, Female - pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_LV. 23'               AS S_NO,
        '30 - 34 years, Female - pregnant' as Activity,
@@ -905,7 +906,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 30 AND 34
   AND pregnancy_status = 'Yes'
   AND viral_load_count BETWEEN 50 AND 1000
 
--- 24 30 - 34 years, Female - non-pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_LV. 24'                   AS S_NO,
        '30 - 34 years, Female - non-pregnant' as Activity,
@@ -916,7 +917,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 30 AND 34
   AND (pregnancy_status = 'No' or pregnancy_status is null)
   AND viral_load_count BETWEEN 50 AND 1000
 
--- 25 35 - 39 years, Male
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_LV. 25'  AS S_NO,
        '35 - 39 years, Male' as Activity,
@@ -926,7 +927,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 35 AND 39
   AND sex = 'Male'
   AND viral_load_count BETWEEN 50 AND 1000
 
--- 26 35 - 39 years, Female - pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_LV. 26'               AS S_NO,
        '35 - 39 years, Female - pregnant' as Activity,
@@ -937,7 +938,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 35 AND 39
   AND pregnancy_status = 'Yes'
   AND viral_load_count BETWEEN 50 AND 1000
 
--- 27 35 - 39 years, Female - non-pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_LV. 27'                   AS S_NO,
        '35 - 39 years, Female - non-pregnant' as Activity,
@@ -948,7 +949,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 35 AND 39
   AND (pregnancy_status = 'No' or pregnancy_status is null)
   AND viral_load_count BETWEEN 50 AND 1000
 
--- 28 40 - 44 years, Male
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_LV. 28'  AS S_NO,
        '40 - 44 years, Male' as Activity,
@@ -958,7 +959,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 40 AND 44
   AND sex = 'Male'
   AND viral_load_count BETWEEN 50 AND 1000
 
--- 29 40 - 44 years, Female - pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_LV. 29'               AS S_NO,
        '40 - 44 years, Female - pregnant' as Activity,
@@ -969,7 +970,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 40 AND 44
   AND pregnancy_status = 'Yes'
   AND viral_load_count BETWEEN 50 AND 1000
 
--- 30 40 - 44 years, Female - non-pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_LV. 30'                   AS S_NO,
        '40 - 44 years, Female - non-pregnant' as Activity,
@@ -980,7 +981,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 40 AND 44
   AND (pregnancy_status = 'No' or pregnancy_status is null)
   AND viral_load_count BETWEEN 50 AND 1000
 
--- 31 45 - 49 years, Male
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_LV. 31'  AS S_NO,
        '45 - 49 years, Male' as Activity,
@@ -990,7 +991,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 45 AND 49
   AND sex = 'Male'
   AND viral_load_count BETWEEN 50 AND 1000
 
--- 32 45 - 49 years, Female - pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_LV. 32'               AS S_NO,
        '45 - 49 years, Female - pregnant' as Activity,
@@ -1001,7 +1002,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 45 AND 49
   AND pregnancy_status = 'Yes'
   AND viral_load_count BETWEEN 50 AND 1000
 
--- 33 45 - 49 years, Female - non-pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_LV. 33'                   AS S_NO,
        '45 - 49 years, Female - non-pregnant' as Activity,
@@ -1012,7 +1013,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) BETWEEN 45 AND 49
   AND (pregnancy_status = 'No' or pregnancy_status is null)
   AND viral_load_count BETWEEN 50 AND 1000
 
--- 34 >= 50 years, Male
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_LV. 34' AS S_NO,
        '>= 50 years, Male'  as Activity,
@@ -1022,7 +1023,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) >= 50
   AND sex = 'Male'
   AND viral_load_count BETWEEN 50 AND 1000
 
--- 36 >= 50 years, Female - non-pregnant
+
 UNION ALL
 SELECT 'HIV_TX_PVLS_LV. 36'                 AS S_NO,
        '>= 50 years, Female - non-pregnant' as Activity,
