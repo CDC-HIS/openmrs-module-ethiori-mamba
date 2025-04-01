@@ -41,12 +41,12 @@ public class EthiopianDateConverter {
 		return toGregorianDate(jdn);
 	}
 	
-//	public static LocalDate ToGregorianDate(EthiopianDate localDate) throws Exception {
-//		int year = localDate.getYear();
-//		int month = localDate.getMonth();
-//		int day = localDate.getDay();
-//		return ToGregorianDate(year, month, day);
-//	}
+	//	public static LocalDate ToGregorianDate(EthiopianDate localDate) throws Exception {
+	//		int year = localDate.getYear();
+	//		int month = localDate.getMonth();
+	//		int day = localDate.getDay();
+	//		return ToGregorianDate(year, month, day);
+	//	}
 	
 	private static LocalDate toGregorianDate(int jdn) {
 		int year, month, day;

@@ -15,7 +15,8 @@ WITH FollowUp AS (select follow_up.encounter_id,
                          regimen,
                          currently_breastfeeding_child    breast_feeding_status,
                          pregnancy_status,
-                         dsd_category
+                         dsd_category,
+                         assessment_date
                   FROM mamba_flat_encounter_follow_up follow_up
                            JOIN mamba_flat_encounter_follow_up_1 follow_up_1
                                 ON follow_up.encounter_id = follow_up_1.encounter_id
@@ -51,6 +52,7 @@ WITH FollowUp AS (select follow_up.encounter_id,
                       inner join tx_curr on FollowUp.encounter_id = tx_curr.encounter_id
                       left join mamba_dim_client client on tx_curr.PatientId = client.client_id
              where dsd_category is not null
+             and assessment_date <= REPORT_END_DATE
      ),
      dsd_percentage as (SELECT 'HIV_TX_DSD'                                                                   AS S_NO,
                                'Proportion of PLHIV currently on differentiated service Delivery model (DSD)' AS Activity,

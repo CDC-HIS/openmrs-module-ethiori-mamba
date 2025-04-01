@@ -15,21 +15,21 @@ public class EthiopianDate {
 		this.year = year;
 	}
 	
-//	public EthiopianDate(LocalDate dateTime) throws Exception {
-//		EthiopianDate ethiopianDate = EthiopianDateConverter.ToEthiopianDate(dateTime);
-//		localDate = ethiopianDate.getLocalDate();
-//		month = ethiopianDate.getMonth();
-//		day = ethiopianDate.getDay();
-//		year = ethiopianDate.getYear();
-//	}
-//
-//	public void FromGregorianDate(LocalDate dateTime) throws Exception {
-//		EthiopianDate ethiopianDate = EthiopianDateConverter.ToEthiopianDate(dateTime);
-//
-//		setYear(ethiopianDate.getYear());
-//		setMonth(ethiopianDate.getMonth());
-//		setDay(ethiopianDate.getDay());
-//	}
+	//	public EthiopianDate(LocalDate dateTime) throws Exception {
+	//		EthiopianDate ethiopianDate = EthiopianDateConverter.ToEthiopianDate(dateTime);
+	//		localDate = ethiopianDate.getLocalDate();
+	//		month = ethiopianDate.getMonth();
+	//		day = ethiopianDate.getDay();
+	//		year = ethiopianDate.getYear();
+	//	}
+	//
+	//	public void FromGregorianDate(LocalDate dateTime) throws Exception {
+	//		EthiopianDate ethiopianDate = EthiopianDateConverter.ToEthiopianDate(dateTime);
+	//
+	//		setYear(ethiopianDate.getYear());
+	//		setMonth(ethiopianDate.getMonth());
+	//		setDay(ethiopianDate.getDay());
+	//	}
 	
 	public LocalDate ToGregorianDate() {
 		return localDate;
