@@ -19,7 +19,7 @@ public class TxCurrAnalysisLineListDataSetDefinitionMamba extends BaseDataSetDef
 	
 	@ConfigurationProperty
 	private Date endDate;
-
+	
 	@ConfigurationProperty
 	private TxCurrAnalysisCategories categories;
 	
