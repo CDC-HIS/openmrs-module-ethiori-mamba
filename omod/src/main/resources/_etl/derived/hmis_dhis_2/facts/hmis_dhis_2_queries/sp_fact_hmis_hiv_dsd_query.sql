@@ -52,7 +52,7 @@ WITH FollowUp AS (select follow_up.encounter_id,
                       inner join tx_curr on FollowUp.encounter_id = tx_curr.encounter_id
                       left join mamba_dim_client client on tx_curr.PatientId = client.client_id
              where dsd_category is not null
-             and assessment_date <= REPORT_END_DATE
+               and assessment_date <= REPORT_END_DATE
      ),
      dsd_percentage as (SELECT 'HIV_TX_DSD'                                                                   AS S_NO,
                                'Proportion of PLHIV currently on differentiated service Delivery model (DSD)' AS Activity,
