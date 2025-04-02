@@ -42,8 +42,9 @@ BEGIN
                                   FROM FollowUp
                                   WHERE follow_up_status IS NOT NULL
                                     AND art_start_date IS NOT NULL
+                                    AND tb_screening_date is not null
                                     AND tb_screened = 'Yes'
-             -- AND follow_up_date <= REPORT_END_DATE
+                                    and tb_screening_date between REPORT_START_DATE AND REPORT_END_DATE
          ),
          latest_tb_screened_follow_up as (SELECT follow_up.client_id,
                                                  sex,
@@ -63,11 +64,10 @@ BEGIN
          tx_new_tb_screened as (select *
                                 from latest_tb_screened_follow_up
                                 where art_start_date between REPORT_START_DATE AND REPORT_END_DATE
-                                  and tb_screening_date between REPORT_START_DATE AND REPORT_END_DATE),
+         ),
          prev_art_new_tb_screened as (select *
                                       from latest_tb_screened_follow_up
                                       where art_start_date < REPORT_START_DATE
-                                        and tb_screening_date between REPORT_START_DATE AND REPORT_END_DATE
                                         and follow_up_status in ('Alive', 'Restart medication')
          )
     SELECT 'HIV_TB_SCRN'                                                               AS S_NO,
