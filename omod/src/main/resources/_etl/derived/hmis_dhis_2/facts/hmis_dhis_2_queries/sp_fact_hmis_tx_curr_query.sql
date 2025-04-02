@@ -51,8 +51,12 @@ BEGIN
                                  from FollowUp
                                           inner join tx_curr on FollowUp.encounter_id = tx_curr.encounter_id
                                           left join mamba_dim_client client on tx_curr.PatientId = client.client_id)
-
+-- Does health facility provide Monthly PMTCT / ART Treatment Service?
+    SELECT 'HIV_HIV_Treatement.'                                                                         AS S_NO,
+           'Does health facility provide Monthly PMTCT / ART Treatment Service?' as Activity,
+           ''
 -- Number of adults and children who are currently on ART by age, sex and regimen category
+    UNION ALL
     SELECT 'HIV_TX_CURR_ALL'                                                                         AS S_NO,
            'Number of adults and children who are currently on ART by age, sex and regimen category' as Activity,
            COUNT(*)                                                                                  AS Value
