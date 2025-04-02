@@ -34,7 +34,7 @@ WITH FollowUp AS (select follow_up.encounter_id,
                      FROM FollowUp
                      WHERE follow_up_status IS NOT NULL
                        AND art_start_date IS NOT NULL
-                       AND follow_up_date <= REPORT_END_DATE
+                       -- AND follow_up_date <= REPORT_END_DATE
      ),
 
      tx_curr AS (select *
