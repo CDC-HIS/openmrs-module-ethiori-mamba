@@ -38,7 +38,7 @@ BEGIN
          tx_curr_start AS (select *
                            from tmp_latest_follow_up_start
                            where row_num = 1
-                             AND follow_up_status in ('Alive', 'Restart medication','Transferred out')
+                             AND follow_up_status in ('Alive', 'Restart medication')
                              AND treatment_end_date >= REPORT_START_DATE),
          -- TX curr
          tmp_latest_follow_up_end AS (SELECT client_id,
