@@ -79,15 +79,19 @@ BEGIN
                      (dsd_category = 'Advanced HIV disease model')
                      )
          ),
-         dsd_percentage as (SELECT 'HIV_TX_DSD'                                                                   AS S_NO,
+         dsd_percentage AS (SELECT 'HIV_TX_DSD'                                                                   AS S_NO,
                                    'Proportion of PLHIV currently on differentiated service Delivery model (DSD)' AS Activity,
-                                   CAST(ROUND((SELECT COUNT(*)
-                                               FROM dsd) *
-                                              100.0 /
-                                              (SELECT COUNT(*) FROM tx_curr), 2) AS CHAR)
-                                                                                                                  AS Value
-                            FROM dsd
-                            LIMIT 1)
+                                   CASE
+                                       WHEN (SELECT COUNT(*) FROM tx_curr) = 0 THEN
+                                           '0'
+                                       ELSE
+                                           CAST(ROUND(
+                                                   (CAST((SELECT COUNT(*) FROM dsd) AS REAL) * 100.0) /
+                                                   (SELECT COUNT(*) FROM tx_curr)
+                                               , 2) AS CHAR)
+                                       END                                                                        AS Value
+                            FROM (SELECT 1) AS dummy -- Added a dummy table to ensure the CTE returns at least one row
+         )
     SELECT S_NO,
            Activity,
            Value

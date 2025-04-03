@@ -52,15 +52,21 @@ BEGIN
                          where row_num = 1
                            AND art_start_date >= DATE_ADD(REPORT_START_DATE, INTERVAL -1 YEAR)
                            AND art_start_date <= DATE_ADD(REPORT_END_DATE, INTERVAL -1 YEAR)),
-         ret_percentage as (SELECT 'HIV_ART_RET'                                                                                                        AS S_NO,
-                                   'ART retention rate (Percentage of adult and children on ART treatment after 12 month of initation of ARV therapy )' AS Activity,
-                                   CAST(ROUND((SELECT COUNT(*)
-                                               FROM tx_curr_ret) *
-                                              100.0 /
-                                              (SELECT COUNT(*) FROM started_art_12m), 2) AS CHAR)
-                                                                                                                                                        AS Value
-                            FROM tx_curr_ret
-                            LIMIT 1)
+         ret_percentage AS (
+             SELECT
+                 'HIV_ART_RET' AS S_NO,
+                 'ART retention rate (Percentage of adult and children on ART treatment after 12 month of initation of ARV therapy )' AS Activity,
+                 CASE
+                     WHEN (SELECT COUNT(*) FROM started_art_12m) = 0 THEN
+                         '0'
+                     ELSE
+                         CAST(ROUND(
+                                 (CAST((SELECT COUNT(*) FROM tx_curr_ret) AS REAL) * 100.0) /
+                                 (SELECT COUNT(*) FROM started_art_12m)
+                             , 2) AS CHAR)
+                     END AS Value
+             FROM (SELECT 1) AS dummy -- Added a dummy table to ensure the CTE returns at least one row
+         )
 
     SELECT S_NO,
            Activity,
