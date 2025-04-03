@@ -70,20 +70,23 @@ WITH FollowUp AS (select follow_up.encounter_id,
                        inner join mamba_dim_client client on tmp_pvls_2.client_id = client.client_id
                        inner join latest_follow_up on tmp_pvls_2.client_id = latest_follow_up.client_id)
         ,
-     pvls_percentage as (SELECT 'HIV_TX_PVLS'                                                                                                                                            AS S_NO,
+     pvls_percentage AS (SELECT 'HIV_TX_PVLS'                                                                                                                                            AS S_NO,
                                 'Viral load Suppression (Percentage of ART clients with a suppressed viral load among those with a viral load test at 12 month in the reporting period)' AS Activity,
-                                CAST(ROUND((SELECT COUNT(*)
-                                            FROM pvls
-                                            WHERE ((viral_load_count < 50 or viral_load_count is null) and
-                                                   viral_load_test_status = 'Suppressed')
-                                               or (viral_load_count BETWEEN 50 AND 1000)) *
-                                           100.0 /
-                                           (SELECT COUNT(*) FROM pvls),
-                                           2) AS CHAR)                                                                                                                                   AS Value
-FROM pvls
-    LIMIT 1)
-
-
+                                CASE
+                                    WHEN (SELECT COUNT(*) FROM pvls) = 0 THEN
+                                        '0'
+                                    ELSE
+                                        CAST(ROUND(
+                                                (CAST((SELECT COUNT(*)
+                                                       FROM pvls
+                                                       WHERE ((viral_load_count < 50 OR viral_load_count IS NULL) AND
+                                                              viral_load_test_status = 'Suppressed')
+                                                          OR (viral_load_count BETWEEN 50 AND 1000)) AS REAL) * 100.0) /
+                                                (SELECT COUNT(*) FROM pvls)
+                                            , 2) AS CHAR)
+                                    END                                                                                                                                                  AS Value
+FROM (SELECT 1) AS dummy -- Added a dummy table to ensure the CTE returns at least one row
+    )
 
 SELECT S_NO,
        Activity,
