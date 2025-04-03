@@ -43,7 +43,7 @@ WITH FollowUp as (select follow_up.encounter_id,
                  from tx_curr_all
                  where row_num = 1
                    AND follow_up_status in ('Alive', 'Restart medication')
-                   AND treatment_end_date > REPORT_END_DATE),
+                   AND treatment_end_date >= REPORT_END_DATE),
      tmp_fp as (select encounter_id,
                        client_id,
                        method_of_family_planning,
