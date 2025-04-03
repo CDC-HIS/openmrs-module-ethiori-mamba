@@ -54,7 +54,7 @@ BEGIN
 -- Does health facility provide Monthly PMTCT / ART Treatment Service?
     SELECT 'HIV_HIV_Treatement.'                                                                         AS S_NO,
            'Does health facility provide Monthly PMTCT / ART Treatment Service?' as Activity,
-           ''
+           '' as Value
 -- Number of adults and children who are currently on ART by age, sex and regimen category
     UNION ALL
     SELECT 'HIV_TX_CURR_ALL'                                                                         AS S_NO,
