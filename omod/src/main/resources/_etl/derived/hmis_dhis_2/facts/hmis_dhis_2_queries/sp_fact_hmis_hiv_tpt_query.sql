@@ -45,7 +45,7 @@ WITH FollowUp AS (select follow_up.encounter_id,
                  from tx_curr_all
                  where row_num = 1
                    AND follow_up_status in ('Alive', 'Restart medication')
-                   AND treatment_end_date > REPORT_END_DATE),
+                   AND treatment_end_date >= REPORT_END_DATE),
      art_tpt as (select tx_curr.encounter_id,
                         tx_curr.client_id,
                         tx_curr.FollowupDate,

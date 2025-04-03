@@ -39,7 +39,7 @@ BEGIN
                            from tmp_latest_follow_up_start
                            where row_num = 1
                              AND follow_up_status in ('Alive', 'Restart medication','Transferred out')
-                             AND treatment_end_date > REPORT_START_DATE),
+                             AND treatment_end_date >= REPORT_START_DATE),
          -- TX curr
          tmp_latest_follow_up_end AS (SELECT client_id,
                                              follow_up_date,
@@ -57,7 +57,7 @@ BEGIN
                          from tmp_latest_follow_up_end
                          where row_num = 1
                            AND follow_up_status in ('Alive', 'Restart medication')
-                           AND treatment_end_date > REPORT_END_DATE),
+                           AND treatment_end_date >= REPORT_END_DATE),
 
          tmp_first_follow_up as (SELECT client_id,
                                         follow_up_date,

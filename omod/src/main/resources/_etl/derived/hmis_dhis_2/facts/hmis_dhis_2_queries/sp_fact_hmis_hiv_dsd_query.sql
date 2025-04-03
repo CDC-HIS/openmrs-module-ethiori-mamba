@@ -41,7 +41,7 @@ BEGIN
                      from tx_curr_all
                      where row_num = 1
                        AND follow_up_status in ('Alive', 'Restart medication')
-                       AND treatment_end_date > REPORT_END_DATE),
+                       AND treatment_end_date >= REPORT_END_DATE),
          dsd as (select tx_curr.*,
                         client.sex,
                         client.date_of_birth,
