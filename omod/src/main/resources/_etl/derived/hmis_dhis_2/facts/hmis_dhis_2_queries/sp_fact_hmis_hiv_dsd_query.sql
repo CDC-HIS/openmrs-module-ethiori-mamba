@@ -53,6 +53,31 @@ BEGIN
                           left join mamba_dim_client client on tx_curr.PatientId = client.client_id
                  where dsd_category is not null
                    and assessment_date <= REPORT_END_DATE
+                 and (
+                     dsd_category = '3MMD'
+                         or
+                     (dsd_category = 'Appointment spacing model / 6MMD'
+                     AND TIMESTAMPDIFF(YEAR, client.date_of_birth, REPORT_END_DATE) >= 15)
+                     or
+                     (dsd_category = 'Fast track antiretroviral refill'
+                         AND TIMESTAMPDIFF(YEAR, client.date_of_birth, REPORT_END_DATE) >= 15)
+                     or
+                     (dsd_category = 'Health extension professional led community'
+                         AND TIMESTAMPDIFF(YEAR, client.date_of_birth, REPORT_END_DATE) >= 15)
+                     or
+                     (dsd_category = 'Community based group model by peer'
+                         AND TIMESTAMPDIFF(YEAR, client.date_of_birth, REPORT_END_DATE) >= 15)
+                     or
+                     (dsd_category = 'DSD for adolescent')
+                    or
+                     (dsd_category = 'DSD for key populations')
+                         or
+                    (dsd_category = 'DSD for maternal child health')
+                    or
+                     (dsd_category = 'Other')
+                    or
+                     (dsd_category = 'Advanced HIV disease model')
+                     )
          ),
          dsd_percentage as (SELECT 'HIV_TX_DSD'                                                                   AS S_NO,
                                    'Proportion of PLHIV currently on differentiated service Delivery model (DSD)' AS Activity,
@@ -568,7 +593,7 @@ BEGIN
     where dsd_category = 'Other'
 
 
--- Total number of clients on 3MMD
+-- Total number of clients on "Advanced HIV Disease Care Model"
     UNION ALl
     SELECT 'HIV_TX_AHDCM'                                                 AS S_NO,
            'Total number of clients on "Advanced HIV Disease Care Model"' as Activity,

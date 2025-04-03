@@ -73,7 +73,8 @@ WITH FollowUp AS (select follow_up.encounter_id,
                              left join mamba_dim_client client on tx_curr.client_id = client.client_id
                     where row_num = 1
                       and art_start_date is not null
-                      and  TIMESTAMPDIFF(MONTH ,tpt_start_date,REPORT_START_DATE) = 12)
+                      and  tpt_start_date BETWEEN DATE_ADD(REPORT_START_DATE, INTERVAL -12 MONTH ) AND DATE_ADD(REPORT_END_DATE, INTERVAL -12 MONTH )
+     )
 
 -- Number of ART patients who started on a standard course of TB Preventive Treatment (TPT) in the reporting period
 SELECT 'HIV_ART_TPT.1'                                                                                                    AS S_NO,
