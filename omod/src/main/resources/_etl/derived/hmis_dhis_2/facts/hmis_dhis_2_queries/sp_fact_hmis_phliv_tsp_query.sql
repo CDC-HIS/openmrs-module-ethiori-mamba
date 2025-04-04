@@ -64,25 +64,27 @@ WITH FollowUp as (select follow_up.encounter_id,
                                          join mamba_dim_client client
                                               on tmp_screened_for_nutrition.client_id = client.client_id
                                 where tmp_screened_for_nutrition.row_num = 1),
-     percentage_calc AS (
-         SELECT
-             'HIV_PLHIV_TSP' AS S_NO,
-             'Proportion of clinically undernourished People Living with HIV (PLHIV) who received therapeutic or supplementary food' AS Activity,
-             CASE
-                 WHEN (SELECT COUNT(*) FROM screened_for_nutrition WHERE nutritional_screening_result = 'Undernourished') = 0 THEN
-                     '0'
-                 ELSE
-                     CAST(ROUND(
-                             (CAST((SELECT COUNT(*)
-                                    FROM screened_for_nutrition
-                                    WHERE nutritional_screening_result = 'Undernourished'
-                                      AND (eats_nutritious_foods = 'Yes' OR nutritional_supplements_provided IS NOT NULL)) AS REAL) * 100.0) /
-                             (SELECT COUNT(*)
-                              FROM screened_for_nutrition
-                              WHERE nutritional_screening_result = 'Undernourished')
-                         , 2) AS CHAR)
-                 END AS Value
-            FROM (SELECT 1) AS dummy -- Added a dummy table to ensure the CTE returns at least one row
+     percentage_calc AS (SELECT 'HIV_PLHIV_TSP'                                                                                                         AS S_NO,
+                                'Proportion of clinically undernourished People Living with HIV (PLHIV) who received therapeutic or supplementary food' AS Activity,
+                                CASE
+                                    WHEN (SELECT COUNT(*)
+                                          FROM screened_for_nutrition
+                                          WHERE nutritional_screening_result = 'Undernourished') = 0 THEN
+                                        '0%'
+                                    ELSE
+                                        CONCAT(CAST(ROUND(
+                                                (CAST((SELECT COUNT(*)
+                                                       FROM screened_for_nutrition
+                                                       WHERE nutritional_screening_result = 'Undernourished'
+                                                         AND (eats_nutritious_foods = 'Yes' OR
+                                                              nutritional_supplements_provided IS NOT NULL)) AS REAL) *
+                                                 100.0) /
+                                                (SELECT COUNT(*)
+                                                 FROM screened_for_nutrition
+                                                 WHERE nutritional_screening_result = 'Undernourished')
+                                            , 2) AS CHAR), '%')
+                                    END                                                                                                                 AS Value
+FROM (SELECT 1) AS dummy -- Added a dummy table to ensure the CTE returns at least one row
     )
 -- Number of individuals receiving Pre-Exposure Prophylaxis
 SELECT S_NO,

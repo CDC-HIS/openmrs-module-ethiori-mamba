@@ -24,48 +24,68 @@ BEGIN
                                LEFT JOIN mamba_flat_encounter_follow_up_3 follow_up_3
                                          ON follow_up.encounter_id = follow_up_3.encounter_id),
 
-         tx_curr_all AS (SELECT client_id,
-                                follow_up_date                                                                             AS FollowupDate,
-                                encounter_id,
-                                follow_up_status,
-                                treatment_end_date,
-                                art_start_date,
-                                pregnancy_status,
-                                ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
-                         FROM FollowUp
-                         WHERE follow_up_status IS NOT NULL
-                           AND art_start_date IS NOT NULL
-                           AND follow_up_date <= REPORT_END_DATE
-                           AND follow_up_status in ('Alive', 'Restart medication')
-                           AND treatment_end_date >= REPORT_END_DATE),
-         started_art_12m AS (select *,
-                                    ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date , encounter_id ) AS row_num
-                             from FollowUp
-                             where art_start_date >= DATE_ADD(REPORT_START_DATE, INTERVAL -1 YEAR)
-                               AND art_start_date <= DATE_ADD(REPORT_END_DATE, INTERVAL -1 YEAR)),
-         tx_curr_ret AS (select tx_curr_all.*,
+         tmp_latest_follow_up AS (SELECT client_id,
+                                         follow_up_date                                                                             AS FollowupDate,
+                                         encounter_id,
+                                         follow_up_status,
+                                         treatment_end_date,
+                                         art_start_date,
+                                         pregnancy_status,
+                                         ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
+                                  FROM FollowUp
+                                  WHERE follow_up_status IS NOT NULL
+                                    AND art_start_date IS NOT NULL
+                                    AND follow_up_date <= '2022-12-29'),
+         latest_follow_up as (select * from tmp_latest_follow_up where row_num = 1),
+         tmp_art_start_date_before_12_months as (SELECT encounter_id,
+                                                        client_id,
+                                                        follow_up_date                                                                             AS FollowupDate,
+                                                        follow_up_status,
+                                                        art_start_date,
+                                                        treatment_end_date,
+                                                        TIMESTAMPDIFF(MONTH, art_start_date, follow_up_date)                                       as months_on_art,
+                                                        pregnancy_status,
+                                                        ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
+                                                 FROM FollowUp
+                                                 WHERE follow_up_status IS NOT NULL
+                                                   AND art_start_date IS NOT NULL
+                                                   AND art_start_date >= DATE_ADD('2022-11-30', INTERVAL -1 YEAR)
+                                                   AND art_start_date <= DATE_ADD('2022-12-29', INTERVAL -1 YEAR)
+                                                   AND follow_up_date <= '2022-12-29'),
+         art_start_date_before_12_months as (select curr.client_id,
+                                                    curr.FollowupDate,
+                                                    curr.follow_up_status,
+                                                    curr.pregnancy_status,
+                                                    client.date_of_birth,
+                                                    client.sex
+                                             from tmp_art_start_date_before_12_months as curr
+                                                      join mamba_dim_client client on curr.client_id = client.client_id
+                                                      join latest_follow_up latest_follow_up
+                                                           on curr.client_id = latest_follow_up.client_id
+                                             where curr.row_num = 1
+                                               and latest_follow_up.follow_up_status != 'Transferred out'),
+         tx_curr_ret AS (select latest_follow_up.*,
                                 client.sex,
                                 client.date_of_birth,
                                 DATE_ADD(art_start_date, INTERVAL -1 YEAR)
-                         from tx_curr_all
-                                  join mamba_dim_client client on tx_curr_all.client_id = client.client_id
-                         where row_num = 1
-                           AND art_start_date >= DATE_ADD(REPORT_START_DATE, INTERVAL -1 YEAR)
-                           AND art_start_date <= DATE_ADD(REPORT_END_DATE, INTERVAL -1 YEAR)),
-         ret_percentage AS (
-             SELECT
-                 'HIV_ART_RET' AS S_NO,
-                 'ART retention rate (Percentage of adult and children on ART treatment after 12 month of initation of ARV therapy )' AS Activity,
-                 CASE
-                     WHEN (SELECT COUNT(*) FROM started_art_12m) = 0 THEN
-                         '0'
-                     ELSE
-                         CAST(ROUND(
-                                 (CAST((SELECT COUNT(*) FROM tx_curr_ret) AS REAL) * 100.0) /
-                                 (SELECT COUNT(*) FROM started_art_12m)
-                             , 2) AS CHAR)
-                     END AS Value
-             FROM (SELECT 1) AS dummy -- Added a dummy table to ensure the CTE returns at least one row
+                         from latest_follow_up
+                                  join mamba_dim_client client on latest_follow_up.client_id = client.client_id
+                         where follow_up_status in ('Alive', 'Restart medication')
+                           AND treatment_end_date >= '2022-12-29'
+                           AND art_start_date >= DATE_ADD('2022-11-30', INTERVAL -1 YEAR)
+                           AND art_start_date <= DATE_ADD('2022-12-29', INTERVAL -1 YEAR)),
+         ret_percentage AS (SELECT 'HIV_ART_RET'                                                                                                        AS S_NO,
+                                   'ART retention rate (Percentage of adult and children on ART treatment after 12 month of initation of ARV therapy )' AS Activity,
+                                   CASE
+                                       WHEN (SELECT COUNT(*) FROM art_start_date_before_12_months) = 0 THEN
+                                           '0%'
+                                       ELSE
+                                           CONCAT(CAST(ROUND(
+                                                   (CAST((SELECT COUNT(*) FROM tx_curr_ret) AS REAL) * 100.0) /
+                                                   (SELECT COUNT(*) FROM art_start_date_before_12_months)
+                                               , 2) AS CHAR), '%')
+                                       END                                                                                                              AS Value
+                            FROM (SELECT 1) AS dummy -- Added a dummy table to ensure the CTE returns at least one row
          )
 
     SELECT S_NO,
