@@ -83,12 +83,12 @@ BEGIN
                                    'Proportion of PLHIV currently on differentiated service Delivery model (DSD)' AS Activity,
                                    CASE
                                        WHEN (SELECT COUNT(*) FROM tx_curr) = 0 THEN
-                                           '0'
+                                           '0%'
                                        ELSE
-                                           CAST(ROUND(
+                                           CONCAT(CAST(ROUND(
                                                    (CAST((SELECT COUNT(*) FROM dsd) AS REAL) * 100.0) /
                                                    (SELECT COUNT(*) FROM tx_curr)
-                                               , 2) AS CHAR)
+                                               , 2) AS CHAR), '%')
                                        END                                                                        AS Value
                             FROM (SELECT 1) AS dummy -- Added a dummy table to ensure the CTE returns at least one row
          )

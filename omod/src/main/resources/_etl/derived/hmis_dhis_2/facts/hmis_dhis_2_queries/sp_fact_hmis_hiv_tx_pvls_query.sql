@@ -74,16 +74,16 @@ WITH FollowUp AS (select follow_up.encounter_id,
                                 'Viral load Suppression (Percentage of ART clients with a suppressed viral load among those with a viral load test at 12 month in the reporting period)' AS Activity,
                                 CASE
                                     WHEN (SELECT COUNT(*) FROM pvls) = 0 THEN
-                                        '0'
+                                        '0%'
                                     ELSE
-                                        CAST(ROUND(
+                                        CONCAT(CAST(ROUND(
                                                 (CAST((SELECT COUNT(*)
                                                        FROM pvls
                                                        WHERE ((viral_load_count < 50 OR viral_load_count IS NULL) AND
                                                               viral_load_test_status = 'Suppressed')
                                                           OR (viral_load_count BETWEEN 50 AND 1000)) AS REAL) * 100.0) /
                                                 (SELECT COUNT(*) FROM pvls)
-                                            , 2) AS CHAR)
+                                            , 2) AS CHAR), '%')
                                     END                                                                                                                                                  AS Value
 FROM (SELECT 1) AS dummy -- Added a dummy table to ensure the CTE returns at least one row
     )
