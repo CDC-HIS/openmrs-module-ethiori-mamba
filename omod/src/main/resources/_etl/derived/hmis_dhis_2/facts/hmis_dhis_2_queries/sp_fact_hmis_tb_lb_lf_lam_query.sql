@@ -56,35 +56,32 @@ WITH FollowUp AS (select follow_up.encounter_id,
                                       from tmp_latest_follow_up follow_up
                                                inner join mamba_dim_client client on follow_up.client_id = client.client_id
                                       where row_num = 1),
-     tx_new_tb_screened as (select *
-                            from latest_tb_screened_follow_up
-                            where art_start_date between REPORT_START_DATE AND REPORT_END_DATE
-                              and tb_screening_date between REPORT_START_DATE AND REPORT_END_DATE),
-     prev_art_new_tb_screened as (select *
-                                  from latest_tb_screened_follow_up
-                                  where art_start_date < REPORT_START_DATE
-                                    and tb_screening_date between REPORT_START_DATE AND REPORT_END_DATE
-                                    and follow_up_status in ('Alive', 'Restart medication'))
--- Total Number of tests performed using Lateral Flow Urine Lipoarabinomannan (LF-LAM) assay
+     lf_lam as (select *
+                from latest_tb_screened_follow_up
+                where tb_screening_date between REPORT_START_DATE AND REPORT_END_DATE
+                  and follow_up_status in ('Alive', 'Restart medication') and art_start_date is not null
+                  and lf_lam_result is not null
+     )
+
 
 SELECT 'TB_LB_LF-LAM'                                                                              AS S_NO,
        'Total Number of tests performed using Lateral Flow Urine Lipoarabinomannan (LF-LAM) assay' as Activity,
        COUNT(*)                                                                                    as Value
-FROM prev_art_new_tb_screened
+FROM lf_lam
 WHERE lf_lam_result is not null
--- Positive
+
 UNION ALL
 SELECT 'TB_LB_LF-LAM. 1' AS S_NO,
        'Positive'        as Activity,
        COUNT(*)          as Value
-FROM prev_art_new_tb_screened
+FROM lf_lam
 WHERE lf_lam_result = 'Positive'
--- Negative
+
 UNION ALL
 SELECT 'TB_LB_LF-LAM. 2' AS S_NO,
        'Negative'        as Activity,
        COUNT(*)          as Value
-FROM prev_art_new_tb_screened
+FROM lf_lam
 WHERE lf_lam_result = 'Negative result';
 END //
 
