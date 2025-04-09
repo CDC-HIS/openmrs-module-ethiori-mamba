@@ -28,12 +28,11 @@ public class BreastFeedingStatusEvaluatorMamba implements DataSetEvaluator {
         ResultSetMapper resultSetMapper = new ResultSetMapper();
         // Get ResultSet from the database
         try (Connection connection = getDataSource().getConnection();
-             CallableStatement statement = connection.prepareCall("{call sp_dim_tx_new_datim_query(?,?,?,?)}")) {
+             CallableStatement statement = connection.prepareCall("{call sp_dim_tx_new_datim_breast_feeding_status_query(?,?)}")) {
 
             statement.setDate(1, new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime()));
             statement.setDate(2, new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime()));
-            statement.setInt(3, 1);
-            statement.setString(4, "All");
+
 
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet != null) {
