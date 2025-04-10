@@ -26,12 +26,12 @@ public class TxCurrDATIMReportsMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "MAMBA DATIM- TX_CURR_CD4";
+		return "MAMBA DATIM- TX_CURR";
 	}
 	
 	@Override
 	public String getDescription() {
-		return "TX curr CD4 DATIM mamba report ";
+		return "TX curr DATIM mamba report ";
 	}
 	
 	@Override
