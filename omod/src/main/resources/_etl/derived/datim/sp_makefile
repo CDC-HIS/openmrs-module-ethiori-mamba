@@ -9,6 +9,8 @@
 
 ############################ LINE LIST QUERIES #######################
 sp_dim_tx_new_datim_query.sql
+sp_dim_tx_new_datim_kp_query.sql
+sp_dim_tx_new_datim_breast_feeding_status_query.sql
 #############################################################################
 ##### A single SP that CALLs all SPs inside the derived & base folders ######
 #############################################################################
