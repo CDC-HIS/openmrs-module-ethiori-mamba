@@ -1,7 +1,6 @@
 package org.openmrs.module.mambaetl.datasetevaluator.datim.tx_new;
 
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_new.BreastFeedingStatusDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_new.KeyPopulationTypeDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.ConnectionPoolManager;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;

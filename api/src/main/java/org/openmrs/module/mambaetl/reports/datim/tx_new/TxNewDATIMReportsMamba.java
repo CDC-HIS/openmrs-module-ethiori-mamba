@@ -52,7 +52,7 @@ public class TxNewDATIMReportsMamba implements ReportManager {
 		reportDefinition.addDataSetDefinition("DSD: TX_NEW",
 		    EthiOhriUtil.map(headerDefinition, "startDate=${startDateGC},endDate=${endDateGC}"));
 		
-		NumeratorDataSetDefinitionMamba numeratorDataSetDefinition = new NumeratorDataSetDefinitionMamba();
+		FineByAgeAndSexAndCD4DataSetDefinitionMamba numeratorDataSetDefinition = new FineByAgeAndSexAndCD4DataSetDefinitionMamba();
 		numeratorDataSetDefinition.addParameters(getParameters());
 		numeratorDataSetDefinition.setCd4Status(Cd4Status.NUMERATOR);
 		numeratorDataSetDefinition
@@ -61,6 +61,12 @@ public class TxNewDATIMReportsMamba implements ReportManager {
 		        .addDataSetDefinition(
 		            "Auto-Calculate Number of adults and children newly enrolled on antiretroviral therapy (ART). Numerator will auto-calculate from Age/Sex Disaggregates.",
 		            EthiOhriUtil.map(numeratorDataSetDefinition, "startDate=${startDateGC},endDate=${endDateGC}"));
+		
+		HeaderDataSetDefinitionMamba headerDefinition2 = new HeaderDataSetDefinitionMamba();
+		headerDefinition2.setDescription("Required Disaggregated by Age/Sex And CD4");
+		headerDefinition2.setParameters(getParameters());
+		reportDefinition.addDataSetDefinition("Required Disaggregated by Age/Sex And CD4",
+		    EthiOhriUtil.map(headerDefinition2, "startDate=${startDateGC},endDate=${endDateGC}"));
 		
 		FineByAgeAndSexAndCD4DataSetDefinitionMamba lessThan200CD4DataSetDefinitionMamba = new FineByAgeAndSexAndCD4DataSetDefinitionMamba();
 		lessThan200CD4DataSetDefinitionMamba.addParameters(getParameters());
@@ -82,9 +88,9 @@ public class TxNewDATIMReportsMamba implements ReportManager {
 		reportDefinition.addDataSetDefinition("Unknown CD4",
 		    EthiOhriUtil.map(unknownCD4DataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
 		
-		BreastFeedingStatusDataSetDefinitionMamba breastFeedingStatusDataSetDefinitionMamba = new BreastFeedingStatusDataSetDefinitionMamba();
+		FineByAgeAndSexAndCD4DataSetDefinitionMamba breastFeedingStatusDataSetDefinitionMamba = new FineByAgeAndSexAndCD4DataSetDefinitionMamba();
 		breastFeedingStatusDataSetDefinitionMamba.addParameters(getParameters());
-		unknownCD4DataSetDefinitionMamba.setCd4Status(Cd4Status.BREAST_FEEDING);
+		breastFeedingStatusDataSetDefinitionMamba.setCd4Status(Cd4Status.BREAST_FEEDING);
 		reportDefinition.addDataSetDefinition("Disaggregated by Breastfeeding Status at ART Initiation",
 		    EthiOhriUtil.map(breastFeedingStatusDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
 		
