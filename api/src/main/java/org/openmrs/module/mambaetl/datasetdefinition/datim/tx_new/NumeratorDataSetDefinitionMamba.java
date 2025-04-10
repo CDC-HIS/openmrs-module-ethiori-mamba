@@ -4,9 +4,10 @@ import org.openmrs.module.mambaetl.helpers.mapper.Cd4Status;
 import org.openmrs.module.reporting.dataset.definition.BaseDataSetDefinition;
 import org.openmrs.module.reporting.definition.configuration.ConfigurationProperty;
 
+import java.util.Calendar;
 import java.util.Date;
 
-public class BreastFeedingStatusDataSetDefinitionMamba extends BaseDataSetDefinition {
+public class NumeratorDataSetDefinitionMamba extends BaseDataSetDefinition {
 	
 	@ConfigurationProperty
 	private Date startDate;
@@ -22,6 +23,7 @@ public class BreastFeedingStatusDataSetDefinitionMamba extends BaseDataSetDefini
 	private Cd4Status cd4Status = Cd4Status.UNKNOWN;
 	
 	public void setStartDate(Date startDate) {
+		
 		this.startDate = startDate;
 	}
 	

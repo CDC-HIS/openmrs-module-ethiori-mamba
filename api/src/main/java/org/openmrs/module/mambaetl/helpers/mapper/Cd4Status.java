@@ -1,7 +1,8 @@
 package org.openmrs.module.mambaetl.helpers.mapper;
 
 public enum Cd4Status {
-	HIGH(">=200"), LOW("<200"), UNKNOWN("unknown"), NOT_TESTED("not_tested");
+	HIGH(">=200"), LOW("<200"), UNKNOWN("unknown"), NOT_TESTED("not_tested"), NUMERATOR("numerator"), BREAST_FEEDING(
+	        "breast_feeding");
 	
 	private final String sqlValue;
 	

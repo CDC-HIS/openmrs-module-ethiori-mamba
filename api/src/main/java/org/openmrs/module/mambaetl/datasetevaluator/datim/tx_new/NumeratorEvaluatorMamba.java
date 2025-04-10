@@ -1,8 +1,7 @@
 package org.openmrs.module.mambaetl.datasetevaluator.datim.tx_new;
 
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_new.BreastFeedingStatusDataSetDefinitionMamba;
-import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_new.KeyPopulationTypeDataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_new.NumeratorDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.ConnectionPoolManager;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
 import org.openmrs.module.reporting.dataset.DataSet;
@@ -18,20 +17,22 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-@Handler(supports = { KeyPopulationTypeDataSetDefinitionMamba.class })
-public class KeyPopulationTypeEvaluatorMamba implements DataSetEvaluator {
+@Handler(supports = { NumeratorDataSetDefinitionMamba.class })
+public class NumeratorEvaluatorMamba implements DataSetEvaluator {
 	
 	@Override
     public DataSet evaluate(DataSetDefinition dataSetDefinition, EvaluationContext evalContext) throws EvaluationException {
-        KeyPopulationTypeDataSetDefinitionMamba dataSetDefinitionMamba =  (KeyPopulationTypeDataSetDefinitionMamba) dataSetDefinition;
+        NumeratorDataSetDefinitionMamba dataSetDefinitionMamba = (NumeratorDataSetDefinitionMamba) dataSetDefinition;
         SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
         ResultSetMapper resultSetMapper = new ResultSetMapper();
         // Get ResultSet from the database
         try (Connection connection = getDataSource().getConnection();
-             CallableStatement statement = connection.prepareCall("{call sp_dim_tx_new_datim_kp_query(?,?)}")) {
+             CallableStatement statement = connection.prepareCall("{call sp_dim_tx_new_datim_query(?,?,?,?)}")) {
 
             statement.setDate(1, new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime()));
             statement.setDate(2, new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime()));
+            statement.setInt(3, 0);
+            statement.setString(4, dataSetDefinitionMamba.getCd4Status().getSqlValue());
 
 
             try (ResultSet resultSet = statement.executeQuery()) {
