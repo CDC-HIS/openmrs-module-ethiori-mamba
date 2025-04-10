@@ -15,6 +15,8 @@ BEGIN
     DECLARE age_group_cols VARCHAR(5000);
     DECLARE art_start_date_start DATE;
     DECLARE art_start_date_end DATE;
+    DECLARE tx_new_query VARCHAR(6000);
+    DECLARE group_query VARCHAR(5000);
 
     SET art_start_date_start = REPORT_START_DATE;
     SET art_start_date_end = REPORT_END_DATE;
@@ -70,9 +72,7 @@ BEGIN
             FROM (select datim_agegroup from mamba_dim_agegroup group by datim_agegroup) as order_query;
         END IF;
     END IF;
-
-    SET @sql = CONCAT('
-                WITH FollowUp AS (select follow_up.encounter_id,
+    SET tx_new_query = 'WITH FollowUp AS (select follow_up.encounter_id,
                              follow_up.client_id,
                              follow_up_status,
                              follow_up_date_followup_            AS follow_up_date,
@@ -97,6 +97,7 @@ BEGIN
                                          follow_up_status,
                                          art_start_date,
                                          cd4_count,
+                                         breast_feeding_status,
                                          ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
                                   FROM FollowUp
                                   WHERE follow_up_status IS NOT NULL
@@ -121,7 +122,8 @@ BEGIN
                                latest_follow_up.FollowupDate,
                                transferred_in,
                                pregnancy_status,
-                               cd4_count
+                               cd4_count,
+                               breast_feeding_status
                         from latest_follow_up
                                  join first_follow_up on latest_follow_up.client_id = first_follow_up.client_id
                         where art_start_date BETWEEN ? AND ?
@@ -138,12 +140,19 @@ BEGIN
                            (SELECT normal_agegroup
                             from mamba_dim_agegroup
                             where age = TIMESTAMPDIFF(YEAR, date_of_birth, FollowupDate)) as coarse_age_group,
+                            breast_feeding_status,
                            cd4_count,
                             (SELECT datim_age_val
                             from mamba_dim_agegroup
                             where age = TIMESTAMPDIFF(YEAR, date_of_birth, FollowupDate)) as datim_age_val
                     from tx_new_tmp
-                             join mamba_dim_client client on tx_new_tmp.client_id = client.client_id)
+                             join mamba_dim_client client on tx_new_tmp.client_id = client.client_id) ';
+    IF CD4_COUNT_GROUPAGE = 'numerator' THEN
+        SET group_query = 'SELECT COUNT(*) as Numerator FROM tx_new';
+    ELSEIF CD4_COUNT_GROUPAGE = 'breast_feeding' THEN
+        SET group_query = 'SELECT COUNT(*) as Breastfeeding from tx_new where breast_feeding_status = ''Yes''';
+    ELSE
+        SET group_query = CONCAT('
         SELECT
           sex,
           SUM(CASE WHEN ', IF(IS_COURSE_AGE_GROUP, 'coarse_age_group', 'fine_age_group'), ' is null AND count is not null THEN count ELSE 0 END) AS ''Unknown Age'',
@@ -158,10 +167,12 @@ BEGIN
                 WHERE ', cd4_count_condition, '
           GROUP BY sex, ', IF(IS_COURSE_AGE_GROUP, 'coarse_age_group', 'fine_age_group'), '
         ) AS subquery
-        RIGHT JOIN (SELECT ''MALE'' AS sex UNION SELECT ''FEMALE'') AS genders
+        RIGHT JOIN (SELECT ''Female'' AS sex UNION SELECT ''Male'') AS genders
         USING (sex)
         GROUP BY sex
         ');
+    END IF;
+    SET @sql = CONCAT(tx_new_query,group_query);
     PREPARE stmt FROM @sql;
     SET @start_date = REPORT_START_DATE;
     SET @end_date = REPORT_END_DATE;

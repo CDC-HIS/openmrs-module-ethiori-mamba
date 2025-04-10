@@ -2,8 +2,8 @@ package org.openmrs.module.mambaetl.datasetevaluator.datim.tx_new;
 
 import org.openmrs.annotation.Handler;
 import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_new.BreastFeedingStatusDataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_new.FineByAgeAndSexAndCD4DataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.ConnectionPoolManager;
-import org.openmrs.module.mambaetl.helpers.ValidationHelper;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
 import org.openmrs.module.reporting.dataset.DataSet;
 import org.openmrs.module.reporting.dataset.SimpleDataSet;
@@ -23,15 +23,17 @@ public class BreastFeedingStatusEvaluatorMamba implements DataSetEvaluator {
 	
 	@Override
     public DataSet evaluate(DataSetDefinition dataSetDefinition, EvaluationContext evalContext) throws EvaluationException {
-        BreastFeedingStatusDataSetDefinitionMamba dataSetDefinitionMamba = new BreastFeedingStatusDataSetDefinitionMamba();
+        BreastFeedingStatusDataSetDefinitionMamba dataSetDefinitionMamba = (BreastFeedingStatusDataSetDefinitionMamba) dataSetDefinition;
         SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
         ResultSetMapper resultSetMapper = new ResultSetMapper();
         // Get ResultSet from the database
         try (Connection connection = getDataSource().getConnection();
-             CallableStatement statement = connection.prepareCall("{call sp_dim_tx_new_datim_breast_feeding_status_query(?,?)}")) {
+             CallableStatement statement = connection.prepareCall("{call sp_dim_tx_new_datim_query(?,?,?,?)}")) {
 
             statement.setDate(1, new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime()));
             statement.setDate(2, new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime()));
+            statement.setInt(3, 0);
+            statement.setString(4, dataSetDefinitionMamba.getCd4Status().getSqlValue());
 
 
             try (ResultSet resultSet = statement.executeQuery()) {

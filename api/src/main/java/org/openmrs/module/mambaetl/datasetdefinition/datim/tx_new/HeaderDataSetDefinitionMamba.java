@@ -6,7 +6,7 @@ import org.openmrs.module.reporting.definition.configuration.ConfigurationProper
 
 import java.util.Date;
 
-public class BreastFeedingStatusDataSetDefinitionMamba extends BaseDataSetDefinition {
+public class HeaderDataSetDefinitionMamba extends BaseDataSetDefinition {
 	
 	@ConfigurationProperty
 	private Date startDate;
@@ -18,10 +18,8 @@ public class BreastFeedingStatusDataSetDefinitionMamba extends BaseDataSetDefini
 	@ConfigurationProperty
 	private Date endDate;
 	
-	@ConfigurationProperty
-	private Cd4Status cd4Status = Cd4Status.UNKNOWN;
-	
 	public void setStartDate(Date startDate) {
+		
 		this.startDate = startDate;
 	}
 	
@@ -31,13 +29,5 @@ public class BreastFeedingStatusDataSetDefinitionMamba extends BaseDataSetDefini
 	
 	public void setEndDate(Date endDate) {
 		this.endDate = endDate;
-	}
-	
-	public Cd4Status getCd4Status() {
-		return cd4Status;
-	}
-	
-	public void setCd4Status(Cd4Status cd4Status) {
-		this.cd4Status = cd4Status;
 	}
 }
