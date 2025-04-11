@@ -5,7 +5,7 @@ import org.openmrs.module.reporting.definition.configuration.ConfigurationProper
 
 import java.util.Date;
 
-public class KeyPopulationTypeDataSetDefinitionMamba extends BaseDataSetDefinition {
+public class TxNewKeyPopulationTypeDataSetDefinitionMamba extends BaseDataSetDefinition {
 	
 	@ConfigurationProperty
 	private Date startDate;
