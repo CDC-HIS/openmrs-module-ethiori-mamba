@@ -1,12 +1,12 @@
 package org.openmrs.module.mambaetl.reports.datim.tx_curr;
 
-import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_curr.CurrCoarseByAgeAndSexAndCD4DataSetDefinitionMamba;
-import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_curr.CurrFineByAgeAndSexAndCD4DataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_curr.TxCurrAgeSexDataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_new.HeaderDataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_new.KeyPopulationTypeDataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_new.TxNewAgeSexCd4DataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.mambaetl.helpers.mapper.Cd4Status;
-import org.openmrs.module.reporting.evaluation.parameter.Mapped;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
-import org.openmrs.module.reporting.evaluation.parameter.Parameterizable;
-import org.openmrs.module.reporting.evaluation.parameter.ParameterizableUtil;
 import org.openmrs.module.reporting.report.ReportDesign;
 import org.openmrs.module.reporting.report.ReportRequest;
 import org.openmrs.module.reporting.report.definition.ReportDefinition;
@@ -51,56 +51,25 @@ public class TxCurrDATIMReportsMamba implements ReportManager {
 		reportDefinition.setUuid(getUuid());
 		reportDefinition.setName(getName());
 		reportDefinition.setDescription(getDescription());
-		
 		reportDefinition.setParameters(getParameters());
 		
-		CurrFineByAgeAndSexAndCD4DataSetDefinitionMamba lessThan200CD4DataSetDefinitionMambaCoarse = new CurrFineByAgeAndSexAndCD4DataSetDefinitionMamba();
-		lessThan200CD4DataSetDefinitionMambaCoarse.addParameters(getParameters());
-		lessThan200CD4DataSetDefinitionMambaCoarse.setCd4Status(Cd4Status.LOW);
-		reportDefinition.addDataSetDefinition("List of Patients Currently on ART < 200 CD4",
-		    map(lessThan200CD4DataSetDefinitionMambaCoarse, "endDate=${endDateGC}"));
+		HeaderDataSetDefinitionMamba headerDefinition = new HeaderDataSetDefinitionMamba();
+		headerDefinition.setDescription("DSD: TX_CURR");
+		headerDefinition.setParameters(getParameters());
+		reportDefinition.addDataSetDefinition("DSD: TX_CURR", EthiOhriUtil.map(headerDefinition, "endDate=${endDateGC}"));
 		
-		CurrFineByAgeAndSexAndCD4DataSetDefinitionMamba greaterThan200CD4DataSetDefinitionMambaCoarse = new CurrFineByAgeAndSexAndCD4DataSetDefinitionMamba();
-		greaterThan200CD4DataSetDefinitionMambaCoarse.addParameters(getParameters());
-		greaterThan200CD4DataSetDefinitionMambaCoarse.setCd4Status(Cd4Status.HIGH);
-		reportDefinition.addDataSetDefinition("List of Patients Currently on ART > 200 CD4",
-		    map(greaterThan200CD4DataSetDefinitionMambaCoarse, "endDate=${endDateGC}"));
-		
-		CurrFineByAgeAndSexAndCD4DataSetDefinitionMamba unknownCD4DataSetDefinitionMambaCoarse = new CurrFineByAgeAndSexAndCD4DataSetDefinitionMamba();
-		unknownCD4DataSetDefinitionMambaCoarse.addParameters(getParameters());
-		unknownCD4DataSetDefinitionMambaCoarse.setCd4Status(Cd4Status.UNKNOWN);
-		reportDefinition.addDataSetDefinition("List of Patients Currently on ART Unknown CD4",
-		    map(unknownCD4DataSetDefinitionMambaCoarse, "endDate=${endDateGC}"));
-		
-		CurrCoarseByAgeAndSexAndCD4DataSetDefinitionMamba lessThan200CD4DataSetDefinitionMambafine = new CurrCoarseByAgeAndSexAndCD4DataSetDefinitionMamba();
-		lessThan200CD4DataSetDefinitionMambafine.addParameters(getParameters());
-		lessThan200CD4DataSetDefinitionMambafine.setCd4Status(Cd4Status.LOW);
-		reportDefinition.addDataSetDefinition("Fine List of Patients Currently on ART < 200 CD4",
-		    map(lessThan200CD4DataSetDefinitionMambafine, "endDate=${endDateGC}"));
-		
-		CurrCoarseByAgeAndSexAndCD4DataSetDefinitionMamba greaterThan200CD4DataSetDefinitionMambafine = new CurrCoarseByAgeAndSexAndCD4DataSetDefinitionMamba();
-		greaterThan200CD4DataSetDefinitionMambafine.addParameters(getParameters());
-		greaterThan200CD4DataSetDefinitionMambafine.setCd4Status(Cd4Status.HIGH);
-		reportDefinition.addDataSetDefinition("Fine List of Patients Currently on ART > 200 CD4",
-		    map(greaterThan200CD4DataSetDefinitionMambafine, "endDate=${endDateGC}"));
-		
-		CurrCoarseByAgeAndSexAndCD4DataSetDefinitionMamba unknown200CD4DataSetDefinitionMambafine = new CurrCoarseByAgeAndSexAndCD4DataSetDefinitionMamba();
-		unknown200CD4DataSetDefinitionMambafine.addParameters(getParameters());
-		unknown200CD4DataSetDefinitionMambafine.setCd4Status(Cd4Status.UNKNOWN);
-		reportDefinition.addDataSetDefinition("Fine List of Patients Currently on ART Unknown CD4",
-		    map(unknown200CD4DataSetDefinitionMambafine, "endDate=${endDateGC}"));
+		TxCurrAgeSexDataSetDefinitionMamba txCurrAgeSexDataSetDefinitionMamba = new TxCurrAgeSexDataSetDefinitionMamba();
+		txCurrAgeSexDataSetDefinitionMamba.addParameters(getParameters());
+		txCurrAgeSexDataSetDefinitionMamba.setDescription("Disaggregated by Age / Sex (Fine Disaggregate)");
+		reportDefinition.addDataSetDefinition("Disaggregated by Age / Sex (Fine Disaggregate)",
+		    EthiOhriUtil.map(txCurrAgeSexDataSetDefinitionMamba, "endDate=${endDateGC}"));
+
+		KeyPopulationTypeDataSetDefinitionMamba keyPopulationTypeDataSetDefinitionMamba = new KeyPopulationTypeDataSetDefinitionMamba();
+		keyPopulationTypeDataSetDefinitionMamba.addParameters(getParameters());
+		reportDefinition.addDataSetDefinition("Disaggregated by key population type",
+				EthiOhriUtil.map(keyPopulationTypeDataSetDefinitionMamba, "endDate=${endDateGC}"));
 		
 		return reportDefinition;
-	}
-	
-	public static <T extends Parameterizable> Mapped<T> map(T parameterizable, String mappings) {
-		if (parameterizable == null) {
-			throw new IllegalArgumentException("Parameterizable cannot be null");
-		}
-		if (mappings == null) {
-			mappings = ""; // probably not necessary, just to be safe
-		}
-		return new Mapped<>(parameterizable, ParameterizableUtil.createParameterMappings(mappings));
 	}
 	
 	@Override

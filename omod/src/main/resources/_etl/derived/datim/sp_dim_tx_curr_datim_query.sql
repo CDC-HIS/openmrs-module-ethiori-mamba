@@ -4,7 +4,8 @@ DROP PROCEDURE IF EXISTS sp_dim_tx_curr_datim_query;
 
 CREATE PROCEDURE sp_dim_tx_curr_datim_query(
     IN REPORT_END_DATE DATE,
-    IN IS_COURSE_AGE_GROUP BOOLEAN
+    IN IS_COURSE_AGE_GROUP BOOLEAN,
+    IN ARV_GROUP INT
 )
 BEGIN
 
@@ -12,7 +13,19 @@ BEGIN
     DECLARE age_group_cols VARCHAR(5000);
     DECLARE tx_curr_query VARCHAR(6000);
     DECLARE group_query VARCHAR(5000);
+    DECLARE arv_group_condition VARCHAR(100);
     SET session group_concat_max_len = 20000;
+
+
+    IF ARV_GROUP = 0 THEN
+        SET arv_group_condition = 'dose_days < 90 ';
+    ELSEIF ARV_GROUP = 1 THEN
+        SET arv_group_condition = 'dose_days BETWEEN 90 AND 150 ';
+    ELSEIF ARV_GROUP = 2 THEN
+        SET arv_group_condition = 'dose_days >= 180';
+    ELSE
+        SET arv_group_condition = '1=1';
+    END IF;
 
 
 
@@ -42,7 +55,8 @@ BEGIN
                              next_visit_date,
                              regimen,
                              currently_breastfeeding_child   AS breast_feeding_status,
-                             pregnancy_status
+                             pregnancy_status,
+                             antiretroviral_art_dispensed_dose_i AS dose_days
                       FROM mamba_flat_encounter_follow_up follow_up
                                JOIN mamba_flat_encounter_follow_up_1 follow_up_1
                                     ON follow_up.encounter_id = follow_up_1.encounter_id
@@ -56,6 +70,7 @@ BEGIN
                                 encounter_id,
                                 follow_up_status,
                                 treatment_end_date,
+                                dose_days,
                                 ROW_NUMBER() OVER (PARTITION BY PatientId ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
                          FROM FollowUp
                          WHERE follow_up_status IS NOT NULL
@@ -97,7 +112,7 @@ BEGIN
             sex,
             ', IF(IS_COURSE_AGE_GROUP, 'coarse_age_group', 'fine_age_group'), ',
             COUNT(*) AS count
-          FROM tx_curr_with_client
+          FROM tx_curr_with_client WHERE ',arv_group_condition, '
           GROUP BY sex, ', IF(IS_COURSE_AGE_GROUP, 'coarse_age_group', 'fine_age_group'), '
         ) AS subquery
         RIGHT JOIN (SELECT ''Female'' AS sex UNION SELECT ''Male'') AS genders

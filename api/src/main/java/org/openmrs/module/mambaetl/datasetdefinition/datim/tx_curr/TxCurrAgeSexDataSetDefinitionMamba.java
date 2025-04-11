@@ -11,7 +11,6 @@ public class TxCurrAgeSexDataSetDefinitionMamba extends BaseDataSetDefinition {
 	
 	@ConfigurationProperty
 	private Date endDate;
-
 	
 	public Date getEndDate() {
 		return endDate;
@@ -20,5 +19,5 @@ public class TxCurrAgeSexDataSetDefinitionMamba extends BaseDataSetDefinition {
 	public void setEndDate(Date endDate) {
 		this.endDate = endDate;
 	}
-
+	
 }
