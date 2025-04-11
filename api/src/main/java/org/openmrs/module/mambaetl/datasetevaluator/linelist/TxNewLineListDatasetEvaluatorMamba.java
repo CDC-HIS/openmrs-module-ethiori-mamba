@@ -13,7 +13,6 @@ import org.openmrs.module.reporting.dataset.definition.evaluator.DataSetEvaluato
 import org.openmrs.module.reporting.evaluation.EvaluationContext;
 import org.openmrs.module.reporting.evaluation.EvaluationException;
 
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -26,13 +25,14 @@ import static org.openmrs.module.mambaetl.helpers.ValidationHelper.ValidateDates
 
 @Handler(supports = { TXNewLineListDataSetDefinitionMamba.class })
 public class TxNewLineListDatasetEvaluatorMamba implements DataSetEvaluator {
-    private static final Log log = LogFactory.getLog(TxNewLineListDatasetEvaluatorMamba.class);
-
-    private static final String ERROR_PROCESSING_RESULT_SET = "Error processing ResultSet: ";
-
-    private static final String DATABASE_CONNECTION_ERROR = "Database connection error: ";
-
-    @Override
+	
+	private static final Log log = LogFactory.getLog(TxNewLineListDatasetEvaluatorMamba.class);
+	
+	private static final String ERROR_PROCESSING_RESULT_SET = "Error processing ResultSet: ";
+	
+	private static final String DATABASE_CONNECTION_ERROR = "Database connection error: ";
+	
+	@Override
     public DataSet evaluate(DataSetDefinition dataSetDefinition, EvaluationContext evalContext)
             throws EvaluationException {
 
@@ -67,8 +67,8 @@ public class TxNewLineListDatasetEvaluatorMamba implements DataSetEvaluator {
         }
         return null;
     }
-
-    private List<ProcedureCall> createProcedureCalls(TXNewLineListDataSetDefinitionMamba dataSetDefinitionMamba) {
+	
+	private List<ProcedureCall> createProcedureCalls(TXNewLineListDataSetDefinitionMamba dataSetDefinitionMamba) {
         java.sql.Date startDate = new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime());
         java.sql.Date endDate = new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime());
 

@@ -16,6 +16,7 @@ import org.openmrs.module.reporting.evaluation.EvaluationException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -24,13 +25,13 @@ import static org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper.rollbac
 
 @Handler(supports = { TxCurrAgeSexDataSetDefinitionMamba.class })
 public class TxCurrAgeSexEvaluatorMamba implements DataSetEvaluator {
-
+	
 	private static final Log log = LogFactory.getLog(TxCurrAgeSexEvaluatorMamba.class);
-
+	
 	private static final String ERROR_PROCESSING_RESULT_SET = "Error processing ResultSet: ";
-
+	
 	private static final String DATABASE_CONNECTION_ERROR = "Database connection error: ";
-
+	
 	@Override
 	public DataSet evaluate(DataSetDefinition dataSetDefinition, EvaluationContext evalContext)
 			throws EvaluationException {
@@ -64,16 +65,26 @@ public class TxCurrAgeSexEvaluatorMamba implements DataSetEvaluator {
 		}
 		return null;
 	}
-
+	
 	private List<ProcedureCall> createProcedureCalls(TxCurrAgeSexDataSetDefinitionMamba dataSetDefinitionMamba) {
 		java.sql.Date endDate = new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime());
 
-		return Collections.singletonList(
-				new ProcedureCall("{call sp_dim_tx_curr_datim_query(?,?)}", statement -> {
-					statement.setDate(2, endDate);
+		return Arrays.asList(
+				new ProcedureCall("{call sp_dim_tx_curr_datim_query(?,?,?)}", statement -> {
+					statement.setDate(1, endDate);
+					statement.setInt(2, 0);
 					statement.setInt(3, 0);
+				}),
+				new ProcedureCall("{call sp_dim_tx_curr_datim_query(?,?,?)}", statement -> {
+					statement.setDate(1, endDate);
+					statement.setInt(2, 0);
+					statement.setInt(3, 1);
+				}),
+				new ProcedureCall("{call sp_dim_tx_curr_datim_query(?,?,?)}", statement -> {
+					statement.setDate(1, endDate);
+					statement.setInt(2, 0);
+					statement.setInt(3, 2);
 				})
 		);
 	}
-	
 }
