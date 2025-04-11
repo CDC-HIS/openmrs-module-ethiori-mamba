@@ -1,7 +1,7 @@
 package org.openmrs.module.mambaetl.datasetevaluator.datim.tx_new;
 
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_new.KeyPopulationTypeDataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_new.TxNewKeyPopulationTypeDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.ConnectionPoolManager;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
 import org.openmrs.module.reporting.dataset.DataSet;
@@ -17,12 +17,12 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-@Handler(supports = { KeyPopulationTypeDataSetDefinitionMamba.class })
-public class KeyPopulationTypeEvaluatorMamba implements DataSetEvaluator {
+@Handler(supports = { TxNewKeyPopulationTypeDataSetDefinitionMamba.class })
+public class TxNewKeyPopulationTypeEvaluatorMamba implements DataSetEvaluator {
 	
 	@Override
     public DataSet evaluate(DataSetDefinition dataSetDefinition, EvaluationContext evalContext) throws EvaluationException {
-        KeyPopulationTypeDataSetDefinitionMamba dataSetDefinitionMamba =  (KeyPopulationTypeDataSetDefinitionMamba) dataSetDefinition;
+        TxNewKeyPopulationTypeDataSetDefinitionMamba dataSetDefinitionMamba =  (TxNewKeyPopulationTypeDataSetDefinitionMamba) dataSetDefinition;
         SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
         ResultSetMapper resultSetMapper = new ResultSetMapper();
         // Get ResultSet from the database

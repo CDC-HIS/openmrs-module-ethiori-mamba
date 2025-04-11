@@ -20,4 +20,17 @@ public class TxCurrAgeSexDataSetDefinitionMamba extends BaseDataSetDefinition {
 		this.endDate = endDate;
 	}
 	
+	public static class TxCurrKeyPopulationTypeDataSetDefinitionMamba extends BaseDataSetDefinition {
+		
+		@ConfigurationProperty
+		private Date endDate;
+		
+		public Date getEndDate() {
+			return endDate;
+		}
+		
+		public void setEndDate(Date endDate) {
+			this.endDate = endDate;
+		}
+	}
 }

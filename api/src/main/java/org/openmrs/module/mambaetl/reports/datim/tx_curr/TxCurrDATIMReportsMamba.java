@@ -2,10 +2,7 @@ package org.openmrs.module.mambaetl.reports.datim.tx_curr;
 
 import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_curr.TxCurrAgeSexDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_new.HeaderDataSetDefinitionMamba;
-import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_new.KeyPopulationTypeDataSetDefinitionMamba;
-import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_new.TxNewAgeSexCd4DataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
-import org.openmrs.module.mambaetl.helpers.mapper.Cd4Status;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.report.ReportDesign;
 import org.openmrs.module.reporting.report.ReportRequest;
@@ -63,11 +60,11 @@ public class TxCurrDATIMReportsMamba implements ReportManager {
 		txCurrAgeSexDataSetDefinitionMamba.setDescription("Disaggregated by Age / Sex (Fine Disaggregate)");
 		reportDefinition.addDataSetDefinition("Disaggregated by Age / Sex (Fine Disaggregate)",
 		    EthiOhriUtil.map(txCurrAgeSexDataSetDefinitionMamba, "endDate=${endDateGC}"));
-
-		KeyPopulationTypeDataSetDefinitionMamba keyPopulationTypeDataSetDefinitionMamba = new KeyPopulationTypeDataSetDefinitionMamba();
-		keyPopulationTypeDataSetDefinitionMamba.addParameters(getParameters());
+		
+		TxCurrAgeSexDataSetDefinitionMamba txCurrAgeSexDataSetDefinitionMamba1 = new TxCurrAgeSexDataSetDefinitionMamba();
+		txCurrAgeSexDataSetDefinitionMamba1.addParameters(getParameters());
 		reportDefinition.addDataSetDefinition("Disaggregated by key population type",
-				EthiOhriUtil.map(keyPopulationTypeDataSetDefinitionMamba, "endDate=${endDateGC}"));
+		    EthiOhriUtil.map(txCurrAgeSexDataSetDefinitionMamba1, "endDate=${endDateGC}"));
 		
 		return reportDefinition;
 	}
