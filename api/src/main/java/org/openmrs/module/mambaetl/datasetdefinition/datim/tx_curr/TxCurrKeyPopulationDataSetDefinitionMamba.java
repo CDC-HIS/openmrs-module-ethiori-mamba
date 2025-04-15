@@ -1,6 +1,6 @@
 package org.openmrs.module.mambaetl.datasetdefinition.datim.tx_curr;
 
-import org.openmrs.module.mambaetl.helpers.mapper.Cd4Status;
+import org.openmrs.module.mambaetl.helpers.mapper.AggregationType;
 import org.openmrs.module.reporting.dataset.definition.BaseDataSetDefinition;
 import org.openmrs.module.reporting.definition.configuration.ConfigurationProperty;
 import org.springframework.stereotype.Component;
@@ -8,13 +8,12 @@ import org.springframework.stereotype.Component;
 import java.util.Date;
 
 @Component
-public class CurrCoarseByAgeAndSexAndCD4DataSetDefinitionMamba extends BaseDataSetDefinition {
+public class TxCurrKeyPopulationDataSetDefinitionMamba extends BaseDataSetDefinition {
 	
 	@ConfigurationProperty
 	private Date endDate;
 	
-	@ConfigurationProperty
-	private Cd4Status cd4Status = Cd4Status.UNKNOWN;
+	private AggregationType aggregationType;
 	
 	public Date getEndDate() {
 		return endDate;
@@ -24,11 +23,12 @@ public class CurrCoarseByAgeAndSexAndCD4DataSetDefinitionMamba extends BaseDataS
 		this.endDate = endDate;
 	}
 	
-	public Cd4Status getCd4Status() {
-		return cd4Status;
+	public AggregationType getAggregationType() {
+		return aggregationType;
 	}
 	
-	public void setCd4Status(Cd4Status cd4Status) {
-		this.cd4Status = cd4Status;
+	public void setAggregationType(AggregationType aggregationType) {
+		this.aggregationType = aggregationType;
 	}
+	
 }
