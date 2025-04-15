@@ -5,6 +5,8 @@ import org.apache.commons.logging.LogFactory;
 import org.openmrs.annotation.Handler;
 import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_curr.TxCurrAgeSexDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper;
+import org.openmrs.module.mambaetl.helpers.mapper.AggregationType;
+import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
 import org.openmrs.module.reporting.dataset.DataSet;
 import org.openmrs.module.reporting.dataset.DataSetColumn;
 import org.openmrs.module.reporting.dataset.DataSetRow;
@@ -42,13 +44,12 @@ public class TxCurrAgeSexEvaluatorMamba implements DataSetEvaluator {
             connection.setAutoCommit(false);
 
             List<DataSetEvaluatorHelper.ProcedureCall> procedureCalls = createProcedureCalls(dataSetDefinitionMamba);
-            List<ResultSet> resultSets = new ArrayList<>();
 
             try (DataSetEvaluatorHelper.CallableStatementContainer statementContainer = prepareStatements(connection, procedureCalls)) {
 
                 executeStatements(statementContainer, procedureCalls);
 
-                resultSets.addAll(Arrays.asList(statementContainer.getResultSets()));
+                List<ResultSet> resultSets = new ArrayList<>(Arrays.asList(statementContainer.getResultSets()));
 
                 // Merge results side by side
                 mergeResultSetsSideBySide(data, resultSets);
@@ -67,33 +68,52 @@ public class TxCurrAgeSexEvaluatorMamba implements DataSetEvaluator {
 	
 	private List<ProcedureCall> createProcedureCalls(TxCurrAgeSexDataSetDefinitionMamba dataSetDefinitionMamba) {
         java.sql.Date endDate = new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime());
+        AggregationType aggregation = dataSetDefinitionMamba.getAggregationType();
 
-        return Arrays.asList(
-                new ProcedureCall("{call sp_dim_tx_curr_datim_query(?,?,?)}", statement -> {
-                    statement.setDate(1, endDate);
-                    statement.setInt(2, 1);
-                    statement.setInt(3, 0);
-                }),
-                new ProcedureCall("{call sp_dim_tx_curr_datim_query(?,?,?)}", statement -> {
-                    statement.setDate(1, endDate);
-                    statement.setInt(2, 1);
-                    statement.setInt(3, 1);
-                }),
-                new ProcedureCall("{call sp_dim_tx_curr_datim_query(?,?,?)}", statement -> {
-                    statement.setDate(1, endDate);
-                    statement.setInt(2, 1);
-                    statement.setInt(3, 2);
-                })
-        );
+        if(aggregation == AggregationType.CD4){
+            return Arrays.asList(
+                    new ProcedureCall("{call sp_dim_tx_curr_datim_query(?,?,?)}", statement -> {
+                        statement.setDate(1, endDate);
+                        statement.setInt(2, 1);
+                        statement.setInt(3, 0);
+                    }),
+                    new ProcedureCall("{call sp_dim_tx_curr_datim_query(?,?,?)}", statement -> {
+                        statement.setDate(1, endDate);
+                        statement.setInt(2, 1);
+                        statement.setInt(3, 1);
+                    }),
+                    new ProcedureCall("{call sp_dim_tx_curr_datim_query(?,?,?)}", statement -> {
+                        statement.setDate(1, endDate);
+                        statement.setInt(2, 1);
+                        statement.setInt(3, 2);
+                    })
+            );
+        }
+        else {
+            return Collections.singletonList(
+                    new ProcedureCall("{call sp_dim_tx_curr_datim_query(?,?,?)}", statement -> {
+                        statement.setDate(1, endDate);
+                        statement.setInt(2, 0);
+                        statement.setInt(3, 3);
+                    })
+            );
+        }
     }
 	
 	private void mergeResultSetsSideBySide(SimpleDataSet data, List<ResultSet> resultSets) throws SQLException {
-        if (resultSets == null || resultSets.isEmpty()) {
+        if (resultSets == null || resultSets.isEmpty() ) {
             return;
         }
+        if(resultSets.size() == 1){
+            ResultSet[] resultSets1 = resultSets.toArray(new ResultSet[0]);
+            ResultSetMapper resultSetMapper = new ResultSetMapper();
+            mapResultSet(data, resultSetMapper, resultSets1);
+        }
         int count = 0;
+        String[] duration = {"<3 months of ARVs (not MMD)", "3-5 months of ARVs", "6 or more months of ARVs"};
 
         Map<String, DataSetRow> rowsMap = new HashMap<>(); // Implement dynamic list
+
 
         for (ResultSet resultSet : resultSets) {
 
@@ -104,9 +124,16 @@ public class TxCurrAgeSexEvaluatorMamba implements DataSetEvaluator {
                 DataSetRow row = new DataSetRow();
 
                 for (int i = 1; i <= columnCount; i++) {
-                    String columnName = count + metaData.getColumnName(i); // Create a unique column name
-                    Object columnValue = resultSet.getObject(i);
-                    row.addColumnValue(new DataSetColumn(columnName, columnName, columnValue != null ? columnValue.getClass() : Object.class), columnValue);
+                    if(count == 0 || i>1){
+                        String columnName = "";
+                        if (metaData.getColumnName(i).equalsIgnoreCase("sex")) {
+                            columnName = metaData.getColumnName(i);
+                        } else {
+                            columnName = duration[count] +" "+ metaData.getColumnName(i); // Create a unique column name duration[count]
+                        }
+                        Object columnValue = resultSet.getObject(i);
+                        row.addColumnValue(new DataSetColumn(columnName, columnName, columnValue != null ? columnValue.getClass() : Object.class), columnValue);
+                    }
                 }
 
                 int rowIndex = resultSet.getRow();
@@ -114,7 +141,7 @@ public class TxCurrAgeSexEvaluatorMamba implements DataSetEvaluator {
 
                 if (rowsMap.containsKey(rowIndexKey)) {
                     DataSetRow existingRow = rowsMap.get(rowIndexKey);
-                    for (Map.Entry<DataSetColumn,Object> entry: row.getColumnValues().entrySet()) {
+                    for (Map.Entry<DataSetColumn, Object> entry : row.getColumnValues().entrySet()) {
                         existingRow.addColumnValue(new DataSetColumn(String.valueOf(entry.getKey()), String.valueOf(entry.getKey()), entry.getValue() != null ? entry.getValue().getClass() : Object.class), entry.getValue());
                     }
                 } else {

@@ -1,8 +1,11 @@
 package org.openmrs.module.mambaetl.reports.datim.tx_curr;
 
 import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_curr.TxCurrAgeSexDataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_curr.TxCurrKeyPopulationDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_new.HeaderDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
+import org.openmrs.module.mambaetl.helpers.mapper.AggregationType;
+import org.openmrs.module.mambaetl.helpers.mapper.Cd4Status;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.report.ReportDesign;
 import org.openmrs.module.reporting.report.ReportRequest;
@@ -57,15 +60,22 @@ public class TxCurrDATIMReportsMamba implements ReportManager {
 		
 		TxCurrAgeSexDataSetDefinitionMamba txCurrAgeSexDataSetDefinitionMamba = new TxCurrAgeSexDataSetDefinitionMamba();
 		txCurrAgeSexDataSetDefinitionMamba.addParameters(getParameters());
+		txCurrAgeSexDataSetDefinitionMamba.setAggregationType(AggregationType.AGE_SEX);
 		txCurrAgeSexDataSetDefinitionMamba.setDescription("Disaggregated by Age / Sex (Fine Disaggregate)");
 		reportDefinition.addDataSetDefinition("Disaggregated by Age / Sex (Fine Disaggregate)",
 		    EthiOhriUtil.map(txCurrAgeSexDataSetDefinitionMamba, "endDate=${endDateGC}"));
 		
-		TxCurrAgeSexDataSetDefinitionMamba txCurrAgeSexDataSetDefinitionMamba1 = new TxCurrAgeSexDataSetDefinitionMamba();
-		txCurrAgeSexDataSetDefinitionMamba1.addParameters(getParameters());
-		reportDefinition.addDataSetDefinition("Disaggregated by key population type",
-		    EthiOhriUtil.map(txCurrAgeSexDataSetDefinitionMamba1, "endDate=${endDateGC}"));
+		TxCurrAgeSexDataSetDefinitionMamba txCurrCd4DataSetDefinitionMamba = new TxCurrAgeSexDataSetDefinitionMamba();
+		txCurrCd4DataSetDefinitionMamba.addParameters(getParameters());
+		txCurrCd4DataSetDefinitionMamba.setAggregationType(AggregationType.CD4);
+		txCurrCd4DataSetDefinitionMamba.setDescription("Disaggregated by ARV Dispensing Quantity by Coarse Age/Sex");
+		reportDefinition.addDataSetDefinition("Disaggregated by ARV Dispensing Quantity by Coarse Age/Sex)",
+		    EthiOhriUtil.map(txCurrCd4DataSetDefinitionMamba, "endDate=${endDateGC}"));
 		
+		TxCurrKeyPopulationDataSetDefinitionMamba txCurrKeyPopulationDataSetDefinitionMamba = new TxCurrKeyPopulationDataSetDefinitionMamba();
+		txCurrKeyPopulationDataSetDefinitionMamba.addParameters(getParameters());
+		reportDefinition.addDataSetDefinition("Disaggregated by key population type",
+		    EthiOhriUtil.map(txCurrKeyPopulationDataSetDefinitionMamba, "endDate=${endDateGC}"));
 		return reportDefinition;
 	}
 	

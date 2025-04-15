@@ -85,38 +85,3 @@ public class TxNewAgeSexCd4EvaluatorMamba implements DataSetEvaluator {
         );
 	}
 }
-
-//
-//
-//
-//@Override
-//public DataSet evaluate(DataSetDefinition dataSetDefinition, EvaluationContext evalContext) throws EvaluationException {
-//	TxNewAgeSexCd4DataSetDefinitionMamba dataSetDefinitionMamba = (TxNewAgeSexCd4DataSetDefinitionMamba) dataSetDefinition;
-//	SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
-//	ResultSetMapper resultSetMapper = new ResultSetMapper();
-//
-//	try (Connection connection = getDataSource().getConnection();
-//		 CallableStatement statement = connection.prepareCall("{call sp_dim_tx_new_datim_query(?,?,?,?)}")) {
-//
-//		statement.setDate(1, new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime()));
-//		statement.setDate(2, new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime()));
-//		statement.setInt(3, 0);
-//		statement.setString(4, dataSetDefinitionMamba.getCd4Status().getSqlValue());
-//
-//		try (ResultSet resultSet = statement.executeQuery()) {
-//			if (resultSet != null) {
-//				return resultSetMapper.mapResultSetToDataSet(resultSet, data);
-//			} else {
-//				throw new EvaluationException("No data returned from the query.");
-//			}
-//		}
-//	} catch (SQLException e) {
-//		throw new EvaluationException("Error processing ResultSet: " + e.getMessage(), e);
-//	}
-//}
-//
-//private DataSource getDataSource() {
-//	return ConnectionPoolManager.getInstance().getDataSource();
-//}
-//
-//

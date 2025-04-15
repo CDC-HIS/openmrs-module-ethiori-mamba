@@ -2,6 +2,7 @@ package org.openmrs.module.mambaetl.datasetevaluator.datim.tx_curr;
 
 import org.openmrs.annotation.Handler;
 import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_curr.TxCurrAgeSexDataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_curr.TxCurrKeyPopulationDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.ConnectionPoolManager;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
 import org.openmrs.module.reporting.dataset.DataSet;
@@ -17,17 +18,18 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-@Handler(supports = { TxCurrAgeSexDataSetDefinitionMamba.TxCurrKeyPopulationTypeDataSetDefinitionMamba.class })
+@Handler(supports = { TxCurrKeyPopulationDataSetDefinitionMamba.class })
 public class TxCurrKeyPopulationTypeEvaluatorMamba implements DataSetEvaluator {
 	
 	@Override
     public DataSet evaluate(DataSetDefinition dataSetDefinition, EvaluationContext evalContext) throws EvaluationException {
-        TxCurrAgeSexDataSetDefinitionMamba.TxCurrKeyPopulationTypeDataSetDefinitionMamba dataSetDefinitionMamba =  (TxCurrAgeSexDataSetDefinitionMamba.TxCurrKeyPopulationTypeDataSetDefinitionMamba) dataSetDefinition;
+        TxCurrKeyPopulationDataSetDefinitionMamba dataSetDefinitionMamba =  (TxCurrKeyPopulationDataSetDefinitionMamba) dataSetDefinition;
         SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
         ResultSetMapper resultSetMapper = new ResultSetMapper();
         // Get ResultSet from the database
         try (Connection connection = getDataSource().getConnection();
              CallableStatement statement = connection.prepareCall("{call sp_dim_tx_new_datim_kp_query(?,?)}")) {
+            statement.setDate(1, new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime()));
             statement.setDate(2, new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime()));
 
 
