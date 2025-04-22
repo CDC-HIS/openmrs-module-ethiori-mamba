@@ -6,7 +6,7 @@ DROP PROCEDURE IF EXISTS sp_dim_tx_pvls_datim_query;
 CREATE PROCEDURE sp_dim_tx_pvls_datim_query(
     IN REPORT_END_DATE DATE,
     IN IS_COURSE_AGE_GROUP BOOLEAN,
-    IN NUMERATOR BOOLEAN
+    IN REPORT_TYPE VARCHAR(100)
 )
 BEGIN
 
@@ -80,6 +80,7 @@ END IF;
                          viral_load_count,
                          viral_load_test_status,
                          viral_load_sent_date,
+                         breast_feeding_status,
                          ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY viral_load_performed_date DESC, encounter_id DESC) AS row_num
                   from FollowUp
                   where viral_load_performed_date is not null
@@ -94,7 +95,8 @@ END IF;
                      viral_load_test_status,
                      follow_up_date,
                      fine_age_group,
-                     coarse_age_group
+                     coarse_age_group,
+                     breast_feeding_status
               from tmp_pvls_2
                        inner join mamba_dim_client client on tmp_pvls_2.client_id = client.client_id
                     --   inner join latest_follow_up on tmp_pvls_2.client_id = latest_follow_up.client_id
@@ -103,7 +105,7 @@ END IF;
                         from pvls
                         where viral_load_count < 1000 or (viral_load_count  is null and viral_load_test_status in (''Suppressed'',''Low-level viremia''))
                         ) ';
-    IF NUMERATOR THEN
+    IF REPORT_TYPE = 'NUMERATOR' THEN
         SET disaggregate_query = CONCAT('
         SELECT
           sex,
@@ -121,7 +123,11 @@ END IF;
         USING (sex)
         GROUP BY sex
         ');
-ELSE
+ELSEIF REPORT_TYPE = 'NUMERATOR_BREAST_FEEDING_PREGNANT' THEN
+        SET disaggregate_query = 'SELECT COUNT(CASE WHEN pregnancy_status = ''Yes'' THEN 1 ELSE NULL END ) AS Pregnant,
+       COUNT(CASE WHEN breast_feeding_status = ''Yes'' THEN 1 ELSE NULL END ) AS Breastfeeding
+        FROM pvls_numerator';
+ELSEIF REPORT_TYPE = 'DENOMINATOR' THEN
         SET disaggregate_query = CONCAT('
         SELECT
           sex,
@@ -139,6 +145,10 @@ ELSE
         USING (sex)
         GROUP BY sex
         ');
+    ELSEIF REPORT_TYPE = 'DENOMINATOR_BREAST_FEEDING_PREGNANT' THEN
+        SET disaggregate_query = 'SELECT COUNT(CASE WHEN pregnancy_status = ''Yes'' THEN 1 ELSE NULL END ) AS Pregnant,
+       COUNT(CASE WHEN breast_feeding_status = ''Yes'' THEN 1 ELSE NULL END ) AS Breastfeeding
+        FROM pvls';
 END IF;
     SET @sql = CONCAT(pvls_query, disaggregate_query);
 PREPARE stmt FROM @sql;

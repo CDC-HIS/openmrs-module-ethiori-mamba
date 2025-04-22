@@ -1,9 +1,9 @@
-package org.openmrs.module.mambaetl.datasetevaluator.datim;
+package org.openmrs.module.mambaetl.datasetevaluator.datim.tx_curr_pvls;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.mambaetl.datasetdefinition.datim.TxCurrPvlsDataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_curr_pvls.TxCurrPvlsDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
 import org.openmrs.module.reporting.dataset.DataSet;
@@ -17,6 +17,8 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import static org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper.*;
@@ -66,16 +68,11 @@ public class TxCurrPvlsDataSetEvaluatorMamba implements DataSetEvaluator {
 	
 	private List<ProcedureCall> createProcedureCalls(TxCurrPvlsDataSetDefinitionMamba dataSetDefinitionMamba) {
         java.sql.Date endDate = new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime());
-        return Arrays.asList(
+        return Collections.singletonList(
                 new ProcedureCall("{call sp_dim_tx_pvls_datim_query(?,?,?)}", statement -> {
                     statement.setDate(1, endDate);
                     statement.setInt(2, 0);
-                    statement.setInt(3,1);
-                }),
-                new ProcedureCall("{call sp_dim_tx_pvls_datim_query(?,?,?)}", statement -> {
-                    statement.setDate(1, endDate);
-                    statement.setInt(2, 0);
-                    statement.setInt(3,0);
+                    statement.setString(3,dataSetDefinitionMamba.getTxCurrPvlsAggregationTypes().getSqlValue());
                 })
         );
     }

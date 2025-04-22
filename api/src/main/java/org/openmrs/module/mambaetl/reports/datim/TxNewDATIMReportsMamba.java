@@ -1,5 +1,6 @@
 package org.openmrs.module.mambaetl.reports.datim;
 
+import org.openmrs.module.mambaetl.datasetdefinition.datim.HeaderDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_new.*;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.mambaetl.helpers.reportOptions.TxNewAggregationTypes;
@@ -49,8 +50,7 @@ public class TxNewDATIMReportsMamba implements ReportManager {
 		HeaderDataSetDefinitionMamba headerDefinition = new HeaderDataSetDefinitionMamba();
 		headerDefinition.setDescription("DSD: TX_NEW");
 		headerDefinition.setParameters(getParameters());
-		reportDefinition.addDataSetDefinition("DSD: TX_NEW",
-		    EthiOhriUtil.map(headerDefinition, "startDate=${startDateGC},endDate=${endDateGC}"));
+		reportDefinition.addDataSetDefinition("DSD: TX_NEW", EthiOhriUtil.map(headerDefinition, "endDate=${endDateGC}"));
 		
 		TxNewAgeSexCd4DataSetDefinitionMamba numeratorDataSetDefinition = new TxNewAgeSexCd4DataSetDefinitionMamba();
 		numeratorDataSetDefinition.addParameters(getParameters());
