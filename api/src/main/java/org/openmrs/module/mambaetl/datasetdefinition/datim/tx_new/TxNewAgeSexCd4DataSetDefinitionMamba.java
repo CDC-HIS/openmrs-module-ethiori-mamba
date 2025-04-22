@@ -1,6 +1,6 @@
 package org.openmrs.module.mambaetl.datasetdefinition.datim.tx_new;
 
-import org.openmrs.module.mambaetl.helpers.mapper.Cd4Status;
+import org.openmrs.module.mambaetl.helpers.reportOptions.TxNewAggregationTypes;
 import org.openmrs.module.reporting.dataset.definition.BaseDataSetDefinition;
 import org.openmrs.module.reporting.definition.configuration.ConfigurationProperty;
 import org.springframework.stereotype.Component;
@@ -21,7 +21,7 @@ public class TxNewAgeSexCd4DataSetDefinitionMamba extends BaseDataSetDefinition 
 	private Date endDate;
 	
 	@ConfigurationProperty
-	private Cd4Status cd4Status = Cd4Status.UNKNOWN;
+	private TxNewAggregationTypes txNewAggregationTypes = TxNewAggregationTypes.UNKNOWN;
 	
 	public void setStartDate(Date startDate) {
 		this.startDate = startDate;
@@ -35,11 +35,11 @@ public class TxNewAgeSexCd4DataSetDefinitionMamba extends BaseDataSetDefinition 
 		this.endDate = endDate;
 	}
 	
-	public Cd4Status getCd4Status() {
-		return cd4Status;
+	public TxNewAggregationTypes getCd4Status() {
+		return txNewAggregationTypes;
 	}
 	
-	public void setCd4Status(Cd4Status cd4Status) {
-		this.cd4Status = cd4Status;
+	public void setCd4Status(TxNewAggregationTypes txNewAggregationTypes) {
+		this.txNewAggregationTypes = txNewAggregationTypes;
 	}
 }

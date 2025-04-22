@@ -1,6 +1,6 @@
 package org.openmrs.module.mambaetl.datasetdefinition.datim.tx_curr;
 
-import org.openmrs.module.mambaetl.helpers.mapper.AggregationType;
+import org.openmrs.module.mambaetl.helpers.reportOptions.TxCurrAggregationTypes;
 import org.openmrs.module.reporting.dataset.definition.BaseDataSetDefinition;
 import org.openmrs.module.reporting.definition.configuration.ConfigurationProperty;
 import org.springframework.stereotype.Component;
@@ -13,7 +13,7 @@ public class TxCurrKeyPopulationDataSetDefinitionMamba extends BaseDataSetDefini
 	@ConfigurationProperty
 	private Date endDate;
 	
-	private AggregationType aggregationType;
+	private TxCurrAggregationTypes txCurrAggregationTypes;
 	
 	public Date getEndDate() {
 		return endDate;
@@ -23,12 +23,12 @@ public class TxCurrKeyPopulationDataSetDefinitionMamba extends BaseDataSetDefini
 		this.endDate = endDate;
 	}
 	
-	public AggregationType getAggregationType() {
-		return aggregationType;
+	public TxCurrAggregationTypes getAggregationType() {
+		return txCurrAggregationTypes;
 	}
 	
-	public void setAggregationType(AggregationType aggregationType) {
-		this.aggregationType = aggregationType;
+	public void setAggregationType(TxCurrAggregationTypes txCurrAggregationTypes) {
+		this.txCurrAggregationTypes = txCurrAggregationTypes;
 	}
 	
 }

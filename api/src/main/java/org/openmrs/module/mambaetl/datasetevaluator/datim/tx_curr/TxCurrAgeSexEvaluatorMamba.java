@@ -5,7 +5,7 @@ import org.apache.commons.logging.LogFactory;
 import org.openmrs.annotation.Handler;
 import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_curr.TxCurrAgeSexDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper;
-import org.openmrs.module.mambaetl.helpers.mapper.AggregationType;
+import org.openmrs.module.mambaetl.helpers.reportOptions.TxCurrAggregationTypes;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
 import org.openmrs.module.reporting.dataset.DataSet;
 import org.openmrs.module.reporting.dataset.DataSetColumn;
@@ -68,9 +68,9 @@ public class TxCurrAgeSexEvaluatorMamba implements DataSetEvaluator {
 	
 	private List<ProcedureCall> createProcedureCalls(TxCurrAgeSexDataSetDefinitionMamba dataSetDefinitionMamba) {
         java.sql.Date endDate = new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime());
-        AggregationType aggregation = dataSetDefinitionMamba.getAggregationType();
+        TxCurrAggregationTypes aggregation = dataSetDefinitionMamba.getAggregationType();
 
-        if(aggregation == AggregationType.CD4){
+        if(aggregation == TxCurrAggregationTypes.CD4){
             return Arrays.asList(
                     new ProcedureCall("{call sp_dim_tx_curr_datim_query(?,?,?)}", statement -> {
                         statement.setDate(1, endDate);

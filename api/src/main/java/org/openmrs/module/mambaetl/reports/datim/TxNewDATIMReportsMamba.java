@@ -1,8 +1,8 @@
-package org.openmrs.module.mambaetl.reports.datim.tx_new;
+package org.openmrs.module.mambaetl.reports.datim;
 
 import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_new.*;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
-import org.openmrs.module.mambaetl.helpers.mapper.Cd4Status;
+import org.openmrs.module.mambaetl.helpers.reportOptions.TxNewAggregationTypes;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.report.ReportDesign;
 import org.openmrs.module.reporting.report.ReportRequest;
@@ -54,7 +54,7 @@ public class TxNewDATIMReportsMamba implements ReportManager {
 		
 		TxNewAgeSexCd4DataSetDefinitionMamba numeratorDataSetDefinition = new TxNewAgeSexCd4DataSetDefinitionMamba();
 		numeratorDataSetDefinition.addParameters(getParameters());
-		numeratorDataSetDefinition.setCd4Status(Cd4Status.NUMERATOR);
+		numeratorDataSetDefinition.setCd4Status(TxNewAggregationTypes.NUMERATOR);
 		numeratorDataSetDefinition
 		        .setDescription("Auto-Calculate Number of adults and children newly enrolled on antiretroviral therapy (ART). Numerator will auto-calculate from Age/Sex Disaggregates.");
 		reportDefinition
@@ -70,27 +70,27 @@ public class TxNewDATIMReportsMamba implements ReportManager {
 		
 		TxNewAgeSexCd4DataSetDefinitionMamba lessThan200CD4DataSetDefinitionMamba = new TxNewAgeSexCd4DataSetDefinitionMamba();
 		lessThan200CD4DataSetDefinitionMamba.addParameters(getParameters());
-		lessThan200CD4DataSetDefinitionMamba.setCd4Status(Cd4Status.LOW);
+		lessThan200CD4DataSetDefinitionMamba.setCd4Status(TxNewAggregationTypes.LOW);
 		lessThan200CD4DataSetDefinitionMamba.setDescription("<200 CD4");
 		reportDefinition.addDataSetDefinition("<200 CD4",
 		    EthiOhriUtil.map(lessThan200CD4DataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
 		
 		TxNewAgeSexCd4DataSetDefinitionMamba greaterThan200CD4DataSetDefinitionMamba = new TxNewAgeSexCd4DataSetDefinitionMamba();
 		greaterThan200CD4DataSetDefinitionMamba.addParameters(getParameters());
-		greaterThan200CD4DataSetDefinitionMamba.setCd4Status(Cd4Status.HIGH);
+		greaterThan200CD4DataSetDefinitionMamba.setCd4Status(TxNewAggregationTypes.HIGH);
 		greaterThan200CD4DataSetDefinitionMamba.setDescription(">= 200 CD4");
 		reportDefinition.addDataSetDefinition(">= 200 CD4",
 		    EthiOhriUtil.map(greaterThan200CD4DataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
 		
 		TxNewAgeSexCd4DataSetDefinitionMamba unknownCD4DataSetDefinitionMamba = new TxNewAgeSexCd4DataSetDefinitionMamba();
 		unknownCD4DataSetDefinitionMamba.addParameters(getParameters());
-		unknownCD4DataSetDefinitionMamba.setCd4Status(Cd4Status.UNKNOWN);
+		unknownCD4DataSetDefinitionMamba.setCd4Status(TxNewAggregationTypes.UNKNOWN);
 		reportDefinition.addDataSetDefinition("Unknown CD4",
 		    EthiOhriUtil.map(unknownCD4DataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
 		
 		TxNewAgeSexCd4DataSetDefinitionMamba breastFeedingStatusDataSetDefinitionMamba = new TxNewAgeSexCd4DataSetDefinitionMamba();
 		breastFeedingStatusDataSetDefinitionMamba.addParameters(getParameters());
-		breastFeedingStatusDataSetDefinitionMamba.setCd4Status(Cd4Status.BREAST_FEEDING);
+		breastFeedingStatusDataSetDefinitionMamba.setCd4Status(TxNewAggregationTypes.BREAST_FEEDING);
 		reportDefinition.addDataSetDefinition("Disaggregated by Breastfeeding Status at ART Initiation",
 		    EthiOhriUtil.map(breastFeedingStatusDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
 		
