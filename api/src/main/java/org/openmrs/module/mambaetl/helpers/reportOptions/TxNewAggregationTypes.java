@@ -1,12 +1,11 @@
 package org.openmrs.module.mambaetl.helpers.reportOptions;
 
 public enum TxNewAggregationTypes {
-	HIGH(">=200"), LOW("<200"), UNKNOWN("unknown"), NOT_TESTED("not_tested"),
-	NUMERATOR("numerator"), BREAST_FEEDING(
+	HIGH(">=200"), LOW("<200"), UNKNOWN("unknown"), NOT_TESTED("not_tested"), NUMERATOR("numerator"), BREAST_FEEDING(
 	        "breast_feeding");
 	
 	private final String sqlValue;
-
+	
 	TxNewAggregationTypes(String sqlValue) {
 		this.sqlValue = sqlValue;
 	}
