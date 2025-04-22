@@ -1,4 +1,4 @@
-package org.openmrs.module.mambaetl.datasetdefinition.datim;
+package org.openmrs.module.mambaetl.datasetdefinition.datim.tx_curr_pvls;
 
 import org.openmrs.module.mambaetl.helpers.reportOptions.TxCurrPvlsAggregationTypes;
 import org.openmrs.module.reporting.dataset.definition.BaseDataSetDefinition;
@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import java.util.Date;
 
 @Component
-public class TxCurrPvlsDataSetDefinitionMamba extends BaseDataSetDefinition {
+public class TxCurrPvlsKeyPopulationDataSetDefinitionMamba extends BaseDataSetDefinition {
 	
 	@ConfigurationProperty
 	private Date endDate;

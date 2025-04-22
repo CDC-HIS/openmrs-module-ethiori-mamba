@@ -1,7 +1,8 @@
 package org.openmrs.module.mambaetl.reports.datim;
 
-import org.openmrs.module.mambaetl.datasetdefinition.datim.TxCurrPvlsDataSetDefinitionMamba;
-import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_new.HeaderDataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_curr_pvls.TxCurrPvlsDataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_curr_pvls.TxCurrPvlsKeyPopulationDataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.datasetdefinition.datim.HeaderDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.mambaetl.helpers.reportOptions.TxCurrPvlsAggregationTypes;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 
 @Component
-public class TxPvlsDATIMReportsMamba implements ReportManager {
+public class TxPvlsDenominatorDATIMReportsMamba implements ReportManager {
 	
 	@Override
 	public String getUuid() {
@@ -24,12 +25,12 @@ public class TxPvlsDATIMReportsMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "MAMBA DATIM- TX_PVLS";
+		return "MAMBA DATIM- TX_PVLS (Denominator)";
 	}
 	
 	@Override
 	public String getDescription() {
-		return "TX curr PVLS DATIM mamba report ";
+		return "TX curr PVLS DATIM mamba report (Denominator)";
 	}
 	
 	@Override
@@ -52,20 +53,11 @@ public class TxPvlsDATIMReportsMamba implements ReportManager {
 		reportDefinition.setParameters(getParameters());
 		
 		HeaderDataSetDefinitionMamba headerDefinition = new HeaderDataSetDefinitionMamba();
-		headerDefinition.setDescription("DSD: TX_PVLS");
+		headerDefinition.setDescription("DSD: TX_PVLS (Denominator)");
 		headerDefinition.setParameters(getParameters());
-		reportDefinition.addDataSetDefinition("DSD: TX_PVLS", EthiOhriUtil.map(headerDefinition, "endDate=${endDateGC}"));
-		
-		TxCurrPvlsDataSetDefinitionMamba txCurrPvlsDataSetDefinitionNumeratorMamba = new TxCurrPvlsDataSetDefinitionMamba();
-		txCurrPvlsDataSetDefinitionNumeratorMamba.addParameters(getParameters());
-		txCurrPvlsDataSetDefinitionNumeratorMamba.setTxCurrPvlsAggregationTypes(TxCurrPvlsAggregationTypes.NUMERATOR);
-		txCurrPvlsDataSetDefinitionNumeratorMamba
-		        .setDescription("Disaggregated by Age / Sex (Fine Disaggregate). Must complete finer disaggregates unless permitted by program.");
-		reportDefinition
-		        .addDataSetDefinition(
-		            "Disaggregated by Age / Sex (Fine Disaggregate). Must complete finer disaggregates unless permitted by program.",
-		            EthiOhriUtil.map(txCurrPvlsDataSetDefinitionNumeratorMamba, "endDate=${endDateGC}"));
-		
+		reportDefinition.addDataSetDefinition("DSD: TX_PVLS (Denominator)",
+		    EthiOhriUtil.map(headerDefinition, "endDate=${endDateGC}"));
+
 		TxCurrPvlsDataSetDefinitionMamba txCurrPvlsDataSetDefinitionDenominatorMamba = new TxCurrPvlsDataSetDefinitionMamba();
 		txCurrPvlsDataSetDefinitionDenominatorMamba.addParameters(getParameters());
 		txCurrPvlsDataSetDefinitionDenominatorMamba.setTxCurrPvlsAggregationTypes(TxCurrPvlsAggregationTypes.DENOMINATOR);
@@ -75,6 +67,20 @@ public class TxPvlsDATIMReportsMamba implements ReportManager {
 		        .addDataSetDefinition(
 		            "Disaggregated by Age / Sex (Fine Disaggregate). Must complete finer disaggregates unless permitted by program.",
 		            EthiOhriUtil.map(txCurrPvlsDataSetDefinitionDenominatorMamba, "endDate=${endDateGC}"));
+		
+		TxCurrPvlsDataSetDefinitionMamba txCurrPvlsDataSetDefinitionDenominatorBreastFeedingPregnantMamba = new TxCurrPvlsDataSetDefinitionMamba();
+		txCurrPvlsDataSetDefinitionDenominatorBreastFeedingPregnantMamba.addParameters(getParameters());
+		txCurrPvlsDataSetDefinitionDenominatorBreastFeedingPregnantMamba
+		        .setTxCurrPvlsAggregationTypes(TxCurrPvlsAggregationTypes.DENOMINATOR_BREAST_FEEDING_PREGNANT);
+		txCurrPvlsDataSetDefinitionDenominatorBreastFeedingPregnantMamba
+		        .setDescription("Disaggregated by Pregnant/Breastfeeding.");
+		reportDefinition.addDataSetDefinition("Disaggregated by Pregnant/Breastfeeding.",
+		    EthiOhriUtil.map(txCurrPvlsDataSetDefinitionDenominatorBreastFeedingPregnantMamba, "endDate=${endDateGC}"));
+		
+		TxCurrPvlsKeyPopulationDataSetDefinitionMamba txCurrPvlsKeyPopulationDenominatorDataSetDefinitionMamba = new TxCurrPvlsKeyPopulationDataSetDefinitionMamba();
+		txCurrPvlsKeyPopulationDenominatorDataSetDefinitionMamba.addParameters(getParameters());
+		reportDefinition.addDataSetDefinition("Disaggregated by key population type",
+		    EthiOhriUtil.map(txCurrPvlsKeyPopulationDenominatorDataSetDefinitionMamba, "endDate=${endDateGC}"));
 		
 		return reportDefinition;
 	}

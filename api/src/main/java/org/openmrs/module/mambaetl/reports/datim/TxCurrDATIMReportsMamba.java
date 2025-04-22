@@ -2,7 +2,7 @@ package org.openmrs.module.mambaetl.reports.datim;
 
 import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_curr.TxCurrAgeSexDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_curr.TxCurrKeyPopulationDataSetDefinitionMamba;
-import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_new.HeaderDataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.datasetdefinition.datim.HeaderDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.mambaetl.helpers.reportOptions.TxCurrAggregationTypes;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
