@@ -1,4 +1,4 @@
-name: Release OpenMRS Module on Tag
+name: Release OpenMRS Module on Tag (Using GitHub CLI)
 
 on:
   push:
@@ -26,24 +26,22 @@ jobs:
         id: get_version
         run: echo "MODULE_VERSION=$(mvn help:evaluate -q -Dexpression=project.version -P!standard-release-profile)" >> $GITHUB_ENV
         # This step extracts the project version from the pom.xml
-        # We use -P!standard-release-profile to avoid issues with release profiles if they exist
 
-      - name: Create GitHub Release
-        id: create_release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: omod/target/*.omod
-          name: Release ${{ env.MODULE_VERSION }}
-          tag_name: ${{ github.ref }} # Use the pushed tag as the release tag
-          body: |
-            ## Release Notes
-            
-            This release corresponds to version ${{ env.MODULE_VERSION }} of the OpenMRS module.
-            
-            Download the attached .omod file to install the module.
-            
-            Replace this text with more detailed release notes if needed.
-          draft: false # Set to true to create a draft release
-          prerelease: false # Set to true for pre-release versions
+      - name: Create GitHub Release and Upload Asset
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # GitHub automatically provides this token
+        run: |
+          # Get the tag name from the ref (e.g., refs/tags/v1.0.0 -> v1.0.0)
+          TAG_NAME=${{ github.ref }}
+          TAG_NAME=${TAG_NAME#refs/tags/}
+          
+          # Get the path to the generated OMOD file (assuming only one .omod in target)
+          OMOD_PATH=$(find omod/target -name "*.omod" -print -quit)
+          
+          # Create the release using GitHub CLI
+          # The '--generate-notes' flag can automatically generate release notes based on commits
+          # Alternatively, you can provide a file with '--notes-file <file>' or a string with '--notes "Release details..."'
+          gh release create "$TAG_NAME" "$OMOD_PATH" \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Release ${{ env.MODULE_VERSION }}" \
+            --generate-notes # Or provide custom release notes
