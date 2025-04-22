@@ -23,15 +23,15 @@ import static org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper.*;
 import static org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper.rollbackAndThrowException;
 
 @Handler(supports = { TxCurrPvlsDataSetDefinitionMamba.class })
-
 public class TxCurrPvlsDataSetEvaluatorMamba implements DataSetEvaluator {
-
-    private static final Log log = LogFactory.getLog(TxCurrPvlsDataSetDefinitionMamba.class);
-
-    private static final String ERROR_PROCESSING_RESULT_SET = "Error processing ResultSet: ";
-
-    private static final String DATABASE_CONNECTION_ERROR = "Database connection error: ";
-    @Override
+	
+	private static final Log log = LogFactory.getLog(TxCurrPvlsDataSetDefinitionMamba.class);
+	
+	private static final String ERROR_PROCESSING_RESULT_SET = "Error processing ResultSet: ";
+	
+	private static final String DATABASE_CONNECTION_ERROR = "Database connection error: ";
+	
+	@Override
     public DataSet evaluate(DataSetDefinition dataSetDefinition, EvaluationContext evalContext) throws EvaluationException {
         TxCurrPvlsDataSetDefinitionMamba dataSetDefinitionMamba = (TxCurrPvlsDataSetDefinitionMamba) dataSetDefinition;
         SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
@@ -63,7 +63,8 @@ public class TxCurrPvlsDataSetEvaluatorMamba implements DataSetEvaluator {
         }
         return null;
     }
-    private List<ProcedureCall> createProcedureCalls(TxCurrPvlsDataSetDefinitionMamba dataSetDefinitionMamba) {
+	
+	private List<ProcedureCall> createProcedureCalls(TxCurrPvlsDataSetDefinitionMamba dataSetDefinitionMamba) {
         java.sql.Date endDate = new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime());
         return Arrays.asList(
                 new ProcedureCall("{call sp_dim_tx_pvls_datim_query(?,?,?)}", statement -> {

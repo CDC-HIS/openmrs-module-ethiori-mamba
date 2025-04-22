@@ -8,24 +8,27 @@ import org.springframework.stereotype.Component;
 import java.util.Date;
 
 @Component
-public class TxCurrPvlsDataSetDefinitionMamba  extends BaseDataSetDefinition {
-    @ConfigurationProperty
-    private Date endDate;
-    @ConfigurationProperty
-    private TxCurrPvlsAggregationTypes txCurrPvlsAggregationTypes;
-
-    public Date getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(Date endDate) {
-        this.endDate = endDate;
-    }
-
-    public TxCurrPvlsAggregationTypes getTxCurrPvlsAggregationTypes() {
-        return txCurrPvlsAggregationTypes;
-    }
-    public void setTxCurrPvlsAggregationTypes(TxCurrPvlsAggregationTypes txCurrPvlsAggregationTypes) {
-        this.txCurrPvlsAggregationTypes=txCurrPvlsAggregationTypes;
-    }
+public class TxCurrPvlsDataSetDefinitionMamba extends BaseDataSetDefinition {
+	
+	@ConfigurationProperty
+	private Date endDate;
+	
+	@ConfigurationProperty
+	private TxCurrPvlsAggregationTypes txCurrPvlsAggregationTypes;
+	
+	public Date getEndDate() {
+		return endDate;
+	}
+	
+	public void setEndDate(Date endDate) {
+		this.endDate = endDate;
+	}
+	
+	public TxCurrPvlsAggregationTypes getTxCurrPvlsAggregationTypes() {
+		return txCurrPvlsAggregationTypes;
+	}
+	
+	public void setTxCurrPvlsAggregationTypes(TxCurrPvlsAggregationTypes txCurrPvlsAggregationTypes) {
+		this.txCurrPvlsAggregationTypes = txCurrPvlsAggregationTypes;
+	}
 }
