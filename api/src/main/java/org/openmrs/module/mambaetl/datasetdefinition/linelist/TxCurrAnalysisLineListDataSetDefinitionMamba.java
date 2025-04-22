@@ -2,7 +2,7 @@ package org.openmrs.module.mambaetl.datasetdefinition.linelist;
 
 import java.util.Date;
 
-import org.openmrs.module.mambaetl.helpers.mapper.TxCurrAnalysisCategories;
+import org.openmrs.module.mambaetl.helpers.reportOptions.TxCurrAnalysisCategories;
 import org.openmrs.module.reporting.dataset.definition.BaseDataSetDefinition;
 import org.openmrs.module.reporting.definition.configuration.ConfigurationProperty;
 import org.springframework.stereotype.Component;
