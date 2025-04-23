@@ -27,10 +27,7 @@ public class KeyPopulationTypeEvaluatorMamba implements DataSetEvaluator {
         ResultSetMapper resultSetMapper = new ResultSetMapper();
         // Get ResultSet from the database
         try (Connection connection = getDataSource().getConnection();
-             CallableStatement statement = connection.prepareCall("{call sp_dim_tx_new_datim_kp_query(?,?)}")) {
-            statement.setDate(1, new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime()));
-            statement.setDate(2, new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime()));
-
+             CallableStatement statement = connection.prepareCall("{call sp_dim_tx_new_datim_kp_query()}")) {
 
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet != null) {
