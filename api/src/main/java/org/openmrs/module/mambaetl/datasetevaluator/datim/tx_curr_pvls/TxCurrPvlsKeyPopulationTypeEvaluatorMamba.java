@@ -1,7 +1,7 @@
 package org.openmrs.module.mambaetl.datasetevaluator.datim.tx_curr_pvls;
 
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_curr_pvls.TxCurrPvlsKeyPopulationDataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.datasetdefinition.datim.KeyPopulationDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.ConnectionPoolManager;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
 import org.openmrs.module.reporting.dataset.DataSet;
@@ -17,19 +17,17 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-@Handler(supports = { TxCurrPvlsKeyPopulationDataSetDefinitionMamba.class })
+@Handler(supports = { KeyPopulationDataSetDefinitionMamba.class })
 public class TxCurrPvlsKeyPopulationTypeEvaluatorMamba implements DataSetEvaluator {
 	
 	@Override
     public DataSet evaluate(DataSetDefinition dataSetDefinition, EvaluationContext evalContext) throws EvaluationException {
-        TxCurrPvlsKeyPopulationDataSetDefinitionMamba dataSetDefinitionMamba =  (TxCurrPvlsKeyPopulationDataSetDefinitionMamba) dataSetDefinition;
+        KeyPopulationDataSetDefinitionMamba dataSetDefinitionMamba =  (KeyPopulationDataSetDefinitionMamba) dataSetDefinition;
         SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
         ResultSetMapper resultSetMapper = new ResultSetMapper();
         // Get ResultSet from the database
         try (Connection connection = getDataSource().getConnection();
-             CallableStatement statement = connection.prepareCall("{call sp_dim_tx_new_datim_kp_query(?,?)}")) {
-            statement.setDate(1, new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime()));
-            statement.setDate(2, new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime()));
+             CallableStatement statement = connection.prepareCall("{call sp_dim_tx_new_datim_kp_query()}")) {
 
 
             try (ResultSet resultSet = statement.executeQuery()) {

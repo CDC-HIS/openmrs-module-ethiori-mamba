@@ -84,11 +84,11 @@ public class TxPvlsDenominatorDATIMReportsMamba implements ReportManager {
 		        .setDescription("Disaggregated by Pregnant/Breastfeeding.");
 		reportDefinition.addDataSetDefinition("Disaggregated by Pregnant/Breastfeeding.",
 		    EthiOhriUtil.map(txCurrPvlsDataSetDefinitionDenominatorBreastFeedingPregnantMamba, "endDate=${endDateGC}"));
-
+		
 		KeyPopulationDataSetDefinitionMamba keyPopulationDataSetDefinitionMamba = new KeyPopulationDataSetDefinitionMamba();
 		keyPopulationDataSetDefinitionMamba.addParameters(getParameters());
 		reportDefinition.addDataSetDefinition("Disaggregated by key population type",
-				EthiOhriUtil.map(keyPopulationDataSetDefinitionMamba, "endDate=${endDateGC}"));
+		    EthiOhriUtil.map(keyPopulationDataSetDefinitionMamba, "endDate=${endDateGC}"));
 		return reportDefinition;
 	}
 	
