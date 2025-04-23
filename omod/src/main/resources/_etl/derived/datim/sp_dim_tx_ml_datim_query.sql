@@ -10,7 +10,7 @@ CREATE PROCEDURE sp_dim_tx_ml_datim_query(
 )
 BEGIN
 
-    DECLARE age_group_cols VARCHAR(5000);
+    DECLARE age_group_cols TEXT(5000);
     DECLARE tx_ml_query VARCHAR(6000);
     DECLARE group_query TEXT(50000);
     DECLARE outcome_condition VARCHAR(150);
@@ -30,25 +30,25 @@ BEGIN
         SET outcome_condition = ' latest_follow_up_status = ''Transferred out''';
     ELSEIF REPORT_TYPE = 'REFUSED' THEN
         SET outcome_condition = ' latest_follow_up_status = ''Stop all''';
-END IF;
+    END IF;
 
     IF IS_COURSE_AGE_GROUP THEN
-SELECT GROUP_CONCAT(CONCAT('SUM(CASE WHEN coarse_age_group = ''', normal_agegroup,
-                           ''' THEN count ELSE 0 END) AS `',
-                           REPLACE(normal_agegroup, '`', '``'),
-                           '`')
-       )
-INTO age_group_cols
-FROM (select normal_agegroup from mamba_dim_agegroup group by normal_agegroup) as order_query;
-ELSE
-SELECT GROUP_CONCAT(CONCAT('SUM(CASE WHEN fine_age_group = ''', datim_agegroup,
-                           ''' THEN count ELSE 0 END) AS `',
-                           REPLACE(datim_agegroup, '`', '``'),
-                           '`')
-       )
-INTO age_group_cols
-FROM (select datim_agegroup from mamba_dim_agegroup group by datim_agegroup) as order_query;
-END IF;
+        SELECT GROUP_CONCAT( CONCAT('SUM(CASE WHEN coarse_age_group = ''', normal_agegroup,
+                                    ''' THEN count ELSE 0 END) AS `',
+                                    REPLACE(normal_agegroup, '`', '``'),
+                                    '`')
+               )
+        INTO age_group_cols
+        FROM (select normal_agegroup from mamba_dim_agegroup group by normal_agegroup) as order_query;
+    ELSE
+        SELECT GROUP_CONCAT( CONCAT('SUM(CASE WHEN fine_age_group = ''', datim_agegroup,
+                                    ''' THEN count ELSE 0 END) AS `',
+                                    REPLACE(datim_agegroup, '`', '``'),
+                                    '`')
+               )
+        INTO age_group_cols
+        FROM (select datim_agegroup from mamba_dim_agegroup group by datim_agegroup) as order_query;
+    END IF;
 
     SET tx_ml_query = 'WITH FollowUp AS (SELECT follow_up.encounter_id,
                              follow_up.client_id,
@@ -163,12 +163,11 @@ END IF;
 
 
     SET @sql = CONCAT(tx_ml_query, group_query);
-    SELECT @sql;
-#     PREPARE stmt FROM @sql;
-#     SET @start_date = REPORT_START_DATE;
-#     SET @end_date = REPORT_END_DATE;
-#     EXECUTE stmt USING @start_date, @start_date, @end_date, @end_date, @start_date, @end_date;
-#     DEALLOCATE PREPARE stmt;
+    PREPARE stmt FROM @sql;
+    SET @start_date = REPORT_START_DATE;
+    SET @end_date = REPORT_END_DATE;
+    EXECUTE stmt USING @start_date, @start_date, @end_date, @end_date, @start_date, @end_date;
+    DEALLOCATE PREPARE stmt;
 
 END //
 
