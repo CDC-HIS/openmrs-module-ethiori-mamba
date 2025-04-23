@@ -54,7 +54,7 @@ public class TxNewDATIMReportsMamba implements ReportManager {
 		
 		TxNewAgeSexCd4DataSetDefinitionMamba numeratorDataSetDefinition = new TxNewAgeSexCd4DataSetDefinitionMamba();
 		numeratorDataSetDefinition.addParameters(getParameters());
-		numeratorDataSetDefinition.setCd4Status(TxNewAggregationTypes.NUMERATOR);
+		numeratorDataSetDefinition.setTxNewAggregationType(TxNewAggregationTypes.NUMERATOR);
 		numeratorDataSetDefinition
 		        .setDescription("Auto-Calculate Number of adults and children newly enrolled on antiretroviral therapy (ART). Numerator will auto-calculate from Age/Sex Disaggregates.");
 		reportDefinition
@@ -70,27 +70,27 @@ public class TxNewDATIMReportsMamba implements ReportManager {
 		
 		TxNewAgeSexCd4DataSetDefinitionMamba lessThan200CD4DataSetDefinitionMamba = new TxNewAgeSexCd4DataSetDefinitionMamba();
 		lessThan200CD4DataSetDefinitionMamba.addParameters(getParameters());
-		lessThan200CD4DataSetDefinitionMamba.setCd4Status(TxNewAggregationTypes.LOW);
+		lessThan200CD4DataSetDefinitionMamba.setTxNewAggregationType(TxNewAggregationTypes.LOW);
 		lessThan200CD4DataSetDefinitionMamba.setDescription("<200 CD4");
 		reportDefinition.addDataSetDefinition("<200 CD4",
 		    EthiOhriUtil.map(lessThan200CD4DataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
 		
 		TxNewAgeSexCd4DataSetDefinitionMamba greaterThan200CD4DataSetDefinitionMamba = new TxNewAgeSexCd4DataSetDefinitionMamba();
 		greaterThan200CD4DataSetDefinitionMamba.addParameters(getParameters());
-		greaterThan200CD4DataSetDefinitionMamba.setCd4Status(TxNewAggregationTypes.HIGH);
+		greaterThan200CD4DataSetDefinitionMamba.setTxNewAggregationType(TxNewAggregationTypes.HIGH);
 		greaterThan200CD4DataSetDefinitionMamba.setDescription(">= 200 CD4");
 		reportDefinition.addDataSetDefinition(">= 200 CD4",
 		    EthiOhriUtil.map(greaterThan200CD4DataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
 		
 		TxNewAgeSexCd4DataSetDefinitionMamba unknownCD4DataSetDefinitionMamba = new TxNewAgeSexCd4DataSetDefinitionMamba();
 		unknownCD4DataSetDefinitionMamba.addParameters(getParameters());
-		unknownCD4DataSetDefinitionMamba.setCd4Status(TxNewAggregationTypes.UNKNOWN);
+		unknownCD4DataSetDefinitionMamba.setTxNewAggregationType(TxNewAggregationTypes.UNKNOWN);
 		reportDefinition.addDataSetDefinition("Unknown CD4",
 		    EthiOhriUtil.map(unknownCD4DataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
 		
 		TxNewAgeSexCd4DataSetDefinitionMamba breastFeedingStatusDataSetDefinitionMamba = new TxNewAgeSexCd4DataSetDefinitionMamba();
 		breastFeedingStatusDataSetDefinitionMamba.addParameters(getParameters());
-		breastFeedingStatusDataSetDefinitionMamba.setCd4Status(TxNewAggregationTypes.BREAST_FEEDING);
+		breastFeedingStatusDataSetDefinitionMamba.setTxNewAggregationType(TxNewAggregationTypes.BREAST_FEEDING);
 		reportDefinition.addDataSetDefinition("Disaggregated by Breastfeeding Status at ART Initiation",
 		    EthiOhriUtil.map(breastFeedingStatusDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
 		
