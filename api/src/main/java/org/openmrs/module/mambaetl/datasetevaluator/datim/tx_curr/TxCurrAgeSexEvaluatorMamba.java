@@ -72,32 +72,47 @@ public class TxCurrAgeSexEvaluatorMamba implements DataSetEvaluator {
 
         if(aggregation == TxCurrAggregationTypes.CD4){
             return Arrays.asList(
-                    new ProcedureCall("{call sp_dim_tx_curr_datim_query(?,?,?)}", statement -> {
+                    new ProcedureCall("{call sp_dim_tx_curr_datim_query(?,?,?,?)}", statement -> {
                         statement.setDate(1, endDate);
                         statement.setInt(2, 1);
                         statement.setInt(3, 0);
+                        statement.setInt(4, 0);
                     }),
-                    new ProcedureCall("{call sp_dim_tx_curr_datim_query(?,?,?)}", statement -> {
+                    new ProcedureCall("{call sp_dim_tx_curr_datim_query(?,?,?,?)}", statement -> {
                         statement.setDate(1, endDate);
                         statement.setInt(2, 1);
                         statement.setInt(3, 1);
+                        statement.setInt(4, 0);
                     }),
-                    new ProcedureCall("{call sp_dim_tx_curr_datim_query(?,?,?)}", statement -> {
+                    new ProcedureCall("{call sp_dim_tx_curr_datim_query(?,?,?,?)}", statement -> {
                         statement.setDate(1, endDate);
                         statement.setInt(2, 1);
                         statement.setInt(3, 2);
+                        statement.setInt(4, 0);
                     })
             );
         }
-        else {
+        else if(aggregation == TxCurrAggregationTypes.AGE_SEX) {
             return Collections.singletonList(
-                    new ProcedureCall("{call sp_dim_tx_curr_datim_query(?,?,?)}", statement -> {
+                    new ProcedureCall("{call sp_dim_tx_curr_datim_query(?,?,?,?)}", statement -> {
                         statement.setDate(1, endDate);
                         statement.setInt(2, 0);
                         statement.setInt(3, 3);
+                        statement.setInt(4, 0);
                     })
             );
         }
+        else if(aggregation == TxCurrAggregationTypes.NUMERATOR){
+            return Collections.singletonList(
+                    new ProcedureCall("{call sp_dim_tx_curr_datim_query(?,?,?,?)}", statement -> {
+                        statement.setDate(1, endDate);
+                        statement.setInt(2, 0);
+                        statement.setInt(3, 3);
+                        statement.setInt(4, 1);
+                    })
+            );
+        }
+        else return null;
     }
 	
 	private void mergeResultSetsSideBySide(SimpleDataSet data, List<ResultSet> resultSets) throws SQLException {

@@ -1,7 +1,7 @@
 package org.openmrs.module.mambaetl.helpers.reportOptions;
 
 public enum TxCurrAggregationTypes {
-	CD4("cd4"), AGE_SEX("age_sex"), UNKNOWN("unknown");
+	CD4("cd4"), AGE_SEX("age_sex"), NUMERATOR("NUMERATOR");
 	
 	private final String sqlValue;
 	
@@ -19,6 +19,6 @@ public enum TxCurrAggregationTypes {
 				return cs;
 			}
 		}
-		return UNKNOWN;
+		return AGE_SEX;
 	}
 }

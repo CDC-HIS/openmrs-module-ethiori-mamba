@@ -1,7 +1,7 @@
 package org.openmrs.module.mambaetl.reports.datim;
 
+import org.openmrs.module.mambaetl.datasetdefinition.datim.KeyPopulationDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_curr_pvls.TxCurrPvlsDataSetDefinitionMamba;
-import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_curr_pvls.TxCurrPvlsKeyPopulationDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.datasetdefinition.datim.HeaderDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.mambaetl.helpers.reportOptions.TxCurrPvlsAggregationTypes;
@@ -58,6 +58,14 @@ public class TxPvlsNumeratorDATIMReportsMamba implements ReportManager {
 		reportDefinition.addDataSetDefinition("DSD: TX_PVLS (Numerator)",
 		    EthiOhriUtil.map(headerDefinition, "endDate=${endDateGC}"));
 		
+		TxCurrPvlsDataSetDefinitionMamba txCurrPvlsDataSetDefinitionNumeratorTotalMamba = new TxCurrPvlsDataSetDefinitionMamba();
+		txCurrPvlsDataSetDefinitionNumeratorTotalMamba.addParameters(getParameters());
+		txCurrPvlsDataSetDefinitionNumeratorTotalMamba
+		        .setTxCurrPvlsAggregationTypes(TxCurrPvlsAggregationTypes.NUMERATOR_TOTAL);
+		txCurrPvlsDataSetDefinitionNumeratorTotalMamba.setDescription("Numerator");
+		reportDefinition.addDataSetDefinition("Numerator",
+		    EthiOhriUtil.map(txCurrPvlsDataSetDefinitionNumeratorTotalMamba, "endDate=${endDateGC}"));
+		
 		TxCurrPvlsDataSetDefinitionMamba txCurrPvlsDataSetDefinitionNumeratorMamba = new TxCurrPvlsDataSetDefinitionMamba();
 		txCurrPvlsDataSetDefinitionNumeratorMamba.addParameters(getParameters());
 		txCurrPvlsDataSetDefinitionNumeratorMamba.setTxCurrPvlsAggregationTypes(TxCurrPvlsAggregationTypes.NUMERATOR);
@@ -76,12 +84,11 @@ public class TxPvlsNumeratorDATIMReportsMamba implements ReportManager {
 		        .setDescription("Disaggregated by Pregnant/Breastfeeding.");
 		reportDefinition.addDataSetDefinition("Disaggregated by Pregnant/Breastfeeding.",
 		    EthiOhriUtil.map(txCurrPvlsDataSetDefinitionNumeratorBreastFeedingPregnantMamba, "endDate=${endDateGC}"));
-		
-		TxCurrPvlsKeyPopulationDataSetDefinitionMamba txCurrPvlsKeyPopulationDataSetDefinitionMamba = new TxCurrPvlsKeyPopulationDataSetDefinitionMamba();
-		txCurrPvlsKeyPopulationDataSetDefinitionMamba.addParameters(getParameters());
+
+		KeyPopulationDataSetDefinitionMamba keyPopulationDataSetDefinitionMamba = new KeyPopulationDataSetDefinitionMamba();
+		keyPopulationDataSetDefinitionMamba.addParameters(getParameters());
 		reportDefinition.addDataSetDefinition("Disaggregated by key population type",
-		    EthiOhriUtil.map(txCurrPvlsKeyPopulationDataSetDefinitionMamba, "endDate=${endDateGC}"));
-		
+				EthiOhriUtil.map(keyPopulationDataSetDefinitionMamba, "endDate=${endDateGC}"));
 		return reportDefinition;
 	}
 	

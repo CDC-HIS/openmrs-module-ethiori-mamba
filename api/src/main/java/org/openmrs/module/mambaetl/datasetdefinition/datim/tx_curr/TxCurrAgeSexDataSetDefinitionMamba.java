@@ -14,7 +14,7 @@ public class TxCurrAgeSexDataSetDefinitionMamba extends BaseDataSetDefinition {
 	private Date endDate;
 	
 	@ConfigurationProperty
-	private TxCurrAggregationTypes txCurrAggregationTypes = TxCurrAggregationTypes.UNKNOWN;
+	private TxCurrAggregationTypes txCurrAggregationType;
 	
 	public Date getEndDate() {
 		return endDate;
@@ -25,11 +25,11 @@ public class TxCurrAgeSexDataSetDefinitionMamba extends BaseDataSetDefinition {
 	}
 	
 	public TxCurrAggregationTypes getTxCurrAggregationType() {
-		return txCurrAggregationTypes;
+		return txCurrAggregationType;
 	}
 	
 	public void setTxCurrAggregationType(TxCurrAggregationTypes txCurrAggregationTypes) {
-		this.txCurrAggregationTypes = txCurrAggregationTypes;
+		this.txCurrAggregationType = txCurrAggregationTypes;
 	}
 	
 }

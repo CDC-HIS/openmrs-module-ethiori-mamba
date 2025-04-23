@@ -1,7 +1,7 @@
 package org.openmrs.module.mambaetl.reports.datim;
 
+import org.openmrs.module.mambaetl.datasetdefinition.datim.KeyPopulationDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_curr.TxCurrAgeSexDataSetDefinitionMamba;
-import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_curr.TxCurrKeyPopulationDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.datasetdefinition.datim.HeaderDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.mambaetl.helpers.reportOptions.TxCurrAggregationTypes;
@@ -57,6 +57,16 @@ public class TxCurrDATIMReportsMamba implements ReportManager {
 		headerDefinition.setParameters(getParameters());
 		reportDefinition.addDataSetDefinition("DSD: TX_CURR", EthiOhriUtil.map(headerDefinition, "endDate=${endDateGC}"));
 		
+		TxCurrAgeSexDataSetDefinitionMamba txCurrAgeSexNumeratorDataSetDefinitionMamba = new TxCurrAgeSexDataSetDefinitionMamba();
+		txCurrAgeSexNumeratorDataSetDefinitionMamba.addParameters(getParameters());
+		txCurrAgeSexNumeratorDataSetDefinitionMamba.setTxCurrAggregationType(TxCurrAggregationTypes.NUMERATOR);
+		txCurrAgeSexNumeratorDataSetDefinitionMamba
+		        .setDescription("Number of adults and children currently receiving antiretroviral therapy (ART). Numerator will auto-calculate from Age/Sex Disaggregates.");
+		reportDefinition
+		        .addDataSetDefinition(
+		            "Number of adults and children currently receiving antiretroviral therapy (ART). Numerator will auto-calculate from Age/Sex Disaggregates.",
+		            EthiOhriUtil.map(txCurrAgeSexNumeratorDataSetDefinitionMamba, "endDate=${endDateGC}"));
+		
 		TxCurrAgeSexDataSetDefinitionMamba txCurrAgeSexDataSetDefinitionMamba = new TxCurrAgeSexDataSetDefinitionMamba();
 		txCurrAgeSexDataSetDefinitionMamba.addParameters(getParameters());
 		txCurrAgeSexDataSetDefinitionMamba.setTxCurrAggregationType(TxCurrAggregationTypes.AGE_SEX);
@@ -71,10 +81,10 @@ public class TxCurrDATIMReportsMamba implements ReportManager {
 		reportDefinition.addDataSetDefinition("Disaggregated by ARV Dispensing Quantity by Coarse Age/Sex)",
 		    EthiOhriUtil.map(txCurrCd4DataSetDefinitionMamba, "endDate=${endDateGC}"));
 		
-		TxCurrKeyPopulationDataSetDefinitionMamba txCurrKeyPopulationDataSetDefinitionMamba = new TxCurrKeyPopulationDataSetDefinitionMamba();
-		txCurrKeyPopulationDataSetDefinitionMamba.addParameters(getParameters());
+		KeyPopulationDataSetDefinitionMamba keyPopulationDataSetDefinitionMamba = new KeyPopulationDataSetDefinitionMamba();
+		keyPopulationDataSetDefinitionMamba.addParameters(getParameters());
 		reportDefinition.addDataSetDefinition("Disaggregated by key population type",
-		    EthiOhriUtil.map(txCurrKeyPopulationDataSetDefinitionMamba, "endDate=${endDateGC}"));
+		    EthiOhriUtil.map(keyPopulationDataSetDefinitionMamba, "endDate=${endDateGC}"));
 		return reportDefinition;
 	}
 	

@@ -5,7 +5,8 @@ DROP PROCEDURE IF EXISTS sp_dim_tx_curr_datim_query;
 CREATE PROCEDURE sp_dim_tx_curr_datim_query(
     IN REPORT_END_DATE DATE,
     IN IS_COURSE_AGE_GROUP BOOLEAN,
-    IN ARV_GROUP INT
+    IN ARV_GROUP INT,
+    IN NUMERATOR BOOLEAN
 )
 BEGIN
 
@@ -101,6 +102,9 @@ BEGIN
                                           inner join tx_curr on FollowUp.encounter_id = tx_curr.encounter_id
                                           left join mamba_dim_client client on tx_curr.PatientId = client.client_id) ';
 
+IF NUMERATOR THEN
+    SET group_query = ' SELECT COUNT(*) AS Subtotal from tx_curr_with_client';
+ELSE
         SET group_query = CONCAT('
         SELECT
           sex,
@@ -118,6 +122,7 @@ BEGIN
         USING (sex)
         GROUP BY sex
         ');
+END IF;
     SET @sql = CONCAT(tx_curr_query,group_query);
     PREPARE stmt FROM @sql;
     SET @end_date = REPORT_END_DATE;
