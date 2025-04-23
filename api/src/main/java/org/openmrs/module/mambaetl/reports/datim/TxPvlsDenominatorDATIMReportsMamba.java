@@ -57,7 +57,7 @@ public class TxPvlsDenominatorDATIMReportsMamba implements ReportManager {
 		headerDefinition.setParameters(getParameters());
 		reportDefinition.addDataSetDefinition("DSD: TX_PVLS (Denominator)",
 		    EthiOhriUtil.map(headerDefinition, "endDate=${endDateGC}"));
-
+		
 		TxCurrPvlsDataSetDefinitionMamba txCurrPvlsDataSetDefinitionDenominatorMamba = new TxCurrPvlsDataSetDefinitionMamba();
 		txCurrPvlsDataSetDefinitionDenominatorMamba.addParameters(getParameters());
 		txCurrPvlsDataSetDefinitionDenominatorMamba.setTxCurrPvlsAggregationTypes(TxCurrPvlsAggregationTypes.DENOMINATOR);

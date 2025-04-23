@@ -3,12 +3,7 @@ package org.openmrs.module.mambaetl.datasetevaluator.datim.tx_new;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.annotation.Handler;
-import org.openmrs.api.AdministrationService;
-import org.openmrs.api.context.Context;
 import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_new.TxNewAgeSexCd4DataSetDefinitionMamba;
-import org.openmrs.module.mambaetl.datasetdefinition.hmis_dhis2.HMISDHIS2DatasetDefinition;
-import org.openmrs.module.mambaetl.datasetevaluator.hmis_dhis2.HMISDHIS2DataSetEvaluator;
-import org.openmrs.module.mambaetl.helpers.ConnectionPoolManager;
 import org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
 import org.openmrs.module.reporting.dataset.DataSet;
@@ -80,7 +75,7 @@ public class TxNewAgeSexCd4EvaluatorMamba implements DataSetEvaluator {
                     statement.setDate(1, startDate);
                     statement.setDate(2, endDate);
                     statement.setInt(3, 0);
-                    statement.setString(4, dataSetDefinitionMamba.getCd4Status().getSqlValue());
+	                    statement.setString(4, dataSetDefinitionMamba.getTxNewAggregationType().getSqlValue());
                 })
         );
 	}

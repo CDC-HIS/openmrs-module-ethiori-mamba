@@ -59,14 +59,14 @@ public class TxCurrDATIMReportsMamba implements ReportManager {
 		
 		TxCurrAgeSexDataSetDefinitionMamba txCurrAgeSexDataSetDefinitionMamba = new TxCurrAgeSexDataSetDefinitionMamba();
 		txCurrAgeSexDataSetDefinitionMamba.addParameters(getParameters());
-		txCurrAgeSexDataSetDefinitionMamba.setAggregationType(TxCurrAggregationTypes.AGE_SEX);
+		txCurrAgeSexDataSetDefinitionMamba.setTxCurrAggregationType(TxCurrAggregationTypes.AGE_SEX);
 		txCurrAgeSexDataSetDefinitionMamba.setDescription("Disaggregated by Age / Sex (Fine Disaggregate)");
 		reportDefinition.addDataSetDefinition("Disaggregated by Age / Sex (Fine Disaggregate)",
 		    EthiOhriUtil.map(txCurrAgeSexDataSetDefinitionMamba, "endDate=${endDateGC}"));
 		
 		TxCurrAgeSexDataSetDefinitionMamba txCurrCd4DataSetDefinitionMamba = new TxCurrAgeSexDataSetDefinitionMamba();
 		txCurrCd4DataSetDefinitionMamba.addParameters(getParameters());
-		txCurrCd4DataSetDefinitionMamba.setAggregationType(TxCurrAggregationTypes.CD4);
+		txCurrCd4DataSetDefinitionMamba.setTxCurrAggregationType(TxCurrAggregationTypes.CD4);
 		txCurrCd4DataSetDefinitionMamba.setDescription("Disaggregated by ARV Dispensing Quantity by Coarse Age/Sex");
 		reportDefinition.addDataSetDefinition("Disaggregated by ARV Dispensing Quantity by Coarse Age/Sex)",
 		    EthiOhriUtil.map(txCurrCd4DataSetDefinitionMamba, "endDate=${endDateGC}"));

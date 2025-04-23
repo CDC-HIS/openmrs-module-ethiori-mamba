@@ -68,7 +68,7 @@ public class TxCurrAgeSexEvaluatorMamba implements DataSetEvaluator {
 	
 	private List<ProcedureCall> createProcedureCalls(TxCurrAgeSexDataSetDefinitionMamba dataSetDefinitionMamba) {
         java.sql.Date endDate = new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime());
-        TxCurrAggregationTypes aggregation = dataSetDefinitionMamba.getAggregationType();
+        TxCurrAggregationTypes aggregation = dataSetDefinitionMamba.getTxCurrAggregationType();
 
         if(aggregation == TxCurrAggregationTypes.CD4){
             return Arrays.asList(
@@ -125,7 +125,7 @@ public class TxCurrAgeSexEvaluatorMamba implements DataSetEvaluator {
 
                 for (int i = 1; i <= columnCount; i++) {
                     if(count == 0 || i>1){
-                        String columnName = "";
+                        String columnName;
                         if (metaData.getColumnName(i).equalsIgnoreCase("sex")) {
                             columnName = metaData.getColumnName(i);
                         } else {

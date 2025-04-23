@@ -13,15 +13,15 @@ public class TxNewAgeSexCd4DataSetDefinitionMamba extends BaseDataSetDefinition 
 	@ConfigurationProperty
 	private Date startDate;
 	
-	public Date getStartDate() {
-		return startDate;
-	}
-	
 	@ConfigurationProperty
 	private Date endDate;
 	
 	@ConfigurationProperty
-	private TxNewAggregationTypes txNewAggregationTypes = TxNewAggregationTypes.UNKNOWN;
+	private TxNewAggregationTypes txNewAggregationType;
+	
+	public Date getStartDate() {
+		return startDate;
+	}
 	
 	public void setStartDate(Date startDate) {
 		this.startDate = startDate;
@@ -35,11 +35,11 @@ public class TxNewAgeSexCd4DataSetDefinitionMamba extends BaseDataSetDefinition 
 		this.endDate = endDate;
 	}
 	
-	public TxNewAggregationTypes getCd4Status() {
-		return txNewAggregationTypes;
+	public TxNewAggregationTypes getTxNewAggregationType() {
+		return txNewAggregationType;
 	}
 	
-	public void setCd4Status(TxNewAggregationTypes txNewAggregationTypes) {
-		this.txNewAggregationTypes = txNewAggregationTypes;
+	public void setTxNewAggregationType(TxNewAggregationTypes txNewAggregationType) {
+		this.txNewAggregationType = txNewAggregationType;
 	}
 }

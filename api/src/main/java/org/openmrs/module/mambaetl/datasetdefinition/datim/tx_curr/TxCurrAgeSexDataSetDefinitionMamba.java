@@ -24,11 +24,11 @@ public class TxCurrAgeSexDataSetDefinitionMamba extends BaseDataSetDefinition {
 		this.endDate = endDate;
 	}
 	
-	public TxCurrAggregationTypes getAggregationType() {
+	public TxCurrAggregationTypes getTxCurrAggregationType() {
 		return txCurrAggregationTypes;
 	}
 	
-	public void setAggregationType(TxCurrAggregationTypes txCurrAggregationTypes) {
+	public void setTxCurrAggregationType(TxCurrAggregationTypes txCurrAggregationTypes) {
 		this.txCurrAggregationTypes = txCurrAggregationTypes;
 	}
 	
