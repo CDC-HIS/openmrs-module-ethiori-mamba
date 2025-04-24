@@ -5,6 +5,7 @@
   "table_columns": {
     "_ascus": "912a5c48-8b07-4fd7-b2c3-ccb94fde7c68",
     "acute_diarrhea": "149856AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "additional_test_other_than_genexpert": "9224c3c7-d2d7-4165-88cb-81e5aec30d70",
     "adherence": "23d97715-589c-4dcf-bb86-70e26bba2269",
     "alt_u_l_": "49296372-8a07-4182-8506-ded37e2bc667",
     "anitiretroviral_adherence_level": "b1a646d3-78ff-4dd5-823a-5bef7d69ff3d",
@@ -38,6 +39,7 @@
     "cervical_cancer_screening_method_strategy": "c842a287-f94c-48ee-a370-bd6540a0d1af",
     "cervical_cancer_screening_status": "01c546b4-e08a-4c0c-82ef-d387cab6bbbf",
     "chemotherapy": "166917AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "chest_xray": "8ee98d84-2e50-4c11-9f20-185588f8b906",
     "cin_13": "ba4420d5-acc2-4d1c-8ead-43476e17960d",
     "client_sets_hiv_prevention_plan": "a3758771-f534-495e-9a3c-290acc79dda0",
     "colposcopy_exam_date": "eb135e8e-5e19-4d6e-ad71-c6bdab26f73d",
@@ -174,6 +176,7 @@
     "screening_test_result_tuberculosis": "160108AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "second_viral_load_test_at_12_months_post_art": "c616b09a-bcc2-49a9-b47c-7219f7695e91",
     "six_months_after_the_first_viral_load_test_at_postnatal_peri": "d3d6d8e3-0438-4f83-ba9f-ac46eed6782b",
+    "smear_microscopy_only": "3a6f3d9d-623c-452b-8f96-bbdb8805aa97",
     "specimen_sent_to_lab": "161934AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "stages_of_disclosure": "685eaed5-b695-499e-96c5-d9ce95d8b7df",
     "surgical_procedure": "159619AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
