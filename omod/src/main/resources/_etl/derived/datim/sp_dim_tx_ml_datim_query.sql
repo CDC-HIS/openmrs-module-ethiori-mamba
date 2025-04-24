@@ -10,10 +10,11 @@ CREATE PROCEDURE sp_dim_tx_ml_datim_query(
 )
 BEGIN
 
-    DECLARE age_group_cols TEXT(5000);
+    DECLARE age_group_cols VARCHAR(5000);
     DECLARE tx_ml_query VARCHAR(6000);
-    DECLARE group_query TEXT(50000);
+    DECLARE group_query TEXT;
     DECLARE outcome_condition VARCHAR(150);
+    SET session group_concat_max_len = 20000;
 
     IF REPORT_TYPE = 'DIED' THEN
         SET outcome_condition = ' latest_follow_up_status = ''Dead''';
@@ -161,7 +162,7 @@ BEGIN
         GROUP BY sex
         ');
 
-
+    # SELECT CONCAT(tx_ml_query, group_query);
     SET @sql = CONCAT(tx_ml_query, group_query);
     PREPARE stmt FROM @sql;
     SET @start_date = REPORT_START_DATE;
