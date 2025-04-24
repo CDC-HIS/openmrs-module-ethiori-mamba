@@ -1,6 +1,7 @@
 package org.openmrs.module.mambaetl.reports.datim;
 
 import org.openmrs.module.mambaetl.datasetdefinition.datim.HeaderDataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_ml.MLKeyPopulationDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_ml.TxMLDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.mambaetl.helpers.reportOptions.TxMLAggregationTypes;
@@ -101,6 +102,12 @@ public class TxMLDATIMReportsMamba implements ReportManager {
 		txMLRefusedDataSetDefinitionMamba.setDescription("Refused (Stopped) Treatment");
 		reportDefinition.addDataSetDefinition("Refused (Stopped) Treatment",
 		    EthiOhriUtil.map(txMLRefusedDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		
+		MLKeyPopulationDataSetDefinitionMamba mlKeyPopulationDataSetDefinitionMamba = new MLKeyPopulationDataSetDefinitionMamba();
+		mlKeyPopulationDataSetDefinitionMamba.addParameters(getParameters());
+		mlKeyPopulationDataSetDefinitionMamba.setDescription("Disaggregated by Status/Key Population Type:");
+		reportDefinition.addDataSetDefinition("Disaggregated by Status/Key Population Type:",
+		    EthiOhriUtil.map(mlKeyPopulationDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
 		
 		return reportDefinition;
 	}
