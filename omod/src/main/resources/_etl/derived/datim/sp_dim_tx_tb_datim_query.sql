@@ -16,9 +16,11 @@ BEGIN
     SET session group_concat_max_len = 20000;
 
     IF REPORT_TYPE = 'NEW_ART_POSITIVE' THEN
-        SET outcome_condition = ' art_start_date between ? AND ? and (screening_result=''Positive'' or lf_lam_result = ''Positive'' or gene_xpert_result=''Positive'' or other_tb_diagnostic_result=''Positive'') ';
+        SET outcome_condition =
+                ' art_start_date between ? AND ? and (screening_result=''Positive'' or lf_lam_result = ''Positive'' or gene_xpert_result=''Positive'' or other_tb_diagnostic_result=''Positive'') ';
     ELSEIF REPORT_TYPE = 'NEW_ART_NEGATIVE' THEN
-        SET outcome_condition = ' art_start_date between ? AND ?  and (screening_result != ''Positive'' and lf_lam_result != ''Positive'' and gene_xpert_result != ''Positive'' and other_tb_diagnostic_result != ''Positive'') ';
+        SET outcome_condition =
+                ' art_start_date between ? AND ?  and (screening_result != ''Positive'' and lf_lam_result != ''Positive'' and gene_xpert_result != ''Positive'' and other_tb_diagnostic_result != ''Positive'') ';
     ELSEIF REPORT_TYPE = 'PREV_ART_POSITIVE' THEN
         SET outcome_condition =
                 ' art_start_date < ? and follow_up_status in (''Alive'', ''Restart medication'') and (screening_result = ''Positive'' or lf_lam_result = ''Positive'' or gene_xpert_result = ''Positive'' or other_tb_diagnostic_result = ''Positive'') ';
@@ -72,7 +74,8 @@ BEGIN
                          lf_lam_result,
                          gene_xpert_result,
                          diagnostic_test as other_diagnostic_test,
-                         tb_diagnostic_test_result           as         other_tb_diagnostic_result
+                         tb_diagnostic_test_result           as         other_tb_diagnostic_result,
+                         specimen_sent_to_lab
                   FROM mamba_flat_encounter_follow_up follow_up
                            JOIN mamba_flat_encounter_follow_up_1 follow_up_1
                                 ON follow_up.encounter_id = follow_up_1.encounter_id
@@ -102,6 +105,7 @@ BEGIN
                                               gene_xpert_result,
                                               other_diagnostic_test,
                                               other_tb_diagnostic_result,
+                                              specimen_sent_to_lab,
                                               ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY tb_screening_date DESC, encounter_id DESC) AS row_num
                                        FROM FollowUp
                                        WHERE follow_up_status IS NOT NULL
@@ -127,6 +131,15 @@ BEGIN
        SUM(CASE WHEN other_diagnostic_test != ''Chest X-Ray'' is null THEN 1 ELSE 0 END) AS ''Symptom Screen Only'',
        0 AS `Molecular WHO-Recommended Diagnostic Test(mWRD)`
  from tb_screening';
+    ELSEIF REPORT_TYPE = 'SPECIMEN_SENT' THEN
+        SET group_query = ' select  SUM(CASE WHEN other_diagnostic_test = ''Smear microscopy only'' is not null THEN 1 ELSE 0 END) as `Smear Microscopy Only`,
+        0 AS `mWRD: Molecular WHO-Recommended Diagnostic PCR (with or without other testing)`,
+        SUM(CASE WHEN other_diagnostic_test = ''Additional test other than Gene-Xpert'' is not null THEN 1 ELSE 0 END) as `Additional test other than mWRD`
+from tb_screening where specimen_sent_to_lab=''Yes'' ';
+    ELSEIF REPORT_TYPE = 'DIAGNOSTIC_TEST' THEN
+        SET group_query = ' select  ''Number of ART patients who had a specimen sent for bacteriologic diagnosis of active TB disease'' AS `Name`,COUNT(*) AS `Value` from tb_screening where specimen_sent_to_lab=''Yes'' ';
+    ELSEIF REPORT_TYPE='POSITIVE_RESULT' THEN
+        SET group_query = ' select  ''Number of ART patients who had a positive result returned for bacteriologic diagnosis of active TB disease'' AS `Name`,COUNT(*) AS `Value` from tb_screening where specimen_sent_to_lab=''Yes'' and screening_result = ''Positive'' ';
     ELSE
         SET group_query = CONCAT('
         SELECT
@@ -148,8 +161,17 @@ BEGIN
     END IF;
 
     SET @sql = CONCAT(tx_tb_query, group_query);
-    SELECT @sql;
-
+    PREPARE stmt FROM @sql;
+    SET @start_date = REPORT_START_DATE;
+    SET @end_date = REPORT_END_DATE;
+    IF REPORT_TYPE = 'PREV_ART_POSITIVE' OR REPORT_TYPE = 'PREV_ART_NEGATIVE' THEN
+        EXECUTE stmt USING @end_date, @start_date , @end_date, @end_date;
+    ELSEIF REPORT_TYPE = 'NEW_ART_POSITIVE' OR REPORT_TYPE = 'NEW_ART_NEGATIVE' THEN
+        EXECUTE stmt USING @end_date, @start_date , @end_date, @start_date ,@end_date;
+    ELSE
+        EXECUTE stmt USING @end_date, @start_date , @end_date;
+    END IF;
+    DEALLOCATE PREPARE stmt;
 END //
 
 DELIMITER ;
