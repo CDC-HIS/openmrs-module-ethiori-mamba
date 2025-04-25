@@ -3,7 +3,6 @@ package org.openmrs.module.mambaetl.reports.datim;
 import org.openmrs.module.mambaetl.datasetdefinition.datim.HeaderDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_tb.TxTBDenominatorDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
-import org.openmrs.module.mambaetl.helpers.reportOptions.TxNewAggregationTypes;
 import org.openmrs.module.mambaetl.helpers.reportOptions.TxTBAggregationTypes;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.report.ReportDesign;
