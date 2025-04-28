@@ -2,6 +2,7 @@ package org.openmrs.module.mambaetl.reports.datim;
 
 import org.openmrs.module.mambaetl.datasetdefinition.datim.HeaderDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_tb.TxTBDenominatorDataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_tb.TxTBNumeratorDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.mambaetl.helpers.reportOptions.TxTBAggregationTypes;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
@@ -51,64 +52,28 @@ public class TxTBNumeratorDATIMReportsMamba implements ReportManager {
 		HeaderDataSetDefinitionMamba headerDefinition = new HeaderDataSetDefinitionMamba();
 		headerDefinition.setDescription("DSD: TX_TB (Numerator)");
 		headerDefinition.setParameters(getParameters());
-		reportDefinition.addDataSetDefinition("DSD: TX_TB (Denominator)",
-		    EthiOhriUtil.map(headerDefinition, "endDate=${Numerator}"));
+		reportDefinition.addDataSetDefinition("DSD: TX_TB (Numerator)",
+		    EthiOhriUtil.map(headerDefinition, "endDate=${endDateGC}"));
 		
-		TxTBDenominatorDataSetDefinitionMamba txTBNewArtPositiveDenominatorDataSetDefinitionMamba = new TxTBDenominatorDataSetDefinitionMamba();
-		txTBNewArtPositiveDenominatorDataSetDefinitionMamba.addParameters(getParameters());
-		txTBNewArtPositiveDenominatorDataSetDefinitionMamba.setTxTBAggregationTypes(TxTBAggregationTypes.NEW_ART_POSITIVE);
-		txTBNewArtPositiveDenominatorDataSetDefinitionMamba.setDescription("New on ART/Screen Positive");
-		reportDefinition.addDataSetDefinition("New on ART/Screen Positive", EthiOhriUtil.map(
-		    txTBNewArtPositiveDenominatorDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		TxTBNumeratorDataSetDefinitionMamba txTBNewNumeratorDataSetDefinitionMamba = new TxTBNumeratorDataSetDefinitionMamba();
+		txTBNewNumeratorDataSetDefinitionMamba.addParameters(getParameters());
+		txTBNewNumeratorDataSetDefinitionMamba.setTxTBAggregationTypes(TxTBAggregationTypes.NUMERATOR_NEW);
+		txTBNewNumeratorDataSetDefinitionMamba
+		        .setDescription("The number of patients starting TB treatment who newly started ART during reporting period");
+		reportDefinition.addDataSetDefinition(
+		    "The number of patients starting TB treatment who newly started ART during reporting period",
+		    EthiOhriUtil.map(txTBNewNumeratorDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
 		
-		TxTBDenominatorDataSetDefinitionMamba txTBNewArtNegativeDenominatorDataSetDefinitionMamba = new TxTBDenominatorDataSetDefinitionMamba();
-		txTBNewArtNegativeDenominatorDataSetDefinitionMamba.addParameters(getParameters());
-		txTBNewArtNegativeDenominatorDataSetDefinitionMamba.setTxTBAggregationTypes(TxTBAggregationTypes.NEW_ART_NEGATIVE);
-		txTBNewArtNegativeDenominatorDataSetDefinitionMamba.setDescription("New on ART/Screen Negative");
-		reportDefinition.addDataSetDefinition("New on ART/Screen Negative", EthiOhriUtil.map(
-		    txTBNewArtNegativeDenominatorDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
-		
-		TxTBDenominatorDataSetDefinitionMamba txTBPreArtPositiveDenominatorDataSetDefinitionMamba = new TxTBDenominatorDataSetDefinitionMamba();
-		txTBPreArtPositiveDenominatorDataSetDefinitionMamba.addParameters(getParameters());
-		txTBPreArtPositiveDenominatorDataSetDefinitionMamba.setTxTBAggregationTypes(TxTBAggregationTypes.PREV_ART_POSITIVE);
-		txTBPreArtPositiveDenominatorDataSetDefinitionMamba.setDescription("Already on ART/Screen Positive");
-		reportDefinition.addDataSetDefinition("Already on ART/Screen Positive", EthiOhriUtil.map(
-		    txTBPreArtPositiveDenominatorDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
-		
-		TxTBDenominatorDataSetDefinitionMamba txTBPreArtNegativeDenominatorDataSetDefinitionMamba = new TxTBDenominatorDataSetDefinitionMamba();
-		txTBPreArtNegativeDenominatorDataSetDefinitionMamba.addParameters(getParameters());
-		txTBPreArtNegativeDenominatorDataSetDefinitionMamba.setTxTBAggregationTypes(TxTBAggregationTypes.PREV_ART_NEGATIVE);
-		txTBPreArtNegativeDenominatorDataSetDefinitionMamba.setDescription("Already on ART/Screen Negative");
-		reportDefinition.addDataSetDefinition("Already on ART/Screen Negative", EthiOhriUtil.map(
-		    txTBPreArtNegativeDenominatorDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
-		
-		TxTBDenominatorDataSetDefinitionMamba txTBScreenTypeDenominatorDataSetDefinitionMamba = new TxTBDenominatorDataSetDefinitionMamba();
-		txTBScreenTypeDenominatorDataSetDefinitionMamba.addParameters(getParameters());
-		txTBScreenTypeDenominatorDataSetDefinitionMamba.setTxTBAggregationTypes(TxTBAggregationTypes.PREV_ART_NEGATIVE);
-		txTBScreenTypeDenominatorDataSetDefinitionMamba.setDescription("Disaggregated by Screen Type");
-		reportDefinition.addDataSetDefinition("Disaggregated by Screen Type", EthiOhriUtil.map(
-		    txTBScreenTypeDenominatorDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
-		
-		TxTBDenominatorDataSetDefinitionMamba txTBSpecimenSentDenominatorDataSetDefinitionMamba = new TxTBDenominatorDataSetDefinitionMamba();
-		txTBSpecimenSentDenominatorDataSetDefinitionMamba.addParameters(getParameters());
-		txTBSpecimenSentDenominatorDataSetDefinitionMamba.setTxTBAggregationTypes(TxTBAggregationTypes.SPECIMEN_SENT);
-		txTBSpecimenSentDenominatorDataSetDefinitionMamba.setDescription("Disaggregated by Specimen Sent");
-		reportDefinition.addDataSetDefinition("Disaggregated by Specimen Sent", EthiOhriUtil.map(
-		    txTBSpecimenSentDenominatorDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
-		
-		TxTBDenominatorDataSetDefinitionMamba txTBDiagnosticTestDenominatorDataSetDefinitionMamba = new TxTBDenominatorDataSetDefinitionMamba();
-		txTBDiagnosticTestDenominatorDataSetDefinitionMamba.addParameters(getParameters());
-		txTBDiagnosticTestDenominatorDataSetDefinitionMamba.setTxTBAggregationTypes(TxTBAggregationTypes.DIAGNOSTIC_TEST);
-		txTBDiagnosticTestDenominatorDataSetDefinitionMamba.setDescription("[Disagg of Specimen Sent] Diagnostic Test");
-		reportDefinition.addDataSetDefinition("[Disagg of Specimen Sent] Diagnostic Test", EthiOhriUtil.map(
-		    txTBDiagnosticTestDenominatorDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
-		
-		TxTBDenominatorDataSetDefinitionMamba txTBPositiveReturnedDenominatorDataSetDefinitionMamba = new TxTBDenominatorDataSetDefinitionMamba();
-		txTBPositiveReturnedDenominatorDataSetDefinitionMamba.addParameters(getParameters());
-		txTBPositiveReturnedDenominatorDataSetDefinitionMamba.setTxTBAggregationTypes(TxTBAggregationTypes.POSITIVE_RESULT);
-		txTBPositiveReturnedDenominatorDataSetDefinitionMamba.setDescription("Disaggregated by Positive Result Returned");
-		reportDefinition.addDataSetDefinition("Disaggregated by Positive Result Returned", EthiOhriUtil.map(
-		    txTBPositiveReturnedDenominatorDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		TxTBNumeratorDataSetDefinitionMamba txTBPrevNumeratorDataSetDefinitionMamba = new TxTBNumeratorDataSetDefinitionMamba();
+		txTBPrevNumeratorDataSetDefinitionMamba.addParameters(getParameters());
+		txTBPrevNumeratorDataSetDefinitionMamba.setTxTBAggregationTypes(TxTBAggregationTypes.NUMERATOR_NEW);
+		txTBPrevNumeratorDataSetDefinitionMamba
+		        .setDescription("The number of patients starting TB treatment who were already on ART prior to the start of the reporting period");
+		reportDefinition
+		        .addDataSetDefinition(
+		            "The number of patients starting TB treatment who were already on ART prior to the start of the reporting period",
+		            EthiOhriUtil.map(txTBPrevNumeratorDataSetDefinitionMamba,
+		                "startDate=${startDateGC},endDate=${endDateGC}"));
 		
 		return reportDefinition;
 	}

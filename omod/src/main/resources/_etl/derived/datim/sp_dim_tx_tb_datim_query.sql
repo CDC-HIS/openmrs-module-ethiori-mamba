@@ -17,16 +17,16 @@ BEGIN
 
     IF REPORT_TYPE = 'NEW_ART_POSITIVE' THEN
         SET outcome_condition =
-                ' art_start_date between ? AND ? and (screening_result=''Positive'' or lf_lam_result = ''Positive'' or gene_xpert_result=''Positive'' or other_tb_diagnostic_result=''Positive'') ';
+                ' art_start_date between ? AND ? and screening_result=''Positive'' ';
     ELSEIF REPORT_TYPE = 'NEW_ART_NEGATIVE' THEN
         SET outcome_condition =
-                ' art_start_date between ? AND ?  and (screening_result != ''Positive'' and lf_lam_result != ''Positive'' and gene_xpert_result != ''Positive'' and other_tb_diagnostic_result != ''Positive'') ';
+                ' art_start_date between ? AND ?  and screening_result != ''Positive''  ';
     ELSEIF REPORT_TYPE = 'PREV_ART_POSITIVE' THEN
         SET outcome_condition =
-                ' art_start_date < ? and follow_up_status in (''Alive'', ''Restart medication'') and (screening_result = ''Positive'' or lf_lam_result = ''Positive'' or gene_xpert_result = ''Positive'' or other_tb_diagnostic_result = ''Positive'') ';
+                ' art_start_date < ? and follow_up_status in (''Alive'', ''Restart medication'') and screening_result = ''Positive'' ';
     ELSEIF REPORT_TYPE = 'PREV_ART_NEGATIVE' THEN
         SET outcome_condition =
-                ' art_start_date < ? and follow_up_status in (''Alive'', ''Restart medication'')  and (screening_result != ''Positive'' and lf_lam_result != ''Positive'' and gene_xpert_result != ''Positive'' and other_tb_diagnostic_result != ''Positive'') ';
+                ' art_start_date < ? and follow_up_status in (''Alive'', ''Restart medication'')  and screening_result != ''Positive'' ';
     ELSEIF REPORT_TYPE = 'SCREEN_TYPE' THEN
         SET outcome_condition = ' 1=1 ';
     ELSEIF REPORT_TYPE = 'SPECIMEN_SENT' THEN
@@ -35,6 +35,10 @@ BEGIN
         SET outcome_condition = ' 1=1 ';
     ELSEIF REPORT_TYPE = 'POSITIVE_RESULT' THEN
         SET outcome_condition = ' 1=1 ';
+    ELSEIF REPORT_TYPE = 'NUMERATOR_NEW' THEN
+        SET outcome_condition =' art_start_date between ? AND ? and tb_treatment_start_date between ? AND ? ';
+    ELSEIF REPORT_TYPE = 'NUMERATOR_PREV' THEN
+        SET outcome_condition =' art_start_date < ? and follow_up_status in (''Alive'', ''Restart medication'') and tb_treatment_start_date between ? AND ? ';
     END IF;
 
     IF IS_COURSE_AGE_GROUP THEN
@@ -75,7 +79,9 @@ BEGIN
                          gene_xpert_result,
                          diagnostic_test as other_diagnostic_test,
                          tb_diagnostic_test_result           as         other_tb_diagnostic_result,
-                         specimen_sent_to_lab
+                         specimen_sent_to_lab,
+                         tuberculosis_drug_treatment_start_d as tb_treatment_start_date,
+                         date_active_tbrx_completed as tb_treatment_completed_date
                   FROM mamba_flat_encounter_follow_up follow_up
                            JOIN mamba_flat_encounter_follow_up_1 follow_up_1
                                 ON follow_up.encounter_id = follow_up_1.encounter_id
@@ -85,7 +91,7 @@ BEGIN
                                      ON follow_up.encounter_id = follow_up_3.encounter_id
                            LEFT JOIN mamba_flat_encounter_follow_up_4 follow_up_4
                                      ON follow_up.encounter_id = follow_up_4.encounter_id
-                  ),
+),
      tmp_latest_follow_up
          as (select client_id,
                     encounter_id,
@@ -106,6 +112,8 @@ BEGIN
                                               other_diagnostic_test,
                                               other_tb_diagnostic_result,
                                               specimen_sent_to_lab,
+                                              tb_treatment_start_date,
+                                              tb_treatment_completed_date,
                                               ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY tb_screening_date DESC, encounter_id DESC) AS row_num
                                        FROM FollowUp
                                        WHERE follow_up_status IS NOT NULL
@@ -168,6 +176,10 @@ from tb_screening where specimen_sent_to_lab=''Yes'' ';
         EXECUTE stmt USING @end_date, @start_date , @end_date, @end_date;
     ELSEIF REPORT_TYPE = 'NEW_ART_POSITIVE' OR REPORT_TYPE = 'NEW_ART_NEGATIVE' THEN
         EXECUTE stmt USING @end_date, @start_date , @end_date, @start_date ,@end_date;
+    ELSEIF REPORT_TYPE = 'NUMERATOR_PREV' THEN
+        EXECUTE stmt USING @end_date, @start_date , @end_date, @end_date , @end_date, @end_date;
+    ELSEIF REPORT_TYPE = 'NUMERATOR_NEW' THEN
+        EXECUTE stmt USING @end_date, @start_date , @end_date, @start_date ,@end_date, @start_date ,@end_date;
     ELSE
         EXECUTE stmt USING @end_date, @start_date , @end_date;
     END IF;
