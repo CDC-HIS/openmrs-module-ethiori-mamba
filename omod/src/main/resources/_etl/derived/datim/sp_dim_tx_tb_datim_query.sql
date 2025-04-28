@@ -37,6 +37,8 @@ BEGIN
         SET outcome_condition = ' 1=1 ';
     ELSEIF REPORT_TYPE = 'NUMERATOR_NEW' THEN
         SET outcome_condition =' art_start_date between ? AND ? and tb_treatment_start_date between ? AND ? ';
+    ELSEIF REPORT_TYPE = 'NUMERATOR_TOTAL' THEN
+        SET outcome_condition =' tb_treatment_start_date between ? AND ? ';
     ELSEIF REPORT_TYPE = 'NUMERATOR_PREV' THEN
         SET outcome_condition =' art_start_date < ? and follow_up_status in (''Alive'', ''Restart medication'') and tb_treatment_start_date between ? AND ? ';
     END IF;
@@ -148,6 +150,8 @@ from tb_screening where specimen_sent_to_lab=''Yes'' ';
         SET group_query = ' select  ''Number of ART patients who had a specimen sent for bacteriologic diagnosis of active TB disease'' AS `Name`,COUNT(*) AS `Value` from tb_screening where specimen_sent_to_lab=''Yes'' ';
     ELSEIF REPORT_TYPE='POSITIVE_RESULT' THEN
         SET group_query = ' select  ''Number of ART patients who had a positive result returned for bacteriologic diagnosis of active TB disease'' AS `Name`,COUNT(*) AS `Value` from tb_screening where specimen_sent_to_lab=''Yes'' and screening_result = ''Positive'' ';
+    ELSEIF REPORT_TYPE='NUMERATOR_TOTAL' THEN
+        SET group_query = CONCAT(' select COUNT(*) as `Subtotal` FROM tb_screening WHERE ',outcome_condition);
     ELSE
         SET group_query = CONCAT('
         SELECT
@@ -174,7 +178,7 @@ from tb_screening where specimen_sent_to_lab=''Yes'' ';
     SET @end_date = REPORT_END_DATE;
     IF REPORT_TYPE = 'PREV_ART_POSITIVE' OR REPORT_TYPE = 'PREV_ART_NEGATIVE' THEN
         EXECUTE stmt USING @end_date, @start_date , @end_date, @end_date;
-    ELSEIF REPORT_TYPE = 'NEW_ART_POSITIVE' OR REPORT_TYPE = 'NEW_ART_NEGATIVE' THEN
+    ELSEIF REPORT_TYPE = 'NEW_ART_POSITIVE' OR REPORT_TYPE = 'NEW_ART_NEGATIVE' OR REPORT_TYPE='NUMERATOR_TOTAL' THEN
         EXECUTE stmt USING @end_date, @start_date , @end_date, @start_date ,@end_date;
     ELSEIF REPORT_TYPE = 'NUMERATOR_PREV' THEN
         EXECUTE stmt USING @end_date, @start_date , @end_date, @end_date , @end_date, @end_date;
