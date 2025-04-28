@@ -55,6 +55,13 @@ public class TxTBNumeratorDATIMReportsMamba implements ReportManager {
 		reportDefinition.addDataSetDefinition("DSD: TX_TB (Numerator)",
 		    EthiOhriUtil.map(headerDefinition, "endDate=${endDateGC}"));
 		
+		TxTBNumeratorDataSetDefinitionMamba txTBNewNumeratorTotalDataSetDefinitionMamba = new TxTBNumeratorDataSetDefinitionMamba();
+		txTBNewNumeratorTotalDataSetDefinitionMamba.addParameters(getParameters());
+		txTBNewNumeratorTotalDataSetDefinitionMamba.setTxTBAggregationTypes(TxTBAggregationTypes.NUMERATOR_TOTAL);
+		txTBNewNumeratorTotalDataSetDefinitionMamba.setDescription("Numerator");
+		reportDefinition.addDataSetDefinition("Numerator",
+		    EthiOhriUtil.map(txTBNewNumeratorTotalDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		
 		TxTBNumeratorDataSetDefinitionMamba txTBNewNumeratorDataSetDefinitionMamba = new TxTBNumeratorDataSetDefinitionMamba();
 		txTBNewNumeratorDataSetDefinitionMamba.addParameters(getParameters());
 		txTBNewNumeratorDataSetDefinitionMamba.setTxTBAggregationTypes(TxTBAggregationTypes.NUMERATOR_NEW);
