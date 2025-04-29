@@ -85,14 +85,14 @@ BEGIN
                          tuberculosis_drug_treatment_start_d as tb_treatment_start_date,
                          date_active_tbrx_completed as tb_treatment_completed_date
                   FROM mamba_flat_encounter_follow_up follow_up
-                           JOIN mamba_flat_encounter_follow_up_1 follow_up_1
-                                ON follow_up.encounter_id = follow_up_1.encounter_id
-                           JOIN mamba_flat_encounter_follow_up_2 follow_up_2
-                                ON follow_up.encounter_id = follow_up_2.encounter_id
-                           LEFT JOIN mamba_flat_encounter_follow_up_3 follow_up_3
-                                     ON follow_up.encounter_id = follow_up_3.encounter_id
-                           LEFT JOIN mamba_flat_encounter_follow_up_4 follow_up_4
-                                     ON follow_up.encounter_id = follow_up_4.encounter_id
+                               LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1
+                                    ON follow_up.encounter_id = follow_up_1.encounter_id
+                               LEFT JOIN mamba_flat_encounter_follow_up_2 follow_up_2
+                                    ON follow_up.encounter_id = follow_up_2.encounter_id
+                               LEFT JOIN mamba_flat_encounter_follow_up_3 follow_up_3
+                                         ON follow_up.encounter_id = follow_up_3.encounter_id
+                               LEFT JOIN mamba_flat_encounter_follow_up_4 follow_up_4
+                                         ON follow_up.encounter_id = follow_up_4.encounter_id
 ),
      tmp_latest_follow_up
          as (select client_id,
