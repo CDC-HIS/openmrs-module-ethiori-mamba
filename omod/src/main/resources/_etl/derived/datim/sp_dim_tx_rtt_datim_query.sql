@@ -10,18 +10,21 @@ CREATE PROCEDURE sp_dim_tx_rtt_datim_query(
 )
 BEGIN
     DECLARE age_group_cols VARCHAR(5000);
-    DECLARE tx_tb_query VARCHAR(6000);
+    DECLARE tx_rtt_query VARCHAR(6746);
     DECLARE group_query TEXT;
     DECLARE outcome_condition VARCHAR(227);
     SET session group_concat_max_len = 20000;
 
-    IF REPORT_TYPE = 'ALREADY_ON_ART' THEN
+    IF REPORT_TYPE = 'CD4_LESS_THAN_200' THEN
         SET outcome_condition =
                 ' art_start_date < ? ';
-    ELSEIF REPORT_TYPE = 'NEW_ON_ART' THEN
+    ELSEIF REPORT_TYPE = 'CD4_GREATER_THAN_200' THEN
         SET outcome_condition =
                 ' art_start_date between ? AND ? ';
-
+    ELSEIF REPORT_TYPE = 'CD4_UNKNOWN' THEN
+        SET outcome_condition = '';
+    ELSEIF REPORT_TYPE = 'CD4_NOT_ELIGIBLE' THEN
+        SET outcome_condition = '';
     END IF;
 
     IF IS_COURSE_AGE_GROUP THEN
@@ -42,7 +45,7 @@ BEGIN
         FROM (select datim_agegroup from mamba_dim_agegroup group by datim_agegroup) as order_query;
     END IF;
 
-    SET tx_tb_query = 'WITH FollowUp AS (select follow_up.encounter_id,
+    SET tx_rtt_query = 'WITH FollowUp AS (SELECT follow_up.encounter_id,
                          follow_up.client_id,
                          follow_up_status,
                          follow_up_date_followup_            AS follow_up_date,
@@ -52,16 +55,8 @@ BEGIN
                          regimen,
                          currently_breastfeeding_child          breast_feeding_status,
                          pregnancy_status,
-                         was_the_patient_screened_for_tuberc as tb_screened,
-                         tb_screening_date,
-                         tb_treatment_status,
-                         transferred_in_check_this_for_all_t as transferred_in,
-                         date_started_on_tuberculosis_prophy,
-                         screening_test_result_tuberculosis     screening_result,
-                         lf_lam_result,
-                         patient_diagnosed_with_active_tuber,
-                         diagnosis_date as active_tb_diagnosed_date,
-                         tuberculosis_drug_treatment_start_d as tb_treatment_start_date
+                         transferred_in_check_this_for_all_t AS transferred_in,
+                         cd4_count
                   FROM mamba_flat_encounter_follow_up follow_up
                            LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1
                                      ON follow_up.encounter_id = follow_up_1.encounter_id
@@ -71,35 +66,92 @@ BEGIN
                                      ON follow_up.encounter_id = follow_up_3.encounter_id
                            LEFT JOIN mamba_flat_encounter_follow_up_4 follow_up_4
                                      ON follow_up.encounter_id = follow_up_4.encounter_id),
-     tmp_latest_follow_up as (SELECT client_id,
-                                     follow_up_date                                                                             AS FollowupDate,
-                                     encounter_id,
-                                     follow_up_status,
-                                     tb_screening_date,
-                                     art_start_date,
-                                     tb_screened,
-                                     screening_result,
-                                     lf_lam_result,
-                                     patient_diagnosed_with_active_tuber,
-                                     active_tb_diagnosed_date,
-                                     tb_treatment_start_date,
-                                     ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
-                              FROM FollowUp
-                              WHERE follow_up_status IS NOT NULL
-                                AND art_start_date IS NOT NULL
-                           --     AND tb_screened = ''Yes''
-                                AND follow_up_date <= ?),
-    tb_art as (
-        select tmp_latest_follow_up.*,
-                             sex,
-                             date_of_birth,
-                             fine_age_group,
-                             coarse_age_group from tmp_latest_follow_up
-        join mamba_dim_client client on client.client_id=tmp_latest_follow_up.client_id
-where follow_up_status in (''Alive'',''Restart medication'')
-                                             and row_num=1
-                                             and (active_tb_diagnosed_date BETWEEN ? AND ? OR tb_treatment_start_date BETWEEN ? AND ?)
-    ) ';
+     -- TX curr start
+     tmp_latest_follow_up_start AS (SELECT client_id,
+                                           follow_up_date,
+                                           encounter_id,
+                                           follow_up_status,
+                                           treatment_end_date,
+                                           art_start_date,
+                                           cd4_count,
+                                           ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
+                                    FROM FollowUp
+                                    WHERE follow_up_status IS NOT NULL
+                                      AND art_start_date IS NOT NULL
+                                      AND follow_up_date <= ?),
+     tx_curr_start AS (select *
+                       from tmp_latest_follow_up_start
+                       where row_num = 1
+                         AND follow_up_status in (''Alive'', ''Restart medication'')
+                         AND treatment_end_date >= ?),
+     -- TX curr
+     tmp_latest_follow_up_end AS (SELECT client_id,
+                                         follow_up_date,
+                                         encounter_id,
+                                         follow_up_status,
+                                         treatment_end_date,
+                                         art_start_date,
+                                         cd4_count,
+                                         ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
+                                  FROM FollowUp
+                                  WHERE follow_up_status IS NOT NULL
+                                    AND art_start_date IS NOT NULL
+                                    AND follow_up_date <= ?),
+     latest_follow_up_status as (select follow_up_status, client_id from tmp_latest_follow_up_end where row_num = 1),
+     tx_curr_end AS (select *
+                     from tmp_latest_follow_up_end
+                     where row_num = 1
+                       AND follow_up_status in (''Alive'', ''Restart medication'')
+                       AND treatment_end_date >= ?),
+
+     tmp_first_follow_up as (SELECT client_id,
+                                    follow_up_date,
+                                    encounter_id,
+                                    transferred_in,
+                                    pregnancy_status,
+                                    follow_up_status,
+                                    ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date , encounter_id ) AS row_num
+                             FROM FollowUp
+                             WHERE art_start_date IS NOT NULL),
+     first_follow_up as (select * from tmp_first_follow_up where row_num = 1),
+
+     tx_new_tmp as (select tmp_latest_follow_up_end.*
+                    from tmp_latest_follow_up_end
+                             join first_follow_up on tmp_latest_follow_up_end.client_id = first_follow_up.client_id
+                    where art_start_date BETWEEN ? AND ?
+                      AND (first_follow_up.transferred_in is null or first_follow_up.transferred_in != ''Yes'')
+                      AND first_follow_up.follow_up_status in (''Alive'', ''Restart medication'')
+                      AND tmp_latest_follow_up_end.row_num = 1),
+     tx_new as (select *
+                from tx_new_tmp),
+
+     started_art as (select *
+                     from tx_new
+                     union ALL
+                     select *
+                     from tx_curr_start),
+     restarted_art as (select tx_curr_end.*,
+                              client.sex,
+                              client.date_of_birth,
+                              mrn,
+                              uan
+                       from tx_curr_end
+                                join mamba_dim_client client on tx_curr_end.client_id = client.client_id
+                       where tx_curr_end.client_id not in (select client_id from started_art) and
+                           tx_curr_end.client_id not in (select client_id from tmp_latest_follow_up_start where row_num=1
+                                                                                                            and follow_up_status=''Transferred out'')
+         # tmp_latest_follow_up_start is used to confirm that they are not TO on their latest follow up (before start date) as they would be ignored by started_art as they don''t qualify
+     ),
+    tmp_restart_follow_up as (
+        select restarted_art.*,
+               tmp_latest_follow_up_end.follow_up_status restart_status,
+               tmp_latest_follow_up_end.cd4_count restart_cd4_count,
+               tmp_latest_follow_up_end.follow_up_date as restart_follow_up_date,
+               ROW_NUMBER() OVER (PARTITION BY tmp_latest_follow_up_end.client_id ORDER BY tmp_latest_follow_up_end.follow_up_date , tmp_latest_follow_up_end.encounter_id ) AS restart_row
+        from tmp_latest_follow_up_end
+                 join restarted_art on tmp_latest_follow_up_end.client_id=restarted_art.client_id where tmp_latest_follow_up_end.follow_up_date BETWEEN ? AND ?
+    ),
+     tx_rtt as ( select * from tmp_restart_follow_up where restart_row=1) ';
 
         SET group_query = CONCAT('
         SELECT
@@ -119,7 +171,7 @@ where follow_up_status in (''Alive'',''Restart medication'')
         GROUP BY sex
         ');
 
-    SET @sql = CONCAT(tx_tb_query, group_query);
+    SET @sql = CONCAT(tx_rtt_query, group_query);
     PREPARE stmt FROM @sql;
     SET @start_date = REPORT_START_DATE;
     SET @end_date = REPORT_END_DATE;

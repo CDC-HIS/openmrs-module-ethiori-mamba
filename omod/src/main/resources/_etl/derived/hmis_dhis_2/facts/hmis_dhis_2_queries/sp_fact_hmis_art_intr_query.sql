@@ -106,6 +106,7 @@ BEGIN
                            where tx_curr_end.client_id not in (select client_id from started_art) and
                                tx_curr_end.client_id not in (select client_id from tmp_latest_follow_up_start where row_num=1
                                                                                                                 and follow_up_status='Transferred out')
+                           # tmp_latest_follow_up_start is used to confirm that they are not TO on their latest follow up (before start date) as they would be ignored by started_art as they don't qualify
          )
     SELECT 'HIV_ART_INTR'                                     AS S_NO,
            'Number of ART Clients that interrupted Treatment' as Activity,
