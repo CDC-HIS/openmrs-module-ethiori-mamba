@@ -16,15 +16,15 @@ WITH FollowUp AS (select follow_up.encounter_id,
                          art_antiretroviral_start_date as    art_start_date,
                          follow_up_status,
                          treatment_end_date
-                  from mamba_flat_encounter_follow_up follow_up
-                           left join mamba_flat_encounter_follow_up_1 follow_up_1
-                                     on follow_up.encounter_id = follow_up_1.encounter_id
-                           left join mamba_flat_encounter_follow_up_2 follow_up_2
-                                     on follow_up.encounter_id = follow_up_2.encounter_id
-                           left join mamba_flat_encounter_follow_up_3 follow_up_3
-                                     on follow_up.encounter_id = follow_up_3.encounter_id
-                           left join mamba_flat_encounter_follow_up_4 follow_up_4
-                                     on follow_up.encounter_id = follow_up_4.encounter_id),
+                  FROM mamba_flat_encounter_follow_up follow_up
+                           LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1
+                                     ON follow_up.encounter_id = follow_up_1.encounter_id
+                           LEFT JOIN mamba_flat_encounter_follow_up_2 follow_up_2
+                                     ON follow_up.encounter_id = follow_up_2.encounter_id
+                           LEFT JOIN mamba_flat_encounter_follow_up_3 follow_up_3
+                                     ON follow_up.encounter_id = follow_up_3.encounter_id
+                           LEFT JOIN mamba_flat_encounter_follow_up_4 follow_up_4
+                                     ON follow_up.encounter_id = follow_up_4.encounter_id),
      -- TX curr
      tx_curr_all AS (SELECT client_id,
                             follow_up_date                                                                             AS FollowupDate,

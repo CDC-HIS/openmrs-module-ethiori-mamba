@@ -18,15 +18,15 @@ WITH FollowUp as (select follow_up.encounter_id,
                          date_visual_inspection_of_the_cervi       as via_date,
                          treatment_of_precancerous_lesions_of_the_cervix as treatment_of_precancerous_lesions,
                          treatment_start_date
-                  from mamba_flat_encounter_follow_up follow_up
-                           left join mamba_flat_encounter_follow_up_1 follow_up_1
-                                     on follow_up.encounter_id = follow_up_1.encounter_id
-                           left join mamba_flat_encounter_follow_up_2 follow_up_2
-                                     on follow_up.encounter_id = follow_up_2.encounter_id
-                           left join mamba_flat_encounter_follow_up_3 follow_up_3
-                                     on follow_up.encounter_id = follow_up_3.encounter_id
-                           left join mamba_flat_encounter_follow_up_4 follow_up_4
-                                     on follow_up.encounter_id = follow_up_4.encounter_id),
+                  FROM mamba_flat_encounter_follow_up follow_up
+                           LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1
+                                     ON follow_up.encounter_id = follow_up_1.encounter_id
+                           LEFT JOIN mamba_flat_encounter_follow_up_2 follow_up_2
+                                     ON follow_up.encounter_id = follow_up_2.encounter_id
+                           LEFT JOIN mamba_flat_encounter_follow_up_3 follow_up_3
+                                     ON follow_up.encounter_id = follow_up_3.encounter_id
+                           LEFT JOIN mamba_flat_encounter_follow_up_4 follow_up_4
+                                     ON follow_up.encounter_id = follow_up_4.encounter_id),
      tmp_cx_rx as (select *,
                           ROW_NUMBER() over (PARTITION BY client_id ORDER BY treatment_start_date DESC, encounter_id DESC) as row_num
                    from FollowUp

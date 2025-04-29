@@ -17,12 +17,14 @@ BEGIN
                              transferred_in_check_this_for_all_t as transferred_in
 
                       FROM mamba_flat_encounter_follow_up follow_up
-                               JOIN mamba_flat_encounter_follow_up_1 follow_up_1
-                                    ON follow_up.encounter_id = follow_up_1.encounter_id
-                               JOIN mamba_flat_encounter_follow_up_2 follow_up_2
-                                    ON follow_up.encounter_id = follow_up_2.encounter_id
+                               LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1
+                                         ON follow_up.encounter_id = follow_up_1.encounter_id
+                               LEFT JOIN mamba_flat_encounter_follow_up_2 follow_up_2
+                                         ON follow_up.encounter_id = follow_up_2.encounter_id
                                LEFT JOIN mamba_flat_encounter_follow_up_3 follow_up_3
-                                         ON follow_up.encounter_id = follow_up_3.encounter_id),
+                                         ON follow_up.encounter_id = follow_up_3.encounter_id
+                               LEFT JOIN mamba_flat_encounter_follow_up_4 follow_up_4
+                                         ON follow_up.encounter_id = follow_up_4.encounter_id),
          tmp_latest_follow_up as (select client_id,
                                          follow_up_status,
                                          ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
