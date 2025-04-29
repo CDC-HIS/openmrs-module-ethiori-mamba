@@ -1,8 +1,8 @@
 DELIMITER //
 
-DROP PROCEDURE IF EXISTS sp_dim_tb_art_datim_query;
+DROP PROCEDURE IF EXISTS sp_dim_tx_rtt_datim_query;
 
-CREATE PROCEDURE sp_dim_tb_art_datim_query(
+CREATE PROCEDURE sp_dim_tx_rtt_datim_query(
     IN REPORT_START_DATE DATE,
     IN REPORT_END_DATE DATE,
     IN IS_COURSE_AGE_GROUP BOOLEAN, -- expected values: 0 for fine age group, 1 for coarse age group

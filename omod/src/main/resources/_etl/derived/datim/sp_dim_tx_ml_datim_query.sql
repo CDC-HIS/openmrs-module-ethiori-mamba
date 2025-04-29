@@ -11,7 +11,7 @@ CREATE PROCEDURE sp_dim_tx_ml_datim_query(
 BEGIN
 
     DECLARE age_group_cols VARCHAR(5000);
-    DECLARE tx_ml_query VARCHAR(6000);
+    DECLARE tx_ml_query VARCHAR(6121);
     DECLARE group_query TEXT;
     DECLARE outcome_condition VARCHAR(150);
     SET session group_concat_max_len = 20000;
@@ -63,12 +63,14 @@ BEGIN
                              pregnancy_status,
                              transferred_in_check_this_for_all_t AS transferred_in
                       FROM mamba_flat_encounter_follow_up follow_up
-                               JOIN mamba_flat_encounter_follow_up_1 follow_up_1
+                               LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1
                                     ON follow_up.encounter_id = follow_up_1.encounter_id
-                               JOIN mamba_flat_encounter_follow_up_2 follow_up_2
+                               LEFT JOIN mamba_flat_encounter_follow_up_2 follow_up_2
                                     ON follow_up.encounter_id = follow_up_2.encounter_id
                                LEFT JOIN mamba_flat_encounter_follow_up_3 follow_up_3
-                                         ON follow_up.encounter_id = follow_up_3.encounter_id),
+                                         ON follow_up.encounter_id = follow_up_3.encounter_id
+                               LEFT JOIN mamba_flat_encounter_follow_up_4 follow_up_4
+                                         ON follow_up.encounter_id = follow_up_4.encounter_id),
          -- TX curr start
          tmp_latest_follow_up_start AS (SELECT client_id,
                                                follow_up_date,
