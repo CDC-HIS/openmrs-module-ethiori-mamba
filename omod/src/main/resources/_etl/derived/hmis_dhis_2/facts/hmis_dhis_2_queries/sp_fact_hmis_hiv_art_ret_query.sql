@@ -17,12 +17,14 @@ BEGIN
                              pregnancy_status,
                              transferred_in_check_this_for_all_t AS transferred_in
                       FROM mamba_flat_encounter_follow_up follow_up
-                               JOIN mamba_flat_encounter_follow_up_1 follow_up_1
-                                    ON follow_up.encounter_id = follow_up_1.encounter_id
-                               JOIN mamba_flat_encounter_follow_up_2 follow_up_2
-                                    ON follow_up.encounter_id = follow_up_2.encounter_id
+                               LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1
+                                         ON follow_up.encounter_id = follow_up_1.encounter_id
+                               LEFT JOIN mamba_flat_encounter_follow_up_2 follow_up_2
+                                         ON follow_up.encounter_id = follow_up_2.encounter_id
                                LEFT JOIN mamba_flat_encounter_follow_up_3 follow_up_3
-                                         ON follow_up.encounter_id = follow_up_3.encounter_id),
+                                         ON follow_up.encounter_id = follow_up_3.encounter_id
+                               LEFT JOIN mamba_flat_encounter_follow_up_4 follow_up_4
+                                         ON follow_up.encounter_id = follow_up_4.encounter_id),
 
          tmp_latest_follow_up AS (SELECT client_id,
                                          follow_up_date                                                                             AS FollowupDate,
@@ -35,7 +37,7 @@ BEGIN
                                   FROM FollowUp
                                   WHERE follow_up_status IS NOT NULL
                                     AND art_start_date IS NOT NULL
-                                    AND follow_up_date <= '2022-12-29'),
+                                    AND follow_up_date <= REPORT_END_DATE),
          latest_follow_up as (select * from tmp_latest_follow_up where row_num = 1),
          tmp_art_start_date_before_12_months as (SELECT encounter_id,
                                                         client_id,
@@ -49,9 +51,9 @@ BEGIN
                                                  FROM FollowUp
                                                  WHERE follow_up_status IS NOT NULL
                                                    AND art_start_date IS NOT NULL
-                                                   AND art_start_date >= DATE_ADD('2022-11-30', INTERVAL -1 YEAR)
-                                                   AND art_start_date <= DATE_ADD('2022-12-29', INTERVAL -1 YEAR)
-                                                   AND follow_up_date <= '2022-12-29'),
+                                                   AND art_start_date >= DATE_ADD(REPORT_START_DATE, INTERVAL -1 YEAR)
+                                                   AND art_start_date <= DATE_ADD(REPORT_END_DATE, INTERVAL -1 YEAR)
+                                                   AND follow_up_date <= REPORT_END_DATE),
          art_start_date_before_12_months as (select curr.client_id,
                                                     curr.FollowupDate,
                                                     curr.follow_up_status,
@@ -71,9 +73,9 @@ BEGIN
                          from latest_follow_up
                                   join mamba_dim_client client on latest_follow_up.client_id = client.client_id
                          where follow_up_status in ('Alive', 'Restart medication')
-                           AND treatment_end_date >= '2022-12-29'
-                           AND art_start_date >= DATE_ADD('2022-11-30', INTERVAL -1 YEAR)
-                           AND art_start_date <= DATE_ADD('2022-12-29', INTERVAL -1 YEAR)),
+                           AND treatment_end_date >= REPORT_END_DATE
+                           AND art_start_date >= DATE_ADD(REPORT_START_DATE, INTERVAL -1 YEAR)
+                           AND art_start_date <= DATE_ADD(REPORT_END_DATE, INTERVAL -1 YEAR)),
          ret_percentage AS (SELECT 'HIV_ART_RET'                                                                                                        AS S_NO,
                                    'ART retention rate (Percentage of adult and children on ART treatment after 12 month of initation of ARV therapy )' AS Activity,
                                    CASE

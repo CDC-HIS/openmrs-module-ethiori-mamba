@@ -18,15 +18,15 @@ WITH FollowUp as (select follow_up.encounter_id,
                          coalesce(nutritional_status_of_adult,
                                   nutritional_status_of_older_child_a,
                                   weight_for_age_status) as nutritional_screening_status
-                  from mamba_flat_encounter_follow_up follow_up
-                           left join mamba_flat_encounter_follow_up_1 follow_up_1
-                                     on follow_up.encounter_id = follow_up_1.encounter_id
-                           left join mamba_flat_encounter_follow_up_2 follow_up_2
-                                     on follow_up.encounter_id = follow_up_2.encounter_id
-                           left join mamba_flat_encounter_follow_up_3 follow_up_3
-                                     on follow_up.encounter_id = follow_up_3.encounter_id
-                           left join mamba_flat_encounter_follow_up_4 follow_up_4
-                                     on follow_up.encounter_id = follow_up_4.encounter_id),
+                  FROM mamba_flat_encounter_follow_up follow_up
+                           LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1
+                                     ON follow_up.encounter_id = follow_up_1.encounter_id
+                           LEFT JOIN mamba_flat_encounter_follow_up_2 follow_up_2
+                                     ON follow_up.encounter_id = follow_up_2.encounter_id
+                           LEFT JOIN mamba_flat_encounter_follow_up_3 follow_up_3
+                                     ON follow_up.encounter_id = follow_up_3.encounter_id
+                           LEFT JOIN mamba_flat_encounter_follow_up_4 follow_up_4
+                                     ON follow_up.encounter_id = follow_up_4.encounter_id),
      tx_curr_all AS (SELECT client_id,
                             follow_up_date_followup_ AS FollowupDate,
                             encounter_id,
