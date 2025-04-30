@@ -10,39 +10,69 @@ CREATE PROCEDURE sp_dim_tx_rtt_datim_query(
 )
 BEGIN
     DECLARE age_group_cols VARCHAR(5000);
-    DECLARE tx_rtt_query VARCHAR(6746);
+    DECLARE tx_rtt_query VARCHAR(9439);
     DECLARE group_query TEXT;
     DECLARE outcome_condition VARCHAR(227);
     SET session group_concat_max_len = 20000;
 
     IF REPORT_TYPE = 'CD4_LESS_THAN_200' THEN
         SET outcome_condition =
-                ' art_start_date < ? ';
+                ' restart_cd4_count < 200 ';
     ELSEIF REPORT_TYPE = 'CD4_GREATER_THAN_200' THEN
         SET outcome_condition =
-                ' art_start_date between ? AND ? ';
+                ' restart_cd4_count >= 200 ';
     ELSEIF REPORT_TYPE = 'CD4_UNKNOWN' THEN
-        SET outcome_condition = '';
+        SET outcome_condition = ' restart_cd4_count is null and interrupted_months >= 6';
     ELSEIF REPORT_TYPE = 'CD4_NOT_ELIGIBLE' THEN
-        SET outcome_condition = '';
+        SET outcome_condition = 'interrupted_months < 6';
+    ELSE
+        SET outcome_condition = '1=1';
     END IF;
 
     IF IS_COURSE_AGE_GROUP THEN
-        SELECT GROUP_CONCAT(CONCAT('SUM(CASE WHEN coarse_age_group = ''', normal_agegroup,
-                                   ''' THEN count ELSE 0 END) AS `',
-                                   REPLACE(normal_agegroup, '`', '``'),
-                                   '`')
-               )
-        INTO age_group_cols
-        FROM (select normal_agegroup from mamba_dim_agegroup group by normal_agegroup) as order_query;
+        IF REPORT_TYPE = 'CD4_LESS_THAN_200' OR REPORT_TYPE = 'CD4_GREATER_THAN_200' OR
+           REPORT_TYPE = 'CD4_NOT_ELIGIBLE' THEN
+            SELECT GROUP_CONCAT(CONCAT('SUM(CASE WHEN coarse_age_group = ''', normal_agegroup,
+                                       ''' THEN count ELSE 0 END) AS `',
+                                       REPLACE(normal_agegroup, '`', '``'),
+                                       '`')
+                   )
+            INTO age_group_cols
+            FROM (select normal_agegroup
+                  from mamba_dim_agegroup
+                  WHERE datim_age_val > 2
+                  group by normal_agegroup) as order_query;
+        ELSE
+            SELECT GROUP_CONCAT(CONCAT('SUM(CASE WHEN coarse_age_group = ''', normal_agegroup,
+                                       ''' THEN count ELSE 0 END) AS `',
+                                       REPLACE(normal_agegroup, '`', '``'),
+                                       '`')
+                   )
+            INTO age_group_cols
+            FROM (select normal_agegroup from mamba_dim_agegroup group by normal_agegroup) as order_query;
+        END IF;
     ELSE
-        SELECT GROUP_CONCAT(CONCAT('SUM(CASE WHEN fine_age_group = ''', datim_agegroup,
-                                   ''' THEN count ELSE 0 END) AS `',
-                                   REPLACE(datim_agegroup, '`', '``'),
-                                   '`')
-               )
-        INTO age_group_cols
-        FROM (select datim_agegroup from mamba_dim_agegroup group by datim_agegroup) as order_query;
+        IF REPORT_TYPE = 'CD4_LESS_THAN_200' OR REPORT_TYPE = 'CD4_GREATER_THAN_200' OR
+           REPORT_TYPE = 'CD4_NOT_ELIGIBLE' THEN
+            SELECT GROUP_CONCAT(CONCAT('SUM(CASE WHEN fine_age_group = ''', datim_agegroup,
+                                       ''' THEN count ELSE 0 END) AS `',
+                                       REPLACE(datim_agegroup, '`', '``'),
+                                       '`')
+                   )
+            INTO age_group_cols
+            FROM (select datim_agegroup
+                  from mamba_dim_agegroup
+                  WHERE datim_age_val > 2
+                  group by datim_agegroup) as order_query;
+        ELSE
+            SELECT GROUP_CONCAT(CONCAT('SUM(CASE WHEN fine_age_group = ''', datim_agegroup,
+                                       ''' THEN count ELSE 0 END) AS `',
+                                       REPLACE(datim_agegroup, '`', '``'),
+                                       '`')
+                   )
+            INTO age_group_cols
+            FROM (select datim_agegroup from mamba_dim_agegroup group by datim_agegroup) as order_query;
+        END IF;
     END IF;
 
     SET tx_rtt_query = 'WITH FollowUp AS (SELECT follow_up.encounter_id,
@@ -79,6 +109,9 @@ BEGIN
                                     WHERE follow_up_status IS NOT NULL
                                       AND art_start_date IS NOT NULL
                                       AND follow_up_date <= ?),
+     interrupted_follow_up as (select *
+                               from tmp_latest_follow_up_start
+                               where row_num = 1),
      tx_curr_start AS (select *
                        from tmp_latest_follow_up_start
                        where row_num = 1
@@ -113,6 +146,14 @@ BEGIN
                                     ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date , encounter_id ) AS row_num
                              FROM FollowUp
                              WHERE art_start_date IS NOT NULL),
+     tmp_restart_follow_up as (select client_id,
+                                      follow_up_status                                                                      restart_status,
+                                      cd4_count                                                                             restart_cd4_count,
+                                      follow_up_date                                                                     as restart_follow_up_date,
+                                      ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date , encounter_id ) AS row_num
+                               from tmp_latest_follow_up_end
+                               where tmp_latest_follow_up_end.follow_up_date BETWEEN ? AND ?),
+     restart_follow_up as (select * from tmp_restart_follow_up where row_num = 1),
      first_follow_up as (select * from tmp_first_follow_up where row_num = 1),
 
      tx_new_tmp as (select tmp_latest_follow_up_end.*
@@ -131,28 +172,63 @@ BEGIN
                      select *
                      from tx_curr_start),
      restarted_art as (select tx_curr_end.*,
+                              restart_follow_up.restart_cd4_count,
+                              restart_follow_up.restart_follow_up_date,
+                              restart_follow_up.restart_status,
                               client.sex,
                               client.date_of_birth,
                               mrn,
-                              uan
+                              uan,
+                              fine_age_group,
+                              coarse_age_group
                        from tx_curr_end
+                                left join restart_follow_up on tx_curr_end.client_id = restart_follow_up.client_id
                                 join mamba_dim_client client on tx_curr_end.client_id = client.client_id
-                       where tx_curr_end.client_id not in (select client_id from started_art) and
-                           tx_curr_end.client_id not in (select client_id from tmp_latest_follow_up_start where row_num=1
-                                                                                                            and follow_up_status=''Transferred out'')
+                       where tx_curr_end.client_id not in (select client_id from started_art)
+                         and tx_curr_end.client_id not in (select client_id
+                                                           from tmp_latest_follow_up_start
+                                                           where row_num = 1
+                                                             and follow_up_status = ''Transferred out'')
          # tmp_latest_follow_up_start is used to confirm that they are not TO on their latest follow up (before start date) as they would be ignored by started_art as they don''t qualify
      ),
-    tmp_restart_follow_up as (
-        select restarted_art.*,
-               tmp_latest_follow_up_end.follow_up_status restart_status,
-               tmp_latest_follow_up_end.cd4_count restart_cd4_count,
-               tmp_latest_follow_up_end.follow_up_date as restart_follow_up_date,
-               ROW_NUMBER() OVER (PARTITION BY tmp_latest_follow_up_end.client_id ORDER BY tmp_latest_follow_up_end.follow_up_date , tmp_latest_follow_up_end.encounter_id ) AS restart_row
-        from tmp_latest_follow_up_end
-                 join restarted_art on tmp_latest_follow_up_end.client_id=restarted_art.client_id where tmp_latest_follow_up_end.follow_up_date BETWEEN ? AND ?
-    ),
-     tx_rtt as ( select * from tmp_restart_follow_up where restart_row=1) ';
+     tx_rtt as (select restarted_art.follow_up_date as latest_follow_up_date,
+                       restarted_art.encounter_id,
+                       restarted_art.follow_up_status as latest_follow_up_status,
+                       restarted_art.treatment_end_date as latest_follow_up_treatment_end_date,
+                       restarted_art.art_start_date as latest_follow_up_art_start_date,
+                       restarted_art.cd4_count as latest_follow_up_cd4_count,
+                       restarted_art.restart_cd4_count,
+                       restarted_art.restart_status,
+                       restarted_art.restart_follow_up_date,
+                       sex,
+                       date_of_birth,
+                       mrn,
+                       uan,
+                       fine_age_group,
+                       coarse_age_group,
+                       interrupted_follow_up.follow_up_date as interrupted_follow_up_follow_up_date,
+                       interrupted_follow_up.follow_up_status as interrupted_follow_up_follow_up_status,
+                       interrupted_follow_up.treatment_end_date as interrupted_follow_up_treatment_end_date,
+                       CASE
+                           WHEN interrupted_follow_up.follow_up_status in (''Alive'', ''Restart medication'')
+                               and interrupted_follow_up.treatment_end_date <= ? THEN
+                               TIMESTAMPDIFF(MONTH, interrupted_follow_up.treatment_end_date,
+                                             restarted_art.restart_follow_up_date)
+                           ELSE TIMESTAMPDIFF(MONTH, interrupted_follow_up.follow_up_date,
+                                              restarted_art.restart_follow_up_date)
+                           END AS ''interrupted_months''
 
+
+                from restarted_art
+                         join interrupted_follow_up
+                where restarted_art.client_id = interrupted_follow_up.client_id) ';
+    IF REPORT_TYPE = 'IIT' THEN
+        SET group_query = 'select ''Experienced treatment interruption of <3 months before returning to treatment'' as `IIT`,COUNT(*) as `Value` from tx_rtt where interrupted_months <3
+UNION ALL
+select ''Experienced treatment interruption of 3-5 months before returning to treatment'' ,COUNT(*) from tx_rtt where interrupted_months BETWEEN 3 AND 5
+UNION ALL
+select ''Experienced treatment interruption of 6+ months before returning to treatment'' ,COUNT(*) from tx_rtt where interrupted_months >6';
+    ELSE
         SET group_query = CONCAT('
         SELECT
           sex,
@@ -163,23 +239,19 @@ BEGIN
             sex,
             ', IF(IS_COURSE_AGE_GROUP, 'coarse_age_group', 'fine_age_group'), ',
             COUNT(*) AS count
-          FROM tb_art WHERE ', outcome_condition, '
+          FROM tx_rtt WHERE ', outcome_condition, '
           GROUP BY sex, ', IF(IS_COURSE_AGE_GROUP, 'coarse_age_group', 'fine_age_group'), '
         ) AS subquery
         RIGHT JOIN (SELECT ''Female'' AS sex UNION SELECT ''Male'') AS genders
         USING (sex)
         GROUP BY sex
         ');
-
+    END IF;
     SET @sql = CONCAT(tx_rtt_query, group_query);
     PREPARE stmt FROM @sql;
     SET @start_date = REPORT_START_DATE;
     SET @end_date = REPORT_END_DATE;
-    IF REPORT_TYPE = 'ALREADY_ON_ART' THEN
-        EXECUTE stmt USING @end_date, @start_date , @end_date, @start_date , @end_date, @start_date;
-    ELSEIF REPORT_TYPE = 'NEW_ON_ART'  THEN
-        EXECUTE stmt USING @end_date, @start_date , @end_date, @start_date , @end_date, @start_date , @end_date;
-    END IF;
+    EXECUTE stmt USING @start_date, @start_date , @end_date, @end_date , @start_date, @end_date , @start_date, @end_date, @start_date;
     DEALLOCATE PREPARE stmt;
 END //
 

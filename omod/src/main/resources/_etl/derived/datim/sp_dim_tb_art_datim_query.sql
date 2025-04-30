@@ -21,7 +21,8 @@ BEGIN
     ELSEIF REPORT_TYPE = 'NEW_ON_ART' THEN
         SET outcome_condition =
                 ' art_start_date between ? AND ? ';
-
+    ELSE
+        SET  outcome_condition = '1=1';
     END IF;
 
     IF IS_COURSE_AGE_GROUP THEN

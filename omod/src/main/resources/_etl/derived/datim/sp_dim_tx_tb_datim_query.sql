@@ -41,6 +41,8 @@ BEGIN
         SET outcome_condition =' tb_treatment_start_date between ? AND ? ';
     ELSEIF REPORT_TYPE = 'NUMERATOR_PREV' THEN
         SET outcome_condition =' art_start_date < ? and follow_up_status in (''Alive'', ''Restart medication'') and tb_treatment_start_date between ? AND ? ';
+    ELSE
+        SET  outcome_condition = '1=1';
     END IF;
 
     IF IS_COURSE_AGE_GROUP THEN

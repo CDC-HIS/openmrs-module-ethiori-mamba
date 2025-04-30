@@ -155,12 +155,12 @@ ELSEIF REPORT_TYPE = 'DENOMINATOR' THEN
         SET disaggregate_query = 'SELECT COUNT(CASE WHEN pregnancy_status = ''Yes'' THEN 1 ELSE NULL END ) AS Pregnant,
        COUNT(CASE WHEN breast_feeding_status = ''Yes'' THEN 1 ELSE NULL END ) AS Breastfeeding
         FROM pvls';
-END IF;
+    END IF;
     SET @sql = CONCAT(pvls_query, disaggregate_query);
-PREPARE stmt FROM @sql;
-SET @end_date = REPORT_END_DATE;
-EXECUTE stmt USING @end_date, @end_date, @end_date;
-DEALLOCATE PREPARE stmt;
+    PREPARE stmt FROM @sql;
+    SET @end_date = REPORT_END_DATE;
+    EXECUTE stmt USING @end_date, @end_date, @end_date;
+    DEALLOCATE PREPARE stmt;
 
 END //
 DELIMITER ;
