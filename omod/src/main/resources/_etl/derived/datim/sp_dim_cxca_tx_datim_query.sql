@@ -27,6 +27,8 @@ BEGIN
     ELSEIF REPORT_TYPE = 'POST_TREATMENT' THEN
         SET cxca_visit_condition =
                 ' visit_type = ''Post-treatment follow-up other'' OR visit_type = ''Post-treatment follow-up at 1 year'' OR visit_type =''Post-treatment follow-up to 6 weeks'' ';
+    ELSE
+        SET  cxca_visit_condition = '1=1';
     END IF;
 
     SET cxca_tx_query = 'WITH FollowUp as (select follow_up.encounter_id,

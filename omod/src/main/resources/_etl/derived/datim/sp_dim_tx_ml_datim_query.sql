@@ -31,6 +31,8 @@ BEGIN
         SET outcome_condition = ' latest_follow_up_status = ''Transferred out''';
     ELSEIF REPORT_TYPE = 'REFUSED' THEN
         SET outcome_condition = ' latest_follow_up_status = ''Stop all''';
+    ELSE
+        SET  outcome_condition = '1=1';
     END IF;
 
     IF IS_COURSE_AGE_GROUP THEN
