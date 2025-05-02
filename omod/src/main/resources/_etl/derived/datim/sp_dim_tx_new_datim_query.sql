@@ -143,10 +143,7 @@ BEGIN
                             from mamba_dim_agegroup
                             where age = TIMESTAMPDIFF(YEAR, date_of_birth, FollowupDate)) as coarse_age_group,
                             breast_feeding_status,
-                           cd4_count,
-                            (SELECT datim_age_val
-                            from mamba_dim_agegroup
-                            where age = TIMESTAMPDIFF(YEAR, date_of_birth, FollowupDate)) as datim_age_val
+                           cd4_count
                     from tx_new_tmp
                              join mamba_dim_client client on tx_new_tmp.client_id = client.client_id) ';
     IF CD4_COUNT_GROUPAGE = 'numerator' THEN

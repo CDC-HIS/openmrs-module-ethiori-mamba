@@ -11,7 +11,7 @@ CREATE PROCEDURE sp_dim_tx_ml_datim_query(
 BEGIN
 
     DECLARE age_group_cols VARCHAR(5000);
-    DECLARE tx_ml_query VARCHAR(6121);
+    DECLARE tx_ml_query VARCHAR(6329);
     DECLARE group_query TEXT;
     DECLARE outcome_condition VARCHAR(150);
     SET session group_concat_max_len = 20000;
@@ -140,8 +140,8 @@ BEGIN
          interrupted_art as (select started_art.*,
                                     client.sex,
                                     client.date_of_birth,
-                                    client.fine_age_group,
-                                    client.coarse_age_group,
+                                    (SELECT fine_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,follow_up_date)=age) as fine_age_group,
+                                    (SELECT coarse_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,follow_up_date)=age) as coarse_age_group,
                                     latest_follow_up_status.follow_up_status as latest_follow_up_status
                              from started_art
                                       join mamba_dim_client client on started_art.client_id = client.client_id

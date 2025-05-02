@@ -61,8 +61,8 @@ BEGIN
      cx_rx as (select tmp_cx_rx.*,
                       client.date_of_birth,
                       client.sex,
-                      client.coarse_age_group,
-                      client.fine_age_group
+                      (SELECT fine_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,follow_up_date)=age) as fine_age_group,
+                      (SELECT coarse_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,follow_up_date)=age) as coarse_age_group
                from tmp_cx_rx
                         left join mamba_dim_client client on tmp_cx_rx.client_id = client.client_id
                where row_num = 1 and current_age >= 15 ) ';
