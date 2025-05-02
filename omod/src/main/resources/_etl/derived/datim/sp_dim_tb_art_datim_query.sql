@@ -94,8 +94,9 @@ BEGIN
         select tmp_latest_follow_up.*,
                              sex,
                              date_of_birth,
-                             fine_age_group,
-                             coarse_age_group from tmp_latest_follow_up
+                             (SELECT fine_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,follow_up_date)=age) as fine_age_group,
+                             (SELECT coarse_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,follow_up_date)=age) as coarse_age_group
+                            from tmp_latest_follow_up
         join mamba_dim_client client on client.client_id=tmp_latest_follow_up.client_id
 where follow_up_status in (''Alive'',''Restart medication'')
                                              and row_num=1

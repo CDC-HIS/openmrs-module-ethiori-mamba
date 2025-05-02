@@ -10,7 +10,7 @@ CREATE PROCEDURE sp_dim_tx_rtt_datim_query(
 )
 BEGIN
     DECLARE age_group_cols VARCHAR(5000);
-    DECLARE tx_rtt_query VARCHAR(9439);
+    DECLARE tx_rtt_query VARCHAR(9658);
     DECLARE group_query TEXT;
     DECLARE outcome_condition VARCHAR(227);
     SET session group_concat_max_len = 20000;
@@ -179,8 +179,8 @@ BEGIN
                               client.date_of_birth,
                               mrn,
                               uan,
-                              fine_age_group,
-                              coarse_age_group
+                              (SELECT fine_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,follow_up_date)=age) as fine_age_group,
+                           (SELECT coarse_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,follow_up_date)=age) as coarse_age_group
                        from tx_curr_end
                                 left join restart_follow_up on tx_curr_end.client_id = restart_follow_up.client_id
                                 join mamba_dim_client client on tx_curr_end.client_id = client.client_id
