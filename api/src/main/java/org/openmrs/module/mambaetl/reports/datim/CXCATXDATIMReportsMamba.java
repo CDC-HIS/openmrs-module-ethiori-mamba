@@ -26,7 +26,7 @@ public class CXCATXDATIMReportsMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "MAMBA-DATIM-TREATMENT- CXCA_TX";
+		return "MAMBA DATIM TREATMENT- CXCA_TX";
 	}
 	
 	@Override

@@ -1,7 +1,7 @@
 package org.openmrs.module.mambaetl.helpers.reportOptions;
 
 public enum CXCATXAggregationTypes {
-	FIRST_TIME_SCREENING("FIRST_TIME_SCREENING"), RE_SCREENING("RE_SCREENING"), POST_TREATMENT("POST_TREATMENT");
+	TOTAL("TOTAL"),FIRST_TIME_SCREENING("FIRST_TIME_SCREENING"), RE_SCREENING("RE_SCREENING"), POST_TREATMENT("POST_TREATMENT");
 	
 	private final String sqlValue;
 	

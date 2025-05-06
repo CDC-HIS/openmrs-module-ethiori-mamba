@@ -24,7 +24,7 @@ public class TxTBDenominatorDATIMReportsMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "MAMBA-DATIM-TREATMENT- TX_TB (Denominator)";
+		return "MAMBA DATIM TREATMENT- TX_TB (Denominator)";
 	}
 	
 	@Override
