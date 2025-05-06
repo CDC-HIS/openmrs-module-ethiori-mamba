@@ -1,8 +1,8 @@
 DELIMITER //
 
-DROP PROCEDURE IF EXISTS sp_dim_prep_ct_datim_query;
+DROP PROCEDURE IF EXISTS sp_dim_prep_new_datim_query;
 
-CREATE PROCEDURE sp_dim_prep_ct_datim_query(
+CREATE PROCEDURE sp_dim_prep_new_datim_query(
     IN REPORT_START_DATE DATE,
     IN REPORT_END_DATE DATE,
     IN IS_COURSE_AGE_GROUP BOOLEAN,
@@ -69,17 +69,13 @@ BEGIN
                                        join mamba_dim_client client on PreExposure.client_id = client.client_id
                               where follow_up_date_followup_ between ? AND ?
                                  or follow_up_date_followup_ is null),
-     tx_new as (select *
+     prep_new as (select *
                 from tmp_latest_follow_up
                 WHERE treatment_start_date BETWEEN ? AND ?
                   AND type_of_client = ''New client''
                   AND row_num = 1
          -- AND follow_up_status
-     ),
-     prep as (select *
-              from tmp_latest_follow_up
-              where row_num = 1
-                and client_id not in (select client_id from tx_new)) ';
+     ) ';
     IF IS_COURSE_AGE_GROUP THEN
         SELECT GROUP_CONCAT(CONCAT('SUM(CASE WHEN coarse_age_group = ''', normal_agegroup,
                                    ''' THEN count ELSE 0 END) AS `',
@@ -115,7 +111,7 @@ BEGIN
             sex,
             ', IF(IS_COURSE_AGE_GROUP, 'coarse_age_group', 'fine_age_group'), ',
             COUNT(*) AS count
-          FROM prep
+          FROM prep_new
           GROUP BY sex, ', IF(IS_COURSE_AGE_GROUP, 'coarse_age_group', 'fine_age_group'), '
         ) AS subquery
         RIGHT JOIN (SELECT ''Female'' AS sex UNION SELECT ''Male'') AS genders
@@ -123,27 +119,19 @@ BEGIN
         GROUP BY sex
         ');
     ELSEIF REPORT_TYPE = 'TOTAL' THEN
-        SET group_query = 'SELECT COUNT(*) AS NUMERATOR FROM prep';
-    ELSEIF REPORT_TYPE= 'TOTAL' THEN
-        SET group_query = 'SELECT COUNT(*) AS NUMERATOR FROM prep';
-    ELSEIF REPORT_TYPE = 'TEST_RESULT' THEN
-        SET group_query = 'select ''Positive'' as `Name`, COUNT(*) as count from prep where final_hiv_test_result=''Positive''
-        UNION ALL
-        select ''Negative'' as `Name`, COUNT(*) from prep where final_hiv_test_result in (''Negative result'',''Negative'')
-        UNION ALL
-        select ''Other'' as `Name`, COUNT(*) from prep where final_hiv_test_result NOT IN (''Negative result'',''Positive'',''Negative'')';
+            SET group_query = 'SELECT COUNT(*) AS NUMERATOR FROM prep_new';
     ELSEIF REPORT_TYPE = 'PREP_TYPE' THEN
-        SET group_query = 'select ''Oral'' as `Name`, COUNT(*) as count from prep
+        SET group_query = 'select ''Oral'' as `Name`, COUNT(*) as count from prep_new
         UNION ALL
         select ''Injectable'' as `Name`, 0
         UNION ALL
         select ''Other'' as `Name`, 0';
     ELSEIF REPORT_TYPE = 'PREGNANT_BF' THEN
-        SET group_query = 'select ''Pregnant'' as `Name`, COUNT(*) as count from prep where f_pregnancy_status = ''Yes''
+        SET group_query = 'select ''Pregnant'' as `Name`, COUNT(*) as count from prep_new where f_pregnancy_status = ''Yes''
         UNION ALL
-        select ''Breastfeeding'' as `Name`, COUNT(*) from prep where currently_breastfeeding_child = ''Yes''';
+        select ''Breastfeeding'' as `Name`, COUNT(*) from prep_new where currently_breastfeeding_child = ''Yes''';
     ELSEIF REPORT_TYPE = 'FACILITY' THEN
-        SET group_query = 'select ''Facility'' as `Name`, COUNT(*) as count from prep
+        SET group_query = 'select ''Facility'' as `Name`, COUNT(*) as count from prep_new
         UNION ALL
         select ''Community (Associated with Facility)'' as `Name`, 0';
     END IF;
