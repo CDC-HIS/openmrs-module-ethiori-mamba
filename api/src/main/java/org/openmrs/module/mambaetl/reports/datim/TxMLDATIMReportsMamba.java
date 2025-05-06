@@ -54,6 +54,20 @@ public class TxMLDATIMReportsMamba implements ReportManager {
 		headerDefinition.setParameters(getParameters());
 		reportDefinition.addDataSetDefinition("DSD: TX_ML", EthiOhriUtil.map(headerDefinition, "endDate=${endDateGC}"));
 		
+		TxMLDataSetDefinitionMamba txMLTotalDataSetDefinitionMamba = new TxMLDataSetDefinitionMamba();
+		txMLTotalDataSetDefinitionMamba.addParameters(getParameters());
+		txMLTotalDataSetDefinitionMamba.setTxMLAggregationTypes(TxMLAggregationTypes.TOTAL);
+		txMLTotalDataSetDefinitionMamba
+		        .setDescription("Number of ART patients who were on ART at the beginning of the quarterly reporting period or initiated\n"
+		                + "treatment during the reporting period and then had no clinical contact since their last expected contact. The\n"
+		                + "numerator auto-calculates from the sum of Age/Sex Outcome");
+		reportDefinition
+		        .addDataSetDefinition(
+		            "Number of ART patients who were on ART at the beginning of the quarterly reporting period or initiated\n"
+		                    + "treatment during the reporting period and then had no clinical contact since their last expected contact. The\n"
+		                    + "numerator auto-calculates from the sum of Age/Sex Outcome",
+		            EthiOhriUtil.map(txMLTotalDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		
 		HeaderDataSetDefinitionMamba secondHeader = new HeaderDataSetDefinitionMamba();
 		secondHeader.setDescription("Disaggregated Outcome by Age/Sex");
 		secondHeader.setParameters(getParameters());

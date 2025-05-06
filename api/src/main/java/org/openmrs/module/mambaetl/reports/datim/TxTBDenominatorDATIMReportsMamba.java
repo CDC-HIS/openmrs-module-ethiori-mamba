@@ -51,7 +51,20 @@ public class TxTBDenominatorDATIMReportsMamba implements ReportManager {
 		headerDefinition.setParameters(getParameters());
 		reportDefinition.addDataSetDefinition("DSD: TX_TB (Denominator)",
 		    EthiOhriUtil.map(headerDefinition, "endDate=${endDateGC}"));
-		
+
+		TxTBDenominatorDataSetDefinitionMamba txTBNewArtTotalDenominatorDataSetDefinitionMamba = new TxTBDenominatorDataSetDefinitionMamba();
+		txTBNewArtTotalDenominatorDataSetDefinitionMamba.addParameters(getParameters());
+		txTBNewArtTotalDenominatorDataSetDefinitionMamba.setTxTBAggregationTypes(TxTBAggregationTypes.TOTAL);
+		txTBNewArtTotalDenominatorDataSetDefinitionMamba.setDescription("Number of ART patients who were screened for TB at least once during the reporting period. Denominator will auto-calculate from Start on ART by Screen Result by Age/Sex");
+		reportDefinition.addDataSetDefinition("Number of ART patients who were screened for TB at least once during the reporting period. Denominator will auto-calculate from Start on ART by Screen Result by Age/Sex", EthiOhriUtil.map(
+				txTBNewArtTotalDenominatorDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+
+		HeaderDataSetDefinitionMamba header2Definition = new HeaderDataSetDefinitionMamba();
+		header2Definition.setDescription("Disaggregated by Start of ART by Screen Result by Age/Sex");
+		header2Definition.setParameters(getParameters());
+		reportDefinition.addDataSetDefinition("Disaggregated by Start of ART by Screen Result by Age/Sex",
+				EthiOhriUtil.map(header2Definition, "endDate=${endDateGC}"));
+
 		TxTBDenominatorDataSetDefinitionMamba txTBNewArtPositiveDenominatorDataSetDefinitionMamba = new TxTBDenominatorDataSetDefinitionMamba();
 		txTBNewArtPositiveDenominatorDataSetDefinitionMamba.addParameters(getParameters());
 		txTBNewArtPositiveDenominatorDataSetDefinitionMamba.setTxTBAggregationTypes(TxTBAggregationTypes.NEW_ART_POSITIVE);

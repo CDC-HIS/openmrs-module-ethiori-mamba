@@ -53,6 +53,16 @@ public class TBARTDATIMReportsMamba implements ReportManager {
 		headerDefinition.setParameters(getParameters());
 		reportDefinition.addDataSetDefinition("DSD: TB_ART", EthiOhriUtil.map(headerDefinition, "endDate=${endDateGC}"));
 		
+		TBArtDataSetDefinitionMamba tbArtTotalDataSetDefinitionMamba = new TBArtDataSetDefinitionMamba();
+		tbArtTotalDataSetDefinitionMamba.addParameters(getParameters());
+		tbArtTotalDataSetDefinitionMamba.setTbArtAggregationTypes(TBArtAggregationTypes.TOTAL);
+		tbArtTotalDataSetDefinitionMamba
+		        .setDescription("Number of TB cases with documented HIV-positive status who start or continue ART during the reporting period. Numerator will auto-calculate from Age/Sex/Result Disaggregates");
+		reportDefinition
+		        .addDataSetDefinition(
+		            "Number of TB cases with documented HIV-positive status who start or continue ART during the reporting period. Numerator will auto-calculate from Age/Sex/Result Disaggregates",
+		            EthiOhriUtil.map(tbArtTotalDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		
 		TBArtDataSetDefinitionMamba tbArtDataSetDefinitionMamba = new TBArtDataSetDefinitionMamba();
 		tbArtDataSetDefinitionMamba.addParameters(getParameters());
 		tbArtDataSetDefinitionMamba.setTbArtAggregationTypes(TBArtAggregationTypes.ALREADY_ON_ART);

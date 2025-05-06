@@ -1,8 +1,8 @@
 package org.openmrs.module.mambaetl.helpers.reportOptions;
 
 public enum TxRTTAggregationTypes {
-	CD4_LESS_THAN_200("CD4_LESS_THAN_200"), CD4_GREATER_THAN_200("CD4_GREATER_THAN_200"), CD4_UNKNOWN("CD4_UNKNOWN"), CD4_NOT_ELIGIBLE(
-	        "CD4_NOT_ELIGIBLE"), IIT("IIT");
+	TOTAL("TOTAL"), CD4_LESS_THAN_200("CD4_LESS_THAN_200"), CD4_GREATER_THAN_200("CD4_GREATER_THAN_200"), CD4_UNKNOWN(
+	        "CD4_UNKNOWN"), CD4_NOT_ELIGIBLE("CD4_NOT_ELIGIBLE"), IIT("IIT");
 	
 	private final String sqlValue;
 	

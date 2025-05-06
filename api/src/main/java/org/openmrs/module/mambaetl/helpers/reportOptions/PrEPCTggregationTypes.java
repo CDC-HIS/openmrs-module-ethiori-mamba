@@ -1,7 +1,8 @@
 package org.openmrs.module.mambaetl.helpers.reportOptions;
 
 public enum PrEPCTggregationTypes {
-	AGE_SEX("AGE_SEX"), TEST_RESULT("TEST_RESULT"), PREP_TYPE("PREP_TYPE"), PREGNANT_BF("PREGNANT_BF"), FACILITY("FACILITY");
+	TOTAL("TOTAL"), AGE_SEX("AGE_SEX"), TEST_RESULT("TEST_RESULT"), PREP_TYPE("PREP_TYPE"), PREGNANT_BF("PREGNANT_BF"), FACILITY(
+	        "FACILITY");
 	
 	private final String sqlValue;
 	

@@ -1,7 +1,7 @@
 package org.openmrs.module.mambaetl.helpers.reportOptions;
 
 public enum TBArtAggregationTypes {
-	ALREADY_ON_ART("ALREADY_ON_ART"), NEW_ON_ART("NEW_ON_ART");
+	TOTAL("TOTAL"), ALREADY_ON_ART("ALREADY_ON_ART"), NEW_ON_ART("NEW_ON_ART");
 	
 	private final String sqlValue;
 	

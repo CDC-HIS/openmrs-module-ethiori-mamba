@@ -148,6 +148,9 @@ BEGIN
                                       join latest_follow_up_status
                                            on started_art.client_id = latest_follow_up_status.client_id
                              where started_art.client_id not in (select client_id from tx_curr_end)) ';
+    IF REPORT_TYPE = 'TOTAL' THEN
+        SET group_query = 'SELECT COUNT(*) AS NUMERATOR FROM interrupted_art';
+    ELSE
     SET group_query = CONCAT('
         SELECT
           sex,
@@ -165,7 +168,7 @@ BEGIN
         USING (sex)
         GROUP BY sex
         ');
-
+    END IF;
     # SELECT CONCAT(tx_ml_query, group_query);
     SET @sql = CONCAT(tx_ml_query, group_query);
     PREPARE stmt FROM @sql;

@@ -224,10 +224,12 @@ BEGIN
                 where restarted_art.client_id = interrupted_follow_up.client_id) ';
     IF REPORT_TYPE = 'IIT' THEN
         SET group_query = 'select ''Experienced treatment interruption of <3 months before returning to treatment'' as `IIT`,COUNT(*) as `Value` from tx_rtt where interrupted_months <3
-UNION ALL
-select ''Experienced treatment interruption of 3-5 months before returning to treatment'' ,COUNT(*) from tx_rtt where interrupted_months BETWEEN 3 AND 5
-UNION ALL
-select ''Experienced treatment interruption of 6+ months before returning to treatment'' ,COUNT(*) from tx_rtt where interrupted_months >6';
+        UNION ALL
+        select ''Experienced treatment interruption of 3-5 months before returning to treatment'' ,COUNT(*) from tx_rtt where interrupted_months BETWEEN 3 AND 5
+        UNION ALL
+        select ''Experienced treatment interruption of 6+ months before returning to treatment'' ,COUNT(*) from tx_rtt where interrupted_months >6';
+    ELSEIF REPORT_TYPE = 'TOTAL' THEN
+        SET group_query = 'SELECT COUNT(*) AS NUMERATOR FROM tx_rtt';
     ELSE
         SET group_query = CONCAT('
         SELECT
