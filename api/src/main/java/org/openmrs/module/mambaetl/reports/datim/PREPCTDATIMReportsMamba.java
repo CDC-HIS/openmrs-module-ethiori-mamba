@@ -26,7 +26,7 @@ public class PREPCTDATIMReportsMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "MAMBA-DATIM-PREVENTION- PrEP_CT";
+		return "MAMBA DATIM PREVENTION- PrEP_CT";
 	}
 	
 	@Override

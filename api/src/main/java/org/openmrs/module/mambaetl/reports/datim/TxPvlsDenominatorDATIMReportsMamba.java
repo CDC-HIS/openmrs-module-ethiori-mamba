@@ -25,7 +25,7 @@ public class TxPvlsDenominatorDATIMReportsMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "MAMBA-DATIM-VIRAL-SUPPRESSION- TX_PVLS (Denominator)";
+		return "MAMBA DATIM VIRAL SUPPRESSION- TX_PVLS (Denominator)";
 	}
 	
 	@Override

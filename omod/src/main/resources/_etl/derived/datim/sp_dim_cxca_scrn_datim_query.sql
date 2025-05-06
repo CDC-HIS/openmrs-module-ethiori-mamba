@@ -125,6 +125,9 @@ BEGIN
         INTO age_group_cols
         FROM (select datim_agegroup from mamba_dim_agegroup where mamba_dim_agegroup.datim_age_val >= 5 group by datim_agegroup) as order_query;
     END IF;
+    IF REPORT_TYPE = 'TOTAL' THEN
+    SET group_query = 'SELECT COUNT(*) AS NUMERATOR FROM cx_screened';
+    ELSE
     SET group_query = CONCAT('
         SELECT
         CASE
@@ -147,6 +150,7 @@ BEGIN
         USING (screening_result)
         GROUP BY screening_result
         ');
+    END IF;
     SET @sql = CONCAT(cxca_scrn_query, group_query);
     PREPARE stmt FROM @sql;
     SET @start_date = REPORT_START_DATE;
