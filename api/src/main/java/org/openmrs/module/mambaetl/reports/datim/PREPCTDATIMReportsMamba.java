@@ -26,7 +26,7 @@ public class PREPCTDATIMReportsMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "MAMBA DATIM- PrEP_CT";
+		return "MAMBA-DATIM-PREVENTION- PrEP_CT";
 	}
 	
 	@Override
@@ -72,13 +72,13 @@ public class PREPCTDATIMReportsMamba implements ReportManager {
 		prepctAgeSexdatimReportsMamba.setDescription("Disaggregated by Age/Sex");
 		reportDefinition.addDataSetDefinition("Disaggregated by Age/Sex",
 		    EthiOhriUtil.map(prepctAgeSexdatimReportsMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
-
+		
 		PrEPCTDataSetDefinitionMamba prepctTestResultdatimReportsMamba = new PrEPCTDataSetDefinitionMamba();
 		prepctTestResultdatimReportsMamba.addParameters(getParameters());
 		prepctTestResultdatimReportsMamba.setPrEPCTggregationTypes(PrEPCTggregationTypes.TEST_RESULT);
 		prepctTestResultdatimReportsMamba.setDescription("Disaggregated by test result");
 		reportDefinition.addDataSetDefinition("Disaggregated by test result",
-				EthiOhriUtil.map(prepctTestResultdatimReportsMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(prepctTestResultdatimReportsMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
 		
 		MLKeyPopulationDataSetDefinitionMamba mlKeyPopulationDataSetDefinitionMamba = new MLKeyPopulationDataSetDefinitionMamba();
 		mlKeyPopulationDataSetDefinitionMamba.addParameters(getParameters());
