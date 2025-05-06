@@ -104,7 +104,7 @@ BEGIN
              from FollowUp
              where follow_up_date <= ?),
      tmp_latest_screeing_follow_up as (SELECT client_id,
-                                              follow_up_date                                                                                AS FollowupDate,
+                                              follow_up_date                                                                                ,
                                               encounter_id,
                                               follow_up_status,
                                               tb_screening_date,
