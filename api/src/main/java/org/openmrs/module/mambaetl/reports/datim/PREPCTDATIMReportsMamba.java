@@ -53,18 +53,19 @@ public class PREPCTDATIMReportsMamba implements ReportManager {
 		headerDefinition.setParameters(getParameters());
 		reportDefinition.addDataSetDefinition("DSD: PrEP_CT", EthiOhriUtil.map(headerDefinition, "endDate=${endDateGC}"));
 		
-		HeaderDataSetDefinitionMamba secondHeader = new HeaderDataSetDefinitionMamba();
-		secondHeader
+		PrEPCTDataSetDefinitionMamba prepctTotaldatimReportsMamba = new PrEPCTDataSetDefinitionMamba();
+		prepctTotaldatimReportsMamba.addParameters(getParameters());
+		prepctTotaldatimReportsMamba.setPrEPCTggregationTypes(PrEPCTggregationTypes.TOTAL);
+		prepctTotaldatimReportsMamba
 		        .setDescription("Number of individuals, excluding those newly enrolled, that return for a follow-up visit or reinitiation visit to\n"
 		                + "receive pre-exposure prophylaxis (PrEP) to prevent HIV during the reporting period. Numerator will auto-\n"
 		                + "calculate from sum of Age/Sex Disaggregate");
-		secondHeader.setParameters(getParameters());
 		reportDefinition
 		        .addDataSetDefinition(
 		            "Number of individuals, excluding those newly enrolled, that return for a follow-up visit or reinitiation visit to\n"
 		                    + "receive pre-exposure prophylaxis (PrEP) to prevent HIV during the reporting period. Numerator will auto-\n"
 		                    + "calculate from sum of Age/Sex Disaggregate",
-		            EthiOhriUtil.map(secondHeader, "endDate=${endDateGC}"));
+		            EthiOhriUtil.map(prepctTotaldatimReportsMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
 		
 		PrEPCTDataSetDefinitionMamba prepctAgeSexdatimReportsMamba = new PrEPCTDataSetDefinitionMamba();
 		prepctAgeSexdatimReportsMamba.addParameters(getParameters());

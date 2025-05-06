@@ -52,14 +52,18 @@ public class CXCASCRNDATIMReportsMamba implements ReportManager {
 		headerDefinition.setDescription("DSD: CXCA_SCRN");
 		headerDefinition.setParameters(getParameters());
 		reportDefinition.addDataSetDefinition("DSD: CXCA_SCRN", EthiOhriUtil.map(headerDefinition, "endDate=${endDateGC}"));
-
+		
 		CXCASCRNDataSetDefinitionMamba cxcaScrnNumeratorDataSetDefinitionMamba = new CXCASCRNDataSetDefinitionMamba();
 		cxcaScrnNumeratorDataSetDefinitionMamba.addParameters(getParameters());
 		cxcaScrnNumeratorDataSetDefinitionMamba.setCxcatxAggregationTypes(CXCATXAggregationTypes.TOTAL);
-		cxcaScrnNumeratorDataSetDefinitionMamba.setDescription("Number of HIV-positive women on ART screened for cervical cancer. Numerator will auto-calculate from the Age/Result/Screening Visit Type");
-		reportDefinition.addDataSetDefinition("Number of HIV-positive women on ART screened for cervical cancer. Numerator will auto-calculate from the Age/Result/Screening Visit Type",
-				EthiOhriUtil.map(cxcaScrnNumeratorDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
-
+		cxcaScrnNumeratorDataSetDefinitionMamba
+		        .setDescription("Number of HIV-positive women on ART screened for cervical cancer. Numerator will auto-calculate from the Age/Result/Screening Visit Type");
+		reportDefinition
+		        .addDataSetDefinition(
+		            "Number of HIV-positive women on ART screened for cervical cancer. Numerator will auto-calculate from the Age/Result/Screening Visit Type",
+		            EthiOhriUtil.map(cxcaScrnNumeratorDataSetDefinitionMamba,
+		                "startDate=${startDateGC},endDate=${endDateGC}"));
+		
 		CXCASCRNDataSetDefinitionMamba cxcaScrnFirstTimeDataSetDefinitionMamba = new CXCASCRNDataSetDefinitionMamba();
 		cxcaScrnFirstTimeDataSetDefinitionMamba.addParameters(getParameters());
 		cxcaScrnFirstTimeDataSetDefinitionMamba.setCxcatxAggregationTypes(CXCATXAggregationTypes.FIRST_TIME_SCREENING);

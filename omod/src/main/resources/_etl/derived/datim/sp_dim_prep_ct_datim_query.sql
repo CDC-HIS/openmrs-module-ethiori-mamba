@@ -122,6 +122,8 @@ BEGIN
         USING (sex)
         GROUP BY sex
         ');
+    ELSEIF REPORT_TYPE= 'TOTAL' THEN
+        SET group_query = 'SELECT COUNT(*) AS NUMERATOR FROM prep';
     ELSEIF REPORT_TYPE = 'TEST_RESULT' THEN
         SET group_query = 'select ''Positive'' as `Name`, COUNT(*) as count from prep where final_hiv_test_result=''Positive''
         UNION ALL

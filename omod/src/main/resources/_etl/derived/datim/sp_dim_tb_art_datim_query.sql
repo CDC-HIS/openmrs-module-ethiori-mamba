@@ -102,7 +102,9 @@ where follow_up_status in (''Alive'',''Restart medication'')
                                              and row_num=1
                                              and (active_tb_diagnosed_date BETWEEN ? AND ? OR tb_treatment_start_date BETWEEN ? AND ?)
     ) ';
-
+    IF REPORT_TYPE = 'TOTAL' THEN
+        SET group_query = 'SELECT COUNT(*) AS NUMERATOR FROM tb_art';
+    ELSE
         SET group_query = CONCAT('
         SELECT
           sex,
@@ -120,7 +122,7 @@ where follow_up_status in (''Alive'',''Restart medication'')
         USING (sex)
         GROUP BY sex
         ');
-
+    END IF;
     SET @sql = CONCAT(tx_tb_query, group_query);
     PREPARE stmt FROM @sql;
     SET @start_date = REPORT_START_DATE;

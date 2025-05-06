@@ -53,6 +53,16 @@ public class CXCATXDATIMReportsMamba implements ReportManager {
 		headerDefinition.setParameters(getParameters());
 		reportDefinition.addDataSetDefinition("DSD: CXCA_TX", EthiOhriUtil.map(headerDefinition, "endDate=${endDateGC}"));
 		
+		CXCATXDataSetDefinitionMamba cxcaTxTotalDataSetDefinitionMamba = new CXCATXDataSetDefinitionMamba();
+		cxcaTxTotalDataSetDefinitionMamba.addParameters(getParameters());
+		cxcaTxTotalDataSetDefinitionMamba.setCxcatxAggregationTypes(CXCATXAggregationTypes.TOTAL);
+		cxcaTxTotalDataSetDefinitionMamba
+		        .setDescription("Number of women with a positive VIA screening test who are HIV-positive and on ART eligible for cryotherapy, thermocoagulation or LEEP who received cryotherapy, thermocoagulation or LEEP. Numerator will auto-calculate from the Age/Treatment Type/Screening Visit Type.");
+		reportDefinition
+		        .addDataSetDefinition(
+		            "Number of women with a positive VIA screening test who are HIV-positive and on ART eligible for cryotherapy, thermocoagulation or LEEP who received cryotherapy, thermocoagulation or LEEP. Numerator will auto-calculate from the Age/Treatment Type/Screening Visit Type.",
+		            EthiOhriUtil.map(cxcaTxTotalDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		
 		CXCATXDataSetDefinitionMamba cxcatxFirstTimeDataSetDefinitionMamba = new CXCATXDataSetDefinitionMamba();
 		cxcatxFirstTimeDataSetDefinitionMamba.addParameters(getParameters());
 		cxcatxFirstTimeDataSetDefinitionMamba.setCxcatxAggregationTypes(CXCATXAggregationTypes.FIRST_TIME_SCREENING);

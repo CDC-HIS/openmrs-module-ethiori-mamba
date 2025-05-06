@@ -48,9 +48,29 @@ public class TXRTTDATIMReportsMamba implements ReportManager {
 		reportDefinition.setParameters(getParameters());
 		
 		HeaderDataSetDefinitionMamba headerDefinition = new HeaderDataSetDefinitionMamba();
-		headerDefinition.setDescription("DSD: TXRTT");
+		headerDefinition.setDescription("DSD: TX_RTT");
 		headerDefinition.setParameters(getParameters());
-		reportDefinition.addDataSetDefinition("DSD: TXRTT", EthiOhriUtil.map(headerDefinition, "endDate=${endDateGC}"));
+		reportDefinition.addDataSetDefinition("DSD: TX_RTT", EthiOhriUtil.map(headerDefinition, "endDate=${endDateGC}"));
+		
+		TxRTTDataSetDefinitionMamba txRTTTotalDataSetDefinitionMamba = new TxRTTDataSetDefinitionMamba();
+		txRTTTotalDataSetDefinitionMamba.addParameters(getParameters());
+		txRTTTotalDataSetDefinitionMamba.setTxRTTAggregationTypes(TxRTTAggregationTypes.TOTAL);
+		txRTTTotalDataSetDefinitionMamba
+		        .setDescription("Number of ART patients who experienced an interruption in treatment (IIT) during any previous reporting\n"
+		                + "period, who successfully restarted ARVs within the reporting period and remained on treatment until the end of\n"
+		                + "the reporting period. The Numerator will auto-calculate from Age/Sex Disaggregates.");
+		reportDefinition
+		        .addDataSetDefinition(
+		            "Number of ART patients who experienced an interruption in treatment (IIT) during any previous reporting\n"
+		                    + "period, who successfully restarted ARVs within the reporting period and remained on treatment until the end of\n"
+		                    + "the reporting period. The Numerator will auto-calculate from Age/Sex Disaggregates.",
+		            EthiOhriUtil.map(txRTTTotalDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		
+		HeaderDataSetDefinitionMamba header2Definition = new HeaderDataSetDefinitionMamba();
+		header2Definition.setDescription("Disaggregated by Age/Sex and CD4");
+		header2Definition.setParameters(getParameters());
+		reportDefinition.addDataSetDefinition("Disaggregated by Age/Sex and CD4",
+		    EthiOhriUtil.map(header2Definition, "endDate=${endDateGC}"));
 		
 		TxRTTDataSetDefinitionMamba txRTTDataSetDefinitionMamba = new TxRTTDataSetDefinitionMamba();
 		txRTTDataSetDefinitionMamba.addParameters(getParameters());
