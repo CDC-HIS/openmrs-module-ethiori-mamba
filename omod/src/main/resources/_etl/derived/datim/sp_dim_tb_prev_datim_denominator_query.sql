@@ -57,12 +57,13 @@ BEGIN
                          tb_screening_date,
                          tb_treatment_status,
                          transferred_in_check_this_for_all_t as transferred_in,
-                         date_started_on_tuberculosis_prophy,
+                         date_started_on_tuberculosis_prophy as tpt_start_date,
                          screening_test_result_tuberculosis     screening_result,
                          lf_lam_result,
                          patient_diagnosed_with_active_tuber,
                          diagnosis_date as active_tb_diagnosed_date,
                          tuberculosis_drug_treatment_start_d as tb_treatment_start_date
+
                   FROM mamba_flat_encounter_follow_up follow_up
                            LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1
                                      ON follow_up.encounter_id = follow_up_1.encounter_id
@@ -84,24 +85,27 @@ BEGIN
                                      patient_diagnosed_with_active_tuber,
                                      active_tb_diagnosed_date,
                                      tb_treatment_start_date,
+                                     tpt_start_date,
                                      ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
                               FROM FollowUp
                               WHERE follow_up_status IS NOT NULL
                                 AND art_start_date IS NOT NULL
-                           --     AND tb_screened = ''Yes''
+                                --     AND tb_screened = ''Yes''
                                 AND follow_up_date <= ?),
-    tb_art as (
-        select tmp_latest_follow_up.*,
-                             sex,
-                             date_of_birth,
-                             (SELECT fine_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,follow_up_date)=age) as fine_age_group,
-                             (SELECT coarse_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,follow_up_date)=age) as coarse_age_group
-                            from tmp_latest_follow_up
-        join mamba_dim_client client on client.client_id=tmp_latest_follow_up.client_id
-where follow_up_status in (''Alive'',''Restart medication'')
-                                             and row_num=1
-                                             and (active_tb_diagnosed_date BETWEEN ? AND ? OR tb_treatment_start_date BETWEEN ? AND ?)
-    ) ';
+     tpt as (
+         select tmp_latest_follow_up.*,
+                sex,
+                date_of_birth,
+                (SELECT fine_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,follow_up_date)=age) as fine_age_group,
+                (SELECT coarse_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,follow_up_date)=age) as coarse_age_group
+         from tmp_latest_follow_up
+                  join mamba_dim_client client on client.client_id=tmp_latest_follow_up.client_id
+         where follow_up_status in (''Alive'',''Restart medication'')
+           and row_num=1
+           and tpt_start_date BETWEEN DATE_ADD(?, INTERVAL -6 MONTH) AND ?
+     ) ,
+    new_art_tpt as ( select * from tpt where art_start_date BETWEEN DATE_ADD(?, INTERVAL -6 MONTH) AND ?),
+    prev_art_tpt as ( select * from tpt where art_start_date < DATE_ADD(?, INTERVAL -6 MONTH)) ';
     IF REPORT_TYPE = 'TOTAL' THEN
         SET group_query = 'SELECT COUNT(*) AS NUMERATOR FROM tb_art';
     ELSE
