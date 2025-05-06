@@ -27,7 +27,7 @@ public class TxMLDATIMReportsMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "MAMBA DATIM- TX_ML";
+		return "MAMBA-DATIM-TREATMENT- TX_ML";
 	}
 	
 	@Override

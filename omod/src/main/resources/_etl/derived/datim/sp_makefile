@@ -8,7 +8,9 @@
 #############################################################################
 
 ############################ LINE LIST QUERIES #######################
+sp_dim_cxca_scrn_datim_query.sql
 sp_dim_cxca_tx_datim_query.sql
+sp_dim_prep_ct_datim_query.sql
 sp_dim_tb_art_datim_query.sql
 sp_dim_tx_curr_datim_query.sql
 sp_dim_tx_ml_datim_query.sql
