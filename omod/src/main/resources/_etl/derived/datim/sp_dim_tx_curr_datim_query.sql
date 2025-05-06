@@ -69,7 +69,7 @@ BEGIN
                                          ON follow_up.encounter_id = follow_up_4.encounter_id),
          -- TX curr
          tx_curr_all AS (SELECT PatientId,
-                                follow_up_date                                                                             AS FollowupDate,
+                                follow_up_date                                                                             ,
                                 encounter_id,
                                 follow_up_status,
                                 treatment_end_date,

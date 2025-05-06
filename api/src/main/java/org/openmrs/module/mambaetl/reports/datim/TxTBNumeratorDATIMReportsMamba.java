@@ -58,9 +58,13 @@ public class TxTBNumeratorDATIMReportsMamba implements ReportManager {
 		TxTBNumeratorDataSetDefinitionMamba txTBNewNumeratorTotalDataSetDefinitionMamba = new TxTBNumeratorDataSetDefinitionMamba();
 		txTBNewNumeratorTotalDataSetDefinitionMamba.addParameters(getParameters());
 		txTBNewNumeratorTotalDataSetDefinitionMamba.setTxTBAggregationTypes(TxTBAggregationTypes.NUMERATOR_TOTAL);
-		txTBNewNumeratorTotalDataSetDefinitionMamba.setDescription("Number of ART patients who were started on TB treatment during the reporting period. Numerator will auto-calculate from Already/New on ART by Age/Sex");
-		reportDefinition.addDataSetDefinition("Number of ART patients who were started on TB treatment during the reporting period. Numerator will auto-calculate from Already/New on ART by Age/Sex",
-		    EthiOhriUtil.map(txTBNewNumeratorTotalDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		txTBNewNumeratorTotalDataSetDefinitionMamba
+		        .setDescription("Number of ART patients who were started on TB treatment during the reporting period. Numerator will auto-calculate from Already/New on ART by Age/Sex");
+		reportDefinition
+		        .addDataSetDefinition(
+		            "Number of ART patients who were started on TB treatment during the reporting period. Numerator will auto-calculate from Already/New on ART by Age/Sex",
+		            EthiOhriUtil.map(txTBNewNumeratorTotalDataSetDefinitionMamba,
+		                "startDate=${startDateGC},endDate=${endDateGC}"));
 		
 		TxTBNumeratorDataSetDefinitionMamba txTBNewNumeratorDataSetDefinitionMamba = new TxTBNumeratorDataSetDefinitionMamba();
 		txTBNewNumeratorDataSetDefinitionMamba.addParameters(getParameters());
