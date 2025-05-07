@@ -1,11 +1,11 @@
 package org.openmrs.module.mambaetl.helpers.reportOptions;
 
-public enum PrEPNEWggregationTypes {
+public enum PrEPNEWAggregationTypes {
 	TOTAL("TOTAL"), AGE_SEX("AGE_SEX"), PREP_TYPE("PREP_TYPE"), PREGNANT_BF("PREGNANT_BF"), FACILITY("FACILITY");
 	
 	private final String sqlValue;
 	
-	PrEPNEWggregationTypes(String sqlValue) {
+	PrEPNEWAggregationTypes(String sqlValue) {
 		this.sqlValue = sqlValue;
 	}
 	
@@ -13,8 +13,8 @@ public enum PrEPNEWggregationTypes {
 		return sqlValue;
 	}
 	
-	public static PrEPNEWggregationTypes fromString(String status) {
-		for (PrEPNEWggregationTypes cs : PrEPNEWggregationTypes.values()) {
+	public static PrEPNEWAggregationTypes fromString(String status) {
+		for (PrEPNEWAggregationTypes cs : PrEPNEWAggregationTypes.values()) {
 			if (cs.name().equalsIgnoreCase(status) || cs.getSqlValue().equalsIgnoreCase(status)) {
 				return cs;
 			}

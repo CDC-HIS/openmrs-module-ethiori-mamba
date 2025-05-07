@@ -1,6 +1,6 @@
-package org.openmrs.module.mambaetl.datasetdefinition.datim.prep_new;
+package org.openmrs.module.mambaetl.datasetdefinition.datim.tb_prev;
 
-import org.openmrs.module.mambaetl.helpers.reportOptions.PrEPNEWAggregationTypes;
+import org.openmrs.module.mambaetl.helpers.reportOptions.TBPrevAggregationTypes;
 import org.openmrs.module.reporting.dataset.definition.BaseDataSetDefinition;
 import org.openmrs.module.reporting.definition.configuration.ConfigurationProperty;
 import org.springframework.stereotype.Component;
@@ -8,16 +8,16 @@ import org.springframework.stereotype.Component;
 import java.util.Date;
 
 @Component
-public class PrEPNEWDataSetDefinitionMamba extends BaseDataSetDefinition {
-	
-	@ConfigurationProperty
-	private Date startDate;
+public class TBPrevDenominatorDataSetDefinitionMamba extends BaseDataSetDefinition {
 	
 	@ConfigurationProperty
 	private Date endDate;
 	
 	@ConfigurationProperty
-	private PrEPNEWAggregationTypes prEPNEWAggregationTypes;
+	private Date startDate;
+	
+	@ConfigurationProperty
+	private TBPrevAggregationTypes tbPrevAggregationTypes;
 	
 	public Date getStartDate() {
 		return startDate;
@@ -35,11 +35,12 @@ public class PrEPNEWDataSetDefinitionMamba extends BaseDataSetDefinition {
 		this.endDate = endDate;
 	}
 	
-	public PrEPNEWAggregationTypes getPrEPNEWggregationTypes() {
-		return prEPNEWAggregationTypes;
+	public TBPrevAggregationTypes getTBPrevAggregationTypes() {
+		return tbPrevAggregationTypes;
 	}
 	
-	public void setPrEPNEWggregationTypes(PrEPNEWAggregationTypes prEPNEWAggregationTypes) {
-		this.prEPNEWAggregationTypes = prEPNEWAggregationTypes;
+	public void setTBPrevAggregationTypes(TBPrevAggregationTypes tbPrevAggregationTypes) {
+		this.tbPrevAggregationTypes = tbPrevAggregationTypes;
 	}
+	
 }
