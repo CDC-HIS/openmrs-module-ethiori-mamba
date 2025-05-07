@@ -1,8 +1,8 @@
 DELIMITER //
 
-DROP PROCEDURE IF EXISTS sp_dim_tb_prev_datim_denominator_query;
+DROP PROCEDURE IF EXISTS sp_dim_tb_prev_datim_numerator_query;
 
-CREATE PROCEDURE sp_dim_tb_prev_datim_denominator_query(
+CREATE PROCEDURE sp_dim_tb_prev_datim_numerator_query(
     IN REPORT_START_DATE DATE,
     IN REPORT_END_DATE DATE,
     IN IS_COURSE_AGE_GROUP BOOLEAN, -- expected values: 0 for fine age group, 1 for coarse age group
@@ -49,6 +49,7 @@ BEGIN
                          tb_treatment_status,
                          transferred_in_check_this_for_all_t as transferred_in,
                          date_started_on_tuberculosis_prophy as tpt_start_date,
+                         date_completed_tuberculosis_prophyl as tpt_completed_date,
                          screening_test_result_tuberculosis     screening_result,
                          lf_lam_result,
                          patient_diagnosed_with_active_tuber,
@@ -77,12 +78,14 @@ BEGIN
                                      active_tb_diagnosed_date,
                                      tb_treatment_start_date,
                                      tpt_start_date,
+                                     tpt_completed_date,
                                      ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
                               FROM FollowUp
                               WHERE follow_up_status IS NOT NULL
                                 AND art_start_date IS NOT NULL
+                                --     AND tb_screened = ''Yes''
                                 AND follow_up_date <= ?),
-     tpt as (
+     tpt_started as (
          select tmp_latest_follow_up.*,
                 sex,
                 date_of_birth,
@@ -94,8 +97,23 @@ BEGIN
            and row_num=1
            and tpt_start_date BETWEEN DATE_ADD(?, INTERVAL -6 MONTH) AND ?
      ) ,
-    new_art_tpt as ( select * from tpt where art_start_date BETWEEN DATE_ADD(?, INTERVAL -6 MONTH) AND ?),
-    prev_art_tpt as ( select * from tpt where art_start_date < DATE_ADD(?, INTERVAL -6 MONTH)) ';
+     tmp_tpt_completed as (
+         select tmp_latest_follow_up.*,
+                sex,
+                date_of_birth,
+                (SELECT fine_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,follow_up_date)=age) as fine_age_group,
+                (SELECT coarse_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,follow_up_date)=age) as coarse_age_group
+         from tmp_latest_follow_up
+                  join mamba_dim_client client on client.client_id=tmp_latest_follow_up.client_id
+         where follow_up_status in (''Alive'',''Restart medication'')
+           and row_num=1
+           and tpt_completed_date BETWEEN DATE_ADD(?, INTERVAL -6 MONTH) AND ?
+     ) ,
+     tpt_completed as (  select tmp_tpt_completed.* from tmp_tpt_completed
+                                  join tpt_started on tpt_started.client_id=tmp_tpt_completed.client_id
+                                  ),
+    new_art_tpt as ( select * from tpt_completed where art_start_date BETWEEN DATE_ADD(?, INTERVAL -6 MONTH) AND ?),
+    prev_art_tpt as ( select * from tpt_completed where art_start_date < DATE_ADD(?, INTERVAL -6 MONTH)) ';
     IF REPORT_TYPE = 'TOTAL' THEN
         SET group_query = 'SELECT COUNT(*) AS NUMERATOR FROM tpt';
     ELSEIF REPORT_TYPE = 'NEW_ART' THEN
@@ -157,7 +175,7 @@ BEGIN
     PREPARE stmt FROM @sql;
     SET @start_date = REPORT_START_DATE;
     SET @end_date = REPORT_END_DATE;
-    EXECUTE stmt USING @start_date, @start_date , @start_date, @start_date , @start_date, @start_date;
+    EXECUTE stmt USING @start_date, @start_date , @start_date, @start_date , @end_date, @start_date,@start_date,@start_date;
     DEALLOCATE PREPARE stmt;
 END //
 
