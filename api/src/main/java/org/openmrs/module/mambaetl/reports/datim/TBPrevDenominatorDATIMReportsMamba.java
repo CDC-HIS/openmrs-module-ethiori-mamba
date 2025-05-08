@@ -54,7 +54,7 @@ public class TBPrevDenominatorDATIMReportsMamba implements ReportManager {
 		
 		TBPrevDenominatorDataSetDefinitionMamba tbPrevTotalDenominatorDataSetDefinitionMamba = new TBPrevDenominatorDataSetDefinitionMamba();
 		tbPrevTotalDenominatorDataSetDefinitionMamba.addParameters(getParameters());
-		tbPrevTotalDenominatorDataSetDefinitionMamba.setTBPrevAggregationTypes(TBPrevAggregationTypes.TOTAL);
+		tbPrevTotalDenominatorDataSetDefinitionMamba.setTbPrevAggregationTypes(TBPrevAggregationTypes.TOTAL);
 		tbPrevTotalDenominatorDataSetDefinitionMamba
 		        .setDescription("Number of ART patients who were initialized on any course of TPT during the previous reporting period");
 		reportDefinition.addDataSetDefinition(
@@ -63,7 +63,7 @@ public class TBPrevDenominatorDATIMReportsMamba implements ReportManager {
 		
 		TBPrevDenominatorDataSetDefinitionMamba tbPrevDenominatorDataSetDefinitionMamba = new TBPrevDenominatorDataSetDefinitionMamba();
 		tbPrevDenominatorDataSetDefinitionMamba.addParameters(getParameters());
-		tbPrevDenominatorDataSetDefinitionMamba.setTBPrevAggregationTypes(TBPrevAggregationTypes.PREV_ART);
+		tbPrevDenominatorDataSetDefinitionMamba.setTbPrevAggregationTypes(TBPrevAggregationTypes.PREV_ART);
 		tbPrevDenominatorDataSetDefinitionMamba.setDescription("Disaggregated By ART Start by Age/Sex");
 		reportDefinition.addDataSetDefinition("Disaggregated By ART Start by Age/Sex",
 		    EthiOhriUtil.map(tbPrevDenominatorDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));

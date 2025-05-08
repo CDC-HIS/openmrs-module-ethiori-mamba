@@ -25,7 +25,7 @@ public class TBPrevNumeratorDATIMReportsMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "MAMBA DATIM PREVENTION- TB_PREV(DENOMINATOR)";
+		return "MAMBA DATIM PREVENTION- TB_PREV(NUMERATOR)";
 	}
 	
 	@Override
@@ -47,14 +47,14 @@ public class TBPrevNumeratorDATIMReportsMamba implements ReportManager {
 		reportDefinition.setParameters(getParameters());
 		
 		HeaderDataSetDefinitionMamba headerDefinition = new HeaderDataSetDefinitionMamba();
-		headerDefinition.setDescription("DSD: TB_PREV(DENOMINATOR)");
+		headerDefinition.setDescription("DSD: TB_PREV(NUMERATOR)");
 		headerDefinition.setParameters(getParameters());
-		reportDefinition.addDataSetDefinition("DSD: TB_PREV(DENOMINATOR)",
+		reportDefinition.addDataSetDefinition("DSD: TB_PREV(NUMERATOR)",
 		    EthiOhriUtil.map(headerDefinition, "endDate=${endDateGC}"));
 		
 		TBPrevNumeratorDataSetDefinitionMamba tbPrevTotalNumeratorDataSetDefinitionMamba = new TBPrevNumeratorDataSetDefinitionMamba();
 		tbPrevTotalNumeratorDataSetDefinitionMamba.addParameters(getParameters());
-		tbPrevTotalNumeratorDataSetDefinitionMamba.setTBPrevAggregationTypes(TBPrevAggregationTypes.TOTAL);
+		tbPrevTotalNumeratorDataSetDefinitionMamba.setTbPrevAggregationTypes(TBPrevAggregationTypes.TOTAL);
 		tbPrevTotalNumeratorDataSetDefinitionMamba
 		        .setDescription("Among those who started a course of TPT in the previous reporting period, the number that completed a full course of therapy. (for continuous IPT programs, this includes the patients who have completed the first 6 months of isoniazid preventive therapy (IPT), or any other standard course of TPT such as 3 months of weekly isoniazid and rifapentine, or 3-HP)");
 		reportDefinition
@@ -65,7 +65,7 @@ public class TBPrevNumeratorDATIMReportsMamba implements ReportManager {
 		
 		TBPrevNumeratorDataSetDefinitionMamba tbPrevNumeratorDataSetDefinitionMamba = new TBPrevNumeratorDataSetDefinitionMamba();
 		tbPrevNumeratorDataSetDefinitionMamba.addParameters(getParameters());
-		tbPrevNumeratorDataSetDefinitionMamba.setTBPrevAggregationTypes(TBPrevAggregationTypes.PREV_ART);
+		tbPrevNumeratorDataSetDefinitionMamba.setTbPrevAggregationTypes(TBPrevAggregationTypes.PREV_ART);
 		tbPrevNumeratorDataSetDefinitionMamba.setDescription("Disaggregated By ART Start by Age/Sex");
 		reportDefinition.addDataSetDefinition("Disaggregated By ART Start by Age/Sex",
 		    EthiOhriUtil.map(tbPrevNumeratorDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
