@@ -26,7 +26,6 @@ facts/hmis_dhis_2_queries/sp_fact_hmis_hiv_linkage_query.sql
 facts/hmis_dhis_2_queries/sp_fact_hmis_phliv_tsp_query.sql
 facts/hmis_dhis_2_queries/sp_fact_hmis_hiv_hts_tst_index_query.sql
 facts/hmis_dhis_2_queries/sp_fact_hmis_mtct_query.sql
-facts/hmis_dhis_2_queries/sp_fact_hmis_mtct_query.sql
 facts/hmis_dhis_2_queries/sp_fact_hmis_tb_lb_lf_lam_query.sql
 #############################################################################
 ##### A single SP that CALLs all SPs inside the derived & base folders ######

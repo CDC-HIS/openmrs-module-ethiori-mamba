@@ -1,5 +1,6 @@
 package org.openmrs.module.mambaetl.helpers;
 
+import org.openmrs.module.mambaetl.helpers.reportOptions.TxCurrAnalysisCategories;
 import org.openmrs.module.reporting.evaluation.parameter.Mapped;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.evaluation.parameter.Parameterizable;
@@ -20,7 +21,10 @@ public class EthiOhriUtil {
 		endDate.setRequired(true);
 		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
 		endDateGC.setRequired(false);
-		return Arrays.asList(startDate, startDateGC, endDate, endDateGC);
+		Parameter txCurrAnalysisCategory = new Parameter("txCurrAnalysisCategory", "Analysis Group",
+		        TxCurrAnalysisCategories.class);
+		txCurrAnalysisCategory.setRequired(true);
+		return Arrays.asList(startDate, startDateGC, endDate, endDateGC, txCurrAnalysisCategory);
 	}
 	
 	//	public static List<Parameter> getEndDateParameters() {
