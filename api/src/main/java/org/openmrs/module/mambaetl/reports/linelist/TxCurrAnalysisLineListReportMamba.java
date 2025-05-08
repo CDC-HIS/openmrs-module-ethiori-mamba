@@ -1,10 +1,13 @@
 package org.openmrs.module.mambaetl.reports.linelist;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import org.openmrs.module.mambaetl.datasetdefinition.linelist.TxCurrAnalysisLineListDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
+import org.openmrs.module.mambaetl.helpers.reportOptions.TxCurrAnalysisCategories;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.report.ReportDesign;
 import org.openmrs.module.reporting.report.ReportRequest;
@@ -33,7 +36,20 @@ public class TxCurrAnalysisLineListReportMamba implements ReportManager {
 	
 	@Override
 	public List<Parameter> getParameters() {
-		return EthiOhriUtil.getDateRangeParameters();
+		Parameter startDate = new Parameter("startDate", "Start Date", Date.class);
+		startDate.setRequired(true);
+		Parameter startDateGC = new Parameter("startDateGC", " ", Date.class);
+		startDateGC.setRequired(false);
+		Parameter endDate = new Parameter("endDate", "End Date", Date.class);
+		endDate.setRequired(true);
+		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
+		endDateGC.setRequired(false);
+		Parameter txCurrAnalysisCategory = new Parameter("txCurrAnalysisCategory", "Analysis Group", String.class);
+		txCurrAnalysisCategory.addToWidgetConfiguration("codedOptions",
+		    TxCurrAnalysisCategories.NEW_ON_ART.getSqlValue() + "," + TxCurrAnalysisCategories.RESTARTED.getSqlValue() + ","
+		            + TxCurrAnalysisCategories.TRACED_BACK.getSqlValue());
+		txCurrAnalysisCategory.setRequired(true);
+		return Arrays.asList(startDate, startDateGC, endDate, endDateGC, txCurrAnalysisCategory);
 		
 	}
 	

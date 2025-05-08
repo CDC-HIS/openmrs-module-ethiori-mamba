@@ -1,8 +1,9 @@
 package org.openmrs.module.mambaetl.helpers.reportOptions;
 
 public enum TxCurrAnalysisCategories {
-	TRACED_BACK("TRACED_BACK"), NEW_ON_ART("NEW_ON_ART"), RESTARTED("RESTARTED"), TRANSFERRED_OUT("TRANSFERRED_OUT"), UNKNOWN(
-	        "UNKNOWN");
+	TX_CURR_THIS_MONTH("TX_CURR_THIS_MONTH"), TX_CURR_LAST_MONTH("TX_CURR_LAST_MONTH"),
+	TX_CURR_NEWLY_INCLUDED("TX_CURR_NEWLY_INCLUDED"), TX_CURR_EXCLUDED_THIS_MONTH("TX_CURR_EXCLUDED_THIS_MONTH"), OTHER_OUTCOME(
+	        "OTHER_OUTCOME"),NOT_UPDATED("NOT_UPDATED"),SUMMARY("SUMMARY"),ON_DSD("ON_DSD");
 	
 	private final String sqlValue;
 	
@@ -20,6 +21,6 @@ public enum TxCurrAnalysisCategories {
 				return cs;
 			}
 		}
-		return UNKNOWN;
+		return SUMMARY;
 	}
 }
