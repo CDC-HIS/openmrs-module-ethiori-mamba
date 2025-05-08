@@ -21,10 +21,7 @@ public class EthiOhriUtil {
 		endDate.setRequired(true);
 		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
 		endDateGC.setRequired(false);
-		Parameter txCurrAnalysisCategory = new Parameter("txCurrAnalysisCategory", "Analysis Group",
-		        TxCurrAnalysisCategories.class);
-		txCurrAnalysisCategory.setRequired(true);
-		return Arrays.asList(startDate, startDateGC, endDate, endDateGC, txCurrAnalysisCategory);
+		return Arrays.asList(startDate, startDateGC, endDate, endDateGC);
 	}
 	
 	//	public static List<Parameter> getEndDateParameters() {
