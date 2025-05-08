@@ -70,7 +70,7 @@ public class TBPrevNumeratorEvaluatorMamba implements DataSetEvaluator {
         java.sql.Date endDate = new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime());
         java.sql.Date startDate = new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime());
 
-        if (!dataSetDefinitionMamba.getTBPrevAggregationTypes().getSqlValue().equalsIgnoreCase("TOTAL"))
+        if (!dataSetDefinitionMamba.getTbPrevAggregationTypes().getSqlValue().equalsIgnoreCase("TOTAL"))
         {
             return Arrays.asList(
                     new ProcedureCall("{call sp_dim_tb_prev_datim_numerator_query(?,?,?,?)}", statement -> {
@@ -114,7 +114,7 @@ public class TBPrevNumeratorEvaluatorMamba implements DataSetEvaluator {
         }
 
         int count = 0;
-        String[] duration = {"<3 months of ARVs (not MMD)", "3-5 months of ARVs", "6 or more months of ARVs"};
+        String[] duration = {"Newly enrolled on ART", "Previously Enrolled on ART"};
 
         Map<String, DataSetRow> rowsMap = new HashMap<>();
 

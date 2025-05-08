@@ -115,7 +115,7 @@ BEGIN
     new_art_tpt as ( select * from tpt_completed where art_start_date BETWEEN DATE_ADD(?, INTERVAL -6 MONTH) AND ?),
     prev_art_tpt as ( select * from tpt_completed where art_start_date < DATE_ADD(?, INTERVAL -6 MONTH)) ';
     IF REPORT_TYPE = 'TOTAL' THEN
-        SET group_query = 'SELECT COUNT(*) AS NUMERATOR FROM tpt';
+        SET group_query = 'SELECT COUNT(*) AS NUMERATOR FROM tpt_completed';
     ELSEIF REPORT_TYPE = 'NEW_ART' THEN
         SET group_query = CONCAT('
         SELECT

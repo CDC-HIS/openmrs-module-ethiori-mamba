@@ -35,11 +35,11 @@ public class TBPrevDenominatorDataSetDefinitionMamba extends BaseDataSetDefiniti
 		this.endDate = endDate;
 	}
 	
-	public TBPrevAggregationTypes getTBPrevAggregationTypes() {
+	public TBPrevAggregationTypes getTbPrevAggregationTypes() {
 		return tbPrevAggregationTypes;
 	}
 	
-	public void setTBPrevAggregationTypes(TBPrevAggregationTypes tbPrevAggregationTypes) {
+	public void setTbPrevAggregationTypes(TBPrevAggregationTypes tbPrevAggregationTypes) {
 		this.tbPrevAggregationTypes = tbPrevAggregationTypes;
 	}
 	
