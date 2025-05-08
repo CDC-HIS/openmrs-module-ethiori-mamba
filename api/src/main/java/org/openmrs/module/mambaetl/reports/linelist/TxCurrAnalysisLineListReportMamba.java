@@ -49,8 +49,9 @@ public class TxCurrAnalysisLineListReportMamba implements ReportManager {
 		TxCurrAnalysisLineListDataSetDefinitionMamba txCurrAnalysisDataSetDefinition = new TxCurrAnalysisLineListDataSetDefinitionMamba();
 		txCurrAnalysisDataSetDefinition.addParameters(getParameters());
 		
-		reportDefinition.addDataSetDefinition("List of Patients for TX Curr Analysis",
-		    EthiOhriUtil.map(txCurrAnalysisDataSetDefinition, "startDate=${startDateGC},endDate=${endDateGC}"));
+		reportDefinition.addDataSetDefinition("List of Patients for TX Curr Analysis", EthiOhriUtil.map(
+		    txCurrAnalysisDataSetDefinition,
+		    "startDate=${startDateGC},endDate=${endDateGC},txCurrAnalysisCategory=${txCurrAnalysisCategory}"));
 		return reportDefinition;
 	}
 	

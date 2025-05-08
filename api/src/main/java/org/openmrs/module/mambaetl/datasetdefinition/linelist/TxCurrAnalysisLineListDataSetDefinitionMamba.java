@@ -21,7 +21,7 @@ public class TxCurrAnalysisLineListDataSetDefinitionMamba extends BaseDataSetDef
 	private Date endDate;
 	
 	@ConfigurationProperty
-	private TxCurrAnalysisCategories categories;
+	private TxCurrAnalysisCategories txCurrAnalysisCategories;
 	
 	public void setStartDate(Date startDate) {
 		this.startDate = startDate;
@@ -33,5 +33,13 @@ public class TxCurrAnalysisLineListDataSetDefinitionMamba extends BaseDataSetDef
 	
 	public void setEndDate(Date endDate) {
 		this.endDate = endDate;
+	}
+	
+	public TxCurrAnalysisCategories getTxCurrAnalysisCategories() {
+		return txCurrAnalysisCategories;
+	}
+	
+	public void setTxCurrAnalysisCategories(TxCurrAnalysisCategories txCurrAnalysisCategories) {
+		this.txCurrAnalysisCategories = txCurrAnalysisCategories;
 	}
 }
