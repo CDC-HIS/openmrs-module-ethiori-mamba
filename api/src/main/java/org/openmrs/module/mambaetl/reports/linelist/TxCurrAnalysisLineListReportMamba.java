@@ -46,8 +46,15 @@ public class TxCurrAnalysisLineListReportMamba implements ReportManager {
 		endDateGC.setRequired(false);
 		Parameter txCurrAnalysisCategory = new Parameter("txCurrAnalysisCategory", "Analysis Group", String.class);
 		txCurrAnalysisCategory.addToWidgetConfiguration("codedOptions",
-		    TxCurrAnalysisCategories.NEW_ON_ART.getSqlValue() + "," + TxCurrAnalysisCategories.RESTARTED.getSqlValue() + ","
-		            + TxCurrAnalysisCategories.TRACED_BACK.getSqlValue());
+		    TxCurrAnalysisCategories.TX_CURR_THIS_MONTH.getSqlValue() + ","
+		            + TxCurrAnalysisCategories.TX_CURR_LAST_MONTH.getSqlValue() + ","
+					+ TxCurrAnalysisCategories.TX_CURR_NEWLY_INCLUDED.getSqlValue() + ","
+		            + TxCurrAnalysisCategories.TX_CURR_EXCLUDED_THIS_MONTH.getSqlValue() + ","
+					+ TxCurrAnalysisCategories.OTHER_OUTCOME.getSqlValue() + ","
+					+ TxCurrAnalysisCategories.NOT_UPDATED.getSqlValue() + ","
+					+ TxCurrAnalysisCategories.SUMMARY.getSqlValue() + ","
+					+ TxCurrAnalysisCategories.ON_DSD.getSqlValue()
+		);
 		txCurrAnalysisCategory.setRequired(true);
 		return Arrays.asList(startDate, startDateGC, endDate, endDateGC, txCurrAnalysisCategory);
 		

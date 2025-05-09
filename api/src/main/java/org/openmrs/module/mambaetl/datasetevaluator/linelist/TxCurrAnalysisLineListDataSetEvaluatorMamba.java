@@ -77,6 +77,7 @@ public class TxCurrAnalysisLineListDataSetEvaluatorMamba implements DataSetEvalu
                 new ProcedureCall("{call sp_fact_line_list_tx_curr_analysis_query(?,?)}", statement -> {
                     statement.setDate(1, startDate);
                     statement.setDate(2, endDate);
+                    statement.setString(3,txCurrAnalysisLineListDataSetDefinitionMamba.getTxCurrAnalysisCategories().getSqlValue());
                 })
         );
     }
