@@ -73,41 +73,41 @@ where sex = 'Female'
   and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 49
   and (pregnancy_status = 'No' or pregnancy_status is null))
 -- Number of non-pregnant women living with HIV on ART aged 15-49 reporting the use of any method of modern family planning by age
-SELECT 'HIV_ART_FP'                                                                                                                      AS S_NO,
+SELECT 'HIV_ART_FP_AGE'                                                                                                                      AS S_NO,
        'Number of non-pregnant women living with HIV on ART aged 15-49 reporting the use of any method of modern family planning by age' as Activity,
        COUNT(*)                                                                                                                          as Value
 FROM family_planning
 -- 10 - 14 years
 UNION ALL
-SELECT 'HIV_ART_FP. 1' AS S_NO,
+SELECT 'HIV_ART_FP_AGE. 1' AS S_NO,
        '10 - 14 years' as Activity,
        COUNT(*)        as Value
 FROM family_planning_wo_age
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 10 AND 14
 -- 15 - 19 years
 UNION ALL
-SELECT 'HIV_ART_FP. 2' AS S_NO,
+SELECT 'HIV_ART_FP_AGE. 2' AS S_NO,
        '15 - 19 years' as Activity,
        COUNT(*)        as Value
 FROM family_planning
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
 -- 20 - 24 years
 UNION ALL
-SELECT 'HIV_ART_FP. 3' AS S_NO,
+SELECT 'HIV_ART_FP_AGE. 3' AS S_NO,
        '20 - 24 years' as Activity,
        COUNT(*)        as Value
 FROM family_planning
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 20 AND 24
 -- 25 - 29 years
 UNION ALL
-SELECT 'HIV_ART_FP. 4' AS S_NO,
+SELECT 'HIV_ART_FP_AGE. 4' AS S_NO,
        '25 - 29 years' as Activity,
        COUNT(*)        as Value
 FROM family_planning
 WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 25 AND 29
 -- 30 - 49 years
 UNION ALL
-SELECT 'HIV_ART_FP. 5' AS S_NO,
+SELECT 'HIV_ART_FP_AGE. 5' AS S_NO,
        '30 - 49 years' as Activity,
        COUNT(*)        as Value
 FROM family_planning

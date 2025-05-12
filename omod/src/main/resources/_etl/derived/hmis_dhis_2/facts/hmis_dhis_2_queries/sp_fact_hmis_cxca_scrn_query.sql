@@ -15,7 +15,8 @@ WITH FollowUp as (select follow_up.encounter_id,
                          hpv_dna_screening_result,
                          follow_up_date_followup_                  as follow_up_date,
                          date_hpv_test_was_done                    as hpv_date,
-                         date_visual_inspection_of_the_cervi       as via_date
+                         date_visual_inspection_of_the_cervi       as via_date,
+                         hpv_dna_result_received_date          as hpv_received_date
                   FROM mamba_flat_encounter_follow_up follow_up
                            LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1
                                      ON follow_up.encounter_id = follow_up_1.encounter_id
@@ -26,7 +27,7 @@ WITH FollowUp as (select follow_up.encounter_id,
                            LEFT JOIN mamba_flat_encounter_follow_up_4 follow_up_4
                                      ON follow_up.encounter_id = follow_up_4.encounter_id),
      tmp_cx_screened as (select *,
-                                ROW_NUMBER() over (PARTITION BY client_id ORDER BY via_date DESC,hpv_date DESC, encounter_id DESC) as row_num
+                                ROW_NUMBER() over (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) as row_num
                          from FollowUp
                          where cx_ca_screening_status = 'Cervical cancer screening performed'),
      cx_screened as (select tmp_cx_screened.*,
@@ -35,8 +36,10 @@ WITH FollowUp as (select follow_up.encounter_id,
                      from tmp_cx_screened
                               left join mamba_dim_client client on tmp_cx_screened.client_id=client.client_id
                      where row_num = 1
-                       and (hpv_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE or
-                            via_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE)) -- // TODO priority for via
+                       and (hpv_received_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE or
+                            (via_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE AND screening_type != 'Human Papillomavirus test')
+                         )
+                     )
 --  Cervical Cancer screening by type of test
 SELECT 'HIV_CXCA_SCRN.1'                     AS S_NO,
        'Cervical Cancer screening by type of test' as Activity,
