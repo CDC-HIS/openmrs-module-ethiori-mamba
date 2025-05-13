@@ -71,8 +71,6 @@ public class TxCurrAnalysisLineListDataSetEvaluatorMamba implements DataSetEvalu
 	private List<ProcedureCall> createProcedureCalls(TxCurrAnalysisLineListDataSetDefinitionMamba txCurrAnalysisLineListDataSetDefinitionMamba) {
         java.sql.Date startDate = new java.sql.Date(txCurrAnalysisLineListDataSetDefinitionMamba.getStartDate().getTime());
         java.sql.Date endDate = new java.sql.Date(txCurrAnalysisLineListDataSetDefinitionMamba.getEndDate().getTime());
-        String parameter = txCurrAnalysisLineListDataSetDefinitionMamba.getTxCurrAnalysisCategories().getSqlValue();
-        System.out.println(parameter);
         return Collections.singletonList(
 
                 new ProcedureCall("{call sp_fact_line_list_tx_curr_analysis_query(?,?,?)}", statement -> {
