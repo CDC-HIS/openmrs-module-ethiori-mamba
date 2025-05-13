@@ -12,7 +12,7 @@ CREATE PROCEDURE sp_dim_cxca_scrn_datim_query(
 BEGIN
 
     DECLARE age_group_cols VARCHAR(5000);
-    DECLARE cxca_scrn_query VARCHAR(6278);
+    DECLARE cxca_scrn_query VARCHAR(6494);
     DECLARE cxca_visit_condition VARCHAR(1000);
     DECLARE group_query TEXT;
 
@@ -46,7 +46,9 @@ BEGIN
                          antiretroviral_art_dispensed_dose_i as dose_days,
                          art_antiretroviral_start_date as art_start_date,
                          cytology_result,
-                         purpose_for_visit_cervical_screening as visit_type
+                         purpose_for_visit_cervical_screening as visit_type,
+                         hpv_dna_result_received_date as hpv_received_date,
+                         date_cytology_result_received as cytology_received_date
                   FROM mamba_flat_encounter_follow_up follow_up
                            LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1
                                      ON follow_up.encounter_id = follow_up_1.encounter_id
@@ -78,7 +80,7 @@ BEGIN
                          from FollowUp
                          join currently_on_art on FollowUp.client_id=currently_on_art.client_id
                          where cx_ca_screening_status = ''Cervical cancer screening performed''
-                         and ((via_date BETWEEN ? AND ?) OR (hpv_date BETWEEN ? AND ?) OR (cytology_date BETWEEN ? AND ?) )
+                         and ((via_date BETWEEN ? AND ? AND screening_type != ''Human Papillomavirus test'') OR (hpv_received_date BETWEEN ? AND ?) OR (cytology_received_date BETWEEN ? AND ?) )
                          ),
     cx_screened as (select tmp_cx_screened.*,
                            CASE

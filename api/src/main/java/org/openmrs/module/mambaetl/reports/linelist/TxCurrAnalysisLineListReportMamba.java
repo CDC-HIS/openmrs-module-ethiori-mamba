@@ -48,10 +48,13 @@ public class TxCurrAnalysisLineListReportMamba implements ReportManager {
 		}
 
 		String codedOptionsValue = String.join(",", optionStrings);
+		System.out.println(codedOptionsValue);
 
 		Parameter txCurrAnalysisCategories = new Parameter("txCurrAnalysisCategories", "Analysis Group",
 				TxCurrAnalysisCategories.class); // Parameter type is the ENUM class
 		txCurrAnalysisCategories.addToWidgetConfiguration("codedOptions", codedOptionsValue); // Use the generated string
+		txCurrAnalysisCategories.setDefaultValue(optionStrings.get(0));
+
 		txCurrAnalysisCategories.setRequired(true);
 		return Arrays.asList(startDate, startDateGC, endDate, endDateGC, txCurrAnalysisCategories);
 		
