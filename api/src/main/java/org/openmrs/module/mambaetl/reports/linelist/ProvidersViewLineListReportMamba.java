@@ -34,43 +34,44 @@ public class ProvidersViewLineListReportMamba implements ReportManager {
 	
 	@Override
 	public List<Parameter> getParameters() {
-
-		Parameter startDate = new Parameter("startDate", "Start Date", Date.class);
-		startDate.setRequired(true);
-
+		
 		// --- Configure this parameter to use your custom EthiopiaDateWidget ---
 		// The exact key ("htmlWidget") depends on the rendering framework configuration,
 		// but this is a common one for the HTML Widgets module.
 		// The value is the fully qualified class name of your widget.
-		startDate.addToWidgetConfiguration("htmlWidget", "org.openmrs.module.htmlwidgets.web.html.EthiopiaDateWidget");
-
-//		Parameter startDate = new Parameter("startDate", "Start Date", Date.class);
-//		startDate.setRequired(true);
-//		Parameter startDateGC = new Parameter("startDateGC", " ", Date.class);
-//		startDateGC.setRequired(false);
-//		Parameter endDate = new Parameter("endDate", "End Date", Date.class);
-//		endDate.setRequired(true);
-//		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
-//		endDateGC.setRequired(false);
-//
-//		Parameter appointmentStartDate = new Parameter("appointmentStartDate", "Appointment Start Date", Date.class);
-//		appointmentStartDate.setRequired(true);
-//		Parameter appointmentStartDateGC = new Parameter("appointmentStartDateGC", " ", Date.class);
-//		appointmentStartDateGC.setRequired(false);
-//		Parameter appointmentEndDate = new Parameter("appointmentEndDate", "Appointment End Date", Date.class);
-//		appointmentEndDate.setRequired(true);
-//		Parameter appointmentEndDateGC = new Parameter("appointmentEndDateGC", " ", Date.class);
-//		appointmentEndDateGC.setRequired(false);
 		
-		Parameter clientType = new Parameter("clientType", "ART Client", String.class); // Parameter type is the ENUM class
-		clientType.addToWidgetConfiguration("codedOptions", "all,curr"); // Use the generated string
-		clientType.setRequired(true);
-		clientType.setDefaultValue("all");
+		Parameter startDate = new Parameter("startDate", "Start Date", Date.class);
+		startDate.setRequired(true);
+		Parameter startDateGC = new Parameter("startDateGC", " ", Date.class);
+		startDateGC.setRequired(false);
 		
-		Parameter patientGUID = new Parameter("patientGUID", "Patient GUID", String.class);
+		Parameter appointmentStartDate = new Parameter("appointmentStartDate", "Appointment Start Date", Date.class);
+		appointmentStartDate.setRequired(true);
+		Parameter appointmentStartDateGC = new Parameter("appointmentStartDateGC", " ", Date.class);
+		appointmentStartDateGC.setRequired(false);
 		
-		return Arrays.asList(startDate, startDateGC, endDate, endDateGC, appointmentStartDate, appointmentStartDateGC,
-		    appointmentEndDate, appointmentEndDateGC, clientType, patientGUID);
+		Parameter endDate = new Parameter("endDate", "End Date", Date.class);
+		endDate.setRequired(true);
+		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
+		endDateGC.setRequired(false);
+		//
+		//		Parameter appointmentStartDate = new Parameter("appointmentStartDate", "Appointment Start Date", Date.class);
+		//		appointmentStartDate.setRequired(true);
+		//		Parameter appointmentStartDateGC = new Parameter("appointmentStartDateGC", " ", Date.class);
+		//		appointmentStartDateGC.setRequired(false);
+		//		Parameter appointmentEndDate = new Parameter("appointmentEndDate", "Appointment End Date", Date.class);
+		//		appointmentEndDate.setRequired(true);
+		//		Parameter appointmentEndDateGC = new Parameter("appointmentEndDateGC", " ", Date.class);
+		//		appointmentEndDateGC.setRequired(false);
+		
+		//		Parameter clientType = new Parameter("clientType", "ART Client", String.class); // Parameter type is the ENUM class
+		//		clientType.addToWidgetConfiguration("codedOptions", "all,curr"); // Use the generated string
+		//		clientType.setRequired(true);
+		//		clientType.setDefaultValue("all");
+		//
+		//		Parameter patientGUID = new Parameter("patientGUID", "Patient GUID", String.class);
+		
+		return Arrays.asList(startDate, startDateGC, appointmentStartDate, appointmentStartDateGC, endDate, endDateGC);
 		
 	}
 	
@@ -86,13 +87,9 @@ public class ProvidersViewLineListReportMamba implements ReportManager {
 		ProvidersViewLineListDataSetDefinitionMamba providersViewLineListDataSetDefinitionMamba = new ProvidersViewLineListDataSetDefinitionMamba();
 		providersViewLineListDataSetDefinitionMamba.addParameters(getParameters());
 		
-		reportDefinition
-		        .addDataSetDefinition(
-		            "List of Patients for Providers",
-		            EthiOhriUtil
-		                    .map(
-		                        providersViewLineListDataSetDefinitionMamba,
-		                        "startDate=${startDateGC},endDate=${endDateGC},appointmentStartDate=${appointmentStartDateGC},appointmentEndDate=${appointmentEndDateGC},clientType=${clientType},patientGUID=${patientGUID}"));
+		reportDefinition.addDataSetDefinition("List of Patients for Providers",
+		    EthiOhriUtil.map(providersViewLineListDataSetDefinitionMamba, "appointmentStartDate=${appointmentStartDate}"));
+		// ,endDate=${endDateGC},appointmentStartDate=${appointmentStartDateGC},appointmentEndDate=${appointmentEndDateGC},clientType=${clientType},patientGUID=${patientGUID}
 		return reportDefinition;
 	}
 	
