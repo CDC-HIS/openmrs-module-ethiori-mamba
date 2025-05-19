@@ -40,16 +40,9 @@ BEGIN
                              next_visit_date,
                              treatment_end_date,
                              date_of_event                       date_hiv_confirmed,
-                             sex,
-                             current_age,
-                             patient_name,
                              weight_text_                     as weight,
-                             mrn,
-                             uan,
-                             uuid,
                              date_of_reported_hiv_viral_load  as viral_load_sent_date,
-                             regimen_change,
-                             mobile_no
+                             regimen_change
                       FROM mamba_flat_encounter_follow_up follow_up
                                JOIN mamba_flat_encounter_follow_up_1 follow_up_1
                                     ON follow_up.encounter_id = follow_up_1.encounter_id
@@ -58,10 +51,7 @@ BEGIN
                                JOIN mamba_flat_encounter_follow_up_3 follow_up_3
                                     ON follow_up.encounter_id = follow_up_3.encounter_id
                                JOIN mamba_flat_encounter_follow_up_4 follow_up_4
-                                    ON follow_up.encounter_id = follow_up_4.encounter_id
-                               JOIN mamba_dim_client dim_client
-                                    ON follow_up.client_id = dim_client.client_id
-                               JOIN mamba_dim_person person on person.person_id = follow_up.client_id),
+                                    ON follow_up.encounter_id = follow_up_4.encounter_id),
 
 
          tmp_all_art_follow_ups as (SELECT encounter_id,
@@ -71,8 +61,7 @@ BEGIN
                                            ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
                                     FROM FollowUp
                                     WHERE follow_up_date <= REPORT_END_DATE
-                                    --  and follow_up_date >= '2024-08-27'
-                                    ),
+         ),
 
          all_art_follow_ups as (select * from tmp_all_art_follow_ups where row_num = 1),
 
@@ -81,10 +70,8 @@ BEGIN
                                      viral_load_sent_date                                                                             AS VL_Sent_Date,
                                      ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY viral_load_sent_date DESC, encounter_id DESC) AS row_num
                               FROM FollowUp
-                              WHERE viral_load_sent_date is not null
-                                and viral_load_sent_date <= REPORT_END_DATE
-                                -- and viral_load_sent_date >= '2024-08-27'
-                              ),
+                              WHERE  viral_load_sent_date <= REPORT_END_DATE
+         ),
          vl_sent_date as (select * from tmp_vl_sent_date where row_num = 1),
 
          tmp_switch_sub_date as (SELECT encounter_id,
@@ -93,7 +80,6 @@ BEGIN
                                         ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
                                  FROM FollowUp
                                  WHERE follow_up_date <= REPORT_END_DATE
-                                --   and follow_up_date >= '2024-08-27'
                                    and regimen_change is not null),
          switch_sub_date as (select * from tmp_switch_sub_date where row_num = 1),
 
@@ -106,7 +92,7 @@ BEGIN
                                        AND (
                                          (viral_load_perform_date IS NOT NULL AND
                                           viral_load_perform_date <= REPORT_END_DATE
-                                            -- AND viral_load_perform_date >= '2024-08-27'
+                                             -- AND viral_load_perform_date >= '2024-08-27'
                                              )
                                              OR
                                          viral_load_perform_date IS NULL
@@ -178,8 +164,7 @@ BEGIN
                                       FROM FollowUp
                                       WHERE follow_up_status in ('Alive', 'Restart medication')
                                         AND follow_up_date <= REPORT_END_DATE
-                                    --    AND follow_up_date >= '2024-08-27'
-                                      ),
+         ),
          latest_alive_restart as (select * from tmp_latest_alive_restart where row_num = 1),
          vl_eligibility as (SELECT f_case.art_start_date                         as art_start_date,
                                    f_case.breastfeeding_status                   as BreastFeeding,
@@ -187,18 +172,12 @@ BEGIN
                                    sub_switch_date.FollowupDate                  as date_regimen_change,
                                    all_art_follow_ups.follow_up_status           as follow_up_status,
                                    f_case.follow_up_date                         as FollowUpDate,
-                                   patient_name                                  as FullName,
                                    f_case.pregnancy_status                       as IsPregnant,
-                                   mobile_no                                     as MobilePhoneNumber,
-                                   mrn                                           as MRN,
-                                   uuid                                          as PatientGUID,
                                    f_case.client_id                              as PatientId,
-                                   sex                                           as Sex,
                                    vlperfdate.viral_load_count                   as viral_load_count,
                                    vlperfdate.viral_load_perform_date            as viral_load_perform_date,
                                    vlsentdate.VL_Sent_Date                       as viral_load_sent_date,
                                    vlperfdate.viral_load_status                  as viral_load_status,
-                                   current_age,
                                    f_case.weight,
                                    arv_dispensed_dose,
                                    f_case.regimen,
@@ -367,18 +346,22 @@ BEGIN
                                      Left join all_art_follow_ups on f_case.client_id = all_art_follow_ups.client_id
 
                             where all_art_follow_ups.follow_up_status in ('Alive', 'Restart Medication'))
-    select Sex,
+    select client.sex,
            Weight,
-           current_age          as Age,
+           TIMESTAMPDIFF(YEAR, date_of_birth, FollowUpDate) as Age,
+           patient_name                                     as FullName,
+           mobile_no                                        as MobilePhoneNumber,
+           mrn                                              as MRN,
+           uan,
            date_hiv_confirmed,
            art_start_date,
            FollowUpDate,
            IsPregnant,
-           regimen              as ARVDispendsedDose,
-           t.arv_dispensed_dose as ARTDoseDays,
+           regimen                                          as ARVDispendsedDose,
+           t.arv_dispensed_dose                             as ARTDoseDays,
            next_visit_date,
            follow_up_status,
-           treatment_end_date   as art_dose_End,
+           treatment_end_date                               as art_dose_End,
            viral_load_perform_date,
            viral_load_status,
            viral_load_count,
@@ -386,14 +369,10 @@ BEGIN
            viral_load_ref_date,
            date_regimen_change,
            eligiblityDate,
-           PatientGUID,
-           t.BreastFeeding      as IsBreastfeeding,
-           vl_status_final,
-           CASE
-               WHEN IsPregnant = 'Yes' THEN 'Yes'
-               WHEN BreastFeeding = 'Yes' THEN 'Yes'
-               ELSE 'No' END    AS PMTCT_ART
-    from vl_eligibility t;
+           t.BreastFeeding                                  as IsBreastfeeding,
+           vl_status_final
+    from vl_eligibility t
+             join mamba_dim_client client on t.PatientId = client_id;
 END //
 
 DELIMITER ;
