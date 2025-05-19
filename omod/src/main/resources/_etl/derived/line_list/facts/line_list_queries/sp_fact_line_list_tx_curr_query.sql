@@ -60,6 +60,7 @@ BEGIN
                                 AdherenceLevel,
                                 nutritional_screening_result,
                                 nutritional_supplements_provided,
+                                nutritional_status_of_adult,
                                 method_of_family_planning,
                                 pregnancy_status,
                                 breast_feeding_status,
@@ -81,7 +82,7 @@ BEGIN
                                   assessment_date                                                                              AS latestDsdDate,
                                   encounter_id,
                                   dsd_category,
-                                  ROW_NUMBER() OVER (PARTITION BY PatientId ORDER BY assessment_date DESC, encounter_id DESC ) AS row_num
+                                  ROW_NUMBER() OVER (PARTITION BY PatientId ORDER BY assessment_date DESC, follow_up_date desc , encounter_id DESC ) AS row_num
                            FROM FollowUp
                            WHERE assessment_date IS NOT NULL
                              AND assessment_date <= REPORT_END_DATE),
@@ -127,14 +128,22 @@ BEGIN
            cd4_count                                                                  as CD4,
            fn_gregorian_to_ethiopian_calendar(hiv_confirmed_date, 'Y/M/D')            as 'HIV Confirmed Date in E.C',
            fn_gregorian_to_ethiopian_calendar(art_start_date, 'Y/M/D')                as 'ART Start Date in E.C',
-           TB_SreeningResult                                                          as 'TB Screening Result',
+           CASE WHEN TB_SreeningResult = 'Negative result' THEN 'Negative' ELSE  TB_SreeningResult END           as 'TB Screening Result',
            fn_gregorian_to_ethiopian_calendar(follow_up_date, 'Y/M/D')                as 'Follow-up Date in E.C',
-           tx_curr.follow_up_status                                                   as 'Follow-up Status',
+           CASE WHEN tx_curr.follow_up_status = 'Restart medication'     THEN 'Restart'
+               ELSE tx_curr.follow_up_status
+               END       as 'Follow-up Status',
            Regimen,
            ARTDoseDays                                                                as 'ARV Dose Days',
            AdherenceLevel                                                             as Adherence,
            latestDSD.dsd_category                                                     as 'DSD Category',
-           nutritional_screening_result                                               as 'Nutritional Status',
+           CASE WHEN nutritional_status_of_adult = 'Malnutrition of mild degree (Gomez: 75% to Less than 90% of Standard Weight)'    THEN 'Mild Malnutrition'
+                WHEN nutritional_status_of_adult = 'Malnutrition of moderate degree (Gomez: 60% to Less than 75% of Standard Weight)'    THEN 'Moderate Malnutrition'
+                WHEN nutritional_status_of_adult = 'Severe protein-calorie malnutrition (Gomez: Less than 60% of Standard Weight)'    THEN 'Severe Acute Malnutrition'
+                WHEN nutritional_status_of_adult = 'Obese Abdomen' OR nutritional_status_of_adult= 'Overweight'    THEN 'Overweight'
+                ELSE nutritional_status_of_adult
+              END as 'Nutritional Status',
+           nutritional_screening_result                                               as 'Nutritional Screening Result',
            nutritional_supplements_provided                                           as 'Therapeutic/ Supplementary Food',
            method_of_family_planning                                                  as 'Familiy Planning Method',
            pregnancy_status                                                           as 'Pregnant?',
