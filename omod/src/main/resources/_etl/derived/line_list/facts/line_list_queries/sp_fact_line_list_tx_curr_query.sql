@@ -127,10 +127,10 @@ BEGIN
            Sex,
            Weight,
            cd4_count                                                                  as CD4,
-           fn_gregorian_to_ethiopian_calendar(hiv_confirmed_date, 'Y/M/D')            as 'HIV Confirmed Date in E.C',
-           fn_gregorian_to_ethiopian_calendar(art_start_date, 'Y/M/D')                as 'ART Start Date in E.C',
+           fn_gregorian_to_ethiopian_calendar(hiv_confirmed_date, 'D/M/Y')            as 'HIV Confirmed Date in E.C',
+           fn_gregorian_to_ethiopian_calendar(art_start_date, 'D/M/Y')                as 'ART Start Date in E.C',
            CASE WHEN TB_SreeningResult = 'Negative result' THEN 'Negative' ELSE  TB_SreeningResult END           as 'TB Screening Result',
-           fn_gregorian_to_ethiopian_calendar(follow_up_date, 'Y/M/D')                as 'Follow-up Date in E.C',
+           fn_gregorian_to_ethiopian_calendar(follow_up_date, 'D/M/Y')                as 'Follow-up Date in E.C',
            CASE WHEN tx_curr.follow_up_status = 'Restart medication'     THEN 'Restart'
                ELSE tx_curr.follow_up_status
                END       as 'Follow-up Status',
@@ -146,7 +146,10 @@ BEGIN
               END as 'Nutritional Status',
            nutritional_screening_result                                               as 'Nutritional Screening Result',
            nutritional_supplements_provided                                           as 'Therapeutic/ Supplementary Food',
-           method_of_family_planning                                                  as 'Familiy Planning Method',
+           CASE WHEN method_of_family_planning = 'Vasectomy'
+               THEN 'Vasectomy/tubal ligation'
+               ELSE method_of_family_planning
+               END as 'Familiy Planning Method',
            pregnancy_status                                                           as 'Pregnant?',
            breast_feeding_status                                                      as 'Breastfeeding?',
            IF(breast_feeding_status = 'Yes' or pregnancy_status = 'Yes', 'Yes', 'No') as 'On PMTCT?',
