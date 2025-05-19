@@ -139,7 +139,7 @@ BEGIN
            latestDSD.dsd_category                                                     as 'DSD Category',
            CASE WHEN nutritional_status_of_adult = 'Malnutrition of mild degree (Gomez: 75% to Less than 90% of Standard Weight)'    THEN 'Mild Malnutrition'
                 WHEN nutritional_status_of_adult = 'Malnutrition of moderate degree (Gomez: 60% to Less than 75% of Standard Weight)'    THEN 'Moderate Malnutrition'
-                WHEN nutritional_status_of_adult = 'Severe protein-calorie malnutrition (Gomez: Less than 60% of Standard Weight)'    THEN 'Severe Acute Malnutrition'
+                WHEN nutritional_status_of_adult = 'Severe protein-calorie malnutrition (Gomez: Less than 60% of Standard Weight)'    THEN 'Severe Malnutrition'
                 WHEN nutritional_status_of_adult = 'Obese Abdomen' OR nutritional_status_of_adult= 'Overweight'    THEN 'Overweight'
                 ELSE nutritional_status_of_adult
               END as 'Nutritional Status',
