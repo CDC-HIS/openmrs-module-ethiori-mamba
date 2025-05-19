@@ -67,6 +67,7 @@ BEGIN
                                 date_active_tbrx_completed,
                                 next_visit_date,
                                 TB_SreeningResult,
+                                dsd_category,
                                 ROW_NUMBER() OVER (PARTITION BY PatientId ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
                          FROM FollowUp
                          WHERE follow_up_status IS NOT NULL
@@ -92,27 +93,27 @@ BEGIN
                                   ROW_NUMBER() OVER (PARTITION BY FollowUp.PatientId ORDER BY FollowUp.inhprophylaxis_started_date DESC , FollowUp.encounter_id DESC ) AS row_num
                            from FollowUp
                            where inhprophylaxis_started_date is not null
-                             and follow_up_date <= REPORT_END_DATE),
+                             and FollowUp.inhprophylaxis_started_date <= REPORT_END_DATE),
          tmp_tpt_completed as (select encounter_id,
                                       PatientId,
                                       InhprophylaxisCompletedDate                                                                                                          as InhprophylaxisCompletedDate,
                                       ROW_NUMBER() OVER (PARTITION BY FollowUp.PatientId ORDER BY FollowUp.InhprophylaxisCompletedDate DESC , FollowUp.encounter_id DESC ) AS row_num
                                from FollowUp
                                where InhprophylaxisCompletedDate is not null
-                                 and follow_up_date <= REPORT_END_DATE),
+                                 and FollowUp.InhprophylaxisCompletedDate <= REPORT_END_DATE),
          tmp_vl_sent_date as (SELECT PatientId,
                                      encounter_id,
                                      viral_load_sent_date                                                                             as VL_Sent_Date,
                                      ROW_NUMBER() over (PARTITION BY PatientId ORDER BY viral_load_sent_date DESC, encounter_id DESC) AS row_num
                               FROM FollowUp
-                              WHERE follow_up_date <= REPORT_END_DATE),
+                              WHERE viral_load_sent_date <= REPORT_END_DATE),
          tmp_vl_performed_date as (SELECT PatientId,
                                           encounter_id,
                                           viral_load_perform_date,
                                           viral_load_test_status,
                                           ROW_NUMBER() over (PARTITION BY PatientId ORDER BY viral_load_perform_date DESC, encounter_id DESC) AS row_num
                                    FROM FollowUp
-                                   WHERE follow_up_date <= REPORT_END_DATE),
+                                   WHERE viral_load_perform_date <= REPORT_END_DATE),
          vl_sent_date as (select * from tmp_vl_sent_date where row_num = 1),
          latestDSD AS (select * from latestDSD_tmp where row_num = 1),
          tpt_start as (select * from tmp_tpt_start where row_num = 1),
@@ -136,7 +137,7 @@ BEGIN
            Regimen,
            ARTDoseDays                                                                as 'ARV Dose Days',
            AdherenceLevel                                                             as Adherence,
-           latestDSD.dsd_category                                                     as 'DSD Category',
+           tx_curr.dsd_category                                                     as 'DSD Category',
            CASE WHEN nutritional_status_of_adult = 'Malnutrition of mild degree (Gomez: 75% to Less than 90% of Standard Weight)'    THEN 'Mild Malnutrition'
                 WHEN nutritional_status_of_adult = 'Malnutrition of moderate degree (Gomez: 60% to Less than 75% of Standard Weight)'    THEN 'Moderate Malnutrition'
                 WHEN nutritional_status_of_adult = 'Severe protein-calorie malnutrition (Gomez: Less than 60% of Standard Weight)'    THEN 'Severe Malnutrition'
