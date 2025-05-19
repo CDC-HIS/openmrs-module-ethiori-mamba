@@ -71,7 +71,7 @@ public class VLEligibilityLineListDataSetEvaluator implements DataSetEvaluator {
 		java.sql.Date endDate = new java.sql.Date(vlEligibilityLineListDatasetDefinition.getEndDate().getTime());
 
 		return Collections.singletonList(
-				new ProcedureCall("{call sp_fact_dhis_tx_curr_query(?)}", statement -> {
+				new ProcedureCall("{call sp_fact_line_list_vl_eligibility_query(?)}", statement -> {
 					statement.setDate(1, endDate);
 				})
 		);
