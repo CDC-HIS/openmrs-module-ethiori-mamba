@@ -1,6 +1,7 @@
 package org.openmrs.module.mambaetl.reports.linelist;
 
 import org.openmrs.module.mambaetl.datasetdefinition.linelist.VLEligibilityLineListDatasetDefinition;
+import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.reporting.evaluation.parameter.Mapped;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.evaluation.parameter.Parameterizable;
@@ -27,7 +28,7 @@ public class VLEligibilityLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "MAMBA LINELIST- VL_ELIGIBILITY";
+		return "MAMBA LINELIST- VL ELIGIBILITY";
 	}
 	
 	@Override
@@ -59,20 +60,11 @@ public class VLEligibilityLineListReportMamba implements ReportManager {
 		vlEligibilityLineListDatasetDefinition.addParameters(getParameters());
 		
 		reportDefinition.addDataSetDefinition("List of Patients eligible for VL",
-		    map(vlEligibilityLineListDatasetDefinition, "endDate=${endDateGC}"));
+				EthiOhriUtil.map(vlEligibilityLineListDatasetDefinition, "endDate=${endDateGC}"));
 		
 		return reportDefinition;
 	}
-	
-	public static <T extends Parameterizable> Mapped<T> map(T parameterizable, String mappings) {
-		if (parameterizable == null) {
-			throw new IllegalArgumentException("Parameterizable cannot be null");
-		}
-		if (mappings == null) {
-			mappings = ""; // probably not necessary, just to be safe
-		}
-		return new Mapped<>(parameterizable, ParameterizableUtil.createParameterMappings(mappings));
-	}
+
 	
 	@Override
 	public List<ReportDesign> constructReportDesigns(ReportDefinition reportDefinition) {
