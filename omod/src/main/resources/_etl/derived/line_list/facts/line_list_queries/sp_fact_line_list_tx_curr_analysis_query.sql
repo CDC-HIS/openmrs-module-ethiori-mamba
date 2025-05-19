@@ -142,7 +142,7 @@ BEGIN
            FollowUpDate_curr                                     as `Follow up date`,
            next_visit_date                                       as `Appointment date`,
            assessment_date as `enrollment date GC`,
-           fn_gregorian_to_ethiopian_calendar(assessment_date,''Y/M/D'') as `enrollment date EC`,
+           fn_gregorian_to_ethiopian_calendar(assessment_date,''D/M/Y'') as `enrollment date EC`,
            dsd_category as `latest DSD category` ';
     ELSE
         SET filter_condition = ' 1 = 0';
