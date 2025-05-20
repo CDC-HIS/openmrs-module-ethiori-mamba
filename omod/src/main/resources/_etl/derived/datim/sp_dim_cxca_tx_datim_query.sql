@@ -61,8 +61,8 @@ BEGIN
      cx_rx as (select tmp_cx_rx.*,
                       client.date_of_birth,
                       client.sex,
-                      (SELECT fine_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,follow_up_date)=age) as fine_age_group,
-                      (SELECT coarse_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,follow_up_date)=age) as coarse_age_group
+                      (SELECT fine_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as fine_age_group,
+                      (SELECT coarse_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as coarse_age_group
                from tmp_cx_rx
                         left join mamba_dim_client client on tmp_cx_rx.client_id = client.client_id
                where row_num = 1 and current_age >= 15 ) ';
@@ -113,7 +113,7 @@ BEGIN
     PREPARE stmt FROM @sql;
     SET @start_date = REPORT_START_DATE;
     SET @end_date = REPORT_END_DATE;
-    EXECUTE stmt USING @start_date , @end_date;
+    EXECUTE stmt USING @start_date , @end_date, @end_date, @end_date;
 
 END //
 

@@ -86,8 +86,8 @@ BEGIN
          select tmp_latest_follow_up.*,
                 sex,
                 date_of_birth,
-                (SELECT fine_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,follow_up_date)=age) as fine_age_group,
-                (SELECT coarse_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,follow_up_date)=age) as coarse_age_group
+                (SELECT fine_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as fine_age_group,
+                (SELECT coarse_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as coarse_age_group
          from tmp_latest_follow_up
                   join mamba_dim_client client on client.client_id=tmp_latest_follow_up.client_id
          where follow_up_status in (''Alive'',''Restart medication'')
@@ -157,7 +157,7 @@ BEGIN
     PREPARE stmt FROM @sql;
     SET @start_date = REPORT_START_DATE;
     SET @end_date = REPORT_END_DATE;
-    EXECUTE stmt USING @start_date, @start_date , @start_date, @start_date , @start_date, @start_date;
+    EXECUTE stmt USING @start_date, @end_date, @end_date, @start_date , @start_date, @start_date , @start_date, @start_date;
     DEALLOCATE PREPARE stmt;
 END //
 

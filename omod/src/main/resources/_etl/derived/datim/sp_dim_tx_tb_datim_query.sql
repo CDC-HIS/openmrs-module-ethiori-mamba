@@ -130,8 +130,8 @@ BEGIN
      tb_screening as (SELECT follow_up.*,
                              sex,
                              date_of_birth,
-                            (SELECT fine_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,follow_up_date)=age) as fine_age_group,
-                            (SELECT coarse_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,follow_up_date)=age) as coarse_age_group,
+                            (SELECT fine_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as fine_age_group,
+                            (SELECT coarse_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as coarse_age_group,
                              mrn,
                              uan,
                              latest_follow_up.follow_up_status as latest_follow_up_staus
@@ -181,15 +181,15 @@ from tb_screening where specimen_sent_to_lab=''Yes'' ';
     SET @start_date = REPORT_START_DATE;
     SET @end_date = REPORT_END_DATE;
     IF REPORT_TYPE = 'PREV_ART_POSITIVE' OR REPORT_TYPE = 'PREV_ART_NEGATIVE' THEN
-        EXECUTE stmt USING @end_date, @start_date , @end_date, @end_date;
+        EXECUTE stmt USING @end_date, @start_date , @end_date, @end_date, @end_date, @end_date;
     ELSEIF REPORT_TYPE = 'NEW_ART_POSITIVE' OR REPORT_TYPE = 'NEW_ART_NEGATIVE' OR REPORT_TYPE='NUMERATOR_TOTAL' THEN
-        EXECUTE stmt USING @end_date, @start_date , @end_date, @start_date ,@end_date;
+        EXECUTE stmt USING @end_date, @start_date , @end_date, @end_date, @end_date, @start_date ,@end_date;
     ELSEIF REPORT_TYPE = 'NUMERATOR_PREV' THEN
-        EXECUTE stmt USING @end_date, @start_date , @end_date, @end_date , @end_date, @end_date;
+        EXECUTE stmt USING @end_date, @start_date , @end_date, @end_date, @end_date, @end_date , @end_date, @end_date;
     ELSEIF REPORT_TYPE = 'NUMERATOR_NEW' THEN
-        EXECUTE stmt USING @end_date, @start_date , @end_date, @start_date ,@end_date, @start_date ,@end_date;
+        EXECUTE stmt USING @end_date, @start_date , @end_date, @end_date, @end_date, @start_date ,@end_date, @start_date ,@end_date;
     ELSE
-        EXECUTE stmt USING @end_date, @start_date , @end_date;
+        EXECUTE stmt USING @end_date, @start_date , @end_date, @end_date, @end_date;
     END IF;
     DEALLOCATE PREPARE stmt;
 END //

@@ -31,7 +31,7 @@ BEGIN
 
     IF IS_COURSE_AGE_GROUP THEN
         IF REPORT_TYPE = 'CD4_LESS_THAN_200' OR REPORT_TYPE = 'CD4_GREATER_THAN_200' OR
-           REPORT_TYPE = 'CD4_NOT_ELIGIBLE' THEN
+           REPORT_TYPE = 'CD4_NOT_ELIGIBLE' OR REPORT_TYPE = 'CD4_UNKNOWN' THEN
             SELECT GROUP_CONCAT(CONCAT('SUM(CASE WHEN coarse_age_group = ''', normal_agegroup,
                                        ''' THEN count ELSE 0 END) AS `',
                                        REPLACE(normal_agegroup, '`', '``'),
@@ -53,7 +53,7 @@ BEGIN
         END IF;
     ELSE
         IF REPORT_TYPE = 'CD4_LESS_THAN_200' OR REPORT_TYPE = 'CD4_GREATER_THAN_200' OR
-           REPORT_TYPE = 'CD4_NOT_ELIGIBLE' THEN
+           REPORT_TYPE = 'CD4_NOT_ELIGIBLE' OR REPORT_TYPE = 'CD4_UNKNOWN' THEN
             SELECT GROUP_CONCAT(CONCAT('SUM(CASE WHEN fine_age_group = ''', datim_agegroup,
                                        ''' THEN count ELSE 0 END) AS `',
                                        REPLACE(datim_agegroup, '`', '``'),

@@ -138,10 +138,10 @@ BEGIN
                            TIMESTAMPDIFF(YEAR, date_of_birth, FollowupDate)               as age,
                            (SELECT datim_agegroup
                             from mamba_dim_agegroup
-                            where age = TIMESTAMPDIFF(YEAR, date_of_birth, FollowupDate)) as fine_age_group,
+                            where age = TIMESTAMPDIFF(YEAR, date_of_birth, ?)) as fine_age_group,
                            (SELECT normal_agegroup
                             from mamba_dim_agegroup
-                            where age = TIMESTAMPDIFF(YEAR, date_of_birth, FollowupDate)) as coarse_age_group,
+                            where age = TIMESTAMPDIFF(YEAR, date_of_birth, ?)) as coarse_age_group,
                             breast_feeding_status,
                            cd4_count
                     from tx_new_tmp
@@ -175,7 +175,7 @@ BEGIN
     PREPARE stmt FROM @sql;
     SET @start_date = REPORT_START_DATE;
     SET @end_date = REPORT_END_DATE;
-    EXECUTE stmt USING @end_date, @start_date, @end_date;
+    EXECUTE stmt USING @end_date, @start_date, @end_date, @end_date, @end_date;
     DEALLOCATE PREPARE stmt;
 
 END //

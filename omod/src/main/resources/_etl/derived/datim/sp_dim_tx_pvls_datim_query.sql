@@ -96,8 +96,8 @@ END IF;
                      viral_load_count,
                      viral_load_test_status,
                      follow_up_date,
-                     (SELECT fine_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,follow_up_date)=age) as fine_age_group,
-                     (SELECT coarse_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,follow_up_date)=age) as coarse_age_group,
+                     (SELECT fine_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as fine_age_group,
+                     (SELECT coarse_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as coarse_age_group,
                      breast_feeding_status
               from tmp_pvls_2
                        inner join mamba_dim_client client on tmp_pvls_2.client_id = client.client_id
@@ -159,7 +159,7 @@ ELSEIF REPORT_TYPE = 'DENOMINATOR' THEN
     SET @sql = CONCAT(pvls_query, disaggregate_query);
     PREPARE stmt FROM @sql;
     SET @end_date = REPORT_END_DATE;
-    EXECUTE stmt USING @end_date, @end_date, @end_date;
+    EXECUTE stmt USING @end_date, @end_date, @end_date, @end_date, @end_date;
     DEALLOCATE PREPARE stmt;
 
 END //

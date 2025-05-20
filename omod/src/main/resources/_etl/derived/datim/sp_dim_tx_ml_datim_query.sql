@@ -140,8 +140,8 @@ BEGIN
          interrupted_art as (select started_art.*,
                                     client.sex,
                                     client.date_of_birth,
-                                    (SELECT fine_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,follow_up_date)=age) as fine_age_group,
-                                    (SELECT coarse_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,follow_up_date)=age) as coarse_age_group,
+                                    (SELECT fine_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as fine_age_group,
+                                    (SELECT coarse_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as coarse_age_group,
                                     latest_follow_up_status.follow_up_status as latest_follow_up_status
                              from started_art
                                       join mamba_dim_client client on started_art.client_id = client.client_id
@@ -174,7 +174,7 @@ BEGIN
     PREPARE stmt FROM @sql;
     SET @start_date = REPORT_START_DATE;
     SET @end_date = REPORT_END_DATE;
-    EXECUTE stmt USING @start_date, @start_date, @end_date, @end_date, @start_date, @end_date;
+    EXECUTE stmt USING @start_date, @start_date, @end_date, @end_date, @start_date, @end_date, @end_date, @end_date;
     DEALLOCATE PREPARE stmt;
 
 END //
