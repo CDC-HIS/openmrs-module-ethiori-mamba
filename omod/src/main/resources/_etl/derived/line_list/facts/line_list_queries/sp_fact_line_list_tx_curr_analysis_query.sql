@@ -145,7 +145,7 @@ BEGIN
            fn_gregorian_to_ethiopian_calendar(assessment_date,''D/M/Y'') as `enrollment date EC`,
            dsd_category as `latest DSD category` ';
     ELSE
-        SET filter_condition = ' 1 = 0';
+        SET filter_condition = ' 1 = 1';
         SET columns_list = '   patient_name,
                                MRN,
                                UAN,
@@ -239,7 +239,7 @@ BEGIN
          (select *
           from tmp_previous_follow_up
           where row_num = 1
-            and follow_up_status in (''Alive'', ''Restart medication'')
+          --  and follow_up_status in (''Alive'', ''Restart medication'')
             and art_antiretroviral_start_date <= DATE_ADD(?, INTERVAL -1 DAY) -- param 8: @start_date
             and treatment_end_date >= DATE_ADD(?, INTERVAL -1 DAY)), -- param 9: @start_date
 
