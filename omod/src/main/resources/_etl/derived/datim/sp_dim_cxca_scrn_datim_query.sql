@@ -105,8 +105,8 @@ BEGIN
                            client.mrn,
                            client.sex,
                            client.date_of_birth,
-                           (SELECT fine_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as fine_age_group,
-                           (SELECT coarse_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as coarse_age_group
+                           (SELECT datim_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as fine_age_group,
+                           (SELECT normal_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as coarse_age_group
                            from tmp_cx_screened
                              join mamba_dim_client client on tmp_cx_screened.client_id=client.client_id
                              where row_num=1 and TIMESTAMPDIFF(YEAR,date_of_birth,follow_up_date)>=15 ) ';

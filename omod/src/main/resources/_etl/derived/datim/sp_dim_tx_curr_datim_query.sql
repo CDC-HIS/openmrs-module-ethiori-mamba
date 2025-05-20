@@ -94,8 +94,8 @@ BEGIN
                                         left(regimen, 1) as regimen_line,
                                         client.mrn,
                                         client.uan,
-                                        (SELECT fine_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as fine_age_group,
-                                        (SELECT coarse_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as coarse_age_group
+                                        (SELECT datim_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as fine_age_group,
+                                        (SELECT normal_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as coarse_age_group
                                  from FollowUp
                                           inner join tx_curr on FollowUp.encounter_id = tx_curr.encounter_id
                                           left join mamba_dim_client client on tx_curr.PatientId = client.client_id) ';

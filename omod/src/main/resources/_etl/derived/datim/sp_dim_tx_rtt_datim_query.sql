@@ -179,8 +179,8 @@ BEGIN
                               client.date_of_birth,
                               mrn,
                               uan,
-                              (SELECT fine_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,follow_up_date)=age) as fine_age_group,
-                           (SELECT coarse_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,follow_up_date)=age) as coarse_age_group
+                              (SELECT datim_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as fine_age_group,
+                              (SELECT normal_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as coarse_age_group
                        from tx_curr_end
                                 left join restart_follow_up on tx_curr_end.client_id = restart_follow_up.client_id
                                 join mamba_dim_client client on tx_curr_end.client_id = client.client_id
