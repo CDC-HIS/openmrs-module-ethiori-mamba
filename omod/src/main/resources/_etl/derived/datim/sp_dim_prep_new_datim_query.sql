@@ -44,10 +44,10 @@ BEGIN
                                      client.mrn,
                                      (SELECT fine_age_group
                                       from mamba_dim_agegroup
-                                      where TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date_followup_) = age) as fine_age_group,
+                                      where TIMESTAMPDIFF(YEAR, date_of_birth, ?) = age) as fine_age_group,
                                      (SELECT coarse_age_group
                                       from mamba_dim_agegroup
-                                      where TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date_followup_) = age) as coarse_age_group,
+                                      where TIMESTAMPDIFF(YEAR, date_of_birth, ?) = age) as coarse_age_group,
                                      do_you_have_an_hiv_positive_partner,
                                      sex_worker,
                                      treatment_start_date,
@@ -139,7 +139,7 @@ BEGIN
     PREPARE stmt FROM @sql;
     SET @start_date = REPORT_START_DATE;
     SET @end_date = REPORT_END_DATE;
-    EXECUTE stmt USING @start_date, @end_date , @start_date, @end_date ;
+    EXECUTE stmt USING @end_date, @end_date, @start_date, @end_date , @start_date, @end_date ;
 
 END //
 
