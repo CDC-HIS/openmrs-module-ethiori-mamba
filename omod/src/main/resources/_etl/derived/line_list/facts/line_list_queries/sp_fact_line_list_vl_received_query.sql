@@ -108,7 +108,7 @@ WITH FollowUp AS (SELECT follow_up.client_id,
                                    LEFT JOIN mamba_dim_client client ON latest_follow_up.client_id = client.client_id
                                    LEFT JOIN vl_performed_date as vlperfdate
                                              ON vlperfdate.client_id = FollowUp.client_id)
-select
+select * from vl_test_received;
     
 ;
 END //
