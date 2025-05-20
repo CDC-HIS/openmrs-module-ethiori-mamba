@@ -7,7 +7,6 @@ CREATE PROCEDURE sp_dim_cxca_scrn_datim_query(
     IN REPORT_END_DATE DATE,
     IN IS_COURSE_AGE_GROUP BOOLEAN,
     IN REPORT_TYPE VARCHAR(100)
-
 )
 BEGIN
 
@@ -28,7 +27,7 @@ BEGIN
         SET cxca_visit_condition =
                 ' visit_type = ''Post-treatment follow-up other'' OR visit_type = ''Post-treatment follow-up at 1 year'' OR visit_type =''Post-treatment follow-up to 6 weeks'' ';
     ELSE
-        SET  cxca_visit_condition = '1=1';
+        SET cxca_visit_condition = '1=1';
     END IF;
 
     SET cxca_scrn_query = 'WITH FollowUp as (select follow_up.encounter_id,
@@ -117,26 +116,45 @@ BEGIN
                                    '`')
                )
         INTO age_group_cols
-        FROM (select normal_agegroup from mamba_dim_agegroup where mamba_dim_agegroup.datim_age_val > 4 group by normal_agegroup) as order_query;
+        FROM (select normal_agegroup
+              from mamba_dim_agegroup
+              where mamba_dim_agegroup.datim_age_val > 4 and mamba_dim_agegroup.datim_age_val <= 12
+              group by normal_agegroup) as order_query;
     ELSE
-        SELECT GROUP_CONCAT(CONCAT('SUM(CASE WHEN fine_age_group = ''', datim_agegroup,
-                                   ''' THEN count ELSE 0 END) AS `',
-                                   REPLACE(datim_agegroup, '`', '``'),
+        SELECT GROUP_CONCAT(CONCAT('SUM(CASE WHEN fine_age_group ',
+                                   CASE
+                                       -- If the datim_agegroup is '50-54' or '55-59',
+                                       -- aggregate them under the '50+' column.
+                                       WHEN datim_agegroup IN ('50-54', '55-59','60-64','65+') THEN
+                                           'IN (''50-54'', ''55-59'', ''60-64'', ''65+'')' -- Condition for the aggregated '50+' column
+                                       ELSE
+                                           CONCAT(' = ','''', datim_agegroup,'''') -- Condition for all other individual age groups
+                                       END,
+                                   ' THEN count ELSE 0 END) AS `',
+                                   REPLACE(
+                                           CASE
+                                               WHEN datim_agegroup IN ('50-54', '55-59','60-64','65+') THEN '50+'
+                                               ELSE datim_agegroup
+                                               END,
+                                           '`', '``'),
                                    '`')
                )
         INTO age_group_cols
-        FROM (select datim_agegroup from mamba_dim_agegroup where mamba_dim_agegroup.datim_age_val > 4 group by datim_agegroup) as order_query;
+        FROM (select datim_agegroup
+              from mamba_dim_agegroup
+              where mamba_dim_agegroup.datim_age_val > 4 and mamba_dim_agegroup.datim_age_val <= 12
+              group by datim_agegroup) as order_query;
     END IF;
     IF REPORT_TYPE = 'TOTAL' THEN
-    SET group_query = 'SELECT COUNT(*) AS NUMERATOR FROM cx_screened';
+        SET group_query = 'SELECT COUNT(*) AS NUMERATOR FROM cx_screened';
     ELSE
-    SET group_query = CONCAT('
+        SET group_query = CONCAT('
         SELECT
         CASE
         WHEN screening_result=''Cervical Cancer screen: Negative'' THEN ''Cervical Cancer screen: Negative''
         WHEN screening_result=''Cervical Cancer screen: Positive'' THEN ''Cervical Cancer screen: Positive''
         WHEN screening_result=''Suspicious for cervical cancer'' THEN ''Suspicious for cervical cancer'' END AS screening_result,
-          SUM(CASE WHEN ', IF(IS_COURSE_AGE_GROUP, 'coarse_age_group', 'fine_age_group'), ' is null AND count is not null THEN count ELSE 0 END) AS ''Unknown Age'',
+        SUM(CASE WHEN ', IF(IS_COURSE_AGE_GROUP, 'coarse_age_group', 'fine_age_group'), ' is null AND count is not null THEN count ELSE 0 END) AS ''Unknown Age'',
           ', age_group_cols, ' ,
         SUM(CASE WHEN count is not null THEN count ELSE 0 END) as Subtotal
         FROM (
