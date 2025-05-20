@@ -104,17 +104,17 @@ BEGIN
                            next_visit_date,
                            treatment_end_date,
                            mobile_no,
-                           TIMESTAMPDIFF(YEAR, date_of_birth, FollowupDate)               as age,
+                           TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE)               as age,
                            (SELECT datim_agegroup
                             from mamba_dim_agegroup
-                            where age = TIMESTAMPDIFF(YEAR, date_of_birth, FollowupDate)) as fine_age_group,
+                            where age = TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE)) as fine_age_group,
                            (SELECT normal_agegroup
                             from mamba_dim_agegroup
-                            where age = TIMESTAMPDIFF(YEAR, date_of_birth, FollowupDate)) as coarse_age_group,
+                            where age = TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE)) as coarse_age_group,
                            cd4_count,
                            (SELECT datim_age_val
                             from mamba_dim_agegroup
-                            where age = TIMESTAMPDIFF(YEAR, date_of_birth, FollowupDate)) as datim_age_val
+                            where age = TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE)) as datim_age_val
                     from tx_new_tmp
                              join mamba_dim_client client on tx_new_tmp.client_id = client.client_id)
     select client_id                                                          AS 'Patient Name',
