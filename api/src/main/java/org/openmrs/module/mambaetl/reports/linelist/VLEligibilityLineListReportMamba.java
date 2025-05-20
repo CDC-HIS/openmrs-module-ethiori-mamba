@@ -23,12 +23,12 @@ public class VLEligibilityLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getUuid() {
-		return "fe00333e-bc89-4bfc-83e7-cce2847c864c";
+		return "c022b049-5172-4cd3-a4ee-050620ff3e11";
 	}
 	
 	@Override
 	public String getName() {
-		return "MAMBA LINELIST- VL ELIGIBILITY";
+		return "MAMBA LINELIST- VL_ELIGIBILITY";
 	}
 	
 	@Override
@@ -68,7 +68,7 @@ public class VLEligibilityLineListReportMamba implements ReportManager {
 	@Override
 	public List<ReportDesign> constructReportDesigns(ReportDefinition reportDefinition) {
 		
-		ReportDesign design = ReportManagerUtil.createExcelDesign("7c2822f5-997e-4557-a5ab-1f480097d66e", reportDefinition);
+		ReportDesign design = ReportManagerUtil.createExcelDesign("b99bb3b5-ffcc-4426-bc69-be76aba81510", reportDefinition);
 		
 		return Collections.singletonList(design);
 	}
