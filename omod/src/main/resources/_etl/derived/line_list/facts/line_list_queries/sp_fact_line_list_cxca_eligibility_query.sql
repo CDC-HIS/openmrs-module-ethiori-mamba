@@ -2,7 +2,7 @@ DELIMITER //
 
 DROP PROCEDURE IF EXISTS sp_fact_line_list_cxca_query;
 
-CREATE PROCEDURE sp_fact_line_list_cxca_query(  IN REPORT_START_DATE DATE, IN REPORT_END_DATE DATE)
+CREATE PROCEDURE sp_fact_line_list_cxca_eligibility_query(  IN REPORT_START_DATE DATE, IN REPORT_END_DATE DATE)
 BEGIN
 
 WITH client_identifier as (select person.person_id,

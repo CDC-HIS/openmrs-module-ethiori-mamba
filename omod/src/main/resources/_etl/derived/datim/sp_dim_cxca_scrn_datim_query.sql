@@ -42,12 +42,12 @@ BEGIN
                          cytology_sample_collection_date           as cytology_date,
                          follow_up_status,
                          treatment_end_date,
-                         antiretroviral_art_dispensed_dose_i as dose_days,
-                         art_antiretroviral_start_date as art_start_date,
+                         antiretroviral_art_dispensed_dose_i       as dose_days,
+                         art_antiretroviral_start_date             as art_start_date,
                          cytology_result,
-                         purpose_for_visit_cervical_screening as visit_type,
-                         hpv_dna_result_received_date as hpv_received_date,
-                         date_cytology_result_received as cytology_received_date
+                         purpose_for_visit_cervical_screening      as visit_type,
+                         hpv_dna_result_received_date              as hpv_received_date,
+                         date_cytology_result_received             as cytology_received_date
                   FROM mamba_flat_encounter_follow_up follow_up
                            LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1
                                      ON follow_up.encounter_id = follow_up_1.encounter_id
@@ -58,57 +58,77 @@ BEGIN
                            LEFT JOIN mamba_flat_encounter_follow_up_4 follow_up_4
                                      ON follow_up.encounter_id = follow_up_4.encounter_id),
      tmp_latest_follow_up AS (SELECT client_id,
-                            follow_up_date                                                                             ,
-                            encounter_id,
-                            follow_up_status,
-                            treatment_end_date,
-                            dose_days,
-                            ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
-                     FROM FollowUp
-                     WHERE follow_up_status IS NOT NULL
-                       AND art_start_date IS NOT NULL
-                       AND follow_up_date <= ?
+                                     follow_up_date,
+                                     encounter_id,
+                                     follow_up_status,
+                                     treatment_end_date,
+                                     dose_days,
+                                     ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
+                              FROM FollowUp
+                              WHERE follow_up_status IS NOT NULL
+                                AND art_start_date IS NOT NULL
+         --  AND follow_up_date <= ?
      ),
 
      currently_on_art AS (select *
-                 from tmp_latest_follow_up
-                 where row_num = 1
-                   AND follow_up_status in (''Alive'', ''Restart medication'')),
+                          from tmp_latest_follow_up
+                          where row_num = 1
+                            AND follow_up_status in (''Alive'', ''Restart medication'')),
      tmp_cx_screened as (select FollowUp.*,
-                                ROW_NUMBER() over (PARTITION BY FollowUp.client_id ORDER BY via_date DESC,hpv_date DESC,cytology_date DESC , FollowUp.encounter_id DESC) as row_num
+                                ROW_NUMBER() over (PARTITION BY FollowUp.client_id ORDER BY via_date DESC,hpv_received_date DESC,cytology_received_date DESC , FollowUp.encounter_id DESC) as row_num
                          from FollowUp
-                         join currently_on_art on FollowUp.client_id=currently_on_art.client_id
+                                  join currently_on_art on FollowUp.client_id = currently_on_art.client_id
                          where cx_ca_screening_status = ''Cervical cancer screening performed''
-                         and ((via_date BETWEEN ? AND ? AND screening_type != ''Human Papillomavirus test'') OR (hpv_received_date BETWEEN ? AND ?) OR (cytology_received_date BETWEEN ? AND ?) )
-                         ),
-    cx_screened as (select tmp_cx_screened.*,
-                           CASE
-                               WHEN screening_type=''Human Papillomavirus test'' and hpv_dna_screening_result =''Negative'' then ''Cervical Cancer screen: Negative''
-                               WHEN screening_type=''Human Papillomavirus test'' and hpv_dna_screening_result =''Positive'' then ''Cervical Cancer screen: Positive''
-                               #  WHEN screening_type=''Human Papillomavirus test'' and hpv_dna_screening_result =''Unknown'' then ''Cervical Cancer screen: Suspected Cancer''
+                           and ((via_date BETWEEN ? AND ?
+                                    -- AND screening_type != ''Human Papillomavirus test''
+                               ) OR
+                                (hpv_received_date BETWEEN ? AND ?) OR (cytology_received_date BETWEEN ? AND ?))),
+     cx_screened as (select tmp_cx_screened.*,
+                            CASE
+                                WHEN screening_type = ''Human Papillomavirus test'' and
+                                     hpv_dna_screening_result = ''Negative'' then ''Cervical Cancer screen: Negative''
+                                WHEN screening_type = ''Human Papillomavirus test'' and
+                                     hpv_dna_screening_result = ''Positive'' then ''Cervical Cancer screen: Positive''
+                                #  WHEN screening_type=''Human Papillomavirus test'' and hpv_dna_screening_result =''Unknown'' then ''Cervical Cancer screen: Suspected Cancer''
 
-                               WHEN screening_type=''Visual Inspection of the Cervix with Acetic Acid (VIA)'' and via_screening_result = ''VIA negative'' then ''Cervical Cancer screen: Negative''
-                               WHEN screening_type=''Visual Inspection of the Cervix with Acetic Acid (VIA)'' and
-                                    (via_screening_result = ''VIA positive: eligible for cryo/thermo-coagulation'' or via_screening_result =''VIA positive: eligible for cryo/thermo-coagula'')
-                                   then ''Cervical Cancer screen: Positive''
-                               WHEN screening_type=''Visual Inspection of the Cervix with Acetic Acid (VIA)'' and via_screening_result = ''VIA positive: non-eligible for cryo/thermo-coagulation''
-                                   then ''Cervical Cancer screen: Positive''
-                               WHEN screening_type=''Visual Inspection of the Cervix with Acetic Acid (VIA)'' and via_screening_result = ''Suspicious for cervical cancer''
-                                   then ''Cervical Cancer screen: Suspected Cancer''
-                               #            WHEN screening_type=''Visual Inspection of the Cervix with Acetic Acid (VIA)'' and via_screening_result = ''Unknown screening result''
+                                WHEN screening_type = ''Visual Inspection of the Cervix
+with Acetic Acid (VIA)'' and via_screening_result = ''VIA negative'' then ''Cervical Cancer screen: Negative''
+                                WHEN screening_type = ''Visual Inspection of the Cervix
+with Acetic Acid (VIA)'' and
+                                     (via_screening_result = ''VIA positive: eligible for cryo/thermo-coagulation'' or
+                                      via_screening_result = ''VIA positive: eligible for cryo/thermo-coagula'')
+                                    then ''Cervical Cancer screen: Positive''
+                                WHEN screening_type = ''Visual Inspection of the Cervix
+with Acetic Acid (VIA)'' and via_screening_result = ''VIA positive: non-eligible for cryo/thermo-coagulation''
+                                    then ''Cervical Cancer screen: Positive''
+                                WHEN screening_type = ''Visual Inspection of the Cervix
+with Acetic Acid (VIA)'' and via_screening_result = ''Suspicious for cervical cancer''
+                                    then ''Cervical Cancer screen: Suspected Cancer''
+                                #            WHEN screening_type=''Visual Inspection of the Cervix with Acetic Acid (VIA)'' and via_screening_result = ''Unknown screening result''
 #                then ''Cervical Cancer screen: Suspected Cancer''
-                               WHEN screening_type=''Cytology'' and (cytology_result=''Negative'' OR cytology_result=''ASCUS'') THEN ''Cervical Cancer screen: Negative''
-                               WHEN screening_type=''Cytology'' and cytology_result=''> Ascus'' THEN ''Cervical Cancer screen: Positive''
-                               END AS screening_result,
-                           client.uan,
-                           client.mrn,
-                           client.sex,
-                           client.date_of_birth,
-                           (SELECT datim_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as fine_age_group,
-                           (SELECT normal_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as coarse_age_group
-                           from tmp_cx_screened
-                             join mamba_dim_client client on tmp_cx_screened.client_id=client.client_id
-                             where row_num=1 and TIMESTAMPDIFF(YEAR,date_of_birth,follow_up_date)>=15 ) ';
+                                WHEN screening_type = ''Cytology'' and
+                                     (cytology_result = ''Negative'' OR cytology_result = ''ASCUS'')
+                                    THEN ''Cervical Cancer screen: Negative''
+                                WHEN screening_type = ''Cytology'' and cytology_result = ''> Ascus''
+                                    THEN ''Cervical Cancer screen: Positive''
+                                END                                             AS screening_result,
+                            client.uan,
+                            client.mrn,
+                            client.sex,
+                            client.date_of_birth,
+                            (SELECT datim_agegroup
+                             from mamba_dim_agegroup
+                             where TIMESTAMPDIFF(YEAR, date_of_birth, ?) = age) as fine_age_group,
+                            (SELECT normal_agegroup
+                             from mamba_dim_agegroup
+                             where TIMESTAMPDIFF(YEAR, date_of_birth, ?) = age) as coarse_age_group
+                     from tmp_cx_screened
+                              join mamba_dim_client client
+                                   on tmp_cx_screened.client_id = client.client_id
+                     where row_num = 1
+                       and TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) >= 15
+                       and not (screening_type = ''Human Papillomavirus test'' and hpv_dna_screening_result = ''Positive'' and via_screening_result is null )
+                     ) ';
     IF IS_COURSE_AGE_GROUP THEN
         SELECT GROUP_CONCAT(CONCAT('SUM(CASE WHEN coarse_age_group = ''', normal_agegroup,
                                    ''' THEN count ELSE 0 END) AS `',
