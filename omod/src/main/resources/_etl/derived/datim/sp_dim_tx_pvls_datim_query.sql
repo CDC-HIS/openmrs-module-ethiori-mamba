@@ -96,8 +96,8 @@ END IF;
                      viral_load_count,
                      viral_load_test_status,
                      follow_up_date,
-                     (SELECT fine_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as fine_age_group,
-                     (SELECT coarse_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as coarse_age_group,
+                     (SELECT datim_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as fine_age_group,
+                     (SELECT normal_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as coarse_age_group,
                      breast_feeding_status
               from tmp_pvls_2
                        inner join mamba_dim_client client on tmp_pvls_2.client_id = client.client_id

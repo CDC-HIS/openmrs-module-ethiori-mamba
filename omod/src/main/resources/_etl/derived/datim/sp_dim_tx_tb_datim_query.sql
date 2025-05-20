@@ -130,8 +130,8 @@ BEGIN
      tb_screening as (SELECT follow_up.*,
                              sex,
                              date_of_birth,
-                            (SELECT fine_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as fine_age_group,
-                            (SELECT coarse_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as coarse_age_group,
+                            (SELECT datim_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as fine_age_group,
+                            (SELECT normal_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as coarse_age_group,
                              mrn,
                              uan,
                              latest_follow_up.follow_up_status as latest_follow_up_staus

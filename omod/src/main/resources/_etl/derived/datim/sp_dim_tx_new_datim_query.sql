@@ -136,13 +136,9 @@ BEGIN
                            pregnancy_status,
                            date_of_birth,
                            TIMESTAMPDIFF(YEAR, date_of_birth, FollowupDate)               as age,
-                           (SELECT datim_agegroup
-                            from mamba_dim_agegroup
-                            where age = TIMESTAMPDIFF(YEAR, date_of_birth, ?)) as fine_age_group,
-                           (SELECT normal_agegroup
-                            from mamba_dim_agegroup
-                            where age = TIMESTAMPDIFF(YEAR, date_of_birth, ?)) as coarse_age_group,
-                            breast_feeding_status,
+                           (SELECT datim_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as fine_age_group,
+                           (SELECT normal_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as coarse_age_group,
+                           breast_feeding_status,
                            cd4_count
                     from tx_new_tmp
                              join mamba_dim_client client on tx_new_tmp.client_id = client.client_id) ';
