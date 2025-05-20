@@ -73,7 +73,7 @@ BEGIN
                                    '`')
                )
         INTO age_group_cols
-        FROM (select normal_agegroup from mamba_dim_agegroup where mamba_dim_agegroup.datim_age_val >= 5 group by normal_agegroup) as order_query;
+        FROM (select normal_agegroup from mamba_dim_agegroup where mamba_dim_agegroup.datim_age_val > 4 group by normal_agegroup) as order_query;
     ELSE
         SELECT GROUP_CONCAT(CONCAT('SUM(CASE WHEN fine_age_group = ''', datim_agegroup,
                                    ''' THEN count ELSE 0 END) AS `',
@@ -81,7 +81,7 @@ BEGIN
                                    '`')
                )
         INTO age_group_cols
-        FROM (select datim_agegroup from mamba_dim_agegroup where mamba_dim_agegroup.datim_age_val >= 5 group by datim_agegroup) as order_query;
+        FROM (select datim_agegroup from mamba_dim_agegroup where mamba_dim_agegroup.datim_age_val > 4 group by datim_agegroup) as order_query;
     END IF;
     IF REPORT_TYPE = 'TOTAL' THEN
         SET group_query = 'SELECT COUNT(*) AS NUMERATOR FROM cx_rx';
