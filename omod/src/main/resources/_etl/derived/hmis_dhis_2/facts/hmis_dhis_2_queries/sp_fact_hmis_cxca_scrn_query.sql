@@ -37,7 +37,9 @@ WITH FollowUp as (select follow_up.encounter_id,
                               left join mamba_dim_client client on tmp_cx_screened.client_id=client.client_id
                      where row_num = 1
                        and (hpv_received_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE or
-                            (via_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE AND screening_type != 'Human Papillomavirus test')
+                            (via_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE
+                               --  AND screening_type != 'Human Papillomavirus test'
+                                )
                          )
                      )
 --  Cervical Cancer screening by type of test
