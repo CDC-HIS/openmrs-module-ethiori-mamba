@@ -3,7 +3,7 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS sp_fact_line_list_vl_eligibility_query;
 
 CREATE PROCEDURE sp_fact_line_list_vl_eligibility_query(
-  IN REPORT_END_DATE DATE
+    IN REPORT_END_DATE DATE
 )
 BEGIN
 
@@ -60,8 +60,7 @@ BEGIN
                                            follow_up_date                                                                             AS FollowUpDate,
                                            ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
                                     FROM FollowUp
-                                    WHERE follow_up_date <= REPORT_END_DATE
-         ),
+                                    WHERE follow_up_date <= REPORT_END_DATE),
 
          all_art_follow_ups as (select * from tmp_all_art_follow_ups where row_num = 1),
 
@@ -70,8 +69,7 @@ BEGIN
                                      viral_load_sent_date                                                                             AS VL_Sent_Date,
                                      ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY viral_load_sent_date DESC, encounter_id DESC) AS row_num
                               FROM FollowUp
-                              WHERE  viral_load_sent_date <= REPORT_END_DATE
-         ),
+                              WHERE viral_load_sent_date <= REPORT_END_DATE),
          vl_sent_date as (select * from tmp_vl_sent_date where row_num = 1),
 
          tmp_switch_sub_date as (SELECT encounter_id,
@@ -102,10 +100,12 @@ BEGIN
          tmp_vl_performed_date_3 as (SELECT FollowUp.encounter_id,
                                             FollowUp.client_id,
                                             case
-                                                when FollowUp.viral_load_perform_date < vl_sent_date.VL_Sent_Date then null
+                                                when FollowUp.viral_load_perform_date < vl_sent_date.VL_Sent_Date
+                                                    then null
                                                 else FollowUp.viral_load_perform_date end as viral_load_perform_date,
                                             case
-                                                when FollowUp.viral_load_perform_date < vl_sent_date.VL_Sent_Date then null
+                                                when FollowUp.viral_load_perform_date < vl_sent_date.VL_Sent_Date
+                                                    then null
                                                 else FollowUp.viral_load_test_status end  as viral_load_status,
                                             CASE
                                                 WHEN FollowUp.viral_load_count > 0 AND
@@ -163,8 +163,7 @@ BEGIN
                                              ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
                                       FROM FollowUp
                                       WHERE follow_up_status in ('Alive', 'Restart medication')
-                                        AND follow_up_date <= REPORT_END_DATE
-         ),
+                                        AND follow_up_date <= REPORT_END_DATE),
          latest_alive_restart as (select * from tmp_latest_alive_restart where row_num = 1),
          vl_eligibility as (SELECT f_case.art_start_date                         as art_start_date,
                                    f_case.breastfeeding_status                   as BreastFeeding,
@@ -244,7 +243,8 @@ BEGIN
 
                                        WHEN
                                            (vlperfdate.viral_load_ref_date IS NOT NULL
-                                               AND (f_case.pregnancy_status = 'Yes' OR f_case.breastfeeding_status = 'Yes')
+                                               AND
+                                            (f_case.pregnancy_status = 'Yes' OR f_case.breastfeeding_status = 'Yes')
                                                AND vlperfdate.routine_viral_load_test_indication in
                                                    ('First viral load test at 6 months or longer post ART',
                                                     'Viral load after EAC: repeat viral load where initial viral load greater than 50 and less than 1000 copies per ml',
@@ -253,7 +253,8 @@ BEGIN
 
                                        WHEN
                                            (vlperfdate.viral_load_ref_date IS NOT NULL
-                                               AND (f_case.pregnancy_status = 'Yes' OR f_case.breastfeeding_status = 'Yes')
+                                               AND
+                                            (f_case.pregnancy_status = 'Yes' OR f_case.breastfeeding_status = 'Yes')
                                                AND vlperfdate.routine_viral_load_test_indication IS NOT NULL
                                                AND vlperfdate.routine_viral_load_test_indication not in
                                                    ('First viral load test at 6 months or longer post ART',
@@ -319,7 +320,8 @@ BEGIN
 
                                        WHEN
                                            (vlperfdate.viral_load_status_inferred IS NOT NULL
-                                               AND (f_case.pregnancy_status = 'Yes' OR f_case.breastfeeding_status = 'Yes'))
+                                               AND
+                                            (f_case.pregnancy_status = 'Yes' OR f_case.breastfeeding_status = 'Yes'))
                                            THEN 'Pregnant/Breastfeeding and needs retesting'
 
 
@@ -346,36 +348,43 @@ BEGIN
                                      Left join all_art_follow_ups on f_case.client_id = all_art_follow_ups.client_id
 
                             where all_art_follow_ups.follow_up_status in ('Alive', 'Restart Medication'))
-    select client.sex,
-           Weight,
-           TIMESTAMPDIFF(YEAR, date_of_birth, FollowUpDate) as Age,
-           patient_name                                     as FullName,
-           mobile_no                                        as MobilePhoneNumber,
+    select eligiblityDate,
+           patient_name                                     as fullname,
            mrn                                              as MRN,
-           uan,
-           date_hiv_confirmed,
-           art_start_date,
+           uan                                              as UniqueArtNumber,
+           TIMESTAMPDIFF(YEAR, date_of_birth, FollowUpDate) as Age,
+           client.sex,
+           Weight,
+           client.phone_no                                  as PNumber,
+           client.mobile_no                                 as Mobile,
+           art_start_date                                   as artstartdate,
            FollowUpDate,
+           date_regimen_change                              as dateregimenchange,
+           viral_load_sent_date                             as VLsentdate,
+           viral_load_perform_date                          as VLrecieveddate,
            IsPregnant,
-           regimen                                          as ARVDispendsedDose,
+           next_visit_date                                  as nextvisitdate,
+           follow_up_status                                 as followupstatus,
+           viral_load_ref_date                              as vl_ref_date,
+           treatment_end_date                               as artdoseEnd,
+           viral_load_status                                as vl_status,
+           viral_load_count                                 as VLCount,
+           regimen                                          as artdose,
+           CASE
+               WHEN IsPregnant = 'Yes' OR BreastFeeding = 'Yes' THEN
+                   'Yes'
+               ELSE 'No' END                                AS `PMTCT-ART`,
+           date_hiv_confirmed,
            t.arv_dispensed_dose                             as ARTDoseDays,
-           next_visit_date,
-           follow_up_status,
-           treatment_end_date                               as art_dose_End,
-           viral_load_perform_date,
-           viral_load_status,
-           viral_load_count,
-           viral_load_sent_date,
-           viral_load_ref_date,
-           date_regimen_change,
-           eligiblityDate,
-           t.BreastFeeding                                  as IsBreastfeeding,
            vl_status_final
     from vl_eligibility t
              join mamba_dim_client client on t.PatientId = client_id;
 END //
 
 DELIMITER ;
+
+
+
 
 
 

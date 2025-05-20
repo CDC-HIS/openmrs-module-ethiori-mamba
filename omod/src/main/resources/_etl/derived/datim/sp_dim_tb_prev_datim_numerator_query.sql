@@ -121,7 +121,8 @@ BEGIN
         SELECT
           sex,
           SUM(CASE WHEN ', IF(IS_COURSE_AGE_GROUP, 'coarse_age_group', 'fine_age_group'), ' is null AND count is not null THEN count ELSE 0 END) AS ''Unknown Age'',
-          ', age_group_cols, '
+          ', age_group_cols, ' ,
+          SUM(CASE WHEN count is not null THEN count ELSE 0 END) as Subtotal
         FROM (
           SELECT
             sex,
@@ -139,7 +140,8 @@ BEGIN
         SELECT
           sex,
           SUM(CASE WHEN ', IF(IS_COURSE_AGE_GROUP, 'coarse_age_group', 'fine_age_group'), ' is null AND count is not null THEN count ELSE 0 END) AS ''Unknown Age'',
-          ', age_group_cols, '
+          ', age_group_cols, ' ,
+        SUM(CASE WHEN count is not null THEN count ELSE 0 END) as Subtotal
         FROM (
           SELECT
             sex,
@@ -157,7 +159,8 @@ BEGIN
         SELECT
           sex,
           SUM(CASE WHEN ', IF(IS_COURSE_AGE_GROUP, 'coarse_age_group', 'fine_age_group'), ' is null AND count is not null THEN count ELSE 0 END) AS ''Unknown Age'',
-          ', age_group_cols, '
+          ', age_group_cols, ' ,
+        SUM(CASE WHEN count is not null THEN count ELSE 0 END) as Subtotal
         FROM (
           SELECT
             sex,
