@@ -385,7 +385,3 @@ DELIMITER ;
 -- param 21: @end_date, param 22: @end_date
 -- param 23: @end_date, param 24: @end_date
 -- param 25: @end_date, param 26: @end_date
-
-
-@end_date, @start_date, @end_date, @end_date, @end_date, @start_date, @start_date, @end_date, @start_date, @start_date, @start_date, @end_date,
-@end_date, @end_date, @end_date, @end_date, @end_date, @end_date, @end_date, @end_date, @end_date, @end_date, @end_date, @end_date, @end_date, @end_date
