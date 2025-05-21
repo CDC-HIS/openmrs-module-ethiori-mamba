@@ -33,7 +33,7 @@ BEGIN
     SET cxca_scrn_query = 'WITH FollowUp as (select follow_up.encounter_id,
                          follow_up.client_id,
                          cervical_cancer_screening_status          as cx_ca_screening_status,
-                         cervical_cancer_screening_method_strategy as screening_type,
+                         cervical_cancer_screening_method_strategy as screening_method,
                          via_screening_result,
                          hpv_dna_screening_result,
                          follow_up_date_followup_                  as follow_up_date,
@@ -80,43 +80,43 @@ BEGIN
                                   join currently_on_art on FollowUp.client_id = currently_on_art.client_id
                          where cx_ca_screening_status = ''Cervical cancer screening performed''
                            and ((via_date BETWEEN ? AND ?
-                                    -- AND screening_type != ''Human Papillomavirus test''
+                                    -- AND screening_method != ''Human Papillomavirus test''
                                ) OR
                                 (hpv_received_date BETWEEN ? AND ?) OR (cytology_received_date BETWEEN ? AND ?))),
      cx_screened as (select tmp_cx_screened.*,
                             CASE
 
 
-                                #  WHEN screening_type=''Human Papillomavirus test'' and hpv_dna_screening_result =''Unknown'' then ''Cervical Cancer screen: Suspected Cancer''
+                                #  WHEN screening_method=''Human Papillomavirus test'' and hpv_dna_screening_result =''Unknown'' then ''Cervical Cancer screen: Suspected Cancer''
 
-                                WHEN screening_type = ''Visual Inspection of the Cervix with Acetic Acid (VIA)'' and
+                                WHEN screening_method = ''Visual Inspection of the Cervix with Acetic Acid (VIA)'' and
                                      via_screening_result = ''VIA negative'' then ''Cervical Cancer screen: Negative''
-                                WHEN screening_type = ''Visual Inspection of the Cervix with Acetic Acid (VIA)'' and
+                                WHEN screening_method = ''Visual Inspection of the Cervix with Acetic Acid (VIA)'' and
                                      (via_screening_result = ''VIA positive: eligible for cryo/thermo-coagulation'' or
                                       via_screening_result = ''VIA positive: eligible for cryo/thermo-coagula'' or
                                       via_screening_result = ''VIA positive: non-eligible for cryo/thermo-coagulation'')
                                     then ''Cervical Cancer screen: Positive''
-                                WHEN screening_type = ''Visual Inspection of the Cervix with Acetic Acid (VIA)'' and
+                                WHEN screening_method = ''Visual Inspection of the Cervix with Acetic Acid (VIA)'' and
                                      via_screening_result = ''Suspicious for cervical cancer'' or via_screening_result = ''suspected cervical cancer''
                                     then ''Cervical Cancer screen: Suspected Cancer''
 
-                                WHEN screening_type = ''Human Papillomavirus test'' and
+                                WHEN screening_method = ''Human Papillomavirus test'' and
                                      hpv_dna_screening_result = ''Negative result''
                                     then ''Cervical Cancer screen: Negative''
-                                WHEN screening_type = ''Human Papillomavirus test'' and
+                                WHEN screening_method = ''Human Papillomavirus test'' and
                                      hpv_dna_screening_result = ''Positive''
                                     and
                                      (via_screening_result = ''VIA positive: eligible for cryo/thermo-coagulation'' or
                                       via_screening_result = ''VIA positive: eligible for cryo/thermo-coagula'' or
                                       via_screening_result = ''VIA positive: non-eligible for cryo/thermo-coagulation'')
                                     then ''Cervical Cancer screen: Positive''
-                                WHEN screening_type = ''Human Papillomavirus test'' and
+                                WHEN screening_method = ''Human Papillomavirus test'' and
                                      hpv_dna_screening_result = ''Positive''
                                     and via_screening_result = ''VIA negative'' then ''Cervical Cancer screen: Negative''
-                                WHEN screening_type = ''Cytology'' and
+                                WHEN screening_method = ''Cytology'' and
                                      (cytology_result = ''Negative'' OR cytology_result = ''ASCUS'')
                                     THEN ''Cervical Cancer screen: Negative''
-                                WHEN screening_type = ''Cytology'' and cytology_result = ''> Ascus''
+                                WHEN screening_method = ''Cytology'' and cytology_result = ''> Ascus''
                                     THEN ''Cervical Cancer screen: Positive''
                                 END                                             AS screening_result,
                             client.uan,
@@ -134,7 +134,7 @@ BEGIN
                                    on tmp_cx_screened.client_id = client.client_id
                      where row_num = 1
                        and TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) >= 15
-                       and not (screening_type = ''Human Papillomavirus test'' and
+                       and not (screening_method = ''Human Papillomavirus test'' and
                                 hpv_dna_screening_result = ''Positive'' and via_screening_result is null)
      ) ';
     IF IS_COURSE_AGE_GROUP THEN
@@ -203,9 +203,7 @@ BEGIN
         ');
     END IF;
     SET @sql = CONCAT(cxca_scrn_query, group_query);
-#     SELECT @`sql`;
     PREPARE stmt FROM @sql;
-    SELECT @sql;
     SET @start_date = REPORT_START_DATE;
     SET @end_date = REPORT_END_DATE;
     EXECUTE stmt USING  @start_date, @end_date , @start_date, @end_date , @start_date, @end_date, @end_date, @end_date;
