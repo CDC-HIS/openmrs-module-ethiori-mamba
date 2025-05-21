@@ -160,11 +160,13 @@ BEGIN
          tmp_latest_alive_restart as (SELECT encounter_id,
                                              client_id,
                                              follow_up_date                                                                             AS FollowupDate,
+                                             follow_up_status,
                                              ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
                                       FROM FollowUp
-                                      WHERE follow_up_status in ('Alive', 'Restart medication')
-                                        AND follow_up_date <= REPORT_END_DATE),
-         latest_alive_restart as (select * from tmp_latest_alive_restart where row_num = 1),
+                                      WHERE follow_up_date <= REPORT_END_DATE),
+         latest_alive_restart as (select *
+                                  from tmp_latest_alive_restart
+                                  where row_num = 1 AND follow_up_status in ('Alive', 'Restart medication')),
          vl_eligibility as (SELECT f_case.art_start_date                         as art_start_date,
                                    f_case.breastfeeding_status                   as BreastFeeding,
                                    f_case.date_hiv_confirmed                     as date_hiv_confirmed,
@@ -379,11 +381,11 @@ BEGIN
            vl_status_final,
            case
 
-           when t.vl_status_final = 'N/A' THEN 'Not Applicable'
-           when t.eligiblityDate <= REPORT_END_DATE THEN 'Eligible for Viral Load'
-           when t.eligiblityDate > REPORT_END_DATE THEN 'Viral Load Done'
-           when t.art_start_date is NULL and t.follow_up_status is null THEN 'Not Started ART'
-           end                                          as viral_load_status_compare
+               when t.vl_status_final = 'N/A' THEN 'Not Applicable'
+               when t.eligiblityDate <= REPORT_END_DATE THEN 'Eligible for Viral Load'
+               when t.eligiblityDate > REPORT_END_DATE THEN 'Viral Load Done'
+               when t.art_start_date is NULL and t.follow_up_status is null THEN 'Not Started ART'
+               end                                          as viral_load_status_compare
     from vl_eligibility t
              join mamba_dim_client client on t.PatientId = client_id;
 END //

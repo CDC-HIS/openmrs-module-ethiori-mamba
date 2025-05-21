@@ -8,7 +8,8 @@ BEGIN
 WITH FollowUp as (select follow_up.encounter_id,
                          follow_up.client_id,
                          cervical_cancer_screening_status          as cx_ca_screening_status,
-                         cervical_cancer_screening_method_strategy as screening_type,
+                         cervical_cancer_screening_method_strategy as screening_method,
+                         purpose_for_visit_cervical_screening as type_of_screening,
                          via_screening_result,
                          hpv_dna_screening_result,
                          follow_up_date_followup_                  as follow_up_date,
@@ -22,7 +23,25 @@ WITH FollowUp as (select follow_up.encounter_id,
                          cytology_result,
                          purpose_for_visit_cervical_screening      as visit_type,
                          hpv_dna_result_received_date              as hpv_received_date,
-                         date_cytology_result_received             as cytology_received_date
+                         date_cytology_result_received             as cytology_received_date,
+                         date_counseling_given,
+                         ready_for_cervical_cancer_screening,
+                         date_linked_to_cervical_cancer_scre,
+                         colposcopy_of_cervix_findings,
+                         colposcopy_exam_date,
+                         biopsy_result,
+                         biopsy_result_received_date,
+                         biopsy_sample_collected_date,
+                         treatment_of_precancerous_lesions_of_the_cervix,
+                         next_visit_date,
+                         next_follow_up_screening_date,
+                         regimen,
+                         adherence,
+                         referral_or_linkage_status,
+                         referred_to_higher_level_facility,
+                         reason_for_referral_cacx,
+                         date_client_arrived_in_the_referred,
+                         date_client_served_in_the_referred_
                   FROM mamba_flat_encounter_follow_up follow_up
                            LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1
                                      ON follow_up.encounter_id = follow_up_1.encounter_id
@@ -64,46 +83,41 @@ WITH FollowUp as (select follow_up.encounter_id,
 
                                 #  WHEN screening_type='Human Papillomavirus test' and hpv_dna_screening_result ='Unknown' then 'Cervical Cancer screen: Suspected Cancer'
 
-                                   WHEN screening_type = 'Visual Inspection of the Cervix with Acetic Acid (VIA)' and
+                                   WHEN screening_method = 'Visual Inspection of the Cervix with Acetic Acid (VIA)' and
                                         via_screening_result = 'VIA negative' then 'Cervical Cancer screen: Negative'
-                                   WHEN screening_type = 'Visual Inspection of the Cervix with Acetic Acid (VIA)' and
+                                   WHEN screening_method = 'Visual Inspection of the Cervix with Acetic Acid (VIA)' and
                                         (via_screening_result = 'VIA positive: eligible for cryo/thermo-coagulation' or
                                          via_screening_result = 'VIA positive: eligible for cryo/thermo-coagula' or
                                          via_screening_result = 'VIA positive: non-eligible for cryo/thermo-coagulation')
                                        then 'Cervical Cancer screen: Positive'
-                                   WHEN screening_type = 'Visual Inspection of the Cervix with Acetic Acid (VIA)' and
+                                   WHEN screening_method = 'Visual Inspection of the Cervix with Acetic Acid (VIA)' and
                                         via_screening_result = 'Suspicious for cervical cancer' or via_screening_result = 'suspected cervical cancer'
                                        then 'Cervical Cancer screen: Suspected Cancer'
 
-                                   WHEN screening_type = 'Human Papillomavirus test' and
+                                   WHEN screening_method = 'Human Papillomavirus test' and
                                         hpv_dna_screening_result = 'Negative result'
                                        then 'Cervical Cancer screen: Negative'
-                                   WHEN screening_type = 'Human Papillomavirus test' and
+                                   WHEN screening_method = 'Human Papillomavirus test' and
                                         hpv_dna_screening_result = 'Positive'
                                        and
                                         (via_screening_result = 'VIA positive: eligible for cryo/thermo-coagulation' or
                                          via_screening_result = 'VIA positive: eligible for cryo/thermo-coagula' or
                                          via_screening_result = 'VIA positive: non-eligible for cryo/thermo-coagulation')
                                        then 'Cervical Cancer screen: Positive'
-                                   WHEN screening_type = 'Human Papillomavirus test' and
+                                   WHEN screening_method = 'Human Papillomavirus test' and
                                         hpv_dna_screening_result = 'Positive'
                                        and via_screening_result = 'VIA negative' then 'Cervical Cancer screen: Negative'
-                                   WHEN screening_type = 'Cytology' and
+                                   WHEN screening_method = 'Cytology' and
                                         (cytology_result = 'Negative' OR cytology_result = 'ASCUS')
                                        THEN 'Cervical Cancer screen: Negative'
-                                   WHEN screening_type = 'Cytology' and cytology_result = '> Ascus'
+                                   WHEN screening_method = 'Cytology' and cytology_result = '> Ascus'
                                        THEN 'Cervical Cancer screen: Positive'
                                 END                                             AS screening_result,
                             client.uan,
                             client.mrn,
                             client.sex,
                             client.date_of_birth,
-                            (SELECT datim_agegroup
-                             from mamba_dim_agegroup
-                             where TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) = age) as fine_age_group,
-                            (SELECT normal_agegroup
-                             from mamba_dim_agegroup
-                             where TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) = age) as coarse_age_group
+                            client.patient_name
                      from tmp_cx_screened
                               join mamba_dim_client client
                                    on tmp_cx_screened.client_id = client.client_id
@@ -111,7 +125,50 @@ WITH FollowUp as (select follow_up.encounter_id,
                        and TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) >= 15
                       -- and not (screening_type = 'Human Papillomavirus test' and hpv_dna_screening_result = 'Positive' and via_screening_result is null )
      )
-select * from cx_screened;
+select patient_name as `Patient Name`,
+    MRN,
+    UAN,
+    TIMESTAMPDIFF(YEAR, date_of_birth,REPORT_END_DATE) as `Current Age`,
+    Sex,
+    follow_up_date as `Follow-Up Date E.C`,
+ art_start_date as `Art Start Date E.C`,
+date_counseling_given as `Date Counseled For CCA E.C`,
+ready_for_cervical_cancer_screening as `Date Accepted CxCa Screening in E.C.`,
+    date_linked_to_cervical_cancer_scre as `Date Linked to CxCa Screening Unit in E.C.`,
+       type_of_screening as `Type of Screening`,
+screening_method as `Screening Strategy`,
+via_screening_result as `VIA Screening Result`,
+via_date as `VIA Screening Date E.C`,
+hpv_dna_screening_result as `HPV DNA Screening Result`,
+hpv_date as `HPV DNA Sample Collection Date E.C`,
+# HPV Subtype
+hpv_received_date as `HPV DNA Result Received Date E.C`,
+cytology_result as `Cytology Result`,
+cytology_date as `Cytology Sample Collection Date E.C`,
+cytology_received_date as `Cytology Result Received Date E.C`,
+colposcopy_of_cervix_findings as `Colposcopy Exam Finding`,
+colposcopy_exam_date as `Colposcopy Exam Date E.C`,
+biopsy_result as `Biopsy Result`,
+biopsy_sample_collected_date as `Biopsy Sample Collection Date E.C`,
+biopsy_result_received_date as `Biopsy Result Received Date E.C`,
+treatment_of_precancerous_lesions_of_the_cervix as `Treatment for Precancerous Lesion`,
+# Treatment for Confirmed CxCa
+# Date Treatment Received E.C
+next_follow_up_screening_date as `Next Follow-up Screening Date E.C.`,
+referral_or_linkage_status as `Referral/ Linkage Status`,
+reason_for_referral_cacx as `Reason for Referral`,
+# Date of Referral to other HF in E.C.
+# Referral Confirmed Date E.C
+# Feedback from the other HF
+date_client_served_in_the_referred_ as `Date Client Served in the referred HF in E.C.`,
+follow_up_status as `Latest Follow-Up Status`,
+regimen as `Latest Regimen`,
+dose_days as     `Latest ARV Dose Days`,
+adherence     `Latest Adherence`,
+next_visit_date as     `Next Visit Date in E.C.`,
+treatment_end_date as `Treatment End Date in E.C.`
+
+from cx_screened;
 
 END //
 
