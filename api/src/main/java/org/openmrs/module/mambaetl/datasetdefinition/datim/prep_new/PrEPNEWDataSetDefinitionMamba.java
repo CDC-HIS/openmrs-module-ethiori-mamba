@@ -35,11 +35,11 @@ public class PrEPNEWDataSetDefinitionMamba extends BaseDataSetDefinition {
 		this.endDate = endDate;
 	}
 	
-	public PrEPNEWAggregationTypes getPrEPNEWggregationTypes() {
+	public PrEPNEWAggregationTypes getPrEPNEWAggregationTypes() {
 		return prEPNEWAggregationTypes;
 	}
 	
-	public void setPrEPNEWggregationTypes(PrEPNEWAggregationTypes prEPNEWAggregationTypes) {
+	public void setPrEPNEWAggregationTypes(PrEPNEWAggregationTypes prEPNEWAggregationTypes) {
 		this.prEPNEWAggregationTypes = prEPNEWAggregationTypes;
 	}
 }

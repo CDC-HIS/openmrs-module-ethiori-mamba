@@ -1,6 +1,6 @@
 package org.openmrs.module.mambaetl.reports.linelist;
 
-import org.openmrs.module.mambaetl.datasetdefinition.linelist.CXCALineListDatasetDefinition;
+import org.openmrs.module.mambaetl.datasetdefinition.linelist.CXCAScreeningLineListDatasetDefinition;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.report.ReportDesign;
@@ -14,16 +14,16 @@ import java.util.Collections;
 import java.util.List;
 
 @Component
-public class CXCALineListReportMamba implements ReportManager {
+public class CXCAScreeningLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getUuid() {
-		return "2c3015a0-7f61-4b48-a370-2846b5dfdc6f";
+		return "f719dae3-73b9-413c-b640-8341beb91812";
 	}
 	
 	@Override
 	public String getName() {
-		return "MAMBA LINELIST- CX_CA";
+		return "MAMBA LINELIST- CX_CA_SCRN";
 	}
 	
 	@Override
@@ -46,18 +46,18 @@ public class CXCALineListReportMamba implements ReportManager {
 		
 		reportDefinition.setParameters(getParameters());
 		
-		CXCALineListDatasetDefinition cxcaLineListDatasetDefinition = new CXCALineListDatasetDefinition();
-		cxcaLineListDatasetDefinition.addParameters(getParameters());
+		CXCAScreeningLineListDatasetDefinition cxcaScreeningLineListDatasetDefinition = new CXCAScreeningLineListDatasetDefinition();
+		cxcaScreeningLineListDatasetDefinition.addParameters(getParameters());
 		
 		reportDefinition.addDataSetDefinition("List of Patients for CXCA",
-		    EthiOhriUtil.map(cxcaLineListDatasetDefinition, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(cxcaScreeningLineListDatasetDefinition, "startDate=${startDateGC},endDate=${endDateGC}"));
 		return reportDefinition;
 	}
 	
 	@Override
 	public List<ReportDesign> constructReportDesigns(ReportDefinition reportDefinition) {
 		
-		ReportDesign design = ReportManagerUtil.createExcelDesign("4d0ad55c-e116-4c5b-811b-991d59319a53", reportDefinition);
+		ReportDesign design = ReportManagerUtil.createExcelDesign("d42f1b4a-7373-4891-85e3-bddc5c90b8e4", reportDefinition);
 		
 		return Collections.singletonList(design);
 	}

@@ -59,7 +59,7 @@ WITH FollowUp AS (SELECT follow_up.client_id,
                                       CASE
                                           WHEN FollowUp.viral_load_perform_date IS NOT NULL
                                               THEN FollowUp.viral_load_perform_date
-                                          END AS   viral_load_ref_date, -- Q this should be null?
+                                          END AS   viral_load_ref_date,
                                       routine_viral_load_test_indication,
                                       targeted_viral_load_test_indication,
                                       ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY viral_load_perform_date DESC, encounter_id DESC) AS row_num

@@ -55,7 +55,7 @@ public class PREPNEWDATIMReportsMamba implements ReportManager {
 		
 		PrEPNEWDataSetDefinitionMamba prepNewTotalDatimReportsMamba = new PrEPNEWDataSetDefinitionMamba();
 		prepNewTotalDatimReportsMamba.addParameters(getParameters());
-		prepNewTotalDatimReportsMamba.setPrEPNEWggregationTypes(PrEPNEWAggregationTypes.TOTAL);
+		prepNewTotalDatimReportsMamba.setPrEPNEWAggregationTypes(PrEPNEWAggregationTypes.TOTAL);
 		prepNewTotalDatimReportsMamba
 		        .setDescription("Number of individuals who were newly enrolled on pre-exposure prophylaxis (PrEP) to prevent HIV infection in\n"
 		                + "the reporting period. Numerator will auto-calculate from the Age/Sex Disaggregates.");
@@ -66,7 +66,7 @@ public class PREPNEWDATIMReportsMamba implements ReportManager {
 		
 		PrEPNEWDataSetDefinitionMamba prepctAgeSexdatimReportsMamba = new PrEPNEWDataSetDefinitionMamba();
 		prepctAgeSexdatimReportsMamba.addParameters(getParameters());
-		prepctAgeSexdatimReportsMamba.setPrEPNEWggregationTypes(PrEPNEWAggregationTypes.AGE_SEX);
+		prepctAgeSexdatimReportsMamba.setPrEPNEWAggregationTypes(PrEPNEWAggregationTypes.AGE_SEX);
 		prepctAgeSexdatimReportsMamba.setDescription("Disaggregated by Age/Sex");
 		reportDefinition.addDataSetDefinition("Disaggregated by Age/Sex",
 		    EthiOhriUtil.map(prepctAgeSexdatimReportsMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
@@ -79,21 +79,21 @@ public class PREPNEWDATIMReportsMamba implements ReportManager {
 		
 		PrEPNEWDataSetDefinitionMamba prEPCTBreastFeedingDataSetDefinitionMamba = new PrEPNEWDataSetDefinitionMamba();
 		prEPCTBreastFeedingDataSetDefinitionMamba.addParameters(getParameters());
-		prEPCTBreastFeedingDataSetDefinitionMamba.setPrEPNEWggregationTypes(PrEPNEWAggregationTypes.PREGNANT_BF);
+		prEPCTBreastFeedingDataSetDefinitionMamba.setPrEPNEWAggregationTypes(PrEPNEWAggregationTypes.PREGNANT_BF);
 		prEPCTBreastFeedingDataSetDefinitionMamba.setDescription("Disaggregated by Pregnant/Breastfeeding Status:");
 		reportDefinition.addDataSetDefinition("Disaggregated by Pregnant/Breastfeeding Status:",
 		    EthiOhriUtil.map(prEPCTBreastFeedingDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
 		
 		PrEPNEWDataSetDefinitionMamba prEPCTFacilityDataSetDefinitionMamba = new PrEPNEWDataSetDefinitionMamba();
 		prEPCTFacilityDataSetDefinitionMamba.addParameters(getParameters());
-		prEPCTFacilityDataSetDefinitionMamba.setPrEPNEWggregationTypes(PrEPNEWAggregationTypes.FACILITY);
+		prEPCTFacilityDataSetDefinitionMamba.setPrEPNEWAggregationTypes(PrEPNEWAggregationTypes.FACILITY);
 		prEPCTFacilityDataSetDefinitionMamba.setDescription("Disaggregated by PrEP Distribution.");
 		reportDefinition.addDataSetDefinition("Disaggregated by PrEP Distribution.",
 		    EthiOhriUtil.map(prEPCTFacilityDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
 		
 		PrEPNEWDataSetDefinitionMamba prEPCTPrepTypeDataSetDefinitionMamba = new PrEPNEWDataSetDefinitionMamba();
 		prEPCTPrepTypeDataSetDefinitionMamba.addParameters(getParameters());
-		prEPCTPrepTypeDataSetDefinitionMamba.setPrEPNEWggregationTypes(PrEPNEWAggregationTypes.PREP_TYPE);
+		prEPCTPrepTypeDataSetDefinitionMamba.setPrEPNEWAggregationTypes(PrEPNEWAggregationTypes.PREP_TYPE);
 		prEPCTPrepTypeDataSetDefinitionMamba.setDescription("Disaggregated by PrEP Type.");
 		reportDefinition.addDataSetDefinition("Disaggregated by PrEP Type.",
 		    EthiOhriUtil.map(prEPCTPrepTypeDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));

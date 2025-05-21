@@ -18,12 +18,12 @@ public class TPTLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getUuid() {
-		return "9000965c-89d2-490e-abaa-2c5c72770421";
+		return "f70f5652-c907-487c-aa3a-19b5894498c7";
 	}
 	
 	@Override
 	public String getName() {
-		return "MAMBA LINELIST- TPT Line List";
+		return "MAMBA LINELIST- TPT_LINE_LIST";
 	}
 	
 	@Override
@@ -57,7 +57,7 @@ public class TPTLineListReportMamba implements ReportManager {
 	@Override
 	public List<ReportDesign> constructReportDesigns(ReportDefinition reportDefinition) {
 		
-		ReportDesign design = ReportManagerUtil.createExcelDesign("77dcf287-1665-4f77-b02e-c920c4bf60e6", reportDefinition);
+		ReportDesign design = ReportManagerUtil.createExcelDesign("158134fb-0d0c-478c-ba44-e5552b90f18f", reportDefinition);
 		
 		return Collections.singletonList(design);
 	}

@@ -73,7 +73,7 @@ public class TPTLineListDataSetEvaluatorMamba implements DataSetEvaluator {
 
         return Arrays.asList(
 
-                new ProcedureCall("{call sp_fact_dhis_tx_new_query(?,?)}", statement -> {
+                new ProcedureCall("{call sp_fact_line_list_tpt_linelist_query(?,?)}", statement -> {
                     statement.setDate(1, startDate);
                     statement.setDate(2, endDate);
                 })
