@@ -166,7 +166,8 @@ BEGIN
                                       WHERE follow_up_date <= REPORT_END_DATE),
          latest_alive_restart as (select *
                                   from tmp_latest_alive_restart
-                                  where row_num = 1 AND follow_up_status in ('Alive', 'Restart medication')),
+                                  where row_num = 1
+                                    AND follow_up_status in ('Alive', 'Restart medication')),
          vl_eligibility as (SELECT f_case.art_start_date                         as art_start_date,
                                    f_case.breastfeeding_status                   as BreastFeeding,
                                    f_case.date_hiv_confirmed                     as date_hiv_confirmed,
@@ -351,33 +352,42 @@ BEGIN
 
                             where all_art_follow_ups.follow_up_status in ('Alive', 'Restart Medication'))
     select eligiblityDate,
-           patient_name                                     as fullname,
-           mrn                                              as MRN,
-           uan                                              as UniqueArtNumber,
-           TIMESTAMPDIFF(YEAR, date_of_birth, FollowUpDate) as Age,
+           patient_name                                                         as fullname,
+           mrn                                                                  as MRN,
+           uan                                                                  as UniqueArtNumber,
+           TIMESTAMPDIFF(YEAR, date_of_birth, FollowUpDate)                     as Age,
            client.sex,
            Weight,
-           client.phone_no                                  as PNumber,
-           client.mobile_no                                 as Mobile,
-           art_start_date                                   as artstartdate,
-           FollowUpDate,
-           date_regimen_change                              as dateregimenchange,
-           viral_load_sent_date                             as VLsentdate,
-           viral_load_perform_date                          as VLrecieveddate,
+           client.phone_no                                                      as PNumber,
+           client.mobile_no                                                     as Mobile,
+           art_start_date                                                       as `ART Start Date`,
+           fn_gregorian_to_ethiopian_calendar(art_start_date, 'D-M-Y')          as `ART Start Date EC.`,
+           FollowUpDate                                                         as `Follow Up Date`,
+           fn_gregorian_to_ethiopian_calendar(FollowUpDate, 'D-M-Y')            as `Follow Up Date EC.`,
+           date_regimen_change                                                  as `Date Regiment Change`,
+           fn_gregorian_to_ethiopian_calendar(date_regimen_change, 'D-M-Y')     as `Date Regiment Change EC.`,
+           viral_load_sent_date                                                 as `Viral Load Sent Date`,
+           fn_gregorian_to_ethiopian_calendar(viral_load_sent_date, 'D-M-Y')    as `Viral Load Sent Date EC.`,
+           viral_load_perform_date                                              as `Viral Load Received Date`,
+           fn_gregorian_to_ethiopian_calendar(viral_load_perform_date, 'D-M-Y') as `Viral Load Received Date EC.`,
            IsPregnant,
-           next_visit_date                                  as nextvisitdate,
-           follow_up_status                                 as followupstatus,
-           viral_load_ref_date                              as vl_ref_date,
-           treatment_end_date                               as artdoseEnd,
-           viral_load_status                                as vl_status,
-           viral_load_count                                 as VLCount,
-           regimen                                          as artdose,
+           next_visit_date                                                      as `Next Visit Date`,
+           fn_gregorian_to_ethiopian_calendar(next_visit_date, 'D-M-Y')         as `Next Visit Date EC.`,
+           follow_up_status                                                     as followupstatus,
+           viral_load_ref_date                                                  as `Viral Load Ref Date`,
+           fn_gregorian_to_ethiopian_calendar(viral_load_ref_date, 'D-M-Y')     as `Viral Load Ref Date EC.`,
+           treatment_end_date                                                   as `Art Dose End Date`,
+           fn_gregorian_to_ethiopian_calendar(treatment_end_date, 'D-M-Y')      as `Art Dose End Date EC.`,
+           viral_load_status                                                    as vl_status,
+           viral_load_count                                                     as VLCount,
+           regimen                                                              as artdose,
            CASE
                WHEN IsPregnant = 'Yes' OR BreastFeeding = 'Yes' THEN
                    'Yes'
-               ELSE 'No' END                                AS `PMTCT-ART`,
-           date_hiv_confirmed,
-           t.arv_dispensed_dose                             as ARTDoseDays,
+               ELSE 'No' END                                                    AS `PMTCT-ART`,
+           date_hiv_confirmed                                                   as `Hiv Confirmed Date EC`,
+           fn_gregorian_to_ethiopian_calendar(date_hiv_confirmed, 'D-M-Y')      as `Hiv Confirmed Date EC.`,
+           t.arv_dispensed_dose                                                 as ARTDoseDays,
            vl_status_final,
            case
 
@@ -385,7 +395,7 @@ BEGIN
                when t.eligiblityDate <= REPORT_END_DATE THEN 'Eligible for Viral Load'
                when t.eligiblityDate > REPORT_END_DATE THEN 'Viral Load Done'
                when t.art_start_date is NULL and t.follow_up_status is null THEN 'Not Started ART'
-               end                                          as viral_load_status_compare
+               end                                                              as viral_load_status_compare
     from vl_eligibility t
              join mamba_dim_client client on t.PatientId = client_id;
 END //
