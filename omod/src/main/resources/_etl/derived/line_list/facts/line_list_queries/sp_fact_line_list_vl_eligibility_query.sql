@@ -376,7 +376,14 @@ BEGIN
                ELSE 'No' END                                AS `PMTCT-ART`,
            date_hiv_confirmed,
            t.arv_dispensed_dose                             as ARTDoseDays,
-           vl_status_final
+           vl_status_final,
+           case
+
+           when t.vl_status_final = 'N/A' THEN 'Not Applicable'
+           when t.eligiblityDate <= REPORT_END_DATE THEN 'Eligible for Viral Load'
+           when t.eligiblityDate > REPORT_END_DATE THEN 'Viral Load Done'
+           when t.art_start_date is NULL and t.follow_up_status is null THEN 'Not Started ART'
+           end                                          as viral_load_status_compare
     from vl_eligibility t
              join mamba_dim_client client on t.PatientId = client_id;
 END //

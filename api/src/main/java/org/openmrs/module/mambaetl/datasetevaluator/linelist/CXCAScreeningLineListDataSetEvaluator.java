@@ -1,6 +1,6 @@
 package org.openmrs.module.mambaetl.datasetevaluator.linelist;
 
-import org.openmrs.module.mambaetl.datasetdefinition.linelist.CXCALineListDatasetDefinition;
+import org.openmrs.module.mambaetl.datasetdefinition.linelist.CXCAScreeningLineListDatasetDefinition;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.annotation.Handler;
@@ -22,10 +22,10 @@ import java.util.List;
 
 import static org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper.*; //Static import DataSetEvaluatorHelper methods and inner classes
 
-@Handler(supports = { CXCALineListDatasetDefinition.class })
-public class CXCALineListDataSetEvaluator implements DataSetEvaluator {
+@Handler(supports = { CXCAScreeningLineListDatasetDefinition.class })
+public class CXCAScreeningLineListDataSetEvaluator implements DataSetEvaluator {
 	
-	private static final Log log = LogFactory.getLog(CXCALineListDataSetEvaluator.class);
+	private static final Log log = LogFactory.getLog(CXCAScreeningLineListDataSetEvaluator.class);
 	
 	private static final String ERROR_PROCESSING_RESULT_SET = "Error processing ResultSet: ";
 	
@@ -35,17 +35,17 @@ public class CXCALineListDataSetEvaluator implements DataSetEvaluator {
 	public DataSet evaluate(DataSetDefinition dataSetDefinition, EvaluationContext evalContext)
 			throws EvaluationException {
 
-		CXCALineListDatasetDefinition cxcaLineListDatasetDefinition = (CXCALineListDatasetDefinition) dataSetDefinition;
+		CXCAScreeningLineListDatasetDefinition cxcaScreeningLineListDatasetDefinition = (CXCAScreeningLineListDatasetDefinition) dataSetDefinition;
 		SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
 
 		ResultSetMapper resultSetMapper = new ResultSetMapper();
 
-		ValidateDates(data, cxcaLineListDatasetDefinition.getStartDate(), cxcaLineListDatasetDefinition.getEndDate());
+		ValidateDates(data, cxcaScreeningLineListDatasetDefinition.getStartDate(), cxcaScreeningLineListDatasetDefinition.getEndDate());
 
 		try (Connection connection = DataSetEvaluatorHelper.getDataSource().getConnection()) {
 			connection.setAutoCommit(false);
 
-			List<DataSetEvaluatorHelper.ProcedureCall> procedureCalls = createProcedureCalls(cxcaLineListDatasetDefinition);
+			List<DataSetEvaluatorHelper.ProcedureCall> procedureCalls = createProcedureCalls(cxcaScreeningLineListDatasetDefinition);
 
 			try (DataSetEvaluatorHelper.CallableStatementContainer statementContainer = prepareStatements(connection, procedureCalls)) {
 
@@ -66,13 +66,13 @@ public class CXCALineListDataSetEvaluator implements DataSetEvaluator {
 		return null;
 	}
 	
-	private List<ProcedureCall> createProcedureCalls(CXCALineListDatasetDefinition cxcaLineListDatasetDefinition) {
-		java.sql.Date startDate = new java.sql.Date(cxcaLineListDatasetDefinition.getStartDate().getTime());
-		java.sql.Date endDate = new java.sql.Date(cxcaLineListDatasetDefinition.getEndDate().getTime());
+	private List<ProcedureCall> createProcedureCalls(CXCAScreeningLineListDatasetDefinition cxcaScreeningLineListDatasetDefinition) {
+		java.sql.Date startDate = new java.sql.Date(cxcaScreeningLineListDatasetDefinition.getStartDate().getTime());
+		java.sql.Date endDate = new java.sql.Date(cxcaScreeningLineListDatasetDefinition.getEndDate().getTime());
 
 		return Collections.singletonList(
 
-                new ProcedureCall("{call sp_fact_dhis_tx_new_query(?,?)}", statement -> {
+                new ProcedureCall("{call sp_fact_line_list_cxca_scrn_query(?,?)}", statement -> {
                     statement.setDate(1, startDate);
                     statement.setDate(2, endDate);
                 })

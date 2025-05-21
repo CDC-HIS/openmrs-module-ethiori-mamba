@@ -7,13 +7,7 @@ CREATE PROCEDURE  sp_fact_line_list_tpt_linelist_query(
     IN REPORT_END_DATE DATE
 )
 BEGIN
-WITH client_identifier as (select person.person_id,
-                                  MAX(CASE WHEN pid.identifier_type = 5 THEN pid.identifier END) AS MRN,
-                                  MAX(CASE WHEN pid.identifier_type = 6 THEN pid.identifier END) AS UAN
-                           from mamba_dim_person person
-                                    left join mamba_dim_patient_identifier pid on person.person_id = pid.patient_id
-                           group by person_id),
-     FollowUp AS (SELECT follow_up.encounter_id,
+WITH FollowUp AS (SELECT follow_up.encounter_id,
                          follow_up.client_id,
                          date_of_event                       as hiv_confirmed_date,
                          art_antiretroviral_start_date       as art_start_date,
@@ -43,13 +37,8 @@ WITH client_identifier as (select person.person_id,
                          tb_prophylaxis_type                 AS TB_ProphylaxisType,
                          tb_prophylaxis_type_alternate_      AS TB_ProphylaxisTypeALT,
                          tpt_followup_6h_                       tpt_follow_up_inh,
-                         date_started_on_tuberculosis_prophy AS inhprophylaxis_started_date,
-                         date_completed_tuberculosis_prophyl AS InhprophylaxisCompletedDate,
                          why_eligible_reason_,
                          tb_diagnostic_test_result              tb_specimen_type,
-                         gender,
-                         age,
-                         uuid,
                          fluconazole_start_date              AS Fluconazole_Start_Date,
                          fluconazole_stop_date               as Fluconazole_End_Date,
                          transfer_in
@@ -60,8 +49,7 @@ WITH client_identifier as (select person.person_id,
                                 on follow_up.encounter_id = follow_up_2.encounter_id
                            join mamba_flat_encounter_follow_up_3 follow_up_3
                                 on follow_up.encounter_id = follow_up_3.encounter_id
-                           join mamba_dim_person person on follow_up.client_id = person_id
-                           join client_identifier pid on follow_up.client_id = pid.person_id),
+                           join mamba_dim_person person on follow_up.client_id = person_id),
      tmp_tpt_type as (SELECT encounter_id,
                              client_id,
                              TB_ProphylaxisType                                                                                                     AS TptType,
@@ -76,17 +64,17 @@ WITH client_identifier as (select person.person_id,
 
      tmp_tpt_start as (select encounter_id,
                               client_id,
-                              inhprophylaxis_started_date                                                                                                          as inhprophylaxis_started_date,
-                              ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY FollowUp.inhprophylaxis_started_date DESC , FollowUp.encounter_id DESC ) AS row_num
+                              tpt_start_date                                                                                                          as inhprophylaxis_started_date,
+                              ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY FollowUp.tpt_start_date DESC , FollowUp.encounter_id DESC ) AS row_num
                        from FollowUp
-                       where inhprophylaxis_started_date is not null
+                       where tpt_start_date is not null
                          and followup_date <= REPORT_END_DATE),
      tmp_tpt_completed as (select encounter_id,
                                   client_id,
-                                  InhprophylaxisCompletedDate                                                                                                          as InhprophylaxisCompletedDate,
-                                  ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY FollowUp.InhprophylaxisCompletedDate DESC , FollowUp.encounter_id DESC ) AS row_num
+                                  tpt_completed_date                                                                                                          as InhprophylaxisCompletedDate,
+                                  ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY FollowUp.tpt_completed_date DESC , FollowUp.encounter_id DESC ) AS row_num
                            from FollowUp
-                           where InhprophylaxisCompletedDate is not null
+                           where tpt_completed_date is not null
                              and followup_date <= REPORT_END_DATE),
 
      tmp_latest_follow_up as (SELECT encounter_id,
@@ -102,9 +90,7 @@ WITH client_identifier as (select person.person_id,
      latest_follow_up as (select * from tmp_latest_follow_up where row_num = 1),
      tmp_tpt as (SELECT f_case.encounter_id,
                         f_case.client_id,
-                        f_case.gender,
                         f_case.weight_in_kg,
-                        f_case.age,
                         f_case.hiv_confirmed_date,
                         f_case.art_start_date,
                         f_case.followup_date,
@@ -128,14 +114,13 @@ WITH client_identifier as (select person.person_id,
                         tuberculosis_drug_treatment_start_d As TBTx_StartDate,
                         tuberculosis_drug_treatment_start_d As TBTx_StartDate_GC,
                         date_active_tbrx_completed          As TBTx_CompletedDate,
-                        date_active_tbrx_completed          As TBTx_CompletedDate_GC,
-                        uuid                                as PatientGUID
+                        date_active_tbrx_completed          As TBTx_CompletedDate_GC
                  FROM FollowUp AS f_case
                           INNER JOIN latest_follow_up ON f_case.encounter_id = latest_follow_up.encounter_id)
 
-select tmp_tpt.gender                                                         Sex,
+select sex                                                         Sex,
        tmp_tpt.weight_in_kg                                                as Weight,
-       tmp_tpt.age                                                         as Age,
+       TIMESTAMPDIFF(YEAR,date_of_birth, REPORT_END_DATE)                  as Age,
        tpt_start.inhprophylaxis_started_date                               as TPT_Started_Date,
        tpt_completed.InhprophylaxisCompletedDate                           as TPT_Completed_Date,
        tpt_type.TptType                                                    as TPT_Type,
@@ -161,7 +146,6 @@ select tmp_tpt.gender                                                         Se
                                                                            as FollowupStatus,
        tmp_tpt.follow_up_status                                            as FollowupStatusChar,
        tmp_tpt.art_end_date                                                as ARTDoseEndDate,
-       tmp_tpt.PatientGUID                                                 as PatientGUID,
        tmp_tpt.WHOStage                                                    as WHOStage,
        AdultCD4Count,
        ChildCD4Count,
@@ -183,7 +167,8 @@ select tmp_tpt.gender                                                         Se
        Fluconazole_End_Date                                                as FluconazoleEndDate_GC
 
 FROM FollowUp
-         inner join tmp_tpt on tmp_tpt.encounter_id = FollowUp.encounter_id
+         join tmp_tpt on tmp_tpt.encounter_id = FollowUp.encounter_id
+         join mamba_dim_client client on tmp_tpt.client_id= client.client_id
          Left join tpt_start on tmp_tpt.client_id = tpt_start.client_id
          Left join tpt_completed on tmp_tpt.client_id = tpt_completed.client_id
          Left join tpt_type on tmp_tpt.client_id = tpt_type.client_id

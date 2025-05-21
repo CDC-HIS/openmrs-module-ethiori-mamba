@@ -76,7 +76,7 @@ public class PrEPNEWEvaluatorMamba implements DataSetEvaluator {
                     statement.setDate(1, startDate);
                     statement.setDate(2, endDate);
                     statement.setInt(3, 0);
-	                    statement.setString(4, dataSetDefinitionMamba.getPrEPNEWggregationTypes().getSqlValue());
+	                    statement.setString(4, dataSetDefinitionMamba.getPrEPNEWAggregationTypes().getSqlValue());
                 })
         );
 	}

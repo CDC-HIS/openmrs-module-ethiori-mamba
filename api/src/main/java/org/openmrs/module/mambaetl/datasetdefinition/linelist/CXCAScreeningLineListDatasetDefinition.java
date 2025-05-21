@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import java.util.Date;
 
 @Component
-public class CXCALineListDatasetDefinition extends BaseDataSetDefinition {
+public class CXCAScreeningLineListDatasetDefinition extends BaseDataSetDefinition {
 	
 	@ConfigurationProperty
 	private Date startDate;
