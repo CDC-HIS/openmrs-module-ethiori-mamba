@@ -60,32 +60,39 @@ WITH FollowUp as (select follow_up.encounter_id,
                                 (hpv_received_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE) OR (cytology_received_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE))),
      cx_screened as (select tmp_cx_screened.*,
                             CASE
-                                WHEN screening_type = 'Human Papillomavirus test' and
-                                     hpv_dna_screening_result = 'Negative' then 'Cervical Cancer screen: Negative'
-                                WHEN screening_type = 'Human Papillomavirus test' and
-                                     hpv_dna_screening_result = 'Positive' then 'Cervical Cancer screen: Positive'
-                                    #  WHEN screening_type='Human Papillomavirus test' and hpv_dna_screening_result ='Unknown' then 'Cervical Cancer screen: Suspected Cancer'
 
-                                WHEN screening_type = 'Visual Inspection of the Cervix
-with Acetic Acid (VIA)' and via_screening_result = 'VIA negative' then 'Cervical Cancer screen: Negative'
-                                WHEN screening_type = 'Visual Inspection of the Cervix
-with Acetic Acid (VIA)' and
-                                     (via_screening_result = 'VIA positive: eligible for cryo/thermo-coagulation' or
-                                      via_screening_result = 'VIA positive: eligible for cryo/thermo-coagula')
-                                    then 'Cervical Cancer screen: Positive'
-                                WHEN screening_type = 'Visual Inspection of the Cervix
-with Acetic Acid (VIA)' and via_screening_result = 'VIA positive: non-eligible for cryo/thermo-coagulation'
-                                    then 'Cervical Cancer screen: Positive'
-                                WHEN screening_type = 'Visual Inspection of the Cervix
-with Acetic Acid (VIA)' and via_screening_result = 'Suspicious for cervical cancer'
-                                    then 'Cervical Cancer screen: Suspected Cancer'
-                                    #            WHEN screening_type='Visual Inspection of the Cervix with Acetic Acid (VIA)' and via_screening_result = 'Unknown screening result'
-                                    #                then 'Cervical Cancer screen: Suspected Cancer'
-                                WHEN screening_type = 'Cytology' and
-                                     (cytology_result = 'Negative' OR cytology_result = 'ASCUS')
-                                    THEN 'Cervical Cancer screen: Negative'
-                                WHEN screening_type = 'Cytology' and cytology_result = '> Ascus'
-                                    THEN 'Cervical Cancer screen: Positive'
+
+                                #  WHEN screening_type='Human Papillomavirus test' and hpv_dna_screening_result ='Unknown' then 'Cervical Cancer screen: Suspected Cancer'
+
+                                   WHEN screening_type = 'Visual Inspection of the Cervix with Acetic Acid (VIA)' and
+                                        via_screening_result = 'VIA negative' then 'Cervical Cancer screen: Negative'
+                                   WHEN screening_type = 'Visual Inspection of the Cervix with Acetic Acid (VIA)' and
+                                        (via_screening_result = 'VIA positive: eligible for cryo/thermo-coagulation' or
+                                         via_screening_result = 'VIA positive: eligible for cryo/thermo-coagula' or
+                                         via_screening_result = 'VIA positive: non-eligible for cryo/thermo-coagulation')
+                                       then 'Cervical Cancer screen: Positive'
+                                   WHEN screening_type = 'Visual Inspection of the Cervix with Acetic Acid (VIA)' and
+                                        via_screening_result = 'Suspicious for cervical cancer' or via_screening_result = 'suspected cervical cancer'
+                                       then 'Cervical Cancer screen: Suspected Cancer'
+
+                                   WHEN screening_type = 'Human Papillomavirus test' and
+                                        hpv_dna_screening_result = 'Negative result'
+                                       then 'Cervical Cancer screen: Negative'
+                                   WHEN screening_type = 'Human Papillomavirus test' and
+                                        hpv_dna_screening_result = 'Positive'
+                                       and
+                                        (via_screening_result = 'VIA positive: eligible for cryo/thermo-coagulation' or
+                                         via_screening_result = 'VIA positive: eligible for cryo/thermo-coagula' or
+                                         via_screening_result = 'VIA positive: non-eligible for cryo/thermo-coagulation')
+                                       then 'Cervical Cancer screen: Positive'
+                                   WHEN screening_type = 'Human Papillomavirus test' and
+                                        hpv_dna_screening_result = 'Positive'
+                                       and via_screening_result = 'VIA negative' then 'Cervical Cancer screen: Negative'
+                                   WHEN screening_type = 'Cytology' and
+                                        (cytology_result = 'Negative' OR cytology_result = 'ASCUS')
+                                       THEN 'Cervical Cancer screen: Negative'
+                                   WHEN screening_type = 'Cytology' and cytology_result = '> Ascus'
+                                       THEN 'Cervical Cancer screen: Positive'
                                 END                                             AS screening_result,
                             client.uan,
                             client.mrn,
@@ -102,7 +109,7 @@ with Acetic Acid (VIA)' and via_screening_result = 'Suspicious for cervical canc
                                    on tmp_cx_screened.client_id = client.client_id
                      where row_num = 1
                        and TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) >= 15
-                       and not (screening_type = 'Human Papillomavirus test' and hpv_dna_screening_result = 'Positive' and via_screening_result is null )
+                      -- and not (screening_type = 'Human Papillomavirus test' and hpv_dna_screening_result = 'Positive' and via_screening_result is null )
      )
 select * from cx_screened;
 
