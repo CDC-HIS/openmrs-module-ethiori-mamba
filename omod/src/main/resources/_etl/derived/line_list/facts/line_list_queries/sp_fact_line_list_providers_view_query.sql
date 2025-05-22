@@ -806,11 +806,13 @@ BEGIN
                  from all_art_not_started_status)
 
     select tmp_address.patient_uuid,
+           client.mrn,
+           client.uan,
+           client.patient_name,
            tmp_address.client_id,
            tmp_address.patientname,
            tmp_address.age,
            tmp_address.sex,
-           tmp_address.client_id,
            tmp_address.Adrress,
            tpt.tpt_status,
            cervical.Cervical_status,
@@ -843,6 +845,7 @@ BEGIN
            tmp_3.nutritional_screening_result                                As NutritionalStatus,
            tmp_3.ns_adult                                                    As Nstatus
     from tmp_address
+          join mamba_dim_client client on tmp_address.client_id = client.client_id
              left join tpt
                        on tpt.client_id = tmp_address.client_id
              left join vl_eligibility on vl_eligibility.client_id = tmp_address.client_id
