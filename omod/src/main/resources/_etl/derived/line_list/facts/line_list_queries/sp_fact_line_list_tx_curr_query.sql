@@ -127,10 +127,13 @@ BEGIN
            Sex,
            Weight,
            cd4_count                                                                  as CD4,
-           fn_gregorian_to_ethiopian_calendar(hiv_confirmed_date, 'D/M/Y')            as 'HIV Confirmed Date in E.C',
-           fn_gregorian_to_ethiopian_calendar(art_start_date, 'D/M/Y')                as 'ART Start Date in E.C',
+           hiv_confirmed_date            as 'HIV Confirmed Date',
+           hiv_confirmed_date            as 'HIV Confirmed Date EC.',
+           art_start_date                as 'ART Start Date',
+           art_start_date                as 'ART Start Date EC.',
            CASE WHEN TB_SreeningResult = 'Negative result' THEN 'Negative' ELSE  TB_SreeningResult END           as 'TB Screening Result',
-           fn_gregorian_to_ethiopian_calendar(follow_up_date, 'D/M/Y')                as 'Follow-up Date in E.C',
+           follow_up_date                as 'Follow-up Date',
+           follow_up_date                as 'Follow-up Date EC.',
            CASE WHEN tx_curr.follow_up_status = 'Restart medication'     THEN 'Restart'
                ELSE tx_curr.follow_up_status
                END       as 'Follow-up Status',
@@ -154,12 +157,18 @@ BEGIN
            breast_feeding_status                                                      as 'Breastfeeding?',
            IF(breast_feeding_status = 'Yes' or pregnancy_status = 'Yes', 'Yes', 'No') as 'On PMTCT?',
            tpt_start.inhprophylaxis_started_date                                      as 'TPT Start Date',
+           tpt_start.inhprophylaxis_started_date                                      as 'TPT Start Date EC.',
            tpt_completed.InhprophylaxisCompletedDate                                  as 'TPT Completed Date',
+           tpt_completed.InhprophylaxisCompletedDate                                  as 'TPT Completed Date EC.',
            date_active_tbrx_completed                                                 as 'TB Treatment Completed Date',
+           date_active_tbrx_completed                                                 as 'TB Treatment Completed Date EC.',
            vl_sent_date.VL_Sent_Date                                                  as 'VL Sent Date',
+           vl_sent_date.VL_Sent_Date                                                  as 'VL Sent Date EC.',
            vl_performed_date.viral_load_test_status                                   as 'VL Status',
-           next_visit_date                                                               'Next Visit Date in E.C',
-           tx_curr.treatment_end_date                                                    'Treatment End Date in E.C.',
+           next_visit_date                                                               'Next Visit Date',
+           next_visit_date                                                               'Next Visit Date EC.',
+           tx_curr.treatment_end_date                                                    'Treatment End Date',
+           tx_curr.treatment_end_date                                                    'Treatment End Date EC.',
            client.mobile_no                                                           as 'Mobile No.'
     from tx_curr
              left join latestDSD on latestDSD.PatientId = tx_curr.PatientId
