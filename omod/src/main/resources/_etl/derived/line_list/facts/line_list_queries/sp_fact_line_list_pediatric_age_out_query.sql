@@ -66,7 +66,6 @@ BEGIN
                     fn_gregorian_to_ethiopian_calendar(
                             date_of_birth, 'D-M-Y'
                     )                                              AS date_of_birth_et,
-                    #                 reg.ageatdateofenrollment,
                     TIMESTAMPDIFF(YEAR, date_of_birth, registration_date)
                                                                    AS age_at_enrollment,
                     age
@@ -88,11 +87,11 @@ BEGIN
                     )                                              AS followupdate_ec,
                     follow_up_status,
                     CASE
-                        WHEN TIMESTAMPDIFF(DAY, next_visit_date, CURDATE()) >= 30
-                            AND TIMESTAMPDIFF(DAY, next_visit_date, CURDATE()) <= 60 THEN '1lost'
-                        WHEN TIMESTAMPDIFF(DAY, next_visit_date, CURDATE()) > 60
-                            AND TIMESTAMPDIFF(DAY, next_visit_date, CURDATE()) <= 90 THEN '2lost'
-                        WHEN TIMESTAMPDIFF(DAY, next_visit_date, CURDATE()) > 90 THEN 'dropped'
+                        WHEN TIMESTAMPDIFF(DAY, next_visit_date, REPORT_END_DATE) >= 30
+                            AND TIMESTAMPDIFF(DAY, next_visit_date, REPORT_END_DATE) <= 60 THEN '1lost'
+                        WHEN TIMESTAMPDIFF(DAY, next_visit_date, REPORT_END_DATE) > 60
+                            AND TIMESTAMPDIFF(DAY, next_visit_date, REPORT_END_DATE) <= 90 THEN '2lost'
+                        WHEN TIMESTAMPDIFF(DAY, next_visit_date, REPORT_END_DATE) > 90 THEN 'dropped'
                         ELSE ' ' END                               AS current_status,
                     firstArtRegimen2.regimen                       AS arv_regimen_when_started_art,
                     Follow_up.regimen                              AS arv_regimen,
