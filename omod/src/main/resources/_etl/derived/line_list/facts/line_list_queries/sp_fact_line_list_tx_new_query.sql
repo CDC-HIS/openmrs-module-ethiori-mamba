@@ -128,15 +128,19 @@ BEGIN
            nutritional_screening_result                                       AS 'Nutritional Status',
            TB_SreeningResult                                                  AS 'TB Screening Result',
            current_who_hiv_stage                                              AS 'Enrollment Date in E.C',
-           fn_gregorian_to_ethiopian_calendar(hiv_confirmed_date, 'D/M/Y')    AS 'HIV Confirmed Date in E.C',
-           fn_gregorian_to_ethiopian_calendar(tx_new.art_start_date, 'D/M/Y') AS 'ART Start Date in E.C',
+           hiv_confirmed_date    AS 'HIV Confirmed Date EC.',
+           hiv_confirmed_date    AS 'HIV Confirmed Date',
+           tx_new.art_start_date AS 'ART Start Date',
+           tx_new.art_start_date AS 'ART Start Date EC.',
            TIMESTAMPDIFF(DAY, hiv_confirmed_date, tx_new.art_start_date)      AS 'Days Difference',
            pregnancy_status                                                   AS 'Pregnant?',
            breast_feeding_status                                              AS 'Breastfeeding?',
            regimen                                                            AS 'Regimen',
            ARTDoseDays                                                        AS 'ARV Dose Days',
-           next_visit_date                                                    AS 'Next Visit Date in E.C',
-           treatment_end_date                                                 AS 'Treatment End Date in E.C',
+           next_visit_date                                                    AS 'Next Visit Date',
+           next_visit_date                                                    AS 'Next Visit Date EC.',
+           treatment_end_date                                                 AS 'Treatment End Date',
+           treatment_end_date                                                 AS 'Treatment End Date EC.',
            mobile_no                                                          AS 'Mobile No.'
     FROM tx_new;
 

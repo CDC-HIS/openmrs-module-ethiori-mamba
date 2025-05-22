@@ -2,7 +2,7 @@ DELIMITER //
 
 DROP PROCEDURE IF EXISTS sp_fact_line_list_pediatric_age_out_query;
 
-CREATE PROCEDURE sp_fact_line_list_pediatric_age_out_query(IN REPORT_START_DATE DATE,IN REPORT_END_DATE DATE)
+CREATE PROCEDURE sp_fact_line_list_pediatric_age_out_query(IN REPORT_START_DATE DATE, IN REPORT_END_DATE DATE)
 BEGIN
     WITH Follow_up AS (SELECT follow_up_date_followup_                            AS follow_up_date,
                               follow_up.client_id                                 AS patient_id,
@@ -37,7 +37,7 @@ BEGIN
                        where follow_up_date_followup_
                                  <= REPORT_END_DATE)
        , firstArtRegimen as (select patient_id,
-                                    follow_up_date                                                                         as followupdate,
+                                    follow_up_date                                                                              as followupdate,
                                     encounter_id,
                                     ROW_NUMBER() OVER (PARTITION BY patient_id ORDER BY follow_up_date DESC, encounter_id DESC) AS rn
                              FROM Follow_up
@@ -57,34 +57,23 @@ BEGIN
                                           and art_sart_date is not null)
 
 
-    SELECT DISTINCT Follow_up.patient_id,
-                    Follow_up.NAME                                 AS patientname,
+    SELECT DISTINCT Follow_up.NAME                            AS `Patient Name`,
                     mrn,
                     uan,
                     sex,
-                    date_of_birth                                  AS date_of_birth_gc,
-                    fn_gregorian_to_ethiopian_calendar(
-                            date_of_birth, 'D-M-Y'
-                    )                                              AS date_of_birth_et,
+                    date_of_birth                             AS `Date of birth`,
+                    date_of_birth                             AS `Date of birth EC.`,
                     TIMESTAMPDIFF(YEAR, date_of_birth, registration_date)
-                                                                   AS age_at_enrollment,
-                    age
-                                                                   AS current_age,
-                    fn_gregorian_to_ethiopian_calendar(
-                            registration_date, 'D-M-Y'
-                    )                                              AS enrollment_date,
-                    fn_gregorian_to_ethiopian_calendar(
-                            date_hiv_confirmed, 'D-M-Y'
-                    )                                              AS hivconfirmed_date_et,
-                    date_hiv_confirmed                             AS hivconfirmed_date_gc,
-                    fn_gregorian_to_ethiopian_calendar(
-                            art_sart_date, 'D-M-Y'
-                    )                                              AS artstartdate_et,
-                    art_sart_date                                  AS artstarteddate_gc,
-                    follow_up_date                                 AS followupdate_gc,
-                    fn_gregorian_to_ethiopian_calendar(
-                            follow_up_date, 'D-M-Y'
-                    )                                              AS followupdate_ec,
+                                                              AS age_at_enrollment,
+                    age                                       AS current_age,
+                    registration_date                         as `Enrollment Date`,
+                    registration_date                         as `Enrollment Date EC.`,
+                    date_hiv_confirmed                        as `HIV Confirmed Date`,
+                    date_hiv_confirmed                        as `HIV Confirmed Date EC.`,
+                    art_sart_date                             as `Art Start Date`,
+                    art_sart_date                             as `Art Start Date EC.`,
+                    follow_up_date                            AS `Follow Up Date`,
+                    follow_up_date                            AS `Follow Up Date EC.`,
                     follow_up_status,
                     CASE
                         WHEN TIMESTAMPDIFF(DAY, next_visit_date, REPORT_END_DATE) >= 30
@@ -92,26 +81,20 @@ BEGIN
                         WHEN TIMESTAMPDIFF(DAY, next_visit_date, REPORT_END_DATE) > 60
                             AND TIMESTAMPDIFF(DAY, next_visit_date, REPORT_END_DATE) <= 90 THEN '2lost'
                         WHEN TIMESTAMPDIFF(DAY, next_visit_date, REPORT_END_DATE) > 90 THEN 'dropped'
-                        ELSE ' ' END                               AS current_status,
-                    firstArtRegimen2.regimen                       AS arv_regimen_when_started_art,
-                    Follow_up.regimen                              AS arv_regimen,
-                    art_dose                                       AS ndays,
-                    CASE
-                        WHEN next_visit_date IS NULL THEN NULL
-                        ELSE fn_gregorian_to_ethiopian_calendar(
-                                next_visit_date, 'D-M-Y'
-                             )
-                        END                                        AS nextvisitdate,
+                        ELSE ' ' END                          AS current_status,
+                    firstArtRegimen2.regimen                  AS arv_regimen_when_started_art,
+                    Follow_up.regimen                         AS `Regimen`,
+                    art_dose                                  AS `Dose Days`,
+                    next_visit_date                           AS `Next Visit Date`,
+                    next_visit_date                           AS `Next Visit Date EC.`,
                     DATE_ADD(
                             date_of_birth, INTERVAL 15 YEAR
-                    )                                              AS date_of_15th_birthday_gc,
-                    fn_gregorian_to_ethiopian_calendar(DATE_ADD(
-                                                               date_of_birth, INTERVAL 15 YEAR
-                                                       ), 'D-M-Y') AS date_of_15th_birthday_et,
+                    )                                         AS `Date of 15th Birth Day`,
+                    DATE_ADD(date_of_birth, INTERVAL 15 YEAR) AS `Date of 15th Birth Day EC.`,
                     CASE
-                        WHEN TIMESTAMPDIFF(MONTH, date_of_birth, REPORT_END_DATE)  >= 15 THEN 'YES'
+                        WHEN TIMESTAMPDIFF(MONTH, date_of_birth, REPORT_END_DATE) >= 15 THEN 'YES'
                         ELSE 'NO'
-                        END                                        AS age_out
+                        END                                   AS age_out
     FROM latest_follow_up_encounter
              left join Follow_up on latest_follow_up_encounter.encounter_id = Follow_up.encounter_id
 
@@ -119,7 +102,7 @@ BEGIN
              LEFT OUTER JOIN firstArtRegimen2 on firstArtRegimen2.patient_id = Follow_up.patient_id
     where rn = 1
 
-      and (TIMESTAMPDIFF(YEAR, date_of_birth, registration_date)<= 15)
+      and (TIMESTAMPDIFF(YEAR, date_of_birth, registration_date) <= 15)
     order by patientname;
 END //
 

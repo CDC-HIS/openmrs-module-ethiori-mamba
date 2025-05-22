@@ -19,9 +19,9 @@ BEGIN
         SET filter_condition =
                 ' factor in (''NEWLY STARTED'', ''STILL ON CARE'', ''RESTART'', ''TI'', ''TRACED BACK'')';
         SET columns_list = 'patient_name as `patient name`, MRN , UAN , TIMESTAMPDIFF(YEAR, date_of_birth, ?) as age,
-       sex, regimen , follow_up_status_curr as `follow up status` , art_start_date_curr as `art start date` , adherence ,
+       sex, regimen , follow_up_status_curr as `follow up status` , art_start_date_curr as `art start date`, art_start_date_curr as `art start date EC.` , adherence ,
        CASE WHEN in_prev_period THEN ''Counted'' ELSE '''' END   AS `Previous status`, pregnancy_status as `Pregnancy status`,
-       nutritional_status_of_adult as `Nutritional status`, FollowUpDate_curr as `Follow up date`, next_visit_date as `Appointment date`,
+       nutritional_status_of_adult as `Nutritional status`, FollowUpDate_curr as `Follow up date`, FollowUpDate_curr as `Follow up date EC.`, next_visit_date as `Appointment date`, next_visit_date as `Appointment date EC.`,
        dsd_category as `Dsd category`';
     ELSEIF REPORT_TYPE = 'TX_CURR_LAST_MONTH' THEN
         -- Clients who were in TX_CURR in the previous reporting period.
@@ -34,10 +34,13 @@ BEGIN
            regimen,
            follow_up_status_prev                                 as `follow up status`,
            art_start_date_prev                                   as `art start date`,
+           art_start_date_prev                                   as `art start date EC.`,
            adherence,
            visit_type `schedule type`,
            FollowUpDate_prev                                     as `Follow up date`,
-           next_visit_date                                       as `Appointment date` ';
+           FollowUpDate_prev                                     as `Follow up date EC.`,
+           next_visit_date                                       as `Appointment date`,
+           next_visit_date                                       as `Appointment date EC.` ';
     ELSEIF REPORT_TYPE = 'TX_CURR_NEWLY_INCLUDED' THEN
         -- Corresponds to factors: 'NEWLY STARTED', 'RESTART', 'TI', 'TRACED BACK' , 'TO/TI'
         SET filter_condition = ' factor in (''TRACED BACK'', ''RESTART'', ''TI'', ''TO/TI'', ''NEWLY STARTED'')';
@@ -49,10 +52,13 @@ BEGIN
            regimen,
            follow_up_status_curr                                 as `follow up status`,
            art_start_date_curr                                   as `art start date`,
+           art_start_date_curr                                   as `art start date EC.`,
            adherence,
            visit_type `schedule type`,
            FollowUpDate_curr                                     as `Follow up date`,
+           FollowUpDate_curr                                     as `Follow up date EC.`,
            next_visit_date                                       as `Appointment date`,
+           next_visit_date                                       as `Appointment date EC.`,
            factor as `Added status` ';
     ELSEIF REPORT_TYPE = 'TX_CURR_EXCLUDED_THIS_MONTH' THEN
         -- Corresponds to factors: 'TO', 'DEAD', 'LOST', 'DROP', 'STOP', 'NOT UPDATED'
@@ -65,10 +71,13 @@ BEGIN
            regimen,
            follow_up_status_curr                                 as `follow up status`,
            art_start_date_curr                                   as `art start date`,
+           art_start_date_curr                                   as `art start date EC.`,
            adherence,
            visit_type `schedule type`,
            FollowUpDate_curr                                     as `Follow up date`,
+           FollowUpDate_curr                                     as `Follow up date EC.`,
            next_visit_date                                       as `Appointment date`,
+           next_visit_date                                       as `Appointment date EC.`,
            factor as `Deduct follow up status` ';
     ELSEIF REPORT_TYPE = 'OTHER_OUTCOME' THEN
         -- Corresponds to factors: 'TO', 'DEAD', 'LOST', 'DROP', 'STOP'
@@ -81,9 +90,11 @@ BEGIN
            regimen,
            follow_up_status_curr                                 as `follow up status`,
            art_start_date_curr                                   as `art start date`,
+           art_start_date_curr                                   as `art start date EC.`,
            adherence,
            visit_type `schedule type`,
            FollowUpDate_curr                                     as `Follow up date`,
+           FollowUpDate_curr                                     as `Follow up date EC.`,
            next_visit_date_prev                                       as `Appointment date` ';
     ELSEIF REPORT_TYPE = 'NOT_UPDATED' THEN
         -- Corresponds to factor: 'NOT UPDATED'
@@ -137,12 +148,15 @@ BEGIN
            regimen,
            follow_up_status_curr                                 as `follow up status`,
            art_start_date_curr                                   as `art start date`,
+           art_start_date_curr                                   as `art start date EC.`,
            adherence,
            visit_type `schedule type`,
            FollowUpDate_curr                                     as `Follow up date`,
+           FollowUpDate_curr                                     as `Follow up date EC.`,
            next_visit_date                                       as `Appointment date`,
-           assessment_date as `enrollment date GC`,
-           fn_gregorian_to_ethiopian_calendar(assessment_date,''D/M/Y'') as `enrollment date EC`,
+           next_visit_date                                       as `Appointment date EC.`,
+           assessment_date as `enrollment date`,
+           assessment_date as `enrollment date EC.`,
            dsd_category as `latest DSD category` ';
     ELSE
         SET filter_condition = ' 1 = 1';
