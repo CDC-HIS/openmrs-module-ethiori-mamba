@@ -116,7 +116,7 @@ public class TBPrevDenominatorEvaluatorMamba implements DataSetEvaluator {
         int count = 0;
         String[] duration = {"Newly enrolled on ART", "Previously Enrolled on ART"};
 
-        Map<String, DataSetRow> rowsMap = new HashMap<>();
+        Map<String, DataSetRow> rowsMap = new LinkedHashMap<>();
 
 
         for (ResultSet resultSet : resultSets) {
@@ -146,9 +146,7 @@ public class TBPrevDenominatorEvaluatorMamba implements DataSetEvaluator {
 
 
                     if (originalColumnName.equalsIgnoreCase("sex")) {
-                        // If 'sex' column exists, add it without duration prefix
                         columnName = originalColumnName;
-                        // Ensure sex column is only added once if it appears in multiple result sets
                         if (!row.getColumnValues().containsKey(new DataSetColumn(columnName, columnName, columnValue != null ? columnValue.getClass() : Object.class))) {
                             row.addColumnValue(new DataSetColumn(columnName, columnName, columnValue != null ? columnValue.getClass() : Object.class), columnValue);
                         }

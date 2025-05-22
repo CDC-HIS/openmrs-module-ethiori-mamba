@@ -72,7 +72,7 @@ public class TBARTDATIMReportsMamba implements ReportManager {
 		
 		TBArtDataSetDefinitionMamba tbArtNewDataSetDefinitionMamba = new TBArtDataSetDefinitionMamba();
 		tbArtNewDataSetDefinitionMamba.addParameters(getParameters());
-		tbArtNewDataSetDefinitionMamba.setTbArtAggregationTypes(TBArtAggregationTypes.ALREADY_ON_ART);
+		tbArtNewDataSetDefinitionMamba.setTbArtAggregationTypes(TBArtAggregationTypes.NEW_ON_ART);
 		tbArtNewDataSetDefinitionMamba.setDescription("New on ART");
 		reportDefinition.addDataSetDefinition("New on ART",
 		    EthiOhriUtil.map(tbArtNewDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
