@@ -68,7 +68,7 @@ WITH FollowUp as (select follow_up.encounter_id,
      tmp_address as (select patient_uuid,
                             client_id,
                             patient_name                                  AS PatientName,
-                            timestampdiff(YEAR, date_of_birth, curdate()) AS Age,
+                            timestampdiff(YEAR, date_of_birth, END_DATE) AS Age,
                             sex                                           as sex,
                             CASE
                                 WHEN
@@ -131,7 +131,7 @@ WITH FollowUp as (select follow_up.encounter_id,
                                            ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY date_active_tb_treatment_completed DESC, encounter_id DESC) AS row_num
                                     FROM FollowUp
                                     WHERE date_active_tb_treatment_completed IS NOT NULL
-                                      and TIMESTAMPDIFF(DAY, date_active_tb_treatment_completed, curdate()) < 1095),
+                                      and TIMESTAMPDIFF(DAY, date_active_tb_treatment_completed, END_DATE) < 1095),
      tb_treatment_completed as (select * from tmp_tb_treatment_completed where row_num = 1),
 
      tb_treatment_completed_2 as (SELECT client_id,
@@ -139,7 +139,7 @@ WITH FollowUp as (select follow_up.encounter_id,
                                          ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY date_active_tb_treatment_completed DESC, encounter_id DESC) AS row_num
                                   FROM FollowUp
                                   where date_active_tb_treatment_completed is not null
-                                    and TIMESTAMPDIFF(DAY, date_active_tb_treatment_completed, curdate()) < 1095
+                                    and TIMESTAMPDIFF(DAY, date_active_tb_treatment_completed, END_DATE) < 1095
                                     and inhprophylaxis_completed_date is null
                                     and inhprophylaxis_discontinued_date is null
                                     and inhprophylaxis_started_date),
@@ -182,7 +182,7 @@ WITH FollowUp as (select follow_up.encounter_id,
                              client_id,
                              Case
                                  When timestampdiff(DAY, tb_treatment_completed.ActiveTBTreatmentCompletedDate,
-                                                         curdate()) < 1095
+                                                    END_DATE) < 1095
                                      THEN 'Treatment for TB'
                                  END as tpt_status
                       from tb_treatment_completed
@@ -206,11 +206,11 @@ WITH FollowUp as (select follow_up.encounter_id,
         ,
      tpt_silver_bronze_1 as (select client_id,
                                     Case
-                                        When TIMESTAMPDIFF(DAY, tpt_start.inhprophylaxis_started_date, CURDATE()) <=
+                                        When TIMESTAMPDIFF(DAY, tpt_start.inhprophylaxis_started_date, END_DATE) <=
                                              270
                                             THEN 'Silver'
                                         When TIMESTAMPDIFF(
-                                                 DAY, tpt_start.inhprophylaxis_started_date, CURDATE()) > 270
+                                                 DAY, tpt_start.inhprophylaxis_started_date, END_DATE) > 270
                                             THEN 'Bronze1'
                                         END as tpt_status
                              from tpt_start
@@ -248,7 +248,7 @@ WITH FollowUp as (select follow_up.encounter_id,
                                          When
                                              timestampdiff(DAY,
                                                      tb_treatment_completed_2.ActiveTBTreatmentCompletedDate,
-                                                     CURDATE()) >= 1095
+                                                           END_DATE) >= 1095
                                              THEN 'Bronze5'
                                          END as tpt_status
                               from tb_treatment_completed_2
@@ -419,13 +419,13 @@ WITH FollowUp as (select follow_up.encounter_id,
                               THEN date_add(f_case.follow_up_date, interval 181 day)
                           WHEN sub_switch_date.FollowupDate IS not NULL
                               THEN date_add(sub_switch_date.FollowupDate, interval 181 day)
-                          WHEN ((timestampdiff(month, f_case.art_start_date, curdate()) <= 12)
+                          WHEN ((timestampdiff(month, f_case.art_start_date, END_DATE) <= 12)
                               AND (f_case.pregnancy_status is null OR f_case.pregnancy_status = 'No')
                               AND sub_switch_date.FollowupDate IS NULL
                               AND vlperfdate.viral_load_ref_date IS NULL
                               AND (vlperfdate.viral_load_count IS NULL))
                               THEN date_add(f_case.art_start_date, interval 181 day)
-                          WHEN ((timestampdiff(month, f_case.art_start_date, curdate()) <= 12)
+                          WHEN ((timestampdiff(month, f_case.art_start_date, END_DATE) <= 12)
                               AND (f_case.pregnancy_status is null OR f_case.pregnancy_status = 'No')
                               AND (f_case.breastfeeding_status is null OR f_case.breastfeeding_status = 'No')
                               AND (sub_switch_date.FollowupDate IS NULL or (
@@ -434,7 +434,7 @@ WITH FollowUp as (select follow_up.encounter_id,
                               AND vlperfdate.viral_load_ref_date IS NOT NULL
                               AND (vlperfdate.viral_load_count IS NULL OR vlperfdate.viral_load_count < 51))
                               THEN DATE_ADD(vlperfdate.viral_load_ref_date, interval 181 day)
-                          WHEN ((timestampdiff(month, f_case.art_start_date, curdate()) > 12)
+                          WHEN ((timestampdiff(month, f_case.art_start_date, END_DATE) > 12)
                               AND (f_case.pregnancy_status is null OR f_case.pregnancy_status = 'No')
                               AND (f_case.breastfeeding_status is null OR f_case.breastfeeding_status = 'No')
                               AND (sub_switch_date.FollowupDate IS NULL OR
@@ -443,15 +443,15 @@ WITH FollowUp as (select follow_up.encounter_id,
                               AND vlperfdate.viral_load_ref_date IS NOT NULL
                               AND (vlperfdate.viral_load_count IS NULL OR vlperfdate.viral_load_count < 51))
                               THEN DATE_ADD(vlperfdate.viral_load_ref_date, interval 365 day)
-                          WHEN ((timestampdiff(month, f_case.art_start_date, curdate()) > 12)
+                          WHEN ((timestampdiff(month, f_case.art_start_date, END_DATE) > 12)
                               AND (f_case.pregnancy_status is null OR f_case.pregnancy_status = 'No')
                               AND (f_case.breastfeeding_status is null OR f_case.breastfeeding_status = 'No')
                               AND sub_switch_date.FollowupDate IS NULL
                               AND
                                 vlperfdate.viral_load_ref_date IS NULL
                               AND (vlperfdate.viral_load_count IS NULL))
-                              THEN curdate()
-                          WHEN ((timestampdiff(month, f_case.art_start_date, curdate()) <= 3)
+                              THEN END_DATE
+                          WHEN ((timestampdiff(month, f_case.art_start_date, END_DATE) <= 3)
                               AND (f_case.pregnancy_status = 'Yes')
                               AND (f_case.breastfeeding_status is null or f_case.breastfeeding_status = 'No')
                               AND sub_switch_date.FollowupDate IS NULL
@@ -459,39 +459,39 @@ WITH FollowUp as (select follow_up.encounter_id,
                               AND (vlperfdate.viral_load_count IS NULL)
                               )
                               THEN DATE_ADD(f_case.art_start_date, INTERVAL 91 DAY)
-                          WHEN ((timestampdiff(month, f_case.art_start_date, curdate()) > 3)
-                              AND (timestampdiff(week, CURDATE(), DATE_ADD(f_case.lmp_date, INTERVAL 280 DAY)) <
+                          WHEN ((timestampdiff(month, f_case.art_start_date, END_DATE) > 3)
+                              AND (timestampdiff(week, END_DATE, DATE_ADD(f_case.lmp_date, INTERVAL 280 DAY)) <
                                    34 and
                                    f_case.lmp_date is not null)
                               AND vlperfdate.viral_load_ref_date IS not NULL
                               AND (vlperfdate.viral_load_count IS NULL OR vlperfdate.viral_load_count < 51)
-                              AND (Abs(timestampdiff(month, vlperfdate.viral_load_ref_date, CURDATE())) >= 3)
+                              AND (Abs(timestampdiff(month, vlperfdate.viral_load_ref_date, END_DATE)) >= 3)
                               AND (f_case.pregnancy_status = 'Yes')
                               )
-                              THEN CURDATE()
-                          WHEN ((TIMESTAMPDIFF(month, f_case.art_start_date, CURDATE()) > 3)
+                              THEN END_DATE
+                          WHEN ((TIMESTAMPDIFF(month, f_case.art_start_date, END_DATE) > 3)
                               AND (f_case.lmp_date is not null)
-                              AND (TIMESTAMPDIFF(WEEK, CURDATE(), DATE_ADD(f_case.lmp_date, interval 280 DAY)) < 34)
+                              AND (TIMESTAMPDIFF(WEEK, END_DATE, DATE_ADD(f_case.lmp_date, interval 280 DAY)) < 34)
                               AND vlperfdate.viral_load_ref_date IS NULL
                               AND (f_case.pregnancy_status = 'Yes')
                               )
-                              THEN CURDATE()
+                              THEN END_DATE
                           WHEN (
                               (f_case.pregnancy_status = 'Yes')
-                                  AND (TIMESTAMPDIFF(MONTH, f_case.art_start_date, CURDATE()) > 3)
+                                  AND (TIMESTAMPDIFF(MONTH, f_case.art_start_date, END_DATE) > 3)
                                   AND f_case.lmp_date is null
                                   AND
-                              (TIMESTAMPDIFF(WEEK, CURDATE(), DATE_ADD(f_case.follow_up_date, INTERVAL 280 day)) <
+                              (TIMESTAMPDIFF(WEEK, END_DATE, DATE_ADD(f_case.follow_up_date, INTERVAL 280 day)) <
                                34)
                                   AND vlperfdate.viral_load_ref_date IS not NULL
                                   AND (vlperfdate.viral_load_count IS NULL OR vlperfdate.viral_load_count < 51)
-                                  AND (timestampdiff(MONTH, vlperfdate.viral_load_ref_date, curdate()) >= 3)
+                                  AND (timestampdiff(MONTH, vlperfdate.viral_load_ref_date, END_DATE) >= 3)
                               )
-                              THEN CURDATE()
+                              THEN END_DATE
                           WHEN (
                               f_case.lmp_date is not null
                                   AND
-                              (TIMESTAMPDIFF(WEEK, CURDATE(), DATE_ADD(f_case.lmp_date, INTERVAL 280 DAY)) < 34)
+                              (TIMESTAMPDIFF(WEEK, END_DATE, DATE_ADD(f_case.lmp_date, INTERVAL 280 DAY)) < 34)
                                   AND vlperfdate.viral_load_ref_date IS not NULL
                                   AND (f_case.pregnancy_status = 'Yes')
                               )
@@ -499,7 +499,7 @@ WITH FollowUp as (select follow_up.encounter_id,
                           WHEN (
                               (f_case.pregnancy_status = 'Yes')
                                   AND f_case.lmp_date is not null
-                                  AND (DATE_ADD(f_case.lmp_date, interval 280 DAY) <= curdate())
+                                  AND (DATE_ADD(f_case.lmp_date, interval 280 DAY) <= END_DATE)
                                   AND (vlperfdate.viral_load_ref_date IS NULL or
                                        vlperfdate.viral_load_ref_date < DATE_ADD(f_case.lmp_date, INTERVAL 280 DAY))
                               )
@@ -523,7 +523,7 @@ WITH FollowUp as (select follow_up.encounter_id,
                                   AND vlperfdate.viral_load_ref_date IS not NULL
                                   AND (vlperfdate.viral_load_ref_date < f_case.follow_up_date and
                                        TIMESTAMPDIFF(DAY, vlperfdate.viral_load_ref_date,
-                                                          curdate()) > 180)
+                                                     END_DATE) > 180)
                               )
                               THEN DATE_ADD(vlperfdate.viral_load_ref_date, INTERVAL 181 DAY)
                           WHEN (
@@ -555,16 +555,16 @@ WITH FollowUp as (select follow_up.encounter_id,
                           When (
                               (f_case.breastfeeding_status = 'Yes')
                                   AND vlperfdate.viral_load_ref_date IS not NULL
-                                  AND (timestampdiff(day, vlperfdate.viral_load_ref_date, curdate()) >= 90)
+                                  AND (timestampdiff(day, vlperfdate.viral_load_ref_date, END_DATE) >= 90)
                               )
-                              THEN curdate()
+                              THEN END_DATE
                           When (
                               (f_case.pregnancy_status = 'Yes')
                                   AND vlperfdate.viral_load_ref_date IS not NULL
-                                  AND (timestampdiff(DAY, vlperfdate.viral_load_ref_date, curdate()) >= 90)
+                                  AND (timestampdiff(DAY, vlperfdate.viral_load_ref_date, END_DATE) >= 90)
                               )
-                              THEN CURDATE()
-                          ELSE CURDATE() End AS eligiblityDate
+                              THEN END_DATE
+                          ELSE END_DATE End AS eligiblityDate
 
 
                FROM FollowUp AS f_case
@@ -586,22 +586,22 @@ WITH FollowUp as (select follow_up.encounter_id,
                                        THEN 'Viral Load Not Applicable 2'
                                    When tmp_3.art_start_date is not null
                                        and tmp_3.follow_up_status in ('Alive', 'Restart medication') and
-                                        tmp_3.eligiblityDate > curdate()
-                                       and timestampdiff(month, tmp_3.art_start_date, curdate()) < 12 and
+                                        tmp_3.eligiblityDate > END_DATE
+                                       and timestampdiff(month, tmp_3.art_start_date, END_DATE) < 12 and
                                         tmp_3.viral_load_perform_date is null
                                        THEN 'Viral Load Not Applicable 1'
-                                   When tmp_3.eligiblityDate <= curdate() and tmp_3.art_start_date is not null
+                                   When tmp_3.eligiblityDate <= END_DATE and tmp_3.art_start_date is not null
                                        and tmp_3.follow_up_status = 'Restart medication'
                                        THEN 'Eligible for Viral Load 3'
-                                   When tmp_3.eligiblityDate <= curdate() and tmp_3.art_start_date is not null
+                                   When tmp_3.eligiblityDate <= END_DATE and tmp_3.art_start_date is not null
                                        and tmp_3.follow_up_status in ('Alive', 'Restart medication')
                                        THEN 'Eligible for Viral Load 1'
-                                   When tmp_3.eligiblityDate <= curdate()
+                                   When tmp_3.eligiblityDate <= END_DATE
                                        and tmp_3.follow_up_status in ('Alive', 'Restart medication')
                                        and tmp_3.viral_load_perform_date is null
-                                       and timestampdiff(month, tmp_3.art_start_date, curdate()) >= 12
+                                       and timestampdiff(month, tmp_3.art_start_date, END_DATE) >= 12
                                        THEN 'Eligible for Viral Load 2'
-                                   When tmp_3.eligiblityDate > curdate()
+                                   When tmp_3.eligiblityDate > END_DATE
                                        THEN 'Viral Load Done'
                                    When tmp_3.art_start_date is null and tmp_3.follow_up_status is null
                                        THEN 'Not Started ART'
@@ -624,7 +624,7 @@ WITH FollowUp as (select follow_up.encounter_id,
                             assessment_status,
                             ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
                      FROM FollowUp
-                     WHERE follow_up_date <= curdate()
+                     WHERE follow_up_date <= END_DATE
                        and assessment_date is not null),
      dsd_cat as (select *
                  from tmp_dsd_cat
@@ -689,7 +689,7 @@ WITH FollowUp as (select follow_up.encounter_id,
                                                      'Carcinoma in situ',
                                                      'Other'
                         )
-                      and FollowUp.follow_up_date <= curdate()
+                      and FollowUp.follow_up_date <= END_DATE
                       and FollowUp.client_id not in (select cervical_1.client_id from cervical_1)
                       and FollowUp.client_id not in (select cervical_2.client_id
                                                      from cervical_2)
@@ -701,7 +701,7 @@ WITH FollowUp as (select follow_up.encounter_id,
                                ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
                         FROM FollowUp
                         where (councelling_given is not null or cervical_cancer_screening_status is not null)
-                          and follow_up_date <= curdate()
+                          and follow_up_date <= END_DATE
                           and cervical_cancer_screening_status = 'Cervical cancer screening performed'),
      tmp_2_cervical_5 as (select * from tmp_cervical_5 where row_num = 1),
      cervical_5 as (select FollowUp.client_id
@@ -709,7 +709,7 @@ WITH FollowUp as (select follow_up.encounter_id,
                     from FollowUp
                              inner join tmp_2_cervical_5 on FollowUp.encounter_id = tmp_2_cervical_5.encounter_id
                     where FollowUp.ccs_next_date
-                        > curdate()
+                        > END_DATE
                       and FollowUp.client_id not in (select cervical_1.client_id from cervical_1)
                       and FollowUp.client_id not in (select cervical_2.client_id
                                                      from cervical_2)
@@ -750,7 +750,7 @@ WITH FollowUp as (select follow_up.encounter_id,
 
      cervical_6 as (select client_id, Cervical_status
                     from cervical_55
-                    where CCS_Next_Date < curdate()
+                    where CCS_Next_Date < END_DATE
                     UNION
                     select client_id, Cervical_status
                     from cervical_66),

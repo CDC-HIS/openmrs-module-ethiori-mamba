@@ -73,7 +73,7 @@ public class PediatricAgeOutLineListDataSetEvaluator implements DataSetEvaluator
 
 		return Collections.singletonList(
 
-                new ProcedureCall("{call sp_fact_dhis_tx_new_query(?,?)}", statement -> {
+                new ProcedureCall("{call sp_fact_line_list_pediatric_age_out_query(?,?)}", statement -> {
                     statement.setDate(1, startDate);
                     statement.setDate(2, endDate);
                 })
