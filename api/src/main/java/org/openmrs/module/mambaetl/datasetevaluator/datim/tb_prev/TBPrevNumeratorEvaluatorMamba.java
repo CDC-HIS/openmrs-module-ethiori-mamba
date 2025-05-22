@@ -116,7 +116,7 @@ public class TBPrevNumeratorEvaluatorMamba implements DataSetEvaluator {
         int count = 0;
         String[] duration = {"Newly enrolled on ART", "Previously Enrolled on ART"};
 
-        Map<String, DataSetRow> rowsMap = new HashMap<>();
+        Map<String, DataSetRow> rowsMap = new LinkedHashMap<>();
 
 
         for (ResultSet resultSet : resultSets) {

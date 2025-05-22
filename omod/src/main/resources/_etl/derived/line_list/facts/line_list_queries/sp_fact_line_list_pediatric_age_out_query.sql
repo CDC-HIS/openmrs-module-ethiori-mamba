@@ -13,7 +13,7 @@ BEGIN
                               uan,
                               sex,
                               date_of_birth,
-                              patient_name                                        as NAME,
+                              patient_name                                        ,
                               mobile_no                                           as mobilephonenumber,
                               regimen,
                               art_antiretroviral_start_date                       as art_sart_date,
@@ -57,7 +57,7 @@ BEGIN
                                           and art_sart_date is not null)
 
 
-    SELECT DISTINCT Follow_up.NAME                            AS `Patient Name`,
+    SELECT DISTINCT patient_name                            AS `Patient Name`,
                     mrn,
                     uan,
                     sex,
@@ -102,8 +102,10 @@ BEGIN
              LEFT OUTER JOIN firstArtRegimen2 on firstArtRegimen2.patient_id = Follow_up.patient_id
     where rn = 1
 
-      and (TIMESTAMPDIFF(YEAR, date_of_birth, registration_date) <= 15)
-    order by patientname;
+      and (TIMESTAMPDIFF(YEAR, date_of_birth, registration_date) <= 15) and DATE_ADD(
+            date_of_birth, INTERVAL 15 YEAR
+                                                                            ) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
+    order by patient_name;
 END //
 
 DELIMITER ;

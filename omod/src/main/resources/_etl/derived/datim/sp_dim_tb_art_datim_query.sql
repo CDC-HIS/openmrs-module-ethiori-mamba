@@ -1,47 +1,41 @@
-DELIMITER //
-
-DROP PROCEDURE IF EXISTS sp_dim_tb_art_datim_query;
-
-CREATE PROCEDURE sp_dim_tb_art_datim_query(
-    IN REPORT_START_DATE DATE,
-    IN REPORT_END_DATE DATE,
-    IN IS_COURSE_AGE_GROUP BOOLEAN, -- expected values: 0 for fine age group, 1 for coarse age group
-    IN REPORT_TYPE VARCHAR(100)
-)
+create
+definer = openmrs@localhost procedure sp_dim_tb_art_datim_query(IN REPORT_START_DATE date, IN REPORT_END_DATE date,
+                                                                    IN IS_COURSE_AGE_GROUP tinyint(1),
+                                                                    IN REPORT_TYPE varchar(100))
 BEGIN
     DECLARE age_group_cols VARCHAR(5000);
     DECLARE tx_tb_query VARCHAR(6000);
     DECLARE group_query TEXT;
     DECLARE outcome_condition VARCHAR(227);
-    SET session group_concat_max_len = 20000;
+SET session group_concat_max_len = 20000;
 
-    IF REPORT_TYPE = 'ALREADY_ON_ART' THEN
+IF REPORT_TYPE = 'ALREADY_ON_ART' THEN
         SET outcome_condition =
                 ' art_start_date < ? ';
     ELSEIF REPORT_TYPE = 'NEW_ON_ART' THEN
         SET outcome_condition =
                 ' art_start_date between ? AND ? ';
-    ELSE
+ELSE
         SET  outcome_condition = '1=1';
-    END IF;
+END IF;
 
     IF IS_COURSE_AGE_GROUP THEN
-        SELECT GROUP_CONCAT(CONCAT('SUM(CASE WHEN coarse_age_group = ''', normal_agegroup,
-                                   ''' THEN count ELSE 0 END) AS `',
-                                   REPLACE(normal_agegroup, '`', '``'),
-                                   '`')
-               )
-        INTO age_group_cols
-        FROM (select normal_agegroup from mamba_dim_agegroup group by normal_agegroup) as order_query;
-    ELSE
-        SELECT GROUP_CONCAT(CONCAT('SUM(CASE WHEN fine_age_group = ''', datim_agegroup,
-                                   ''' THEN count ELSE 0 END) AS `',
-                                   REPLACE(datim_agegroup, '`', '``'),
-                                   '`')
-               )
-        INTO age_group_cols
-        FROM (select datim_agegroup from mamba_dim_agegroup group by datim_agegroup) as order_query;
-    END IF;
+SELECT GROUP_CONCAT(CONCAT('SUM(CASE WHEN coarse_age_group = ''', normal_agegroup,
+                           ''' THEN count ELSE 0 END) AS `',
+                           REPLACE(normal_agegroup, '`', '``'),
+                           '`')
+       )
+INTO age_group_cols
+FROM (select normal_agegroup from mamba_dim_agegroup group by normal_agegroup) as order_query;
+ELSE
+SELECT GROUP_CONCAT(CONCAT('SUM(CASE WHEN fine_age_group = ''', datim_agegroup,
+                           ''' THEN count ELSE 0 END) AS `',
+                           REPLACE(datim_agegroup, '`', '``'),
+                           '`')
+       )
+INTO age_group_cols
+FROM (select datim_agegroup from mamba_dim_agegroup group by datim_agegroup) as order_query;
+END IF;
 
     SET tx_tb_query = 'WITH FollowUp AS (select follow_up.encounter_id,
                          follow_up.client_id,
@@ -88,7 +82,7 @@ BEGIN
                               FROM FollowUp
                               WHERE follow_up_status IS NOT NULL
                                 AND art_start_date IS NOT NULL
-                           --     AND tb_screened = ''Yes''
+                           
                                 AND follow_up_date <= ?),
     tb_art as (
         select tmp_latest_follow_up.*,
@@ -104,7 +98,7 @@ where follow_up_status in (''Alive'',''Restart medication'')
     ) ';
     IF REPORT_TYPE = 'TOTAL' THEN
         SET group_query = 'SELECT COUNT(*) AS NUMERATOR FROM tb_art';
-    ELSE
+ELSE
         SET group_query = CONCAT('
         SELECT
           sex,
@@ -123,17 +117,17 @@ where follow_up_status in (''Alive'',''Restart medication'')
         USING (sex)
         GROUP BY sex
         ');
-    END IF;
+END IF;
     SET @sql = CONCAT(tx_tb_query, group_query);
-    PREPARE stmt FROM @sql;
-    SET @start_date = REPORT_START_DATE;
+PREPARE stmt FROM @sql;
+SET @start_date = REPORT_START_DATE;
     SET @end_date = REPORT_END_DATE;
     IF REPORT_TYPE = 'ALREADY_ON_ART' THEN
         EXECUTE stmt USING @end_date, @end_date, @end_date, @start_date , @end_date, @start_date , @end_date, @start_date;
     ELSEIF REPORT_TYPE = 'NEW_ON_ART'  THEN
         EXECUTE stmt USING @end_date, @end_date, @end_date, @start_date , @end_date, @start_date , @end_date, @start_date , @end_date;
-    END IF;
-    DEALLOCATE PREPARE stmt;
-END //
-
-DELIMITER ;
+    ELSEIF REPORT_TYPE = 'TOTAL'  THEN
+        EXECUTE stmt USING @end_date, @end_date, @end_date, @start_date , @end_date, @start_date , @end_date;
+END IF;
+DEALLOCATE PREPARE stmt;
+END;
