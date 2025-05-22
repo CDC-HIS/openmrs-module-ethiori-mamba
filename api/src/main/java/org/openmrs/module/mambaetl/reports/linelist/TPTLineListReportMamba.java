@@ -10,7 +10,9 @@ import org.openmrs.module.reporting.report.definition.ReportDefinition;
 import org.openmrs.module.reporting.report.manager.ReportManagerUtil;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 @Component
@@ -33,8 +35,21 @@ public class TPTLineListReportMamba implements ReportManager {
 	
 	@Override
 	public List<Parameter> getParameters() {
-		return EthiOhriUtil.getDateRangeParameters();
+		Parameter startDate = new Parameter("startDate", "Start Date", Date.class);
+		startDate.setRequired(true);
+		Parameter startDateGC = new Parameter("startDateGC", " ", Date.class);
+		startDateGC.setRequired(false);
+		Parameter endDate = new Parameter("endDate", "End Date", Date.class);
+		endDate.setRequired(true);
+		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
+		endDateGC.setRequired(false);
 		
+		Parameter tptType = new Parameter("tptType", "TPT Type", String.class);
+		tptType.setRequired(true);
+		tptType.addToWidgetConfiguration("codedOptions", "ALL,CPT,TPT,FPT");
+		tptType.setDefaultValue("all");
+		
+		return Arrays.asList(startDate, startDateGC, endDate, endDateGC, tptType);
 	}
 	
 	@Override
@@ -49,8 +64,8 @@ public class TPTLineListReportMamba implements ReportManager {
 		TPTLineListDataSetDefinitionMamba tptLineListDataSetDefinitionMamba = new TPTLineListDataSetDefinitionMamba();
 		tptLineListDataSetDefinitionMamba.addParameters(getParameters());
 		
-		reportDefinition.addDataSetDefinition("List of Patients with TPT",
-		    EthiOhriUtil.map(tptLineListDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		reportDefinition.addDataSetDefinition("List of Patients with TPT", EthiOhriUtil.map(
+		    tptLineListDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC},tptType=${tptType}"));
 		return reportDefinition;
 	}
 	

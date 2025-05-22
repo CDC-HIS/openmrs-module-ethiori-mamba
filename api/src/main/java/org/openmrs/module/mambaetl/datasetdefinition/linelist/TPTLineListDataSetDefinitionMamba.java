@@ -12,12 +12,15 @@ public class TPTLineListDataSetDefinitionMamba extends BaseDataSetDefinition {
 	@ConfigurationProperty
 	private Date startDate;
 	
+	@ConfigurationProperty
+	private Date endDate;
+	
+	@ConfigurationProperty
+	private String tptType;
+	
 	public Date getStartDate() {
 		return startDate;
 	}
-	
-	@ConfigurationProperty
-	private Date endDate;
 	
 	public void setStartDate(Date startDate) {
 		this.startDate = startDate;
@@ -31,4 +34,11 @@ public class TPTLineListDataSetDefinitionMamba extends BaseDataSetDefinition {
 		this.endDate = endDate;
 	}
 	
+	public String getTptType() {
+		return tptType;
+	}
+	
+	public void setTptType(String tptType) {
+		this.tptType = tptType;
+	}
 }

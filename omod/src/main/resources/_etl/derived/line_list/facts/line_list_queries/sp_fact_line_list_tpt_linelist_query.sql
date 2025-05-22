@@ -4,10 +4,25 @@ DROP PROCEDURE IF EXISTS sp_fact_line_list_tpt_linelist_query;
 
 CREATE PROCEDURE sp_fact_line_list_tpt_linelist_query(
     IN REPORT_START_DATE DATE,
-    IN REPORT_END_DATE DATE
+    IN REPORT_END_DATE DATE,
+    IN REPORT_TYPE VARCHAR(50)
 )
 BEGIN
-    WITH FollowUp AS (SELECT follow_up.encounter_id,
+    DECLARE treatment_type_condition VARCHAR(200);
+    DECLARE tpt_query TEXT;
+
+    IF REPORT_TYPE = 'ALL' THEN
+        SET treatment_type_condition =
+                ' tmp_tpt.cpt_start_date is not null  or tmp_tpt.fpt_start_date is not null  or tmp_tpt.tpt_start_date is not null';
+    ELSEIF REPORT_TYPE = 'CPT' THEN
+        SET treatment_type_condition = ' tmp_tpt.cpt_start_date is not null';
+    ELSEIF REPORT_TYPE = 'FPT' THEN
+        SET treatment_type_condition = ' tmp_tpt.fpt_start_date is not null';
+    ELSEIF REPORT_TYPE = 'TPT' THEN
+        SET treatment_type_condition = ' tmp_tpt.tpt_start_date is not null';
+    END IF;
+
+    SET tpt_query = 'WITH FollowUp AS (SELECT follow_up.encounter_id,
                              follow_up.client_id,
                              date_of_event                       as hiv_confirmed_date,
                              art_antiretroviral_start_date       as art_start_date,
@@ -28,8 +43,8 @@ BEGIN
                              treatment_end_date                  as art_end_date,
                              current_who_hiv_stage,
                              cd4_count,
-                             cotrimoxazole_prophylaxis_start_dat,
-                             cotrimoxazole_prophylaxis_stop_date,
+                             cotrimoxazole_prophylaxis_start_dat as cpt_start_date,
+                             cotrimoxazole_prophylaxis_stop_date as cpt_stop_date,
                              patient_diagnosed_with_active_tuber as active_tb_dx,
                              diagnosis_date,
                              tuberculosis_drug_treatment_start_d,
@@ -39,8 +54,8 @@ BEGIN
                              tpt_followup_6h_                       tpt_follow_up_inh,
                              why_eligible_reason_,
                              tb_diagnostic_test_result              tb_specimen_type,
-                             fluconazole_start_date              AS Fluconazole_Start_Date,
-                             fluconazole_stop_date               as Fluconazole_End_Date,
+                             fluconazole_start_date              AS fpt_start_date,
+                             fluconazole_stop_date               as fpt_stop_date,
                              transfer_in
                       FROM mamba_flat_encounter_follow_up follow_up
                                join mamba_flat_encounter_follow_up_1 follow_up_1
@@ -50,32 +65,59 @@ BEGIN
                                join mamba_flat_encounter_follow_up_3 follow_up_3
                                     on follow_up.encounter_id = follow_up_3.encounter_id
                                join mamba_dim_person person on follow_up.client_id = person_id),
-         tmp_tpt_type as (SELECT encounter_id,
-                                 client_id,
-                                 TB_ProphylaxisType                                                                                                     AS TptType,
-                                 TB_ProphylaxisTypeAlt                                                                                                  AS TptTypeAlt,
-                                 tpt_follow_up_inh                                                                                                      As TPTFollowup,
-                                 followup_date                                                                                                          AS FollowupDate,
-                                 ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY FollowUp.followup_date DESC , FollowUp.encounter_id DESC ) AS row_num
-                          FROM FollowUp
-                          where followup_date <= REPORT_END_DATE
-                            and (TB_ProphylaxisType is not null OR TB_ProphylaxisTypeAlt is not null OR
-                                 tpt_follow_up_inh is not null)),
 
          tmp_tpt_start as (select encounter_id,
                                   client_id,
-                                  tpt_start_date                                                                                                          as inhprophylaxis_started_date,
+                                  tpt_start_date,
                                   ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY FollowUp.tpt_start_date DESC , FollowUp.encounter_id DESC ) AS row_num
                            from FollowUp
                            where tpt_start_date is not null
-                             and followup_date <= REPORT_END_DATE),
+                             and tpt_start_date between ? and ?
+                             and followup_date <= ?),
          tmp_tpt_completed as (select encounter_id,
                                       client_id,
-                                      tpt_completed_date                                                                                                          as InhprophylaxisCompletedDate,
+                                      tpt_completed_date,
                                       ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY FollowUp.tpt_completed_date DESC , FollowUp.encounter_id DESC ) AS row_num
                                from FollowUp
                                where tpt_completed_date is not null
-                                 and followup_date <= REPORT_END_DATE),
+                                 and tpt_completed_date between ? and ?
+                                 and followup_date <= ?),
+         -- CPT
+         tmp_cpt_start as (select encounter_id,
+                                  client_id,
+                                  cpt_start_date,
+                                  ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY FollowUp.cpt_start_date DESC , FollowUp.encounter_id DESC ) AS row_num
+                           from FollowUp
+                           where cpt_start_date is not null
+                             and cpt_start_date between ? and ?
+                             and followup_date <= ?),
+         tmp_cpt_completed as (select encounter_id,
+                                      client_id,
+                                      cpt_stop_date,
+                                      ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY FollowUp.cpt_stop_date DESC , FollowUp.encounter_id DESC ) AS row_num
+                               from FollowUp
+                               where cpt_stop_date is not null
+                                 and cpt_stop_date between ? and ?
+                                 and followup_date <= ?),
+
+         -- FPT
+         tmp_fpt_start as (select encounter_id,
+                                  client_id,
+                                  fpt_start_date,
+                                  ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY FollowUp.fpt_start_date DESC , FollowUp.encounter_id DESC ) AS row_num
+                           from FollowUp
+                           where fpt_start_date is not null
+                             and fpt_start_date between ? and ?
+                             and followup_date <= ?),
+         tmp_fpt_completed as (select encounter_id,
+                                      client_id,
+                                      fpt_stop_date,
+                                      ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY FollowUp.fpt_stop_date DESC , FollowUp.encounter_id DESC ) AS row_num
+                               from FollowUp
+                               where fpt_stop_date is not null
+                                 and fpt_stop_date between ? and ?
+                                 and followup_date <= ?),
+
 
          tmp_latest_follow_up as (SELECT encounter_id,
                                          client_id,
@@ -83,10 +125,16 @@ BEGIN
                                          ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY FollowUp.followup_date DESC, FollowUp.encounter_id DESC ) AS row_num
                                   FROM FollowUp
                                   WHERE follow_up_status IS NOT NULL
-                                    AND followup_date <= REPORT_END_DATE),
-         tpt_type as (select * from tmp_tpt_type where row_num = 1),
+                                    and hiv_confirmed_date is not null
+                                    AND followup_date <= ?),
          tpt_start as (select * from tmp_tpt_start where row_num = 1),
          tpt_completed as (select * from tmp_tpt_completed where row_num = 1),
+         fpt_start as (select * from tmp_fpt_start where row_num = 1),
+         fpt_completed as (select * from tmp_fpt_completed where row_num = 1),
+         cpt_start as (select * from tmp_cpt_start where row_num = 1),
+         cpt_completed as (select * from tmp_cpt_completed where row_num = 1),
+
+
          latest_follow_up as (select * from tmp_latest_follow_up where row_num = 1),
          tmp_tpt as (SELECT f_case.encounter_id,
                             f_case.client_id,
@@ -103,25 +151,35 @@ BEGIN
                             f_case.current_who_hiv_stage        AS WHOStage,
                             cd4_count                              AdultCD4Count,
                             cd4_count                              ChildCD4Count,
-                            cotrimoxazole_prophylaxis_start_dat As CPT_StartDate,
-                            cotrimoxazole_prophylaxis_stop_date As CPT_StopDate,
                             tb_specimen_type                    AS TB_SpecimenType,
                             active_tb_dx                        As ActiveTBDiagnosed,
                             diagnosis_date                      As ActiveTBDignosedDate,
                             tuberculosis_drug_treatment_start_d As TBTx_StartDate,
                             date_active_tbrx_completed          As TBTx_CompletedDate,
-                     FROM FollowUp AS f_case
-                              INNER JOIN latest_follow_up ON f_case.encounter_id = latest_follow_up.encounter_id)
+                            tpt_start.tpt_start_date,
+                            tpt_completed.tpt_completed_date,
+                            fpt_start.fpt_start_date,
+                            fpt_completed.fpt_stop_date,
+                            cpt_start.cpt_start_date,
+                            cpt_completed.cpt_stop_date
+                     FROM latest_follow_up
+                              INNER JOIN FollowUp f_case ON f_case.encounter_id = latest_follow_up.encounter_id
+                              Left join tpt_start on latest_follow_up.client_id = tpt_start.client_id
+                              Left join tpt_completed on latest_follow_up.client_id = tpt_completed.client_id
+                              Left join cpt_start on latest_follow_up.client_id = cpt_start.client_id
+                              Left join cpt_completed on latest_follow_up.client_id = cpt_start.client_id
+                              Left join fpt_start on latest_follow_up.client_id = fpt_start.client_id
+                              Left join fpt_completed on latest_follow_up.client_id = fpt_completed.client_id)
 
     select sex                                                 as Sex,
            tmp_tpt.weight_in_kg                                as Weight,
-           TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) as Age,
-           tpt_start.inhprophylaxis_started_date               as `TPT Start Date`,
-           tpt_start.inhprophylaxis_started_date               as `TPT Start Date EC.`,
-           tpt_completed.InhprophylaxisCompletedDate           as `TPT Completed Date`,
-           tpt_completed.InhprophylaxisCompletedDate           as `TPT Completed Date EC.`,
-           tpt_type.TptType                                    as `TPT Type`,
-           tpt_type.TptTypeAlt                                 as `TPT Type ALT`,
+           TIMESTAMPDIFF(YEAR, date_of_birth, ?) as Age,
+           tpt_start.tpt_start_date                            as `TPT Start Date`,
+           tpt_start.tpt_start_date                            as `TPT Start Date EC.`,
+           tpt_completed.tpt_completed_date                    as `TPT Completed Date`,
+           tpt_completed.tpt_completed_date                    as `TPT Completed Date EC.`,
+           FollowUp.TB_ProphylaxisType                         as `TPT Type`,
+           FollowUp.TB_ProphylaxisTypeALT                      as `TPT Type ALT`,
            tmp_tpt.hiv_confirmed_date                          as `Hiv Confirmed Date`,
            tmp_tpt.hiv_confirmed_date                          as `Hiv Confirmed Date EC.`,
            tmp_tpt.art_start_date                              as `Art Start Date`,
@@ -138,10 +196,10 @@ BEGIN
            tmp_tpt.WHOStage                                    as WHOStage,
            AdultCD4Count                                       as `Adult CD4 Count`,
            ChildCD4Count                                       as `Child CD4 Count`,
-           CPT_StartDate                                       as `CPT Start Date`,
-           CPT_StartDate                                       as `CPT Start Date EC.`,
-           CPT_StopDate                                        as CPT_StopDate,
-           CPT_StopDate                                        as `CPT_StopDate EC.`,
+           tmp_tpt.cpt_start_date                              as `CPT Start Date`,
+           tmp_tpt.cpt_start_date                              as `CPT Start Date EC.`,
+           tmp_tpt.cpt_stop_date                               as CPT_StopDate,
+           tmp_tpt.cpt_stop_date                               as `CPT_StopDate EC.`,
            TB_SpecimenType,
            ActiveTBDiagnosed,
            ActiveTBDignosedDate                                as `Active TB Dignosed Date`,
@@ -150,20 +208,22 @@ BEGIN
            TBTx_StartDate                                      as `TBT Start Date EC.`,
            TBTx_CompletedDate                                  as `TBT Completed Date`,
            TBTx_CompletedDate                                  as `TBT Completed Date EC.`,
-           Fluconazole_Start_Date                              as `Fluconazole Start Date`,
-           Fluconazole_Start_Date                              as `Fluconazole Start Date EC.`,
-           Fluconazole_End_Date                                as `Fluconazole End Date`,
-           Fluconazole_End_Date                                as `Fluconazole End Date EC.`
+           tmp_tpt.fpt_start_date                              as `Fluconazole Start Date`,
+           tmp_tpt.fpt_start_date                              as `Fluconazole Start Date EC.`,
+           tmp_tpt.fpt_stop_date                               as `Fluconazole End Date`,
+           tmp_tpt.fpt_stop_date                               as `Fluconazole End Date EC.`
 
     FROM FollowUp
              join tmp_tpt on tmp_tpt.encounter_id = FollowUp.encounter_id
-             join mamba_dim_client client on tmp_tpt.client_id = client.client_id
-             Left join tpt_start on tmp_tpt.client_id = tpt_start.client_id
-             Left join tpt_completed on tmp_tpt.client_id = tpt_completed.client_id
-             Left join tpt_type on tmp_tpt.client_id = tpt_type.client_id
-    where tmp_tpt.art_end_date >= REPORT_END_DATE
-      AND tmp_tpt.follow_up_status in ('Alive', 'Restart medication')
-      AND tmp_tpt.art_start_date <= REPORT_END_DATE;
+             join mamba_dim_client client on tmp_tpt.client_id = client.client_id where ';
+
+    SET @sql = CONCAT(tpt_query, treatment_type_condition);
+    PREPARE stmt FROM @sql;
+    SET @start_date = REPORT_START_DATE;
+    SET @end_date = REPORT_END_DATE;
+    EXECUTE stmt USING @start_date, @end_date, @end_date, @start_date, @end_date, @end_date, @start_date, @end_date, @end_date, @start_date, @end_date , @end_date, @start_date, @end_date
+        , @end_date, @start_date, @end_date, @end_date, @end_date, @end_date;
+    DEALLOCATE PREPARE stmt;
 END //
 
 DELIMITER ;
