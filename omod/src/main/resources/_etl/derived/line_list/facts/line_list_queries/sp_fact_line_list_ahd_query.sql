@@ -1,0 +1,10 @@
+DELIMITER //
+
+DROP PROCEDURE IF EXISTS sp_fact_line_list_ahd_query;
+
+CREATE PROCEDURE sp_fact_line_list_ahd_query(  IN REPORT_START_DATE DATE, IN REPORT_END_DATE DATE)
+BEGIN
+
+END //
+
+DELIMITER ;
