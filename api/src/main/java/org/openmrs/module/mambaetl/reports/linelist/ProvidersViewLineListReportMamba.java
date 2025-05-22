@@ -19,12 +19,12 @@ public class ProvidersViewLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getUuid() {
-		return "c0276e41-d668-41bc-a0e8-eeace2328376";
+		return "c277163b-98be-41db-bb06-57114b0b6cfa";
 	}
 	
 	@Override
 	public String getName() {
-		return "MAMBA LINELIST- PROVERS VIEW";
+		return "MAMBA LINELIST- PROVERS_VIEW";
 	}
 	
 	@Override
@@ -35,43 +35,26 @@ public class ProvidersViewLineListReportMamba implements ReportManager {
 	@Override
 	public List<Parameter> getParameters() {
 		
-		// --- Configure this parameter to use your custom EthiopiaDateWidget ---
-		// The exact key ("htmlWidget") depends on the rendering framework configuration,
-		// but this is a common one for the HTML Widgets module.
-		// The value is the fully qualified class name of your widget.
-		
 		Parameter startDate = new Parameter("startDate", "Start Date", Date.class);
 		startDate.setRequired(true);
 		Parameter startDateGC = new Parameter("startDateGC", " ", Date.class);
 		startDateGC.setRequired(false);
 		
-		Parameter appointmentStartDate = new Parameter("appointmentStartDate", "Appointment Start Date", Date.class);
-		appointmentStartDate.setRequired(true);
-		Parameter appointmentStartDateGC = new Parameter("appointmentStartDateGC", " ", Date.class);
-		appointmentStartDateGC.setRequired(false);
-		
 		Parameter endDate = new Parameter("endDate", "End Date", Date.class);
 		endDate.setRequired(true);
 		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
 		endDateGC.setRequired(false);
-		//
-		//		Parameter appointmentStartDate = new Parameter("appointmentStartDate", "Appointment Start Date", Date.class);
-		//		appointmentStartDate.setRequired(true);
-		//		Parameter appointmentStartDateGC = new Parameter("appointmentStartDateGC", " ", Date.class);
-		//		appointmentStartDateGC.setRequired(false);
-		//		Parameter appointmentEndDate = new Parameter("appointmentEndDate", "Appointment End Date", Date.class);
-		//		appointmentEndDate.setRequired(true);
-		//		Parameter appointmentEndDateGC = new Parameter("appointmentEndDateGC", " ", Date.class);
-		//		appointmentEndDateGC.setRequired(false);
 		
-		//		Parameter clientType = new Parameter("clientType", "ART Client", String.class); // Parameter type is the ENUM class
-		//		clientType.addToWidgetConfiguration("codedOptions", "all,curr"); // Use the generated string
-		//		clientType.setRequired(true);
-		//		clientType.setDefaultValue("all");
-		//
-		//		Parameter patientGUID = new Parameter("patientGUID", "Patient GUID", String.class);
+		Parameter clientType = new Parameter("clientType", "Client Type", String.class);
+		clientType.setRequired(true);
+		clientType.addToWidgetConfiguration("codedOptions", "all,curr");
+		clientType.setDefaultValue("all");
 		
-		return Arrays.asList(startDate, startDateGC, appointmentStartDate, appointmentStartDateGC, endDate, endDateGC);
+		Parameter patientGUID = new Parameter("patientGUID", "Patient GUID", String.class);
+		patientGUID.setRequired(false);
+		//
+		
+		return Arrays.asList(startDate, startDateGC, endDate, endDateGC, clientType, patientGUID);
 		
 	}
 	
@@ -87,16 +70,16 @@ public class ProvidersViewLineListReportMamba implements ReportManager {
 		ProvidersViewLineListDataSetDefinitionMamba providersViewLineListDataSetDefinitionMamba = new ProvidersViewLineListDataSetDefinitionMamba();
 		providersViewLineListDataSetDefinitionMamba.addParameters(getParameters());
 		
-		reportDefinition.addDataSetDefinition("List of Patients for Providers",
-		    EthiOhriUtil.map(providersViewLineListDataSetDefinitionMamba, "appointmentStartDate=${appointmentStartDate}"));
-		// ,endDate=${endDateGC},appointmentStartDate=${appointmentStartDateGC},appointmentEndDate=${appointmentEndDateGC},clientType=${clientType},patientGUID=${patientGUID}
+		reportDefinition.addDataSetDefinition("List of Patients for Providers", EthiOhriUtil.map(
+		    providersViewLineListDataSetDefinitionMamba,
+		    "startDate=${startDateGC},endDate=${endDateGC},clientType=${clientType},patientGUID=${patientGUID}"));
 		return reportDefinition;
 	}
 	
 	@Override
 	public List<ReportDesign> constructReportDesigns(ReportDefinition reportDefinition) {
 		
-		ReportDesign design = ReportManagerUtil.createExcelDesign("b9139849-9cf8-4d73-8644-31c47c3d0fce", reportDefinition);
+		ReportDesign design = ReportManagerUtil.createExcelDesign("809de923-d086-4dfb-8786-f02169841b46", reportDefinition);
 		
 		return Collections.singletonList(design);
 	}

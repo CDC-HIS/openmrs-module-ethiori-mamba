@@ -18,7 +18,7 @@ public class PediatricAgeOutLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getUuid() {
-		return "b700965c-89d2-490e-abaa-2c5c72770421";
+		return "f498e33b-7d51-4ad5-8d66-ea4b8cac6f21";
 	}
 	
 	@Override
@@ -57,7 +57,7 @@ public class PediatricAgeOutLineListReportMamba implements ReportManager {
 	@Override
 	public List<ReportDesign> constructReportDesigns(ReportDefinition reportDefinition) {
 		
-		ReportDesign design = ReportManagerUtil.createExcelDesign("44dcf287-1665-4f77-b02e-c920c4bf60e6", reportDefinition);
+		ReportDesign design = ReportManagerUtil.createExcelDesign("469024fb-3cef-4a32-9c74-7b4ff2196f18", reportDefinition);
 		
 		return Collections.singletonList(design);
 	}

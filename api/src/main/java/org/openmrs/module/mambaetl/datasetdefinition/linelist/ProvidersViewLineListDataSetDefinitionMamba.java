@@ -19,12 +19,6 @@ public class ProvidersViewLineListDataSetDefinitionMamba extends BaseDataSetDefi
 	private Date endDate;
 	
 	@ConfigurationProperty
-	private Date appointmentStartDate;
-	
-	@ConfigurationProperty
-	private Date appointmentEndDate;
-	
-	@ConfigurationProperty
 	private String clientType = "all";
 	
 	@ConfigurationProperty
@@ -44,22 +38,6 @@ public class ProvidersViewLineListDataSetDefinitionMamba extends BaseDataSetDefi
 	
 	public void setEndDate(Date endDate) {
 		this.endDate = endDate;
-	}
-	
-	public Date getAppointmentStartDate() {
-		return appointmentStartDate;
-	}
-	
-	public void setAppointmentStartDate(Date appointmentStartDate) {
-		this.appointmentStartDate = appointmentStartDate;
-	}
-	
-	public Date getAppointmentEndDate() {
-		return appointmentEndDate;
-	}
-	
-	public void setAppointmentEndDate(Date appointmentEndDate) {
-		this.appointmentEndDate = appointmentEndDate;
 	}
 	
 	public String getClientType() {
