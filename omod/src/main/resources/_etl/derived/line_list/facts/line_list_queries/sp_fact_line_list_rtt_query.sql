@@ -2,9 +2,8 @@ DELIMITER //
 
 DROP PROCEDURE IF EXISTS sp_fact_line_list_tx_rtt_query;
 
-CREATE PROCEDURE sp_fact_line_list_tx_rtt_query(IN REPORT_START_DATE DATE, IN REPORT_END_DATE DATE)
+CREATE PROCEDURE sp_fact_line_list_tx_rtt_query(IN REPORT_END_DATE DATE)
 BEGIN
-
 WITH FollowUp AS (SELECT follow_up.encounter_id,
                          follow_up.client_id,
                          follow_up_status,
