@@ -4,7 +4,6 @@ DROP PROCEDURE IF EXISTS sp_fact_line_list_vl_received_query;
 
 CREATE PROCEDURE sp_fact_line_list_vl_received_query(IN REPORT_START_DATE DATE, IN REPORT_END_DATE DATE)
 BEGIN
-
 WITH FollowUp AS (SELECT follow_up.client_id,
                          follow_up.encounter_id,
                          date_viral_load_results_received AS viral_load_perform_date,
@@ -109,8 +108,7 @@ WITH FollowUp AS (SELECT follow_up.client_id,
                                    LEFT JOIN vl_performed_date as vlperfdate
                                              ON vlperfdate.client_id = FollowUp.client_id)
 select * from vl_test_received;
-    
-;
+
 END //
 
 DELIMITER ;
