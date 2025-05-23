@@ -161,6 +161,9 @@ BEGIN
 
     select *
     from tx_rtt;
+
+    -- Check ti Status not included
+    -- left join follow up tables
 END //
 
 DELIMITER ;
