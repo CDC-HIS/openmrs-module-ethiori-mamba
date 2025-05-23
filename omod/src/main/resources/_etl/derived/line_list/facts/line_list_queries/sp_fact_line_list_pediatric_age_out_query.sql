@@ -17,7 +17,7 @@ BEGIN
                               mobile_no                                           as mobilephonenumber,
                               regimen,
                               art_antiretroviral_start_date                       as art_sart_date,
-                              diagnosis_date                                      as date_hiv_confirmed,
+                              date_of_event                                      as date_hiv_confirmed,
                               next_visit_date,
                               antiretroviral_art_dispensed_dose_i                 as art_dose,
                               intake_a.date_enrolled_in_care                      as registration_date
