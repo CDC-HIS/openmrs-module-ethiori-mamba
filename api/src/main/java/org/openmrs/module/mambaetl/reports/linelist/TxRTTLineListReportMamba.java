@@ -1,5 +1,6 @@
 package org.openmrs.module.mambaetl.reports.linelist;
 
+import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_rtt.TxRTTDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.datasetdefinition.linelist.TXNewLineListDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
@@ -45,10 +46,10 @@ public class TxRTTLineListReportMamba implements ReportManager {
 		reportDefinition.setDescription(getDescription());
 		reportDefinition.setParameters(getParameters());
 		
-		TXNewLineListDataSetDefinitionMamba txNewLineListDataSetDefinitionMamba = new TXNewLineListDataSetDefinitionMamba();
-		txNewLineListDataSetDefinitionMamba.addParameters(getParameters());
+		TxRTTDataSetDefinitionMamba txRTTDataSetDefinitionMamba = new TxRTTDataSetDefinitionMamba();
+		txRTTDataSetDefinitionMamba.addParameters(getParameters());
 		reportDefinition.addDataSetDefinition("List of RTT Patients",
-		    EthiOhriUtil.map(txNewLineListDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(txRTTDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
 		
 		return reportDefinition;
 	}
