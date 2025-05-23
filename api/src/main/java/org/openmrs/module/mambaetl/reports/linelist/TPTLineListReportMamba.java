@@ -64,7 +64,7 @@ public class TPTLineListReportMamba implements ReportManager {
 		TPTLineListDataSetDefinitionMamba tptLineListDataSetDefinitionMamba = new TPTLineListDataSetDefinitionMamba();
 		tptLineListDataSetDefinitionMamba.addParameters(getParameters());
 		
-		reportDefinition.addDataSetDefinition("List of Patients with TPT", EthiOhriUtil.map(
+		reportDefinition.addDataSetDefinition("TPT/FPT/CPT Line List Report.", EthiOhriUtil.map(
 		    tptLineListDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC},tptType=${tptType}"));
 		return reportDefinition;
 	}

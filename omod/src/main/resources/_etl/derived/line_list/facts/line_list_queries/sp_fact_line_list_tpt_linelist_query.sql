@@ -173,6 +173,9 @@ BEGIN
 
     select sex                                                 as Sex,
            tmp_tpt.weight_in_kg                                as Weight,
+           patient_name                                        as `Patient Name`,
+           MRN,
+           UAN,
            TIMESTAMPDIFF(YEAR, date_of_birth, ?) as Age,
            tmp_tpt.tpt_start_date                            as `TPT Start Date`,
            tmp_tpt.tpt_start_date                            as `TPT Start Date EC.`,
