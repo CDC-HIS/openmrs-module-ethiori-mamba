@@ -1,8 +1,14 @@
-create
-definer = openmrs@localhost procedure sp_dim_tb_art_datim_query(IN REPORT_START_DATE date, IN REPORT_END_DATE date,
-                                                                    IN IS_COURSE_AGE_GROUP tinyint(1),
-                                                                    IN REPORT_TYPE varchar(100))
+DELIMITER //
+
+DROP PROCEDURE IF EXISTS sp_dim_tb_art_datim_query;
+
+CREATE PROCEDURE sp_dim_tb_art_datim_query(IN REPORT_START_DATE date,
+                                           IN REPORT_END_DATE date,
+                                           IN IS_COURSE_AGE_GROUP tinyint(1),
+                                            IN REPORT_TYPE varchar(100)
+)
 BEGIN
+
     DECLARE age_group_cols VARCHAR(5000);
     DECLARE tx_tb_query VARCHAR(6000);
     DECLARE group_query TEXT;
@@ -128,6 +134,9 @@ SET @start_date = REPORT_START_DATE;
         EXECUTE stmt USING @end_date, @end_date, @end_date, @start_date , @end_date, @start_date , @end_date, @start_date , @end_date;
     ELSEIF REPORT_TYPE = 'TOTAL'  THEN
         EXECUTE stmt USING @end_date, @end_date, @end_date, @start_date , @end_date, @start_date , @end_date;
-END IF;
+    END IF;
 DEALLOCATE PREPARE stmt;
-END;
+
+END //
+
+DELIMITER ;
