@@ -2,6 +2,8 @@ package org.openmrs.module.mambaetl.helpers;
 
 import org.apache.commons.logging.Log;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
+import org.openmrs.module.reporting.dataset.DataSetColumn;
+import org.openmrs.module.reporting.dataset.DataSetRow;
 import org.openmrs.module.reporting.dataset.SimpleDataSet;
 import org.openmrs.module.reporting.evaluation.EvaluationException;
 
@@ -53,13 +55,39 @@ public class DataSetEvaluatorHelper {
 		}
 	}
 	
-	public static void mapResultSet(SimpleDataSet data, ResultSetMapper resultSetMapper, ResultSet[] resultSets)
-	        throws SQLException {
+	public static void mapResultSet(SimpleDataSet data, ResultSetMapper resultSetMapper, ResultSet[] resultSets,
+	        Boolean addTotal) throws SQLException {
+//		DataSetRow totalRow = new DataSetRow();
+//		if (addTotal) {
+//			// totalRow.addColumnValue(new DataSetColumn("#", "#", String.class), "TOTAL");
+//			totalRow.addColumnValue(new DataSetColumn("#", "#", Integer.class), getTotalRowCount(resultSets));
+//			data.addRow(0, totalRow);
+//		}
 		for (ResultSet resultSet : resultSets) {
 			if (resultSet != null) {
 				resultSetMapper.mapResultSetToDataSet(resultSet, data);
+				
 			}
 		}
+		
+	}
+	
+	public static int getTotalRowCount(ResultSet[] resultSets) throws SQLException {
+		int totalRowCount = 0;
+		
+		if (resultSets == null) {
+			return 0;
+		}
+		
+		for (ResultSet rs : resultSets) {
+			if (rs != null) {
+				while (rs.next()) {
+					totalRowCount++;
+				}
+				
+			}
+		}
+		return totalRowCount;
 	}
 	
 	/**

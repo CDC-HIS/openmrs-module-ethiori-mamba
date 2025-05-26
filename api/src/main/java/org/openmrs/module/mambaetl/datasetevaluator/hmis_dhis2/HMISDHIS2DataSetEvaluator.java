@@ -55,7 +55,7 @@ public class HMISDHIS2DataSetEvaluator implements DataSetEvaluator {
 				ResultSet[] allResultSets = statementContainer.getResultSets();
 
 				// Merge results
-				mapResultSet(data, resultSetMapper, allResultSets); // Use static method from helper
+				mapResultSet(data, resultSetMapper, allResultSets,Boolean.FALSE); // Use static method from helper
 				connection.commit();
 				return data;
 
