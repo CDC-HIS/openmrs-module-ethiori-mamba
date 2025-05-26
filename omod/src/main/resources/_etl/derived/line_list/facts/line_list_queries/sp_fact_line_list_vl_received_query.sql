@@ -39,7 +39,7 @@ WITH FollowUp AS (SELECT follow_up.client_id,
                          date_of_event                       date_hiv_confirmed,
                          weight_text_                     as weight
                   FROM mamba_flat_encounter_follow_up follow_up
-                           JOIN mamba_flat_encounter_follow_up_1 follow_up_1
+                           left JOIN mamba_flat_encounter_follow_up_1 follow_up_1
                                 ON follow_up.encounter_id = follow_up_1.encounter_id
                            JOIN mamba_flat_encounter_follow_up_2 follow_up_2
                                 ON follow_up.encounter_id = follow_up_2.encounter_id

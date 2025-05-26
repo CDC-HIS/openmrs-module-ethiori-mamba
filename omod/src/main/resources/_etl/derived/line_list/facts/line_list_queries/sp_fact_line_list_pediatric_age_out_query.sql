@@ -13,25 +13,23 @@ BEGIN
                               uan,
                               sex,
                               date_of_birth,
-                              patient_name                                        ,
+                              patient_name,
                               mobile_no                                           as mobilephonenumber,
                               regimen,
                               art_antiretroviral_start_date                       as art_sart_date,
-                              date_of_event                                      as date_hiv_confirmed,
+                              date_of_event                                       as date_hiv_confirmed,
                               next_visit_date,
                               antiretroviral_art_dispensed_dose_i                 as art_dose,
                               intake_a.date_enrolled_in_care                      as registration_date
                        FROM mamba_flat_encounter_follow_up follow_up
-                                JOIN
-                            mamba_flat_encounter_follow_up_1 follow_up_1
-                            ON follow_up.encounter_id = follow_up_1.encounter_id
-                                join mamba_flat_encounter_follow_up_2 follow_up_2
+                                left JOIN mamba_flat_encounter_follow_up_1 follow_up_1
+                                     ON follow_up.encounter_id = follow_up_1.encounter_id
+                                left join mamba_flat_encounter_follow_up_2 follow_up_2
                                      ON follow_up.encounter_id = follow_up_2.encounter_id
-                                join mamba_flat_encounter_follow_up_3 follow_up_3
+                                left join mamba_flat_encounter_follow_up_3 follow_up_3
                                      ON follow_up.encounter_id = follow_up_3.encounter_id
-                                JOIN
-                            mamba_dim_client dim_client
-                            ON follow_up.client_id = dim_client.client_id
+                                left JOIN mamba_dim_client dim_client
+                                     ON follow_up.client_id = dim_client.client_id
                                 left join mamba_flat_encounter_intake_a intake_a
                                           on intake_a.client_id = follow_up.client_id
                        where follow_up_date_followup_
@@ -57,7 +55,7 @@ BEGIN
                                           and art_sart_date is not null)
 
 
-    SELECT DISTINCT patient_name                            AS `Patient Name`,
+    SELECT DISTINCT patient_name                              AS `Patient Name`,
                     mrn,
                     uan,
                     sex,
@@ -102,9 +100,10 @@ BEGIN
              LEFT OUTER JOIN firstArtRegimen2 on firstArtRegimen2.patient_id = Follow_up.patient_id
     where rn = 1
 
-      and (TIMESTAMPDIFF(YEAR, date_of_birth, registration_date) <= 15) and DATE_ADD(
+      and (TIMESTAMPDIFF(YEAR, date_of_birth, registration_date) <= 15)
+      and DATE_ADD(
             date_of_birth, INTERVAL 15 YEAR
-                                                                            ) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
+          ) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
     order by patient_name;
 END //
 

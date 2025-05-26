@@ -24,9 +24,9 @@ BEGIN
                              date_of_event                       as hiv_confirmed_date,
                              antiretroviral_art_dispensed_dose_i    ARTDoseDays
                       FROM mamba_flat_encounter_follow_up follow_up
-                               JOIN mamba_flat_encounter_follow_up_1 follow_up_1
+                               left JOIN mamba_flat_encounter_follow_up_1 follow_up_1
                                     ON follow_up.encounter_id = follow_up_1.encounter_id
-                               JOIN mamba_flat_encounter_follow_up_2 follow_up_2
+                               left JOIN mamba_flat_encounter_follow_up_2 follow_up_2
                                     ON follow_up.encounter_id = follow_up_2.encounter_id
                                LEFT JOIN mamba_flat_encounter_follow_up_3 follow_up_3
                                          ON follow_up.encounter_id = follow_up_3.encounter_id),
