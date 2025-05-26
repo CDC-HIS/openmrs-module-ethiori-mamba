@@ -67,7 +67,7 @@ public class ResultSetMapper {
 		int columnCount = metaData.getColumnCount();
 		
 		for (int i = 1; i <= columnCount; i++) {
-			String columnName = metaData.getColumnName(i);
+			String columnName = metaData.getColumnLabel(i);
 			String mappedColumnName = getMappedColumnName(columnName);
 			String columnType = metaData.getColumnTypeName(i);
 			
@@ -80,7 +80,7 @@ public class ResultSetMapper {
 		while (resultSet.next()) {
 			DataSetRow row = new DataSetRow();
 			for (int i = 1; i <= columnCount; i++) {
-				String columnName = metaData.getColumnName(i);
+				String columnName = metaData.getColumnLabel(i);
 				Object value = resultSet.getObject(i);
 				
 				DataSetColumn column = dynamicDataSet.getColumn(getMappedColumnName(columnName));

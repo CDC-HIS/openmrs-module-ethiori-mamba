@@ -40,8 +40,6 @@ public class TxNewLineListDatasetEvaluatorMamba implements DataSetEvaluator {
 
         TXNewLineListDataSetDefinitionMamba dataSetDefinitionMamba = (TXNewLineListDataSetDefinitionMamba) dataSetDefinition;
         SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
-        DataSetRow totalRow = new DataSetRow();
-        totalRow.addColumnValue(new DataSetColumn("#", "#", Integer.class), "TOTAL");
         ResultSetMapper resultSetMapper = new ResultSetMapper();
 
         ValidateDates(data, dataSetDefinitionMamba.getStartDate(), dataSetDefinitionMamba.getEndDate());
@@ -57,8 +55,7 @@ public class TxNewLineListDatasetEvaluatorMamba implements DataSetEvaluator {
 
                 ResultSet[] allResultSets = statementContainer.getResultSets();
 
-                totalRow.addColumnValue(new DataSetColumn("Patient Name", "Patient Name", Integer.class), allResultSets.length);
-                mapResultSet(data, resultSetMapper, allResultSets); // Use static method from helper
+                mapResultSet(data, resultSetMapper, allResultSets,Boolean.TRUE); // Use static method from helper
                 connection.commit();
                 return data;
 

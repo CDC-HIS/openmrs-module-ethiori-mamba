@@ -40,8 +40,6 @@ public class PediatricAgeOutLineListDataSetEvaluator implements DataSetEvaluator
 
 		PediatricAgeOutLineListDatasetDefinition pediatricAgeOutLineListDatasetDefinition = (PediatricAgeOutLineListDatasetDefinition) dataSetDefinition;
 		SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
-		DataSetRow totalRow = new DataSetRow();
-		totalRow.addColumnValue(new DataSetColumn("#", "#", Integer.class), "TOTAL");
 		ResultSetMapper resultSetMapper = new ResultSetMapper();
 
 		ValidateDates(data, pediatricAgeOutLineListDatasetDefinition.getStartDate(), pediatricAgeOutLineListDatasetDefinition.getEndDate());
@@ -56,8 +54,7 @@ public class PediatricAgeOutLineListDataSetEvaluator implements DataSetEvaluator
 				executeStatements(statementContainer, procedureCalls);
 
 				ResultSet[] allResultSets = statementContainer.getResultSets();
-				totalRow.addColumnValue(new DataSetColumn("Patient Name", "Patient Name", Integer.class), allResultSets.length);
-				mapResultSet(data, resultSetMapper, allResultSets);
+				mapResultSet(data, resultSetMapper, allResultSets,Boolean.TRUE);
 				connection.commit();
 				return data;
 

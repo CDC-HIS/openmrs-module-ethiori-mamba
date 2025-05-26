@@ -108,7 +108,7 @@ public class TBPrevDenominatorEvaluatorMamba implements DataSetEvaluator {
         if(resultSets.size() == 1){
             ResultSet[] resultSets1 = resultSets.toArray(new ResultSet[0]);
             ResultSetMapper resultSetMapper = new ResultSetMapper();
-            mapResultSet(data, resultSetMapper, resultSets1);
+            mapResultSet(data, resultSetMapper, resultSets1,Boolean.FALSE);
             // mapResultSet adds rows directly to 'data', so no need for rowsMap in this case
             return;
         }
@@ -141,7 +141,7 @@ public class TBPrevDenominatorEvaluatorMamba implements DataSetEvaluator {
 
                 for (int i = 1; i <= columnCount; i++) {
                     String columnName;
-                    String originalColumnName = metaData.getColumnName(i);
+                    String originalColumnName = metaData.getColumnLabel(i);
                     Object columnValue = resultSet.getObject(i);
 
 
