@@ -11,6 +11,8 @@ import static org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper.*;
 import static org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper.rollbackAndThrowException;
 
 import org.openmrs.module.reporting.dataset.DataSet;
+import org.openmrs.module.reporting.dataset.DataSetColumn;
+import org.openmrs.module.reporting.dataset.DataSetRow;
 import org.openmrs.module.reporting.dataset.SimpleDataSet;
 import org.openmrs.module.reporting.dataset.definition.DataSetDefinition;
 import org.openmrs.module.reporting.dataset.definition.evaluator.DataSetEvaluator;
@@ -39,7 +41,8 @@ public class VLEligibilityLineListDataSetEvaluator implements DataSetEvaluator {
 
 		VLEligibilityLineListDatasetDefinition vlEligibilityLineListDatasetDefinition = (VLEligibilityLineListDatasetDefinition) dataSetDefinition;
 		SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
-
+		DataSetRow totalRow = new DataSetRow();
+		totalRow.addColumnValue(new DataSetColumn("#", "#", Integer.class), "TOTAL");
 		ResultSetMapper resultSetMapper = new ResultSetMapper();
 
 
@@ -53,7 +56,7 @@ public class VLEligibilityLineListDataSetEvaluator implements DataSetEvaluator {
 				executeStatements(statementContainer, procedureCalls);
 
 				ResultSet[] allResultSets = statementContainer.getResultSets();
-
+				totalRow.addColumnValue(new DataSetColumn("Patient Name", "Patient Name", Integer.class), allResultSets.length);
 				mapResultSet(data, resultSetMapper, allResultSets);
 				connection.commit();
 				return data;

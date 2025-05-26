@@ -352,11 +352,11 @@ BEGIN
                     where row_num = 1
                       and follow_up_status in ('Alive', 'Restart medication')
                       and art_end_date >= REPORT_END_DATE),
-        cxca_final as (select sex                                       as Sex,
+        cxca_final as (select patient_name as `Patient Name`,
+                              sex                                       as Sex,
                               FollowUP.weight_text_                                 as Weight,
                               mrn                                          as MRN,
                               uan as UAN,
-                              patient_name as `Person Name`,
                               mobile_no as `Mobile No`,
                               phone_no as `Phone No`,
                               timestampdiff(YEAR, date_of_birth, REPORT_END_DATE) as Age,

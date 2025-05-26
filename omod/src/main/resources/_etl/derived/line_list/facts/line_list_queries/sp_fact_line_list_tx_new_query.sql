@@ -87,6 +87,7 @@ BEGIN
                           AND (first_follow_up.transferred_in is null or first_follow_up.transferred_in != 'Yes')
                           AND first_follow_up.follow_up_status in ('Alive', 'Restart medication')),
          tx_new as (select tx_new_tmp.client_id,
+                           patient_name,
                            sex,
                            mrn,
                            uan,
@@ -117,7 +118,7 @@ BEGIN
                             where age = TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE)) as datim_age_val
                     from tx_new_tmp
                              join mamba_dim_client client on tx_new_tmp.client_id = client.client_id)
-    select client_id                                                          AS 'Patient Name',
+    select patient_name                                                          AS 'Patient Name',
            MRN                                                                AS 'MRN',
            uan                                                                AS 'UAN',
            age                                                                AS 'Age',

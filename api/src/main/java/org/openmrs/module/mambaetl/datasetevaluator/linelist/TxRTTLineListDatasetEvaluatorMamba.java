@@ -7,6 +7,8 @@ import org.openmrs.module.mambaetl.datasetdefinition.linelist.TXRTTLineListDataS
 import org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
 import org.openmrs.module.reporting.dataset.DataSet;
+import org.openmrs.module.reporting.dataset.DataSetColumn;
+import org.openmrs.module.reporting.dataset.DataSetRow;
 import org.openmrs.module.reporting.dataset.SimpleDataSet;
 import org.openmrs.module.reporting.dataset.definition.DataSetDefinition;
 import org.openmrs.module.reporting.dataset.definition.evaluator.DataSetEvaluator;
@@ -37,7 +39,8 @@ public class TxRTTLineListDatasetEvaluatorMamba implements DataSetEvaluator {
 
         TXRTTLineListDataSetDefinitionMamba dataSetDefinitionMamba = (TXRTTLineListDataSetDefinitionMamba) dataSetDefinition;
         SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
-
+        DataSetRow totalRow = new DataSetRow();
+        totalRow.addColumnValue(new DataSetColumn("#", "#", Integer.class), "TOTAL");
         ResultSetMapper resultSetMapper = new ResultSetMapper();
 
         ValidateDates(data, dataSetDefinitionMamba.getStartDate(), dataSetDefinitionMamba.getEndDate());
@@ -53,7 +56,7 @@ public class TxRTTLineListDatasetEvaluatorMamba implements DataSetEvaluator {
 
                 ResultSet[] allResultSets = statementContainer.getResultSets();
 
-                // Merge results
+                totalRow.addColumnValue(new DataSetColumn("Patient Name", "Patient Name", Integer.class), allResultSets.length);
                 mapResultSet(data, resultSetMapper, allResultSets); // Use static method from helper
                 connection.commit();
                 return data;

@@ -7,6 +7,8 @@ import org.openmrs.module.mambaetl.datasetdefinition.linelist.ProvidersViewLineL
 import org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
 import org.openmrs.module.reporting.dataset.DataSet;
+import org.openmrs.module.reporting.dataset.DataSetColumn;
+import org.openmrs.module.reporting.dataset.DataSetRow;
 import org.openmrs.module.reporting.dataset.SimpleDataSet;
 import org.openmrs.module.reporting.dataset.definition.DataSetDefinition;
 import org.openmrs.module.reporting.dataset.definition.evaluator.DataSetEvaluator;
@@ -37,24 +39,25 @@ public class ProvidersViewListDatasetEvaluatorMamba implements DataSetEvaluator 
 
         ProvidersViewLineListDataSetDefinitionMamba dataSetDefinitionMamba = (ProvidersViewLineListDataSetDefinitionMamba) dataSetDefinition;
         SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
-
+        DataSetRow totalRow = new DataSetRow();
+        totalRow.addColumnValue(new DataSetColumn("#", "#", Integer.class), "TOTAL");
         ResultSetMapper resultSetMapper = new ResultSetMapper();
 
         ValidateDates(data, dataSetDefinitionMamba.getStartDate(), dataSetDefinitionMamba.getEndDate());
 
-        try (Connection connection = DataSetEvaluatorHelper.getDataSource().getConnection()) { // Use static method from helper
-            connection.setAutoCommit(false); // Ensure consistency across multiple queries
+        try (Connection connection = DataSetEvaluatorHelper.getDataSource().getConnection()) {
+            connection.setAutoCommit(false);
 
             List<ProcedureCall> procedureCalls = createProcedureCalls(dataSetDefinitionMamba);
 
-            try (CallableStatementContainer statementContainer = prepareStatements(connection, procedureCalls)) { // Use static method from helper
+            try (CallableStatementContainer statementContainer = prepareStatements(connection, procedureCalls)) {
 
-                executeStatements(statementContainer, procedureCalls); // Use static method from helper
+                executeStatements(statementContainer, procedureCalls);
 
                 ResultSet[] allResultSets = statementContainer.getResultSets();
+                totalRow.addColumnValue(new DataSetColumn("Patient Name", "Patient Name", Integer.class), allResultSets.length);
 
-                // Merge results
-                mapResultSet(data, resultSetMapper, allResultSets); // Use static method from helper
+                mapResultSet(data, resultSetMapper, allResultSets);
                 connection.commit();
                 return data;
 

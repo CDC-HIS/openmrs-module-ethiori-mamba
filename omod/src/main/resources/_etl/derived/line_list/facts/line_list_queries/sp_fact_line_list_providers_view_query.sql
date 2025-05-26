@@ -72,6 +72,7 @@ BEGIN
                                 patient_name                                 AS PatientName,
                                 timestampdiff(YEAR, date_of_birth, END_DATE) AS Age,
                                 sex                                          as sex,
+                                patient_name,
                                 CASE
                                     WHEN
                                         (given_name <> '' and middle_name <> '' and family_name <> '' and
@@ -807,7 +808,9 @@ BEGIN
                       , 'ART not started'
                  from all_art_not_started_status)
 
-    select tmp_address.patient_uuid,
+    select
+           tmp_address.patient_name                        AS `Patient Name`,
+           tmp_address.patient_uuid,
            tmp_address.mrn,
            tmp_address.uan,
            tmp_address.patientname,
