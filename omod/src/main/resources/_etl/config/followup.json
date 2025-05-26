@@ -220,6 +220,14 @@
     "was_the_patient_screened_for_tuberc": "feebf47b-c11e-4fa7-bb4b-1a9fc444bcc9",
     "weight_for_age_status": "1854AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "weight_text_": "4ab93a3c-4373-4b9b-9268-5ff0641cc242",
-    "why_eligible_reason_": "b7b1da64-22f4-4357-9eb8-493b43c02581"
+    "why_eligible_reason_": "b7b1da64-22f4-4357-9eb8-493b43c02581",
+    "eligible_for_cxca_screening":"50bf403b-8814-4cc9-aec5-73a4effd0b67",
+    "reason_for_not_being_eligible": "53ea1a45-0ee3-4b38-a7d2-250042327781",
+    "other_reason_for_not_being_eligible_for_cxca":"3e12436e-3d8c-4fd8-ba29-137644d99c2b",
+    "is_the_client_screened_in_this_facility": "fc78ad4e-a665-4dae-a056-20562426363c",
+    "no_sexual_exposure": "1a9292fe-a9f3-44ec-852e-1d21a8ab70a7",
+    "total_abdominal_hysterectomy": "a498b20d-70ae-450d-8d97-cf63d3275316",
+    "already_diagnosed_with_cervical_cancer": "bc8827be-968b-4b8a-8e9c-7174b750281f"
+
   }
 }
