@@ -58,13 +58,13 @@ BEGIN
                              fluconazole_stop_date               as fpt_stop_date,
                              transfer_in
                       FROM mamba_flat_encounter_follow_up follow_up
-                               join mamba_flat_encounter_follow_up_1 follow_up_1
+                               left join mamba_flat_encounter_follow_up_1 follow_up_1
                                     on follow_up.encounter_id = follow_up_1.encounter_id
-                               join mamba_flat_encounter_follow_up_2 follow_up_2
+                               left join mamba_flat_encounter_follow_up_2 follow_up_2
                                     on follow_up.encounter_id = follow_up_2.encounter_id
-                               join mamba_flat_encounter_follow_up_3 follow_up_3
+                               left join mamba_flat_encounter_follow_up_3 follow_up_3
                                     on follow_up.encounter_id = follow_up_3.encounter_id
-                               join mamba_dim_person person on follow_up.client_id = person_id),
+                               left join mamba_dim_person person on follow_up.client_id = person_id),
 
          tmp_tpt_start as (select encounter_id,
                                   client_id,
