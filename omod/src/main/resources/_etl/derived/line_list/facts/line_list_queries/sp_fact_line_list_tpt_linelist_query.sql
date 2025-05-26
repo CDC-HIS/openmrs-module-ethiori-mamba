@@ -171,9 +171,9 @@ BEGIN
                               Left join fpt_start on latest_follow_up.client_id = fpt_start.client_id
                               Left join fpt_completed on latest_follow_up.client_id = fpt_completed.client_id)
 
-    select sex                                                 as Sex,
+    select patient_name                                        as `Patient Name`,
+           sex                                                 as Sex,
            tmp_tpt.weight_in_kg                                as Weight,
-           patient_name                                        as `Patient Name`,
            MRN,
            UAN,
            TIMESTAMPDIFF(YEAR, date_of_birth, ?) as Age,

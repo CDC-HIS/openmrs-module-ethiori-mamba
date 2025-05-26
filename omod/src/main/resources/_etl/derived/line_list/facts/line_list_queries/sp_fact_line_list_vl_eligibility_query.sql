@@ -351,8 +351,9 @@ BEGIN
                                      Left join all_art_follow_ups on f_case.client_id = all_art_follow_ups.client_id
 
                             where all_art_follow_ups.follow_up_status in ('Alive', 'Restart Medication'))
-    select eligiblityDate,
-           patient_name                                     as fullname,
+    select
+           patient_name                                     AS 'Patient Name',
+           eligiblityDate,
            mrn                                              as MRN,
            uan                                              as UniqueArtNumber,
            TIMESTAMPDIFF(YEAR, date_of_birth, FollowUpDate) as Age,

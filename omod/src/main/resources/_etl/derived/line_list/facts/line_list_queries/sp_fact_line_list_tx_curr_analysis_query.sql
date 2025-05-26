@@ -18,7 +18,7 @@ BEGIN
         -- Corresponds to factors: 'NEWLY STARTED', 'RESTART', 'TI', 'TRACED BACK' , 'STILL ON CARE'
         SET filter_condition =
                 ' factor in (''NEWLY STARTED'', ''STILL ON CARE'', ''RESTART'', ''TI'', ''TRACED BACK'')';
-        SET columns_list = 'patient_name as `patient name`, MRN , UAN , TIMESTAMPDIFF(YEAR, date_of_birth, ?) as age,
+        SET columns_list = 'patient_name as `Patient Name`, MRN , UAN , TIMESTAMPDIFF(YEAR, date_of_birth, ?) as age,
        sex, regimen , follow_up_status_curr as `follow up status` , art_start_date_curr as `art start date`, art_start_date_curr as `art start date EC.` , adherence ,
        CASE WHEN in_prev_period THEN ''Counted'' ELSE '''' END   AS `Previous status`, pregnancy_status as `Pregnancy status`,
        nutritional_status_of_adult as `Nutritional status`, FollowUpDate_curr as `Follow up date`, FollowUpDate_curr as `Follow up date EC.`, next_visit_date as `Appointment date`, next_visit_date as `Appointment date EC.`,
@@ -26,7 +26,7 @@ BEGIN
     ELSEIF REPORT_TYPE = 'TX_CURR_LAST_MONTH' THEN
         -- Clients who were in TX_CURR in the previous reporting period.
         SET filter_condition = ' in_prev_period = 1';
-        SET columns_list = ' patient_name as `patient name`,
+        SET columns_list = ' patient_name as `Patient Name`,
            MRN,
            UAN,
            TIMESTAMPDIFF(YEAR, date_of_birth, ?) as age,
@@ -44,7 +44,7 @@ BEGIN
     ELSEIF REPORT_TYPE = 'TX_CURR_NEWLY_INCLUDED' THEN
         -- Corresponds to factors: 'NEWLY STARTED', 'RESTART', 'TI', 'TRACED BACK' , 'TO/TI'
         SET filter_condition = ' factor in (''TRACED BACK'', ''RESTART'', ''TI'', ''TO/TI'', ''NEWLY STARTED'')';
-        SET columns_list = ' patient_name as `patient name`,
+        SET columns_list = ' patient_name as `Patient Name`,
            MRN,
            UAN,
            TIMESTAMPDIFF(YEAR, date_of_birth, ?) as age,
@@ -63,7 +63,7 @@ BEGIN
     ELSEIF REPORT_TYPE = 'TX_CURR_EXCLUDED_THIS_MONTH' THEN
         -- Corresponds to factors: 'TO', 'DEAD', 'LOST', 'DROP', 'STOP', 'NOT UPDATED'
         SET filter_condition = ' factor in (''Transferred out'', ''Dead'', ''Loss to follow-up (LTFU)'', ''Ran away'', ''Stop all'', ''NOT UPDATED'')';
-        SET columns_list = ' patient_name as `patient name`,
+        SET columns_list = ' patient_name as `Patient Name`,
            MRN,
            UAN,
            TIMESTAMPDIFF(YEAR, date_of_birth, ?) as age,
@@ -82,7 +82,7 @@ BEGIN
     ELSEIF REPORT_TYPE = 'OTHER_OUTCOME' THEN
         -- Corresponds to factors: 'TO', 'DEAD', 'LOST', 'DROP', 'STOP'
         SET filter_condition = ' in_prev_period = 1 AND factor in (''Transferred out'', ''Dead'', ''Loss to follow-up (LTFU)'', ''Ran away'', ''Stop all'')';
-        SET columns_list = ' patient_name as `patient name`,
+        SET columns_list = ' patient_name as `Patient Name`,
            MRN,
            UAN,
            TIMESTAMPDIFF(YEAR, date_of_birth, ?) as age,
@@ -99,7 +99,7 @@ BEGIN
     ELSEIF REPORT_TYPE = 'NOT_UPDATED' THEN
         -- Corresponds to factor: 'NOT UPDATED'
         SET filter_condition = ' factor in (''NOT UPDATED'') ';
-        SET columns_list = ' patient_name as `patient name`,
+        SET columns_list = ' patient_name as `Patient Name`,
            MRN,
            UAN,
            TIMESTAMPDIFF(YEAR, date_of_birth, ?) as age,
@@ -140,7 +140,7 @@ BEGIN
                 (SELECT COUNT(*) FROM tx_curr_analysis WHERE in_prev_period = 1) ';
     ELSEIF REPORT_TYPE = 'ON_DSD' THEN
         SET filter_condition = ' dsd_category is not null ';
-        SET columns_list = ' patient_name as `patient name`,
+        SET columns_list = ' patient_name as `Patient Name`,
            MRN,
            UAN,
            TIMESTAMPDIFF(YEAR, date_of_birth, ?) as age,
@@ -160,7 +160,7 @@ BEGIN
            dsd_category as `latest DSD category` ';
     ELSE
         SET filter_condition = ' 1 = 1';
-        SET columns_list = '   patient_name,
+        SET columns_list = '   patient_name as `Patient Name`,
                                MRN,
                                UAN,
                                TIMESTAMPDIFF(YEAR, date_of_birth, ?) as age,
