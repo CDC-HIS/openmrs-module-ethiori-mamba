@@ -64,7 +64,8 @@ BEGIN
                                     on follow_up.encounter_id = follow_up_2.encounter_id
                                left join mamba_flat_encounter_follow_up_3 follow_up_3
                                     on follow_up.encounter_id = follow_up_3.encounter_id
-                               left join mamba_dim_person person on follow_up.client_id = person_id),
+                               left join mamba_flat_encounter_follow_up_4 follow_up_4
+                                    on follow_up.client_id = follow_up_4.client_id),
 
          tmp_tpt_start as (select encounter_id,
                                   client_id,
