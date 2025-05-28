@@ -120,6 +120,7 @@ BEGIN
          tpt_completed as (select * from tmp_tpt_completed where row_num = 1),
          vl_performed_date as (select * from tmp_vl_performed_date where row_num = 1)
     select client.patient_name                                                        as 'Patient Name',
+           patient_uuid                             as `UUID`,
            MRN,
            UAN,
            TIMESTAMPDIFF(YEAR, date_of_birth, art_start_date)                         as 'Age at Enrollment',

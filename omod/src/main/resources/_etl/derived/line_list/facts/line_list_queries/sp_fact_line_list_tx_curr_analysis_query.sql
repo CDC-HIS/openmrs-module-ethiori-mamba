@@ -27,6 +27,7 @@ BEGIN
         -- Clients who were in TX_CURR in the previous reporting period.
         SET filter_condition = ' in_prev_period = 1';
         SET columns_list = ' patient_name as `Patient Name`,
+           patient_uuid                             as `UUID`,
            MRN,
            UAN,
            TIMESTAMPDIFF(YEAR, date_of_birth, ?) as age,
@@ -45,6 +46,7 @@ BEGIN
         -- Corresponds to factors: 'NEWLY STARTED', 'RESTART', 'TI', 'TRACED BACK' , 'TO/TI'
         SET filter_condition = ' factor in (''TRACED BACK'', ''RESTART'', ''TI'', ''TO/TI'', ''NEWLY STARTED'')';
         SET columns_list = ' patient_name as `Patient Name`,
+           patient_uuid                             as `UUID`,
            MRN,
            UAN,
            TIMESTAMPDIFF(YEAR, date_of_birth, ?) as age,
@@ -64,6 +66,7 @@ BEGIN
         -- Corresponds to factors: 'TO', 'DEAD', 'LOST', 'DROP', 'STOP', 'NOT UPDATED'
         SET filter_condition = ' factor in (''Transferred out'', ''Dead'', ''Loss to follow-up (LTFU)'', ''Ran away'', ''Stop all'', ''NOT UPDATED'')';
         SET columns_list = ' patient_name as `Patient Name`,
+           patient_uuid                             as `UUID`,
            MRN,
            UAN,
            TIMESTAMPDIFF(YEAR, date_of_birth, ?) as age,
@@ -83,6 +86,7 @@ BEGIN
         -- Corresponds to factors: 'TO', 'DEAD', 'LOST', 'DROP', 'STOP'
         SET filter_condition = ' in_prev_period = 1 AND factor in (''Transferred out'', ''Dead'', ''Loss to follow-up (LTFU)'', ''Ran away'', ''Stop all'')';
         SET columns_list = ' patient_name as `Patient Name`,
+           patient_uuid                             as `UUID`,
            MRN,
            UAN,
            TIMESTAMPDIFF(YEAR, date_of_birth, ?) as age,
@@ -100,6 +104,7 @@ BEGIN
         -- Corresponds to factor: 'NOT UPDATED'
         SET filter_condition = ' factor in (''NOT UPDATED'') ';
         SET columns_list = ' patient_name as `Patient Name`,
+           patient_uuid                             as `UUID`,
            MRN,
            UAN,
            TIMESTAMPDIFF(YEAR, date_of_birth, ?) as age,
@@ -141,6 +146,7 @@ BEGIN
     ELSEIF REPORT_TYPE = 'ON_DSD' THEN
         SET filter_condition = ' dsd_category is not null ';
         SET columns_list = ' patient_name as `Patient Name`,
+           patient_uuid                             as `UUID`,
            MRN,
            UAN,
            TIMESTAMPDIFF(YEAR, date_of_birth, ?) as age,
@@ -161,6 +167,7 @@ BEGIN
     ELSE
         SET filter_condition = ' 1 = 1';
         SET columns_list = '   patient_name as `Patient Name`,
+                               patient_uuid                             as `UUID`,
                                MRN,
                                UAN,
                                TIMESTAMPDIFF(YEAR, date_of_birth, ?) as age,
@@ -343,6 +350,7 @@ BEGIN
                                  dim_client.uan as UAN,
                                  dim_client.patient_name,
                                  dim_client.date_of_birth,
+                                 patient_uuid                 ,
                                  dim_client.sex,
                                  r.* -- Select all columns from the modified f_result
                           from tx_curr_factor r
