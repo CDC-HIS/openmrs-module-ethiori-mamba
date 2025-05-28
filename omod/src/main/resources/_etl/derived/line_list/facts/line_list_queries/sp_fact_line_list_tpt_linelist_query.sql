@@ -65,7 +65,7 @@ BEGIN
                                left join mamba_flat_encounter_follow_up_3 follow_up_3
                                     on follow_up.encounter_id = follow_up_3.encounter_id
                                left join mamba_flat_encounter_follow_up_4 follow_up_4
-                                    on follow_up.client_id = follow_up_4.client_id),
+                                    on follow_up.encounter_id = follow_up_4.encounter_id),
 
          tmp_tpt_start as (select encounter_id,
                                   client_id,
@@ -168,7 +168,7 @@ BEGIN
                               Left join tpt_start on latest_follow_up.client_id = tpt_start.client_id
                               Left join tpt_completed on latest_follow_up.client_id = tpt_completed.client_id
                               Left join cpt_start on latest_follow_up.client_id = cpt_start.client_id
-                              Left join cpt_completed on latest_follow_up.client_id = cpt_start.client_id
+                              Left join cpt_completed on latest_follow_up.client_id = cpt_completed.client_id
                               Left join fpt_start on latest_follow_up.client_id = fpt_start.client_id
                               Left join fpt_completed on latest_follow_up.client_id = fpt_completed.client_id)
 
