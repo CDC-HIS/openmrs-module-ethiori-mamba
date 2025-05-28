@@ -173,6 +173,7 @@ BEGIN
                               Left join fpt_completed on latest_follow_up.client_id = fpt_completed.client_id)
 
     select patient_name                                        as `Patient Name`,
+           patient_uuid                                        as `UUID`,
            sex                                                 as Sex,
            tmp_tpt.weight_in_kg                                as Weight,
            MRN,

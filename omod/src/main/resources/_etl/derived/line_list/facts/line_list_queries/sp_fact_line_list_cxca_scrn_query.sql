@@ -123,6 +123,7 @@ BEGIN
                                     END AS screening_result,
                                 client.uan,
                                 client.mrn,
+                                client.patient_uuid,
                                 client.sex,
                                 client.date_of_birth,
                                 client.patient_name
@@ -134,6 +135,7 @@ BEGIN
              -- and not (screening_type = 'Human Papillomavirus test' and hpv_dna_screening_result = 'Positive' and via_screening_result is null )
          )
     select patient_name                                        as `Patient Name`,
+           patient_uuid                                        as `UUID`,
            MRN,
            UAN,
            TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) as `Current Age`,

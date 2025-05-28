@@ -110,6 +110,7 @@ BEGIN
                                   client.date_of_birth,
                                   mrn,
                                   uan,
+                                  client.patient_uuid,
                                   patient_name,
                                   (SELECT datim_agegroup
                                    from mamba_dim_agegroup
@@ -126,6 +127,7 @@ BEGIN
                                                                where row_num = 1
                                                                  and follow_up_status = 'Transferred out')),
          tx_rtt as (select patient_name                             as `Patient Name`,
+                           patient_uuid                             as `UUID`,
                            sex,
                            date_of_birth                               `Date Of Birth`,
                            mrn,

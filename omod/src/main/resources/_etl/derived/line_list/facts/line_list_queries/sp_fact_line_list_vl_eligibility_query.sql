@@ -353,6 +353,7 @@ BEGIN
                             where all_art_follow_ups.follow_up_status in ('Alive', 'Restart Medication'))
     select
            patient_name                                     AS 'Patient Name',
+           patient_uuid                             as `UUID`,
            eligiblityDate,
            mrn                                              as MRN,
            uan                                              as UniqueArtNumber,

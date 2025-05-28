@@ -810,7 +810,7 @@ BEGIN
 
     select
            tmp_address.patient_name                        AS `Patient Name`,
-           tmp_address.patient_uuid,
+           tmp_address.patient_uuid                        AS `UUID`,
            tmp_address.mrn,
            tmp_address.uan,
            tmp_address.patientname,

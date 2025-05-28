@@ -88,6 +88,7 @@ BEGIN
                           AND first_follow_up.follow_up_status in ('Alive', 'Restart medication')),
          tx_new as (select tx_new_tmp.client_id,
                            patient_name,
+                           patient_uuid                             ,
                            sex,
                            mrn,
                            uan,
@@ -119,6 +120,7 @@ BEGIN
                     from tx_new_tmp
                              join mamba_dim_client client on tx_new_tmp.client_id = client.client_id)
     select patient_name                                                          AS 'Patient Name',
+           patient_uuid                                                       as `UUID`,
            MRN                                                                AS 'MRN',
            uan                                                                AS 'UAN',
            age                                                                AS 'Age',

@@ -12,6 +12,7 @@ BEGIN
                               mrn,
                               uan,
                               sex,
+                              patient_uuid,
                               date_of_birth,
                               patient_name,
                               mobile_no                                           as mobilephonenumber,
@@ -56,6 +57,7 @@ BEGIN
 
 
     SELECT DISTINCT patient_name                              AS `Patient Name`,
+                    patient_uuid                              AS `UUID`,
                     mrn,
                     uan,
                     sex,
