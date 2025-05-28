@@ -54,100 +54,100 @@ BEGIN
     END IF;
 
     SET tx_ml_query = 'WITH FollowUp AS (SELECT follow_up.encounter_id,
-                             follow_up.client_id,
-                             follow_up_status,
-                             follow_up_date_followup_            AS follow_up_date,
-                             art_antiretroviral_start_date       AS art_start_date,
-                             treatment_end_date,
-                             next_visit_date,
-                             regimen,
-                             currently_breastfeeding_child          breast_feeding_status,
-                             pregnancy_status,
-                             transferred_in_check_this_for_all_t AS transferred_in
-                      FROM mamba_flat_encounter_follow_up follow_up
-                               LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1
-                                    ON follow_up.encounter_id = follow_up_1.encounter_id
-                               LEFT JOIN mamba_flat_encounter_follow_up_2 follow_up_2
-                                    ON follow_up.encounter_id = follow_up_2.encounter_id
-                               LEFT JOIN mamba_flat_encounter_follow_up_3 follow_up_3
-                                         ON follow_up.encounter_id = follow_up_3.encounter_id
-                               LEFT JOIN mamba_flat_encounter_follow_up_4 follow_up_4
-                                         ON follow_up.encounter_id = follow_up_4.encounter_id),
-         -- TX curr start
-         tmp_latest_follow_up_start AS (SELECT client_id,
-                                               follow_up_date,
-                                               encounter_id,
-                                               follow_up_status,
-                                               treatment_end_date,
-                                               art_start_date,
-                                               ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
-                                        FROM FollowUp
-                                        WHERE follow_up_status IS NOT NULL
-                                          AND art_start_date IS NOT NULL
-                                          AND follow_up_date <= ?),
-         tx_curr_start AS (select *
-                           from tmp_latest_follow_up_start
-                           where row_num = 1
-                             AND follow_up_status in (''Alive'', ''Restart medication'')
-                             AND treatment_end_date >= ?),
-         -- TX curr
-         tmp_latest_follow_up_end AS (SELECT client_id,
-                                             follow_up_date,
-                                             encounter_id,
-                                             follow_up_status,
-                                             treatment_end_date,
-                                             art_start_date,
-                                             ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
-                                      FROM FollowUp
-                                      WHERE follow_up_status IS NOT NULL
-                                        AND art_start_date IS NOT NULL
-                                        AND follow_up_date <= ?),
-         latest_follow_up_status as (select follow_up_status, client_id
-                                     from tmp_latest_follow_up_end
-                                     where row_num = 1),
-         tx_curr_end AS (select *
-                         from tmp_latest_follow_up_end
-                         where row_num = 1
-                           AND follow_up_status in (''Alive'', ''Restart medication'')
-                           AND treatment_end_date >= ?),
+                         follow_up.client_id,
+                         follow_up_status,
+                         follow_up_date_followup_            AS follow_up_date,
+                         art_antiretroviral_start_date       AS art_start_date,
+                         treatment_end_date,
+                         next_visit_date,
+                         regimen,
+                         currently_breastfeeding_child          breast_feeding_status,
+                         pregnancy_status,
+                         transferred_in_check_this_for_all_t AS transferred_in
+                  FROM mamba_flat_encounter_follow_up follow_up
+                           LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1
+                                     ON follow_up.encounter_id = follow_up_1.encounter_id
+                           LEFT JOIN mamba_flat_encounter_follow_up_2 follow_up_2
+                                     ON follow_up.encounter_id = follow_up_2.encounter_id
+                           LEFT JOIN mamba_flat_encounter_follow_up_3 follow_up_3
+                                     ON follow_up.encounter_id = follow_up_3.encounter_id
+                           LEFT JOIN mamba_flat_encounter_follow_up_4 follow_up_4
+                                     ON follow_up.encounter_id = follow_up_4.encounter_id),
+     -- TX curr start
+     tmp_latest_follow_up_start AS (SELECT client_id,
+                                           follow_up_date,
+                                           encounter_id,
+                                           follow_up_status,
+                                           treatment_end_date,
+                                           art_start_date,
+                                           ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
+                                    FROM FollowUp
+                                    WHERE follow_up_status IS NOT NULL
+                                      AND art_start_date IS NOT NULL
+                                      AND follow_up_date <= ?),
+     tx_curr_start AS (select *
+                       from tmp_latest_follow_up_start
+                       where row_num = 1
+                         AND follow_up_status in (''Alive'', ''Restart medication'')
+                         AND treatment_end_date >= ?),
+     -- TX curr
+     tmp_latest_follow_up_end AS (SELECT client_id,
+                                         follow_up_date,
+                                         encounter_id,
+                                         follow_up_status,
+                                         treatment_end_date,
+                                         art_start_date,
+                                         ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
+                                  FROM FollowUp
+                                  WHERE follow_up_status IS NOT NULL
+                                    AND art_start_date IS NOT NULL
+                                    AND follow_up_date <= ?),
+     latest_follow_up_status as (select follow_up_status, client_id
+                                 from tmp_latest_follow_up_end
+                                 where row_num = 1),
+     tx_curr_end AS (select *
+                     from tmp_latest_follow_up_end
+                     where row_num = 1
+                       AND follow_up_status in (''Alive'', ''Restart medication'')
+                       AND treatment_end_date >= ?),
 
-         tmp_first_follow_up as (SELECT client_id,
-                                        follow_up_date,
-                                        encounter_id,
-                                        transferred_in,
-                                        pregnancy_status,
-                                        follow_up_status,
-                                        ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date , encounter_id ) AS row_num
-                                 FROM FollowUp
-                                 WHERE art_start_date IS NOT NULL),
-         first_follow_up as (select * from tmp_first_follow_up where row_num = 1),
+     tmp_first_follow_up as (SELECT client_id,
+                                    follow_up_date,
+                                    encounter_id,
+                                    transferred_in,
+                                    pregnancy_status,
+                                    follow_up_status,
+                                    ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date , encounter_id ) AS row_num
+                             FROM FollowUp
+                             WHERE art_start_date IS NOT NULL),
+     first_follow_up as (select * from tmp_first_follow_up where row_num = 1),
 
-         tx_new_tmp as (select tmp_latest_follow_up_end.*
-                        from tmp_latest_follow_up_end
-                                 join first_follow_up on tmp_latest_follow_up_end.client_id = first_follow_up.client_id
-                        where art_start_date BETWEEN ? AND ?
-                          AND (first_follow_up.transferred_in is null or first_follow_up.transferred_in != ''Yes'')
-                          AND first_follow_up.follow_up_status in (''Alive'', ''Restart medication'')
-                          AND tmp_latest_follow_up_end.row_num = 1),
-         tx_new as (select *
-                    from tx_new_tmp),
+     tx_new_tmp as (select tmp_latest_follow_up_end.*
+                    from tmp_latest_follow_up_end
+                             join first_follow_up on tmp_latest_follow_up_end.client_id = first_follow_up.client_id
+                    where art_start_date BETWEEN ? AND ?
+                      AND (first_follow_up.transferred_in is null or first_follow_up.transferred_in != ''Yes'')
+                      AND first_follow_up.follow_up_status in (''Alive'', ''Restart medication'')
+                      AND tmp_latest_follow_up_end.row_num = 1),
+     tx_new as (select *
+                from tx_new_tmp),
 
-         started_art as (select *
-                         from tx_new
-                         union ALL
-                         select *
-                         from tx_curr_start),
-         interrupted_art as (select started_art.*,
-                                    client.sex,
-                                    client.date_of_birth,
-                                    (SELECT datim_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as fine_age_group,
-                                    (SELECT normal_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as coarse_age_group,
-                                    latest_follow_up_status.follow_up_status as latest_follow_up_status
-                             from started_art
-                                      join mamba_dim_client client on started_art.client_id = client.client_id
-                                      join latest_follow_up_status
-                                           on started_art.client_id = latest_follow_up_status.client_id
-                             where started_art.client_id not in (select client_id from tx_curr_end)) ';
+     on_art as (select *
+                     from tx_new
+                     union ALL
+                     select *
+                     from tx_curr_start),
+     interrupted_art as (select on_art.*,
+                                client.sex,
+                                client.date_of_birth,
+                                (SELECT datim_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as fine_age_group,
+                                (SELECT normal_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as coarse_age_group,
+                                latest_follow_up_status.follow_up_status as latest_follow_up_status
+                         from on_art
+                                  join mamba_dim_client client on on_art.client_id = client.client_id
+                                  join latest_follow_up_status
+                                       on on_art.client_id = latest_follow_up_status.client_id
+                         where on_art.client_id not in (select client_id from tx_curr_end)) ';
     IF REPORT_TYPE = 'TOTAL' THEN
         SET group_query = 'SELECT COUNT(*) AS NUMERATOR FROM interrupted_art';
     ELSE
