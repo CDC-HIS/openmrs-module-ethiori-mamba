@@ -68,6 +68,7 @@ BEGIN
                                              weight_text_,
                                              antiretroviral_art_dispensed_dose_i,
                                              adherence,
+                                             next_visit_date,
                                              ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
                                       FROM FollowUp
                                       WHERE follow_up_status IS NOT NULL
@@ -114,6 +115,7 @@ BEGIN
                            tx_curr_end.weight_text_,
                            tx_curr_end.antiretroviral_art_dispensed_dose_i,
                            tx_curr_end.adherence,
+                           tx_curr_end.next_visit_date,
                            (SELECT datim_agegroup
                             from mamba_dim_agegroup
                             where TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) = age) as fine_age_group,   -- Param 7 @end_date
@@ -142,17 +144,26 @@ BEGIN
     select patient_name                          as `Full Name`,
            MRN,
            UAN,
-           Sex,
            TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) as Age, -- Param 10 @end_date
-           latest_follow_up_art_start_date       as ARTStartDateET,
+           Sex,
+           weight_text_                          as Weight,
+           latest_follow_up_art_start_date       as `ART Start Date`,
+           latest_follow_up_art_start_date       as `ART Start Date E.C`,
            restart_follow_up_date                as `Date returned to treatment`,
+           restart_follow_up_date                as `Date returned to treatment EC.`,
+           interrupted_follow_up_follow_up_status as `Interrupted Follow-up Status`,
+           Regimen,
+           antiretroviral_art_dispensed_dose_i   as `ARV Dose days`,
+           adherence                             as  Adherance,
+           next_visit_date                       as `Next Visit Date`,
+           next_visit_date                       as `Last Next Visit Date EC.`,
+           latest_follow_up_treatment_end_date   as `Last Treatment End Date`,
+           latest_follow_up_treatment_end_date   as `Last Treatment End Date EC.`,
+           latest_follow_up_date                 as `Last Follow-up Date`,
+           latest_follow_up_date                 as `Last Follow-up Date EC.`,
+           latest_follow_up_status               as `Last Follow-up Status`,
            interrupted_follow_up_follow_up_date  as `Date excluded from TX_CURR`,
            latest_follow_up_treatment_end_date   as `Last TX_CURR date`,
-           Regimen,
-           weight_text_                          as Weight,
-           antiretroviral_art_dispensed_dose_i   as `Dose days`,
-           adherence                             as Adherance,
-           latest_follow_up_status               as ClientStatus
     from tx_rtt;
 END //
 
