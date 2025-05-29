@@ -5,11 +5,6 @@ DROP PROCEDURE IF EXISTS sp_fact_line_list_otz_query;
 CREATE PROCEDURE sp_fact_line_list_otz_query(IN REPORT_START_DATE DATE, IN REPORT_END_DATE DATE)
 BEGIN
 
-CREATE TABLE #temp1
-(
-    patientid    INT,
-    followupdate DATETIME
-)
 
 INSERT INTO #temp1
     SELECT patientid,
@@ -21,10 +16,6 @@ WHERE  ( deprecated = 0 )
   AND followupdate <= Getdate()
 GROUP  BY patientid
 
-CREATE TABLE #temp2
-(
-    id INT
-)
 
 INSERT INTO #temp2
     SELECT Max(v.id) AS Id
@@ -37,24 +28,6 @@ GROUP  BY v.patientid,
     v.deprecated
 HAVING v.deprecated = 0
 
-CREATE TABLE #temp3
-(
-    id                   INT,
-    patientid            INT,
-    uniqueartnumber      VARCHAR(100),
-    [weight]             DECIMAL (12, 5),
-    date_hiv_confirmed   DATETIME,
-    art_start_date       DATETIME,
-    followupdate         DATETIME,
-    scheduletype         INT,
-    nutrition_resultsnew INT,
-    arvdispendseddose    INT,
-    art_dose             INT,
-    adherance            INT,
-    next_visit_date      DATETIME,
-    follow_up_status     INT,
-    art_dose_end         DATETIME
-    )
 
 INSERT INTO #temp3
     SELECT d.id,
@@ -76,11 +49,7 @@ FROM   dbo.crtethiopiaartvisit AS d
     INNER JOIN #temp2
 ON d.id = #temp2.id
 
-CREATE TABLE #temp4
-(
-    patientid INT,
-    vldate    DATETIME
-)
+
 
 INSERT INTO #temp4
     SELECT patientid,
@@ -91,10 +60,7 @@ WHERE  ( deprecated = 0 )
   AND ( art_start = 1 )
 GROUP  BY patientid
 
-CREATE TABLE #temp5
-(
-    id INT
-)
+
 
 INSERT INTO #temp5
     SELECT Max(vl.id) AS Id
@@ -104,16 +70,7 @@ ON vl.patientid = #temp4.patientid
     AND vl.viral_load_perform_date = #temp4.vldate
 GROUP  BY vl.patientid
 
-CREATE TABLE #temp6
-(
-    id                      INT,
-    patientid               INT,
-    vl_sent_date            DATETIME,
-    viral_load_perform_date DATETIME,
-    viral_load_count        VARCHAR(100),
-    viral_load_status       VARCHAR(100),
-    followupdate            DATETIME
-)
+
 
 INSERT INTO #temp6
     SELECT dvl.id,
@@ -131,11 +88,9 @@ ON dvl.id = #temp5.id
     AND dvl.followupdate = vlsent.followupdate
     AND dvl.patientid = vlsent.patientid
 
-CREATE TABLE #temp7
-(
-    patientid INT,
-    vldate    DATETIME
-)
+
+
+
 
 INSERT INTO #temp7
     SELECT bl.patientid,
@@ -152,10 +107,6 @@ WHERE  bl.deprecated = 0
     Dateadd(month, 2, bl.viral_load_perform_date)
 GROUP  BY bl.patientid
 
-CREATE TABLE #temp8
-(
-    id INT
-)
 
 INSERT INTO #temp8
     SELECT Max(vlbl.id) AS Id
@@ -165,16 +116,11 @@ ON vlbl.patientid = #temp7.patientid
     AND vlbl.viral_load_perform_date = #temp7.vldate
 GROUP  BY vlbl.patientid
 
-CREATE TABLE #temp9
-(
-    id                         INT,
-    patientid                  INT,
-    bl_vl_sent_date            DATETIME,
-    bl_viral_load_perform_date DATETIME,
-    bl_viral_load_count        VARCHAR(100),
-    bl_viral_load_status       VARCHAR(100),
-    bl_followupdate            DATETIME
-)
+
+
+-----------------------------------------------------------------------------------------------
+
+
 
 INSERT INTO #temp9
     SELECT dvl_base.id,
@@ -192,16 +138,6 @@ ON dvl_base.id = #temp8.id
     AND dvl_base.followupdate = vlsent_base.followupdate
     AND dvl_base.patientid = vlsent_base.patientid
 
-CREATE TABLE #temp10
-(
-    mrn               VARCHAR(16),
-    patientid         INT,
-    fullname          VARCHAR(800),
-    age               INT,
-    sex               VARCHAR(10),
-    phonenumber       VARCHAR(100),
-    mobilephonenumber VARCHAR(100)
-)
 
 INSERT INTO #temp10
     SELECT reg.patientid,
@@ -215,11 +151,6 @@ FROM   dbo.registration AS reg
     LEFT JOIN address
 ON reg.patientguid = address.patientguid
 
-CREATE TABLE #temp11
-(
-    patientid    INT,
-    followupdate DATETIME
-)
 
 INSERT INTO #temp11
     SELECT patientid,
@@ -232,10 +163,6 @@ WHERE  deprecated = 0
   AND followupdate <= Getdate()
 GROUP  BY patientid
 
-CREATE TABLE #temp12
-(
-    id INT
-)
 
 INSERT INTO #temp12
     SELECT Max(vo.id) AS Id
@@ -248,13 +175,6 @@ GROUP  BY vo.patientid,
     vo.deprecated
 HAVING vo.deprecated = 0
 
-CREATE TABLE #temp13
-(
-    id                  INT,
-    patientid           INT,
-    o_followupdate      DATETIME,
-    o_arvdispendseddose INT
-)
 
 INSERT INTO #temp13
     SELECT od.id,
@@ -265,12 +185,7 @@ FROM   dbo.crtethiopiaartvisit AS od
     INNER JOIN #temp12
 ON od.id = #temp12.id
 
-CREATE TABLE #temp14
-(
-    patientid         INT,
-    followupdate      DATETIME,
-    arvdispendseddose INT
-)
+
 
 INSERT INTO #temp14
     SELECT patientid,
@@ -285,11 +200,7 @@ WHERE  deprecated = 0
 GROUP  BY patientid,
     arvdispendseddose
 
-CREATE TABLE #temp15
-(
-    patientid        INT,
-    crg_followupdate DATETIME
-)
+
 
 INSERT INTO #temp15
     SELECT creg.patientid,
@@ -407,6 +318,7 @@ WHERE  creg.deprecated = 0
     ELSE [dbo].[Fn_gregoriantoethiopiandate](#temp15.crg_followupdate)
     END                                                   AS
     currentRegimenStart
+
     FROM   #temp3
     LEFT JOIN #temp10
     ON #temp10.patientid = #temp3.patientid
