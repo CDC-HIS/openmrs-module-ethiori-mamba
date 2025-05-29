@@ -2,7 +2,7 @@ DELIMITER //
 
 DROP PROCEDURE IF EXISTS sp_fact_line_list_tx_rtt_query;
 
-CREATE PROCEDURE sp_fact_line_list_tx_rtt_query(IN REPORT_END_DATE DATE)
+CREATE PROCEDURE sp_fact_line_list_tx_rtt_query(IN REPORT_START_DATE DATE,IN REPORT_END_DATE DATE)
 BEGIN
     WITH FollowUp AS (SELECT follow_up.encounter_id,
                              follow_up.client_id,
@@ -111,6 +111,7 @@ BEGIN
                            mrn,
                            uan,
                            patient_name,
+                           patient_uuid,
                            tx_curr_end.regimen,
                            tx_curr_end.weight_text_,
                            tx_curr_end.antiretroviral_art_dispensed_dose_i,
@@ -127,7 +128,7 @@ BEGIN
                            interrupted_at_start.treatment_end_date             as interrupted_follow_up_treatment_end_date,
                            CASE
                                WHEN interrupted_at_start.follow_up_status in ('Alive', 'Restart medication')
-                                   and interrupted_at_start.treatment_end_date <= ? THEN -- Param 9 @start_date
+                                   and interrupted_at_start.treatment_end_date <= REPORT_START_DATE THEN -- Param 9 @start_date
                                    TIMESTAMPDIFF(MONTH, interrupted_at_start.treatment_end_date,
                                                  restart_follow_up_end.restart_follow_up_date)
                                ELSE TIMESTAMPDIFF(MONTH, interrupted_at_start.follow_up_date,
@@ -142,6 +143,7 @@ BEGIN
                              join restart_follow_up_end on tx_curr_end.client_id = restart_follow_up_end.client_id)
 
     select patient_name                          as `Full Name`,
+           patient_uuid                          as `UUID` ,
            MRN,
            UAN,
            TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) as Age, -- Param 10 @end_date
@@ -163,7 +165,7 @@ BEGIN
            latest_follow_up_date                 as `Last Follow-up Date EC.`,
            latest_follow_up_status               as `Last Follow-up Status`,
            interrupted_follow_up_follow_up_date  as `Date excluded from TX_CURR`,
-           latest_follow_up_treatment_end_date   as `Last TX_CURR date`,
+           latest_follow_up_treatment_end_date   as `Last TX_CURR date`
     from tx_rtt;
 END //
 
