@@ -99,7 +99,8 @@ BEGIN
            visit_type `schedule type`,
            FollowUpDate_curr                                     as `Follow up date`,
            FollowUpDate_curr                                     as `Follow up date EC.`,
-           next_visit_date_prev                                       as `Appointment date` ';
+           next_visit_date_prev                                       as `Appointment date`,
+           next_visit_date_prev                                       as `Appointment date EC.` ';
     ELSEIF REPORT_TYPE = 'NOT_UPDATED' THEN
         -- Corresponds to factor: 'NOT UPDATED'
         SET filter_condition = ' factor in (''NOT UPDATED'') ';
@@ -112,10 +113,13 @@ BEGIN
            regimen,
            follow_up_status_curr                                 as `follow up status`,
            art_start_date_curr                                   as `art start date`,
+           art_start_date_curr                                   as `art start date EC.`,
            adherence,
            visit_type `schedule type`,
            FollowUpDate_curr                                     as `Follow up date`,
-           next_visit_date                                       as `Appointment date` ';
+           FollowUpDate_curr                                     as `Follow up date EC.`,
+           next_visit_date                                       as `Appointment date`,
+           next_visit_date                                       as `Appointment date EC.` ';
     ELSEIF REPORT_TYPE = 'SUMMARY' THEN
         SET columns_list = ' ''Previous Month Tx_Current'' as `Label`,COUNT(*) as `Count` from tx_curr_analysis where in_prev_period=1
             UNION ALL

@@ -19,6 +19,8 @@ INSERT INTO mamba_dim_client (client_id,
                               key_population,
                               marital_status,
                               education_level,
+                              house_number,
+                              kebele,
                               coarse_age_group,
                               fine_age_group)
 SELECT p.person_id,
@@ -44,6 +46,8 @@ SELECT p.person_id,
        MAX(CASE WHEN p_attr.person_attribute_type_id = 25 THEN p_attr.value END) AS key_population,
        MAX(CASE WHEN p_attr.person_attribute_type_id = 5 THEN p_attr.value END)  AS marital_status,
        MAX(CASE WHEN p_attr.person_attribute_type_id = 24 THEN p_attr.value END) AS education_level,
+       MAX(CASE WHEN p_attr.person_attribute_type_id = 11 THEN p_attr.value END) AS house_number,
+       MAX(CASE WHEN p_attr.person_attribute_type_id = 12 THEN p_attr.value END) AS kebele,
        mag_normal.normal_agegroup                                                AS coarse_age_group,
        mag_datim.datim_agegroup                                                  AS fine_age_group
 FROM mamba_dim_person p

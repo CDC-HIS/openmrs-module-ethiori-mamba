@@ -22,6 +22,8 @@ CREATE TABLE IF NOT EXISTS mamba_dim_client
     key_population    VARCHAR(50)   NULL,
     marital_status    VARCHAR(50)   NULL,
     education_level   VARCHAR(50)   NULL,
+    house_number   VARCHAR(50)   NULL,
+    kebele   VARCHAR(50)   NULL,
     coarse_age_group  VARCHAR(255) NULL,
     fine_age_group    VARCHAR(255) NULL,
     constraint client_id

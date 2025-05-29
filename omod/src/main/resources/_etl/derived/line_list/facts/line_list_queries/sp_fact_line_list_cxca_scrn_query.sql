@@ -146,10 +146,10 @@ BEGIN
            art_start_date                                      as `Art Start Date EC.`,
            date_counseling_given                               as `Date Counseled For CCA`,
            date_counseling_given                               as `Date Counseled For CCA EC.`,
-           ready_for_cervical_cancer_screening                 as `Date Accepted CxCa Screening in`,
-           ready_for_cervical_cancer_screening                 as `Date Accepted CxCa Screening in EC.`,
-           date_linked_to_cervical_cancer_scre                 as `Date Linked to CxCa Screening Unit in`,
-           date_linked_to_cervical_cancer_scre                 as `Date Linked to CxCa Screening Unit in EC.`,
+           ready_for_cervical_cancer_screening                 as `Date Accepted CxCa Screening`,
+           ready_for_cervical_cancer_screening                 as `Date Accepted CxCa Screening EC.`,
+           date_linked_to_cervical_cancer_scre                 as `Date Linked to CxCa Screening Unit`,
+           date_linked_to_cervical_cancer_scre                 as `Date Linked to CxCa Screening Unit EC.`,
            type_of_screening                                   as `Type of Screening`,
            screening_method                                    as `Screening Strategy`,
            via_screening_result                                as `VIA Screening Result`,
@@ -186,16 +186,16 @@ BEGIN
            date_patient_referred_out                           as `Date of Referral to other HF EC.`,
 # Referral Confirmed Date EC.
 # Feedback from the other HF
-           date_client_served_in_the_referred_                 as `Date Client Served in the referred HF in`,
-           date_client_served_in_the_referred_                 as `Date Client Served in the referred HF in EC.`,
+           date_client_served_in_the_referred_                 as `Date Client Served in the referred HF`,
+           date_client_served_in_the_referred_                 as `Date Client Served in the referred HF EC.`,
            follow_up_status                                    as `Latest Follow-Up Status`,
            regimen                                             as `Latest Regimen`,
            dose_days                                           as `Latest ARV Dose Days`,
            adherence                                              `Latest Adherence`,
-           next_visit_date                                     as `Next Visit Date in`,
-           next_visit_date                                     as `Next Visit Date in EC.`,
-           treatment_end_date                                  as `Treatment End Date in`,
-           treatment_end_date                                  as `Treatment End Date in EC.`
+           next_visit_date                                     as `Next Visit Date`,
+           next_visit_date                                     as `Next Visit Date EC.`,
+           treatment_end_date                                  as `Treatment End Date`,
+           treatment_end_date                                  as `Treatment End Date EC.`
 
     from cx_screened;
 
