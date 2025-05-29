@@ -150,7 +150,7 @@ BEGIN
            Sex,
            weight_text_                          as Weight,
            latest_follow_up_art_start_date       as `ART Start Date`,
-           latest_follow_up_art_start_date       as `ART Start Date E.C`,
+           latest_follow_up_art_start_date       as `ART Start Date EC.`,
            restart_follow_up_date                as `Date returned to treatment`,
            restart_follow_up_date                as `Date returned to treatment EC.`,
            interrupted_follow_up_follow_up_status as `Interrupted Follow-up Status`,
