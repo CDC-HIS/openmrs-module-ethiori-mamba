@@ -6,6 +6,9 @@ CREATE PROCEDURE sp_fact_line_list_otz_query(IN REPORT_START_DATE DATE, IN REPOR
 BEGIN
 
 
+
+-- ----- Latest follow Up ------------------
+end //
 INSERT INTO #temp1
     SELECT patientid,
        Max(followupdate) AS FollowupDate
@@ -49,7 +52,9 @@ FROM   dbo.crtethiopiaartvisit AS d
     INNER JOIN #temp2
 ON d.id = #temp2.id
 
+-- ----- Latest follow Up ------------------
 
+-- ----- Latest VL performed date ------------------
 
 INSERT INTO #temp4
     SELECT patientid,
@@ -60,8 +65,6 @@ WHERE  ( deprecated = 0 )
   AND ( art_start = 1 )
 GROUP  BY patientid
 
-
-
 INSERT INTO #temp5
     SELECT Max(vl.id) AS Id
 FROM   dbo.crtethiopiaartvisit AS vl
@@ -69,8 +72,6 @@ FROM   dbo.crtethiopiaartvisit AS vl
 ON vl.patientid = #temp4.patientid
     AND vl.viral_load_perform_date = #temp4.vldate
 GROUP  BY vl.patientid
-
-
 
 INSERT INTO #temp6
     SELECT dvl.id,
@@ -87,11 +88,10 @@ ON dvl.id = #temp5.id
     ON dvl.viral_load_perform_date = vlsent.vl_received_date
     AND dvl.followupdate = vlsent.followupdate
     AND dvl.patientid = vlsent.patientid
+-- ----- Latest VL performed date ------------------
 
 
-
-
-
+-- ----- Latest OTZ enrollment date ------------------
 INSERT INTO #temp7
     SELECT bl.patientid,
     Max(viral_load_perform_date) AS VLDate
@@ -107,7 +107,6 @@ WHERE  bl.deprecated = 0
     Dateadd(month, 2, bl.viral_load_perform_date)
 GROUP  BY bl.patientid
 
-
 INSERT INTO #temp8
     SELECT Max(vlbl.id) AS Id
 FROM   dbo.crtethiopiaartvisit AS vlbl
@@ -115,12 +114,6 @@ FROM   dbo.crtethiopiaartvisit AS vlbl
 ON vlbl.patientid = #temp7.patientid
     AND vlbl.viral_load_perform_date = #temp7.vldate
 GROUP  BY vlbl.patientid
-
-
-
------------------------------------------------------------------------------------------------
-
-
 
 INSERT INTO #temp9
     SELECT dvl_base.id,
@@ -138,6 +131,11 @@ ON dvl_base.id = #temp8.id
     AND dvl_base.followupdate = vlsent_base.followupdate
     AND dvl_base.patientid = vlsent_base.patientid
 
+-- ----- Latest OTZ enrollment date ------------------
+
+
+
+-- ----- Patient Details ------------------
 
 INSERT INTO #temp10
     SELECT reg.patientid,
@@ -150,8 +148,9 @@ INSERT INTO #temp10
 FROM   dbo.registration AS reg
     LEFT JOIN address
 ON reg.patientguid = address.patientguid
+-- ----- Patient Details ------------------
 
-
+-- ----- Oldest Follow Up ------------------
 INSERT INTO #temp11
     SELECT patientid,
        Min(followupdate) AS FollowupDate
@@ -175,7 +174,6 @@ GROUP  BY vo.patientid,
     vo.deprecated
 HAVING vo.deprecated = 0
 
-
 INSERT INTO #temp13
     SELECT od.id,
     od.patientid,
@@ -185,6 +183,7 @@ FROM   dbo.crtethiopiaartvisit AS od
     INNER JOIN #temp12
 ON od.id = #temp12.id
 
+-- ----- Oldest Follow Up ------------------
 
 
 INSERT INTO #temp14
@@ -201,7 +200,6 @@ GROUP  BY patientid,
     arvdispendseddose
 
 
-
 INSERT INTO #temp15
     SELECT creg.patientid,
     Min(creg.followupdate) AS crg_FollowupDate
@@ -216,6 +214,7 @@ WHERE  creg.deprecated = 0
     FROM   #temp14
     ORDER  BY #temp14.followupdate DESC)
     GROUP  BY creg.patientid
+
 
     SELECT CASE
     WHEN otz.enrollement_date = '1900-01-01' THEN NULL
