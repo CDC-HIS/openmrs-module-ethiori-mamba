@@ -322,7 +322,8 @@ BEGIN
                                           latest.treatment_end_date >= ? -- param 19: @end_date, param 20: @end_date
                                          and latest.follow_up_status in (''Alive'', ''Restart medication'')
                                          and previous.client_id is null and -- not in prev
-                                          latest.TIStatus = ''TI'' then ''TI''
+                                         and previous_all.client_id is null and -- NOT TO In previous follow up
+                                         and latest.TIStatus = ''TI'' then ''TI''
 
                                      when latest.follow_up_date <= ? and
                                           latest.treatment_end_date >= ? -- param 21: @end_date, param 22: @end_date
@@ -334,7 +335,7 @@ BEGIN
                                           latest.treatment_end_date >= ? -- param 23: @end_date, param 24: @end_date
                                          and latest.follow_up_status in (''Alive'', ''Restart medication'')
                                          and previous_all.follow_up_status = ''Transferred out''
-                                         and previous.client_id is not null and -- TO in prev
+                                         and previous_all.client_id is not null and -- TO in prev
                                           latest.TIStatus = ''TI'' then ''TO/TI'' -- TI in curr
 
 -- subtract factor--
