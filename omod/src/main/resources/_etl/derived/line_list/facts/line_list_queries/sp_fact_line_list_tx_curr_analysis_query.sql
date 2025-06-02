@@ -300,51 +300,52 @@ BEGIN
                                  latest.visit_type,
                                  case
                                      when
-                                         latest.art_antiretroviral_start_date between ? and ? and -- param 11: @start_date, param 12: @end_date
-                                         latest.follow_up_date <= ? and -- param 13: @end_date
-                                         latest.treatment_end_date >= ? and -- param 14: @end_date
-                                         latest.TIStatus = ''NTI'' and
-                                         latest.follow_up_status in (''Alive'', ''Restart medication'')
+                                         latest.art_antiretroviral_start_date between ? and ?  -- param 11: @start_date, param 12: @end_date
+                                         and latest.follow_up_date <= ?  -- param 13: @end_date
+                                         and latest.treatment_end_date >= ?  -- param 14: @end_date
+                                         and latest.TIStatus = ''NTI''
+                                         and latest.follow_up_status in (''Alive'', ''Restart medication'')
                                          then ''NEWLY STARTED''
                                      when
-                                         latest.follow_up_date <= ? and -- param 15: @end_date
-                                         latest.treatment_end_date >= ? and -- param 16: @end_date
-                                         latest.follow_up_status in (''Alive'', ''Restart medication'') AND
-                                         previous.client_id is not null -- also in prev curr
+                                         latest.follow_up_date <= ?  -- param 15: @end_date
+                                         and latest.treatment_end_date >= ?  -- param 16: @end_date
+                                         and latest.follow_up_status in (''Alive'', ''Restart medication'')
+                                         and previous.client_id is not null -- also in prev curr
                                          then ''STILL ON CARE''
 
-                                     when latest.follow_up_date <= ? and
-                                          latest.treatment_end_date >= ? -- param 17: @end_date, param 18: @end_date
-                                         and latest.follow_up_status = ''Restart medication'' and
-                                          previous.client_id is null -- not in prev
+                                     when latest.follow_up_date <= ?
+                                         and latest.treatment_end_date >= ? -- param 17: @end_date, param 18: @end_date
+                                         and latest.follow_up_status = ''Restart medication''
+                                         and  previous.client_id is null -- not in prev
                                          then ''RESTART''
-                                     when latest.follow_up_date <= ? and
-                                          latest.treatment_end_date >= ? -- param 19: @end_date, param 20: @end_date
+                                     when latest.follow_up_date <= ?
+                                         and latest.treatment_end_date >= ? -- param 19: @end_date, param 20: @end_date
                                          and latest.follow_up_status in (''Alive'', ''Restart medication'')
-                                         and previous.client_id is null and -- not in prev
-                                         and previous_all.client_id is null and -- NOT TO In previous follow up
+                                         and previous.client_id is null  -- not in prev
+                                         and previous_all.client_id is null -- NOT TO In previous follow up
                                          and latest.TIStatus = ''TI'' then ''TI''
 
-                                     when latest.follow_up_date <= ? and
-                                          latest.treatment_end_date >= ? -- param 21: @end_date, param 22: @end_date
-                                         and latest.TIStatus = ''NTI'' and latest.follow_up_status in (''Alive'')
+                                     when latest.follow_up_date <= ?
+                                         and latest.treatment_end_date >= ? -- param 21: @end_date, param 22: @end_date
+                                         and latest.TIStatus = ''NTI''
+                                         and latest.follow_up_status in (''Alive'')
                                          and previous.client_id is null -- not in prev
                                          then ''TRACED BACK'' --
 
-                                     when latest.follow_up_date <= ? and
-                                          latest.treatment_end_date >= ? -- param 23: @end_date, param 24: @end_date
+                                     when latest.follow_up_date <= ?
+                                         and latest.treatment_end_date >= ? -- param 23: @end_date, param 24: @end_date
                                          and latest.follow_up_status in (''Alive'', ''Restart medication'')
                                          and previous_all.follow_up_status = ''Transferred out''
-                                         and previous_all.client_id is not null and -- TO in prev
-                                          latest.TIStatus = ''TI'' then ''TO/TI'' -- TI in curr
+                                         and previous_all.client_id is not null  -- TO in prev
+                                         and latest.TIStatus = ''TI'' then ''TO/TI'' -- TI in curr
 
 -- subtract factor--
                                      when
-                                         previous.client_id is not null And
-                                         not (latest.follow_up_date <= ? and
+                                         previous.client_id is not null
+                                         and not (latest.follow_up_date <= ? and
                                               latest.treatment_end_date >=
-                                              ?) AND -- param 25: @end_date, param 26: @end_date
-                                         latest.follow_up_status in (''Alive'', ''Restart medication'')
+                                              ?)  -- param 25: @end_date, param 26: @end_date
+                                         and latest.follow_up_status in (''Alive'', ''Restart medication'')
                                          then ''NOT UPDATED''
                                      when previous.client_id is not null then latest.follow_up_status
                                      end                              as factor
