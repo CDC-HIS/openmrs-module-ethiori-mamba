@@ -137,15 +137,17 @@ BEGIN
             UNION ALL
             select ''TRACED BACK(+)'',COUNT(*) from tx_curr_analysis where factor = (''TRACED BACK'')
             UNION ALL
+            select ''TO/TI(+)'',COUNT(*) from tx_curr_analysis where factor = (''TO/TI'')
+            UNION ALL
             select ''RESTART(+)'',COUNT(*) from tx_curr_analysis where factor = (''RESTART'')
             UNION ALL
             select ''TI(+)'',COUNT(*) from tx_curr_analysis where factor = (''TI'')
             UNION ALL
             select ''NEWLY INITIATED(+)'',COUNT(*) from tx_curr_analysis where factor = (''NEWLY STARTED'')
             UNION ALL
-            select ''Current Month Tx_Current'',COUNT(*) from tx_curr_analysis where factor in (''NEWLY STARTED'', ''STILL ON CARE'', ''RESTART'', ''TI'', ''TRACED BACK'')
+            select ''Current Month Tx_Current'',COUNT(*) from tx_curr_analysis where factor in (''NEWLY STARTED'', ''STILL ON CARE'', ''RESTART'', ''TI'', ''TRACED BACK'',''TO/TI'')
             UNION ALL
-            select ''Tx_Current net current increment'', (SELECT COUNT(*) FROM tx_curr_analysis WHERE factor IN (''NEWLY STARTED'', ''STILL ON CARE'', ''RESTART'', ''TI'', ''TRACED BACK'')) -
+            select ''Tx_Current net current increment'', (SELECT COUNT(*) FROM tx_curr_analysis WHERE factor IN (''NEWLY STARTED'', ''STILL ON CARE'', ''RESTART'', ''TI'', ''TRACED BACK'',''TO/TI'')) -
                 (SELECT COUNT(*) FROM tx_curr_analysis WHERE in_prev_period = 1) ';
     ELSEIF REPORT_TYPE = 'ON_DSD' THEN
         SET filter_condition = ' dsd_category is not null ';
@@ -326,18 +328,20 @@ BEGIN
                                          and latest.TIStatus = ''TI'' then ''TI''
 
                                      when latest.follow_up_date <= ?
+                                         and latest.treatment_end_date >= ? -- param 23: @end_date, param 24: @end_date
+                                         and latest.follow_up_status in (''Alive'', ''Restart medication'')
+                                         and previous_all.follow_up_status = ''Transferred out''
+                                      --   and previous_all.client_id is not null  -- TO in prev
+                                       --  and latest.TIStatus = ''TI''
+                                        then ''TO/TI'' -- TI in curr
+
+                                     when latest.follow_up_date <= ?
                                          and latest.treatment_end_date >= ? -- param 21: @end_date, param 22: @end_date
                                          and latest.TIStatus = ''NTI''
                                          and latest.follow_up_status in (''Alive'')
                                          and previous.client_id is null -- not in prev
                                          then ''TRACED BACK'' --
 
-                                     when latest.follow_up_date <= ?
-                                         and latest.treatment_end_date >= ? -- param 23: @end_date, param 24: @end_date
-                                         and latest.follow_up_status in (''Alive'', ''Restart medication'')
-                                         and previous_all.follow_up_status = ''Transferred out''
-                                         and previous_all.client_id is not null  -- TO in prev
-                                         and latest.TIStatus = ''TI'' then ''TO/TI'' -- TI in curr
 
 -- subtract factor--
                                      when
