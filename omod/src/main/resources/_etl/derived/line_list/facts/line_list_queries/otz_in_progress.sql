@@ -106,4 +106,130 @@ WITH FollowUp as (
      ),
 
 
-    # temp3, temp6
+     SELECT CASE
+    WHEN otz.enrollement_date is null THEN NULL
+    ELSE[dbo].[Fn_gregoriantoethiopiandate](otz.enrollement_date)
+END                                                   AS EnrollementDate,
+    CASE
+    WHEN otz.isenrolledyes = 1 THEN 'Yes'
+    WHEN otz.isenrolledno = 1 THEN 'No'
+    ELSE ''
+END                                                   AS
+    EnrollementStatus,
+#temp10.fullname,
+#temp10.age,
+#temp10.sex,
+#temp10.phonenumber,
+#temp10.mobilephonenumber,
+latest_follow_up.[weight],
+#temp10.mrn,
+latest_follow_up.uniqueartnumber,
+    CASE
+    WHEN latest_follow_up.date_hiv_confirmed is null THEN NULL
+    ELSE[dbo].[Fn_gregoriantoethiopiandate](latest_follow_up.date_hiv_confirmed)
+END                                                   AS confirmeddate,
+    CASE
+    WHEN latest_follow_up.art_start_date is null THEN NULL
+    ELSE [dbo].[Fn_gregoriantoethiopiandate](latest_follow_up.art_start_date)
+END                                                   AS startedDate,
+    CASE
+    WHEN latest_follow_up.followupdate is null THEN NULL
+    ELSE [dbo].[Fn_gregoriantoethiopiandate](latest_follow_up.followupdate)
+END                                                   AS FollowUpDate,
+    CASE
+    WHEN latest_follow_up.scheduletype = 0 THEN 'S'
+    WHEN latest_follow_up.scheduletype = 1 THEN 'US'
+    ELSE ''
+END                                                   AS scheduletype,
+    CASE latest_follow_up.nutrition_resultsnew
+    WHEN 0 THEN 'Normal'
+    WHEN 1 THEN 'UnderNourished'
+    WHEN 2 THEN 'OverWeight'
+    ELSE ''
+END                                                   AS
+    NutritionalStatus,
+    CASE
+    WHEN latest_follow_up.adherance = '0' THEN 'Good'
+    WHEN latest_follow_up.adherance = '1' THEN 'Fair'
+    WHEN latest_follow_up.adherance = '2' THEN 'Poor'
+    ELSE ''
+END                                                   AS Adherance,
+    CASE
+    WHEN latest_follow_up.next_visit_date is null THEN NULL
+    ELSE[dbo].[Fn_gregoriantoethiopiandate](latest_follow_up.next_visit_date)
+END                                                   AS nextvisitdate,
+    CASE
+    WHEN latest_follow_up.art_dose = '0' THEN '30'
+    WHEN latest_follow_up.art_dose = '1' THEN '60'
+    WHEN latest_follow_up.art_dose = '2' THEN '90'
+    WHEN latest_follow_up.art_dose = '3' THEN '120'
+    WHEN latest_follow_up.art_dose = '4' THEN '150'
+    WHEN latest_follow_up.art_dose = '5' THEN '180'
+    ELSE ''
+END                                                   AS Dosedays,
+    dbo.Fn_getartregimencode(latest_follow_up.arvdispendseddose)    AS Regimen,
+    Cast(CASE
+    WHEN latest_follow_up.[follow_up_status] = 0 THEN 'TO'
+    WHEN latest_follow_up.[follow_up_status] = 1 THEN 'STOP'
+    WHEN [follow_up_status] = 2 THEN 'Lost'
+    WHEN latest_follow_up.[follow_up_status] = 3 THEN 'Dropped'
+    WHEN [follow_up_status] = 4 THEN 'Dead'
+    WHEN latest_follow_up.[follow_up_status] = 5 THEN 'Alive on ART'
+    WHEN latest_follow_up.[follow_up_status] = 6 THEN 'Restart'
+    END AS VARCHAR(50))                              AS FollowUpStatus,
+    CASE
+    WHEN otz_vl_performed_date.bl_vl_sent_date is null THEN NULL
+    ELSE [dbo].[Fn_gregoriantoethiopiandate](otz_vl_performed_date.bl_vl_sent_date)
+END                                                   AS BaselineVLsent,
+    CASE
+    WHEN otz_vl_performed_date.bl_viral_load_perform_date is null THEN NULL
+    ELSE
+    [dbo].[Fn_gregoriantoethiopiandate](otz_vl_performed_date.bl_viral_load_perform_date)
+END                                                   AS
+    BaselineVLReceived,
+otz_vl_performed_date.bl_viral_load_count                            AS BaselineVLCount,
+otz_vl_performed_date.bl_viral_load_status                           AS BaselineVLStatus
+    ,
+    CASE
+    WHEN vl_performed_date.vl_sent_date is null THEN NULL
+    ELSE [dbo].[Fn_gregoriantoethiopiandate](vl_performed_date.vl_sent_date)
+END                                                   AS VLsent,
+    CASE
+    WHEN vl_performed_date.viral_load_perform_date is null THEN NULL
+    ELSE
+    [dbo].[Fn_gregoriantoethiopiandate](vl_performed_date.viral_load_perform_date)
+END                                                   AS VLReceived,
+vl_performed_date.viral_load_count                               AS VLCount,
+vl_performed_date.viral_load_status                              AS VLStatus,
+    dbo.Fn_getartregimencode(oldest_follow_up.o_arvdispendseddose) AS OriginalRegimen,
+    CASE
+    WHEN #temp15.crg_followupdate is null THEN NULL
+    ELSE [dbo].[Fn_gregoriantoethiopiandate](#temp15.crg_followupdate)
+END                                                   AS
+    currentRegimenStart
+
+    FROM   latest_follow_up
+    LEFT JOIN #temp10
+    ON #temp10.patientid = latest_follow_up.patientid
+    LEFT JOIN otz_vl_performed_date
+    ON otz_vl_performed_date.patientid = latest_follow_up.patientid
+    LEFT JOIN vl_performed_date
+    ON vl_performed_date.patientid = latest_follow_up.patientid
+    LEFT JOIN oldest_follow_up
+    ON oldest_follow_up.patientid = latest_follow_up.patientid
+    LEFT JOIN #temp15
+    ON #temp15.patientid = latest_follow_up.patientid
+    LEFT JOIN dbo.icap_track_otz AS otz
+    ON otz.patientid = latest_follow_up.patientid
+    WHERE  otz.enrollement_date BETWEEN @DateFrom AND @DateTo
+  AND ( ( latest_follow_up.[follow_up_status] != 0
+  AND latest_follow_up.[follow_up_status] != 4 )
+   OR ( otz.enrollement_date > '1900-01-01'
+   OR otz.isenrolledyes = 1
+   OR otz.isenrolledno = 1 ) )
+  AND #temp10.fullname IS NOT NULL
+  AND ( ( #temp10.age >= 10
+  AND #temp10.age <= 24 )
+   OR ( otz.enrollement_date > '1900-01-01'
+   OR otz.isenrolledyes = 1
+   OR otz.isenrolledno = 1 ) )
