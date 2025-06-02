@@ -333,7 +333,7 @@ BEGIN
                                      when latest.follow_up_date <= ? and
                                           latest.treatment_end_date >= ? -- param 23: @end_date, param 24: @end_date
                                          and latest.follow_up_status in (''Alive'', ''Restart medication'')
-                                         and latest.follow_up_status = ''Transferred out''
+                                         and previous_all.follow_up_status = ''Transferred out''
                                          and previous.client_id is not null and -- TO in prev
                                           latest.TIStatus = ''TI'' then ''TO/TI'' -- TI in curr
 
@@ -349,6 +349,7 @@ BEGIN
                                      end                              as factor
                           from latest_follow_up latest
                              left join previous_curr_follow_up previous on latest.client_id = previous.client_id
+                             left join tmp_previous_follow_up previous_all on latest.client_id = previous_all.client_id where previous_all.row_num = 1
                           ),
      tx_curr_analysis as (select dim_client.mrn as MRN,
                                  dim_client.uan as UAN,
