@@ -68,14 +68,15 @@ BEGIN
                                                and latest_follow_up.follow_up_status != 'Transferred out'),
          tx_curr_ret AS (select latest_follow_up.*,
                                 client.sex,
-                                client.date_of_birth,
-                                DATE_ADD(art_start_date, INTERVAL -1 YEAR)
+                                client.date_of_birth
                          from latest_follow_up
                                   join mamba_dim_client client on latest_follow_up.client_id = client.client_id
-                         where follow_up_status in ('Alive', 'Restart medication')
-                           AND treatment_end_date >= REPORT_END_DATE
-                           AND art_start_date >= DATE_ADD(REPORT_START_DATE, INTERVAL -1 YEAR)
-                           AND art_start_date <= DATE_ADD(REPORT_END_DATE, INTERVAL -1 YEAR)),
+                                  join art_start_date_before_12_months 12_months on latest_follow_up.client_id = 12_months.client_id
+                         where latest_follow_up.follow_up_status in ('Alive', 'Restart medication')
+                           AND latest_follow_up.treatment_end_date >= REPORT_END_DATE
+                        --   AND art_start_date >= DATE_ADD(REPORT_START_DATE, INTERVAL -1 YEAR)
+                        --   AND art_start_date <= DATE_ADD(REPORT_END_DATE, INTERVAL -1 YEAR)
+        ),
          ret_percentage AS (SELECT 'HIV_ART_RET'                                                                                                        AS S_NO,
                                    'ART retention rate (Percentage of adult and children on ART treatment after 12 month of initation of ARV therapy )' AS Activity,
                                    CASE
