@@ -103,9 +103,9 @@ BEGIN
     where rn = 1
 
       and (TIMESTAMPDIFF(YEAR, date_of_birth, registration_date) <= 15)
-      and DATE_ADD(
-            date_of_birth, INTERVAL 15 YEAR
-          ) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
+--       and DATE_ADD(
+--             date_of_birth, INTERVAL 15 YEAR
+--           ) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
     order by patient_name;
 END //
 
