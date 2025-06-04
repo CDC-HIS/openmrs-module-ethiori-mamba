@@ -332,17 +332,20 @@ WHERE  creg.deprecated = 0
     LEFT JOIN dbo.icap_track_otz AS otz
     ON otz.patientid = #temp3.patientid
     WHERE  otz.enrollement_date BETWEEN @DateFrom AND @DateTo
-  AND ( ( #temp3.[follow_up_status] != 0
-  AND #temp3.[follow_up_status] != 4 )
-   OR ( otz.enrollement_date > '1900-01-01'
-   OR otz.isenrolledyes = 1
-   OR otz.isenrolledno = 1 ) )
+  AND (
+        ( #temp3.[follow_up_status] != 0  AND #temp3.[follow_up_status] != 4 )
+          OR
+        ( otz.enrollement_date > '1900-01-01'   OR otz.isenrolledyes = 1   OR otz.isenrolledno = 1 )
+      )
+
+
+
   AND #temp10.fullname IS NOT NULL
-  AND ( ( #temp10.age >= 10
-  AND #temp10.age <= 24 )
-   OR ( otz.enrollement_date > '1900-01-01'
-   OR otz.isenrolledyes = 1
-   OR otz.isenrolledno = 1 ) )
+  AND (
+        ( #temp10.age >= 10  AND #temp10.age <= 24 )
+         OR
+        ( otz.enrollement_date > '1900-01-01'  OR otz.isenrolledyes = 1   OR otz.isenrolledno = 1 )
+      )
 
 
     END //
