@@ -29,6 +29,8 @@ BEGIN
                                      ON follow_up.encounter_id = follow_up_2.encounter_id
                                 left join mamba_flat_encounter_follow_up_3 follow_up_3
                                      ON follow_up.encounter_id = follow_up_3.encounter_id
+                                LEFT JOIN mamba_flat_encounter_follow_up_4 follow_up_4
+                                          ON follow_up.encounter_id = follow_up_4.encounter_id
                                 left JOIN mamba_dim_client dim_client
                                      ON follow_up.client_id = dim_client.client_id
                                 left join mamba_flat_encounter_intake_a intake_a

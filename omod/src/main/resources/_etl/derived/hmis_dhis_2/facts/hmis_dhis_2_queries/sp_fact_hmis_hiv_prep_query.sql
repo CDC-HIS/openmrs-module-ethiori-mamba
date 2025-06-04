@@ -371,7 +371,7 @@ WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 50
 UNION ALL
 SELECT 'HIV_PrEP_CURR.2'    AS S_NO,
        'By Client Category' as Activity,
-       COUNT(*)             as Value
+       COUNT(*)             as Value  -- TODO check sero-discordant couple handling
 FROM tx_curr
 -- Discordant Couple
 UNION ALL

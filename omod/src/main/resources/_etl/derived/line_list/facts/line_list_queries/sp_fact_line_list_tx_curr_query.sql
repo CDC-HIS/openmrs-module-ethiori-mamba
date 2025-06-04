@@ -44,7 +44,9 @@ BEGIN
                                left JOIN mamba_flat_encounter_follow_up_2 follow_up_2
                                     ON follow_up.encounter_id = follow_up_2.encounter_id
                                LEFT JOIN mamba_flat_encounter_follow_up_3 follow_up_3
-                                         ON follow_up.encounter_id = follow_up_3.encounter_id),
+                                         ON follow_up.encounter_id = follow_up_3.encounter_id
+                               LEFT JOIN mamba_flat_encounter_follow_up_4 follow_up_4
+                                         ON follow_up.encounter_id = follow_up_4.encounter_id),
          -- TX curr
          tx_curr_all AS (SELECT PatientId,
                                 follow_up_date                                                                            ,
