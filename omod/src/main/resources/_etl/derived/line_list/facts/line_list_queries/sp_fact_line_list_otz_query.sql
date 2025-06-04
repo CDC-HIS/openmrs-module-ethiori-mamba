@@ -91,7 +91,7 @@ ON dvl.id = #temp5.id
 -- ----- Latest VL performed date ------------------
 
 
--- ----- Latest OTZ enrollment date ------------------
+-- ----- Baseline vl performed date ------------------
 INSERT INTO #temp7
     SELECT bl.patientid,
     Max(viral_load_perform_date) AS VLDate
@@ -131,7 +131,7 @@ ON dvl_base.id = #temp8.id
     AND dvl_base.followupdate = vlsent_base.followupdate
     AND dvl_base.patientid = vlsent_base.patientid
 
--- ----- Latest OTZ enrollment date ------------------
+-- ----- Baseline vl performed date ------------------
 
 
 
@@ -185,7 +185,7 @@ ON od.id = #temp12.id
 
 -- ----- Oldest Follow Up ------------------
 
-
+-- ----- Current regimen start date ---------
 INSERT INTO #temp14
     SELECT patientid,
        Min(followupdate) AS FollowupDate,
@@ -198,7 +198,6 @@ WHERE  deprecated = 0
   AND followupdate <= Getdate()
 GROUP  BY patientid,
     arvdispendseddose
-
 
 INSERT INTO #temp15
     SELECT creg.patientid,
@@ -215,6 +214,7 @@ WHERE  creg.deprecated = 0
     ORDER  BY #temp14.followupdate DESC)
     GROUP  BY creg.patientid
 
+-- ----- Current regimen start date ---------
 
     SELECT CASE
     WHEN otz.enrollement_date = '1900-01-01' THEN NULL

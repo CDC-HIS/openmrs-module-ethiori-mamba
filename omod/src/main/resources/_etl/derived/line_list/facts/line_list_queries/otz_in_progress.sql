@@ -72,39 +72,21 @@ WITH FollowUp as (select follow_up.client_id,
                           from tmp_latest_follow_up
                           where row_num = 1 -- temp3
      ),
-     tmp_vl_performed_date as (SELECT encounter_id,
-                                      client_id,
-                                      follow_up_date,
-                                      viral_load_perform_date,
-                                      viral_load_sent_date,
-                                      viral_load_count,
-                                      viral_load_test_status,
-                                      ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY viral_load_perform_date DESC, encounter_id DESC) AS row_num
-                               FROM FollowUp
-                               WHERE follow_up_status IS NOT NULL
-                                 AND art_start_date IS NOT NULL
-                                 AND follow_up_date <= '2025-04-28'),
-     vl_performed_date as (select *
-                           from tmp_vl_performed_date
-                           where row_num = 1 -- temp6
-     ),
-     tmp_otz_vl_performed_date as (SELECT encounter_id,
-                                          client_id,
-                                          follow_up_date,
-                                          viral_load_perform_date,
-                                          viral_load_sent_date,
-                                          otz_date,
-                                          viral_load_count,
-                                          viral_load_test_status,
-                                          ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY viral_load_perform_date DESC, encounter_id DESC) AS row_num
-                                   FROM FollowUp
-                                   WHERE follow_up_status IS NOT NULL
-                                     AND art_start_date IS NOT NULL
-                                     AND follow_up_date <= '2025-04-28'
-                                     AND otz_date BETWEEN DATE_ADD(viral_load_perform_date, INTERVAL -3 MONTH) AND DATE_ADD(viral_load_perform_date, INTERVAL 2 MONTH)),
-     otz_vl_performed_date as (select *
-                               from tmp_otz_vl_performed_date
-                               where row_num = 1 -- temp9
+     tmp_latest_vl_performed_date as (SELECT encounter_id,
+                                             client_id,
+                                             follow_up_date,
+                                             viral_load_perform_date,
+                                             viral_load_sent_date,
+                                             viral_load_count,
+                                             viral_load_test_status,
+                                             ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY viral_load_perform_date DESC, encounter_id DESC) AS row_num
+                                      FROM FollowUp
+                                      WHERE follow_up_status IS NOT NULL
+                                        AND art_start_date IS NOT NULL
+                                        AND follow_up_date <= '2025-04-28'),
+     latest_vl_performed_date as (select *
+                                  from tmp_latest_vl_performed_date
+                                  where row_num = 1 -- temp6
      ),
      tmp_otz_date as (SELECT encounter_id,
                              client_id,
@@ -113,16 +95,36 @@ WITH FollowUp as (select follow_up.client_id,
                              viral_load_sent_date,
                              otz_date,
                              otz_enrolled,
-                             ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY viral_load_perform_date DESC, encounter_id DESC) AS row_num
+                             ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY otz_date DESC, encounter_id DESC) AS row_num
                       FROM FollowUp
                       WHERE follow_up_status IS NOT NULL
                         AND art_start_date IS NOT NULL
-                        AND follow_up_date <= '2025-04-28'
-                      ),
+                        AND follow_up_date <= '2025-04-28'),
      otz_date as (select *
                   from tmp_otz_date
                   where row_num = 1 -- temp9
      ),
+-- Get baseline VL Performed date between 3 months earlier and 1 month later of enrollment date
+     tmp_otz_vl_performed_date as (SELECT FollowUp.encounter_id,
+                                          FollowUp.client_id,
+                                          FollowUp.follow_up_date,
+                                          FollowUp.viral_load_perform_date,
+                                          FollowUp.viral_load_sent_date,
+                                          FollowUp.otz_date,
+                                          FollowUp.viral_load_count,
+                                          FollowUp.viral_load_test_status,
+                                          ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY FollowUp.viral_load_perform_date DESC, FollowUp.encounter_id DESC) AS row_num
+                                   FROM FollowUp
+                                            left join otz_date as otz on FollowUp.client_id = otz.client_id
+                                   WHERE follow_up_status IS NOT NULL
+                                     AND FollowUp.art_start_date IS NOT NULL
+                                     AND FollowUp.follow_up_date <= '2025-04-28'
+                                     AND FollowUp.viral_load_perform_date BETWEEN DATE_ADD(otz.otz_date, INTERVAL -3 MONTH) AND DATE_ADD(otz.otz_date, INTERVAL 1 MONTH)),
+     otz_vl_performed_date as (select *
+                               from tmp_otz_vl_performed_date
+                               where row_num = 1 -- temp9
+     ),
+
      tmp_oldest_follow_up as (SELECT encounter_id,
                                      client_id,
                                      follow_up_date,
@@ -135,73 +137,76 @@ WITH FollowUp as (select follow_up.client_id,
      oldest_follow_up as (select *
                           from tmp_oldest_follow_up
                           where row_num = 1 -- temp13
-     )
+     ),
+     tmp_curr_regimen_start as (select FollowUp.follow_up_date                                                                                     as FirstRegimenDate,
+                                       FollowUp.client_id,
+                                       ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY FollowUp.follow_up_date, FollowUp.encounter_id) AS row_num
+                                from FollowUp
+                                         left join latest_follow_up on FollowUp.client_id = latest_follow_up.client_id
+                                WHERE FollowUp.follow_up_status IS NOT NULL
+                                  AND FollowUp.art_start_date IS NOT NULL
+                                  AND FollowUp.follow_up_date <= '2025-04-28'
+                                  and FollowUp.regimen = latest_follow_up.regimen),
+     curr_regimen_start as (select * from tmp_curr_regimen_start where row_num = 1)
 
 
-SELECT otz.otz_date                                  AS EnrollementDate
-     , otz_enrolled                                  AS EnrollementStatus
-     , dim_client.patient_name
-     , TIMESTAMPDIFF(YEAR, dim_client.date_of_birth, '2025-04-28')
-     , dim_client.sex
-     , dim_client.phone_no
-     , dim_client.mobile_no
-     , latest_follow_up.weight
-     , dim_client.mrn
-     , dim_client.uan
-     , latest_follow_up.date_hiv_confirmed
-                                                     AS confirmeddate
-     , latest_follow_up.art_start_date
-                                                     AS startedDate
-     , latest_follow_up.follow_up_date               AS FollowUpDate
-     , latest_follow_up.visit_type                   AS scheduletype
-     , latest_follow_up.nutritional_screening_result AS NutritionalStatus
-     , latest_follow_up.adherence                    AS Adherance
-     , latest_follow_up.next_visit_date              AS nextvisitdate
-     , latest_follow_up.arv_dispensed_dose           AS Dosedays
-     , latest_follow_up.regimen                      AS Regimen
-     , latest_follow_up.follow_up_status             AS FollowUpStatus
-     , otz_vl_performed_date.viral_load_sent_date    AS BaselineVLsent
-     , otz_vl_performed_date.viral_load_perform_date AS
-                                                        BaselineVLReceived
-     , otz_vl_performed_date.viral_load_count        AS BaselineVLCount
-     , otz_vl_performed_date.viral_load_test_status  AS BaselineVLStatus
-     , vl_performed_date.viral_load_sent_date        AS VLsent
-     , vl_performed_date.viral_load_perform_date
-                                                     AS VLReceived
-     , vl_performed_date.viral_load_count            AS VLCount
-     , vl_performed_date.viral_load_test_status      AS VLStatus
-     , oldest_follow_up.regimen                      AS OriginalRegimen
-
-#     CASE
-#            WHEN #temp15.crg_followupdate is null THEN NULL
-#            ELSE #temp15.crg_followupdate
-#                END                                AS
-#                                                      currentRegimenStart
+SELECT otz.otz_date                                    AS EnrollementDate,
+      otz_enrolled                                    AS EnrollementStatus,
+      dim_client.patient_name,
+      TIMESTAMPDIFF(YEAR, dim_client.date_of_birth, '2025-04-28'),
+      dim_client.sex,
+      dim_client.phone_no,
+      dim_client.mobile_no,
+      latest_follow_up.weight,
+      dim_client.mrn,
+      dim_client.uan,
+      latest_follow_up.date_hiv_confirmed             AS confirmeddate,
+      latest_follow_up.art_start_date                 AS startedDate,
+      latest_follow_up.follow_up_date                 AS FollowUpDate,
+      latest_follow_up.visit_type                     AS scheduletype,
+      latest_follow_up.nutritional_screening_result   AS NutritionalStatus,
+      latest_follow_up.adherence                      AS Adherance,
+      latest_follow_up.next_visit_date                AS nextvisitdate,
+      latest_follow_up.arv_dispensed_dose             AS Dosedays,
+      latest_follow_up.regimen                        AS Regimen,
+      latest_follow_up.follow_up_status               AS FollowUpStatus,
+      otz_vl_performed_date.viral_load_sent_date      AS BaselineVLsent,
+      otz_vl_performed_date.viral_load_perform_date   AS BaselineVLReceived,
+      otz_vl_performed_date.viral_load_count          AS BaselineVLCount,
+      otz_vl_performed_date.viral_load_test_status    AS BaselineVLStatus,
+      latest_vl_performed_date.viral_load_sent_date   AS VLsent,
+      latest_vl_performed_date.viral_load_perform_date AS VLReceived,
+      latest_vl_performed_date.viral_load_count       AS VLCount,
+      latest_vl_performed_date.viral_load_test_status AS VLStatus,
+      oldest_follow_up.regimen                        AS OriginalRegimen,
+      curr_regimen_start.FirstRegimenDate             AS currentRegimenStart
 FROM latest_follow_up
          LEFT JOIN mamba_dim_client dim_client
                    ON dim_client.client_id = latest_follow_up.client_id
          LEFT JOIN otz_vl_performed_date
                    ON otz_vl_performed_date.client_id = latest_follow_up.client_id
-         LEFT JOIN vl_performed_date
-                   ON vl_performed_date.client_id = latest_follow_up.client_id
+         LEFT JOIN latest_vl_performed_date
+                   ON latest_vl_performed_date.client_id = latest_follow_up.client_id
          LEFT JOIN oldest_follow_up
                    ON oldest_follow_up.client_id = latest_follow_up.client_id
-    #          LEFT JOIN #temp15
-#     ON #temp15.patientid = latest_follow_up.patientid
+         LEFT JOIN curr_regimen_start
+                   ON curr_regimen_start.client_id = latest_follow_up.client_id
          LEFT JOIN otz_date AS otz
                    ON otz.client_id = latest_follow_up.client_id
 WHERE
+    (
+            (latest_follow_up.follow_up_status not in ('Dead', 'Transferred Out'))
+    OR
+            (otz.otz_date is not null OR otz.otz_enrolled is not null )
+    )
+    AND dim_client.patient_name IS NOT NULL
 
-   ((latest_follow_up.follow_up_status not in ('Dead', 'Transferred Out'))
-    OR (otz.otz_date is not null
-        OR otz.otz_enrolled is not null
-           ))
-  AND dim_client.patient_name IS NOT NULL
-  AND ((TIMESTAMPDIFF(YEAR, dim_client.date_of_birth, '2025-04-28') >= 10
-    AND TIMESTAMPDIFF(YEAR, dim_client.date_of_birth, '2025-04-28') <= 24)
-    OR (otz.otz_date is not null
-        OR otz.otz_enrolled is not null
-           ))
-   AND (otz.otz_date BETWEEN '2025-03-30' AND '2025-04-28' OR otz.otz_date <= CURDATE())
-;
+    AND (
+        (TIMESTAMPDIFF(YEAR, dim_client.date_of_birth, '2025-04-28') >= 10  AND TIMESTAMPDIFF(YEAR, dim_client.date_of_birth, '2025-04-28') <= 24)
+        OR
+        (otz.otz_date is not null    OR otz.otz_enrolled is not null)
+        )
+  AND ( ('2025-04-28' is not null and otz.otz_date BETWEEN '2025-03-30' AND '2025-04-28') OR otz.otz_date <= CURDATE())
+
+
 
