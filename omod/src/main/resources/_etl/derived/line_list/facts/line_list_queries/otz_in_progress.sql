@@ -67,7 +67,7 @@ WITH FollowUp as (select follow_up.client_id,
                               FROM FollowUp
                               WHERE follow_up_status IS NOT NULL
                                 AND art_start_date IS NOT NULL
-                                AND follow_up_date <= '2025-04-28'),
+                                AND follow_up_date <= :REPORT_END_DATE),
      latest_follow_up as (select *
                           from tmp_latest_follow_up
                           where row_num = 1 -- temp3
@@ -83,7 +83,7 @@ WITH FollowUp as (select follow_up.client_id,
                                       FROM FollowUp
                                       WHERE follow_up_status IS NOT NULL
                                         AND art_start_date IS NOT NULL
-                                        AND follow_up_date <= '2025-04-28'),
+                                        AND follow_up_date <= :REPORT_END_DATE),
      latest_vl_performed_date as (select *
                                   from tmp_latest_vl_performed_date
                                   where row_num = 1 -- temp6
@@ -99,7 +99,7 @@ WITH FollowUp as (select follow_up.client_id,
                       FROM FollowUp
                       WHERE follow_up_status IS NOT NULL
                         AND art_start_date IS NOT NULL
-                        AND follow_up_date <= '2025-04-28'),
+                        AND follow_up_date <= :REPORT_END_DATE),
      otz_date as (select *
                   from tmp_otz_date
                   where row_num = 1 -- temp9
@@ -118,7 +118,7 @@ WITH FollowUp as (select follow_up.client_id,
                                             left join otz_date as otz on FollowUp.client_id = otz.client_id
                                    WHERE follow_up_status IS NOT NULL
                                      AND FollowUp.art_start_date IS NOT NULL
-                                     AND FollowUp.follow_up_date <= '2025-04-28'
+                                     AND FollowUp.follow_up_date <= :REPORT_END_DATE
                                      AND FollowUp.viral_load_perform_date BETWEEN DATE_ADD(otz.otz_date, INTERVAL -3 MONTH) AND DATE_ADD(otz.otz_date, INTERVAL 1 MONTH)),
      otz_vl_performed_date as (select *
                                from tmp_otz_vl_performed_date
@@ -133,7 +133,7 @@ WITH FollowUp as (select follow_up.client_id,
                               FROM FollowUp
                               WHERE follow_up_status IS NOT NULL
                                 AND art_start_date IS NOT NULL
-                                AND follow_up_date <= '2025-04-28'),
+                                AND follow_up_date <= :REPORT_END_DATE),
      oldest_follow_up as (select *
                           from tmp_oldest_follow_up
                           where row_num = 1 -- temp13
@@ -145,7 +145,7 @@ WITH FollowUp as (select follow_up.client_id,
                                          left join latest_follow_up on FollowUp.client_id = latest_follow_up.client_id
                                 WHERE FollowUp.follow_up_status IS NOT NULL
                                   AND FollowUp.art_start_date IS NOT NULL
-                                  AND FollowUp.follow_up_date <= '2025-04-28'
+                                  AND FollowUp.follow_up_date <= :REPORT_END_DATE
                                   and FollowUp.regimen = latest_follow_up.regimen),
      curr_regimen_start as (select * from tmp_curr_regimen_start where row_num = 1)
 
@@ -153,7 +153,7 @@ WITH FollowUp as (select follow_up.client_id,
 SELECT otz.otz_date                                    AS EnrollementDate,
       otz_enrolled                                    AS EnrollementStatus,
       dim_client.patient_name,
-      TIMESTAMPDIFF(YEAR, dim_client.date_of_birth, '2025-04-28'),
+      TIMESTAMPDIFF(YEAR, dim_client.date_of_birth, :REPORT_END_DATE),
       dim_client.sex,
       dim_client.phone_no,
       dim_client.mobile_no,
@@ -202,11 +202,13 @@ WHERE
     AND dim_client.patient_name IS NOT NULL
 
     AND (
-        (TIMESTAMPDIFF(YEAR, dim_client.date_of_birth, '2025-04-28') >= 10  AND TIMESTAMPDIFF(YEAR, dim_client.date_of_birth, '2025-04-28') <= 24)
+        (TIMESTAMPDIFF(YEAR, dim_client.date_of_birth, :REPORT_END_DATE) >= 10  AND TIMESTAMPDIFF(YEAR, dim_client.date_of_birth, :REPORT_END_DATE) <= 24)
         OR
         (otz.otz_date is not null    OR otz.otz_enrolled is not null)
         )
-  AND ( ('2025-04-28' is not null and otz.otz_date BETWEEN '2025-03-30' AND '2025-04-28') OR otz.otz_date <= CURDATE())
+  AND ( (:REPORT_END_DATE is not null and otz.otz_date BETWEEN :REPORT_START_DATE AND :REPORT_END_DATE) OR otz.otz_date <= CURDATE());
+
+# '2025-03-30' AND '2025-04-28'
 
 
 
