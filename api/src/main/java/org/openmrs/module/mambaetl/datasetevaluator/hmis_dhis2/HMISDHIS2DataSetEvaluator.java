@@ -118,6 +118,10 @@ public class HMISDHIS2DataSetEvaluator implements DataSetEvaluator {
 					statement.setDate(1, startDate);
 					statement.setDate(2, endDate);
 				}),
+				new ProcedureCall("{call sp_fact_hmis_art_restart_query(?,?)}", statement -> {
+					statement.setDate(1, startDate);
+					statement.setDate(2, endDate);
+				}),
 				new ProcedureCall("{call sp_fact_hmis_hiv_prep_query(?,?)}", statement -> {
 					statement.setDate(1, startDate);
 					statement.setDate(2, endDate);
