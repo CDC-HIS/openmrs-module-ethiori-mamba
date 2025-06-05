@@ -159,6 +159,7 @@ BEGIN
 
 
     SELECT otz.otz_date                                                                        AS EnrollementDate,
+           otz.otz_date                                                                        AS `EnrollementDate EC.`,
            otz_enrolled                                                                        AS EnrollementStatus,
            dim_client.patient_name                                                             AS Name,
            TIMESTAMPDIFF(YEAR, dim_client.date_of_birth, COALESCE(REPORT_END_DATE, CURDATE())) as Age,
@@ -169,25 +170,34 @@ BEGIN
            dim_client.mrn                                                                      AS MRN,
            dim_client.uan                                                                      AS UART,
            latest_follow_up.date_hiv_confirmed                                                 AS confirmeddate,
+           latest_follow_up.date_hiv_confirmed                                                 AS `confirmeddate EC.`,
            latest_follow_up.art_start_date                                                     AS startedDate,
+           latest_follow_up.art_start_date                                                     AS `startedDate EC.`,
            latest_follow_up.follow_up_date                                                     AS FollowUpDate,
+           latest_follow_up.follow_up_date                                                     AS `FollowUpDate EC.`,
            latest_follow_up.visit_type                                                         AS scheduletype,
            latest_follow_up.nutritional_screening_result                                       AS NutritionalStatus,
            latest_follow_up.adherence                                                          AS Adherance,
            latest_follow_up.next_visit_date                                                    AS nextvisitdate,
+           latest_follow_up.next_visit_date                                                    AS `nextvisitdate EC.`,
            latest_follow_up.arv_dispensed_dose                                                 AS Dosedays,
            latest_follow_up.regimen                                                            AS Regimen,
            latest_follow_up.follow_up_status                                                   AS FollowUpStatus,
            otz_vl_performed_date.viral_load_sent_date                                          AS BaselineVLsent,
+           otz_vl_performed_date.viral_load_sent_date                                          AS `BaselineVLsent EC.`,
            otz_vl_performed_date.viral_load_perform_date                                       AS BaselineVLReceived,
+           otz_vl_performed_date.viral_load_perform_date                                       AS `BaselineVLReceived EC.`,
            otz_vl_performed_date.viral_load_count                                              AS BaselineVLCount,
            otz_vl_performed_date.viral_load_test_status                                        AS BaselineVLStatus,
            latest_vl_performed_date.viral_load_sent_date                                       AS VLsent,
+           latest_vl_performed_date.viral_load_sent_date                                       AS `VLsent EC.`,
            latest_vl_performed_date.viral_load_perform_date                                    AS VLReceived,
+           latest_vl_performed_date.viral_load_perform_date                                    AS `VLReceived EC.`,
            latest_vl_performed_date.viral_load_count                                           AS VLCount,
            latest_vl_performed_date.viral_load_test_status                                     AS VLStatus,
            oldest_follow_up.regimen                                                            AS OriginalRegimen,
-           curr_regimen_start.FirstRegimenDate                                                 AS currentRegimenStart
+           curr_regimen_start.FirstRegimenDate                                                 AS currentRegimenStart,
+           curr_regimen_start.FirstRegimenDate                                                 AS `currentRegimenStart EC.`
     FROM latest_follow_up
              LEFT JOIN mamba_dim_client dim_client
                        ON dim_client.client_id = latest_follow_up.client_id
