@@ -19,7 +19,7 @@ facts/line_list_queries/sp_fact_line_list_tx_curr_query.sql
 facts/line_list_queries/sp_fact_line_list_tx_ml_query.sql
 facts/line_list_queries/sp_fact_line_list_tx_new_query.sql
 facts/line_list_queries/sp_fact_line_list_vl_eligibility_query.sql
-
+facts/line_list_queries/sp_fact_line_list_otz_query.sql
 #############################################################################
 ##### A single SP that CALLs all SPs inside the derived & base folders ######
 #############################################################################
