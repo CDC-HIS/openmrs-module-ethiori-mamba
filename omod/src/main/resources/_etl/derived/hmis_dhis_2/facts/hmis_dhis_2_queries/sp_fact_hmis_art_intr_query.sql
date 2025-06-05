@@ -14,8 +14,10 @@ BEGIN
                              next_visit_date,
                              regimen,
                              currently_breastfeeding_child          breast_feeding_status,
+                             antiretroviral_art_dispensed_dose_i as dose_days,
                              pregnancy_status,
-                             transferred_in_check_this_for_all_t AS transferred_in
+                             transferred_in_check_this_for_all_t AS transferred_in,
+                             adherence
                       FROM mamba_flat_encounter_follow_up follow_up
                                LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1
                                          ON follow_up.encounter_id = follow_up_1.encounter_id
@@ -32,6 +34,10 @@ BEGIN
                                                follow_up_status,
                                                treatment_end_date,
                                                art_start_date,
+                                               regimen,
+                                               dose_days,
+                                               adherence,
+                                               next_visit_date,
                                                ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
                                         FROM FollowUp
                                         WHERE follow_up_status IS NOT NULL
@@ -43,20 +49,26 @@ BEGIN
                              AND follow_up_status in ('Alive', 'Restart medication')
                              AND treatment_end_date >= REPORT_START_DATE),
          -- TX curr
-         tmp_latest_follow_up_end AS (SELECT client_id,
-                                             follow_up_date,
-                                             encounter_id,
-                                             follow_up_status,
-                                             treatment_end_date,
-                                             art_start_date,
-                                             ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
-                                      FROM FollowUp
-                                      WHERE follow_up_status IS NOT NULL
-                                        AND art_start_date IS NOT NULL
-                                        AND follow_up_date <= REPORT_END_DATE),
-         latest_follow_up_status as (select follow_up_status, client_id from tmp_latest_follow_up_end where row_num = 1),
+         tmp_lost_follow_up AS (SELECT client_id,
+                                       follow_up_date,
+                                       encounter_id,
+                                       follow_up_status,
+                                       treatment_end_date,
+                                       art_start_date,
+                                       regimen,
+                                       dose_days,
+                                       adherence,
+                                       next_visit_date,
+                                       ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
+                                FROM FollowUp
+                                WHERE follow_up_status IS NOT NULL
+                                  AND art_start_date IS NOT NULL
+                                  AND follow_up_date <= REPORT_END_DATE),
+         lost_follow_up as (select *
+                            from tmp_lost_follow_up
+                            where row_num = 1),
          tx_curr_end AS (select *
-                         from tmp_latest_follow_up_end
+                         from tmp_lost_follow_up
                          where row_num = 1
                            AND follow_up_status in ('Alive', 'Restart medication')
                            AND treatment_end_date >= REPORT_END_DATE),
@@ -72,42 +84,32 @@ BEGIN
                                  WHERE art_start_date IS NOT NULL),
          first_follow_up as (select * from tmp_first_follow_up where row_num = 1),
 
-         tx_new_tmp as (select tmp_latest_follow_up_end.*
-                        from tmp_latest_follow_up_end
-                                 join first_follow_up on tmp_latest_follow_up_end.client_id = first_follow_up.client_id
+         tx_new_tmp as (select tmp_lost_follow_up.*
+                        from tmp_lost_follow_up
+                                 join first_follow_up on tmp_lost_follow_up.client_id = first_follow_up.client_id
                         where art_start_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE
                           AND (first_follow_up.transferred_in is null or first_follow_up.transferred_in != 'Yes')
                           AND first_follow_up.follow_up_status in ('Alive', 'Restart medication')
-                          AND tmp_latest_follow_up_end.row_num = 1),
+                          AND tmp_lost_follow_up.row_num = 1),
          tx_new as (select *
                     from tx_new_tmp),
 
-         started_art as (select *
-                         from tx_new
-                         union ALL
-                         select *
-                         from tx_curr_start),
-         interrupted_art as (select started_art.*,
+         on_art as (select *
+                    from tx_new
+                    union ALL
+                    select *
+                    from tx_curr_start),
+         interrupted_art as (select on_art.*,
                                     client.sex,
                                     client.date_of_birth,
-                                    latest_follow_up_status.follow_up_status as latest_follow_up_status
-                             from started_art
-                                      join mamba_dim_client client on started_art.client_id = client.client_id
-                                      join latest_follow_up_status
-                                           on started_art.client_id = latest_follow_up_status.client_id
-                             where started_art.client_id not in (select client_id from tx_curr_end)),
-         restarted_art as (select tx_curr_end.*,
-                                  client.sex,
-                                  client.date_of_birth,
-                                  mrn,
-                                  uan
-                           from tx_curr_end
-                                    join mamba_dim_client client on tx_curr_end.client_id = client.client_id
-                           where tx_curr_end.client_id not in (select client_id from started_art) and
-                               tx_curr_end.client_id not in (select client_id from tmp_latest_follow_up_start where row_num=1
-                                                                                                                and follow_up_status='Transferred out')
-                           # tmp_latest_follow_up_start is used to confirm that they are not TO on their latest follow up (before start date) as they would be ignored by started_art as they don't qualify
-         )
+                                    TIMESTAMPDIFF(YEAR, client.date_of_birth, REPORT_END_DATE)        as Age,
+                                    lost_follow_up.follow_up_status                                   as lost_follow_up_status,
+                                    lost_follow_up.follow_up_date                                     as lost_follow_up_date
+                             from on_art
+                                      join mamba_dim_client client on on_art.client_id = client.client_id
+                                      join lost_follow_up
+                                           on on_art.client_id = lost_follow_up.client_id
+                             where on_art.client_id not in (select client_id from tx_curr_end))
     SELECT 'HIV_ART_INTR'                                     AS S_NO,
            'Number of ART Clients that interrupted Treatment' as Activity,
            COUNT(*)                                           as Value
@@ -125,7 +127,7 @@ BEGIN
            COUNT(*)                        as Value
     FROM interrupted_art
     WHERE TIMESTAMPDIFF(MONTH, art_start_date, treatment_end_date) < 3
-      AND latest_follow_up_status not in ('Transferred out', 'Stop all', 'Dead')
+      AND lost_follow_up_status not in ('Transferred out', 'Stop all', 'Dead')
 -- < 15 years, Male
     UNION ALL
     SELECT 'HIV_ART_INTR_OUT.1. 1' AS S_NO,
@@ -133,7 +135,7 @@ BEGIN
            COUNT(*)                as Value
     FROM interrupted_art
     WHERE TIMESTAMPDIFF(MONTH, art_start_date, treatment_end_date) < 3
-      AND latest_follow_up_status not in ('Transferred out', 'Stop all', 'Dead')
+      AND lost_follow_up_status not in ('Transferred out', 'Stop all', 'Dead')
       AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
       AND sex = 'Male'
 -- < 15 years, Female
@@ -143,7 +145,7 @@ BEGIN
            COUNT(*)                as Value
     FROM interrupted_art
     WHERE TIMESTAMPDIFF(MONTH, art_start_date, treatment_end_date) < 3
-      AND latest_follow_up_status not in ('Transferred out', 'Stop all', 'Dead')
+      AND lost_follow_up_status not in ('Transferred out', 'Stop all', 'Dead')
       AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
       AND sex = 'Female'
 -- >= 15 years, Male
@@ -153,7 +155,7 @@ BEGIN
            COUNT(*)                as Value
     FROM interrupted_art
     WHERE TIMESTAMPDIFF(MONTH, art_start_date, treatment_end_date) < 3
-      AND latest_follow_up_status not in ('Transferred out', 'Stop all', 'Dead')
+      AND lost_follow_up_status not in ('Transferred out', 'Stop all', 'Dead')
       AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
       AND sex = 'Male'
 -- >= 15 years, Female
@@ -163,7 +165,7 @@ BEGIN
            COUNT(*)                as Value
     FROM interrupted_art
     WHERE TIMESTAMPDIFF(MONTH, art_start_date, treatment_end_date) < 3
-      AND latest_follow_up_status not in ('Transferred out', 'Stop all', 'Dead')
+      AND lost_follow_up_status not in ('Transferred out', 'Stop all', 'Dead')
       AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
       AND sex = 'Female'
 -- Lost after treatement > 3month
@@ -173,7 +175,7 @@ BEGIN
            COUNT(*)                         as Value
     FROM interrupted_art
     WHERE TIMESTAMPDIFF(MONTH, art_start_date, treatment_end_date) > 3
-      AND latest_follow_up_status not in ('Transferred out', 'Stop all', 'Dead')
+      AND lost_follow_up_status not in ('Transferred out', 'Stop all', 'Dead')
 -- < 15 years, Male
     UNION ALL
     SELECT 'HIV_ART_INTR_OUT.2. 1' AS S_NO,
@@ -181,7 +183,7 @@ BEGIN
            COUNT(*)                as Value
     FROM interrupted_art
     WHERE TIMESTAMPDIFF(MONTH, art_start_date, treatment_end_date) > 3
-      AND latest_follow_up_status not in ('Transferred out', 'Stop all', 'Dead')
+      AND lost_follow_up_status not in ('Transferred out', 'Stop all', 'Dead')
       AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
       AND sex = 'Male'
 -- < 15 years, Female
@@ -191,7 +193,7 @@ BEGIN
            COUNT(*)                as Value
     FROM interrupted_art
     WHERE TIMESTAMPDIFF(MONTH, art_start_date, treatment_end_date) > 3
-      AND latest_follow_up_status not in ('Transferred out', 'Stop all', 'Dead')
+      AND lost_follow_up_status not in ('Transferred out', 'Stop all', 'Dead')
       AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
       AND sex = 'Female'
 -- >= 15 years, Male
@@ -201,7 +203,7 @@ BEGIN
            COUNT(*)                as Value
     FROM interrupted_art
     WHERE TIMESTAMPDIFF(MONTH, art_start_date, treatment_end_date) > 3
-      AND latest_follow_up_status not in ('Transferred out', 'Stop all', 'Dead')
+      AND lost_follow_up_status not in ('Transferred out', 'Stop all', 'Dead')
       AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
       AND sex = 'Male'
 -- >= 15 years, Female
@@ -211,7 +213,7 @@ BEGIN
            COUNT(*)                as Value
     FROM interrupted_art
     WHERE TIMESTAMPDIFF(MONTH, art_start_date, treatment_end_date) > 3
-      AND latest_follow_up_status not in ('Transferred out', 'Stop all', 'Dead')
+      AND lost_follow_up_status not in ('Transferred out', 'Stop all', 'Dead')
       AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
       AND sex = 'Female'
 -- Transferred out
@@ -220,14 +222,14 @@ BEGIN
            'Transferred out'    as Activity,
            COUNT(*)             as Value
     FROM interrupted_art
-    WHERE latest_follow_up_status = 'Transferred out'
+    WHERE lost_follow_up_status = 'Transferred out'
 -- < 15 years, Male
     UNION ALL
     SELECT 'HIV_ART_INTR_OUT.3. 1' AS S_NO,
            '< 15 years, Male'      as Activity,
            COUNT(*)                as Value
     FROM interrupted_art
-    WHERE latest_follow_up_status = 'Transferred out'
+    WHERE lost_follow_up_status = 'Transferred out'
       AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
       AND sex = 'Male'
 -- < 15 years, Female
@@ -236,7 +238,7 @@ BEGIN
            '< 15 years, Female'    as Activity,
            COUNT(*)                as Value
     FROM interrupted_art
-    WHERE latest_follow_up_status = 'Transferred out'
+    WHERE lost_follow_up_status = 'Transferred out'
       AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
       AND sex = 'Female'
 -- >= 15 years, Male
@@ -245,7 +247,7 @@ BEGIN
            '>= 15 years, Male'     as Activity,
            COUNT(*)                as Value
     FROM interrupted_art
-    WHERE latest_follow_up_status = 'Transferred out'
+    WHERE lost_follow_up_status = 'Transferred out'
       AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
       AND sex = 'Male'
 -- >= 15 years, Female
@@ -254,7 +256,7 @@ BEGIN
            '>= 15 years, Female'   as Activity,
            COUNT(*)                as Value
     FROM interrupted_art
-    WHERE latest_follow_up_status = 'Transferred out'
+    WHERE lost_follow_up_status = 'Transferred out'
       AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
       AND sex = 'Female'
 -- Refused (stopped) treatement
@@ -263,14 +265,14 @@ BEGIN
            'Refused (stopped) treatement' as Activity,
            COUNT(*)                       as Value
     FROM interrupted_art
-    WHERE latest_follow_up_status = 'Stop all'
+    WHERE lost_follow_up_status = 'Stop all'
 -- < 15 years, Male
     UNION ALL
     SELECT 'HIV_ART_INTR_OUT.4. 1' AS S_NO,
            '< 15 years, Male'      as Activity,
            COUNT(*)                as Value
     FROM interrupted_art
-    WHERE latest_follow_up_status = 'Stop all'
+    WHERE lost_follow_up_status = 'Stop all'
       AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
       AND sex = 'Male'
 -- < 15 years, Female
@@ -279,7 +281,7 @@ BEGIN
            '< 15 years, Female'    as Activity,
            COUNT(*)                as Value
     FROM interrupted_art
-    WHERE latest_follow_up_status = 'Stop all'
+    WHERE lost_follow_up_status = 'Stop all'
       AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
       AND sex = 'Female'
 -- >= 15 years, Male
@@ -288,7 +290,7 @@ BEGIN
            '>= 15 years, Male'     as Activity,
            COUNT(*)                as Value
     FROM interrupted_art
-    WHERE latest_follow_up_status = 'Stop all'
+    WHERE lost_follow_up_status = 'Stop all'
       AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
       AND sex = 'Male'
 -- >= 15 years, Female
@@ -297,7 +299,7 @@ BEGIN
            '>= 15 years, Female'   as Activity,
            COUNT(*)                as Value
     FROM interrupted_art
-    WHERE latest_follow_up_status = 'Stop all'
+    WHERE lost_follow_up_status = 'Stop all'
       AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
       AND sex = 'Female'
 -- Died
@@ -306,14 +308,14 @@ BEGIN
            'Died'               as Activity,
            COUNT(*)             as Value
     FROM interrupted_art
-    WHERE latest_follow_up_status = 'Dead'
+    WHERE lost_follow_up_status = 'Dead'
 -- < 15 years, Male
     UNION ALL
     SELECT 'HIV_ART_INTR_OUT.5. 1' AS S_NO,
            '< 15 years, Male'      as Activity,
            COUNT(*)                as Value
     FROM interrupted_art
-    WHERE latest_follow_up_status = 'Dead'
+    WHERE lost_follow_up_status = 'Dead'
       AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
       AND sex = 'Male'
 -- < 15 years, Female
@@ -322,7 +324,7 @@ BEGIN
            '< 15 years, Female'    as Activity,
            COUNT(*)                as Value
     FROM interrupted_art
-    WHERE latest_follow_up_status = 'Dead'
+    WHERE lost_follow_up_status = 'Dead'
       AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
       AND sex = 'Female'
 -- >= 15 years, Male
@@ -331,7 +333,7 @@ BEGIN
            '>= 15 years, Male'     as Activity,
            COUNT(*)                as Value
     FROM interrupted_art
-    WHERE latest_follow_up_status = 'Dead'
+    WHERE lost_follow_up_status = 'Dead'
       AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
       AND sex = 'Male'
 -- >= 15 years, Female
@@ -340,46 +342,8 @@ BEGIN
            '>= 15 years, Female'   as Activity,
            COUNT(*)                as Value
     FROM interrupted_art
-    WHERE latest_follow_up_status = 'Dead'
+    WHERE lost_follow_up_status = 'Dead'
       AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
-      AND sex = 'Female'
--- Number of ART clients restarted ARV treatment in the reporting period
-    UNION ALL
-    SELECT 'HIV_ART_RE_ARV'                                                        AS S_NO,
-           'Number of ART clients restarted ARV treatment in the reporting period' as Activity,
-           COUNT(*)                                                                as Value
-    FROM restarted_art
--- < 15 years, Male
-    UNION ALL
-    SELECT 'HIV_ART_RE_ARV. 1' AS S_NO,
-           '< 15 years, Male'  as Activity,
-           COUNT(*)            as Value
-    FROM restarted_art
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
-      AND sex = 'Male'
--- < 15 years, Female
-    UNION ALL
-    SELECT 'HIV_ART_RE_ARV. 2'  AS S_NO,
-           '< 15 years, Female' as Activity,
-           COUNT(*)             as Value
-    FROM restarted_art
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
-      AND sex = 'Female'
--- >= 15 years, Male
-    UNION ALL
-    SELECT 'HIV_ART_RE_ARV. 3' AS S_NO,
-           '>= 15 years, Male' as Activity,
-           COUNT(*)            as Value
-    FROM restarted_art
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
-      AND sex = 'Male'
--- >= 15 years, Female
-    UNION ALL
-    SELECT 'HIV_ART_RE_ARV. 4'   AS S_NO,
-           '>= 15 years, Female' as Activity,
-           COUNT(*)              as Value
-    FROM restarted_art
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
       AND sex = 'Female';
 END //
 
