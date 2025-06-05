@@ -174,7 +174,7 @@ BEGIN
            'Lost after treatement > 3month' as Activity,
            COUNT(*)                         as Value
     FROM interrupted_art
-    WHERE TIMESTAMPDIFF(MONTH, art_start_date, treatment_end_date) > 3
+    WHERE TIMESTAMPDIFF(MONTH, art_start_date, treatment_end_date) >= 3
       AND lost_follow_up_status not in ('Transferred out', 'Stop all', 'Dead')
 -- < 15 years, Male
     UNION ALL
@@ -182,7 +182,7 @@ BEGIN
            '< 15 years, Male'      as Activity,
            COUNT(*)                as Value
     FROM interrupted_art
-    WHERE TIMESTAMPDIFF(MONTH, art_start_date, treatment_end_date) > 3
+    WHERE TIMESTAMPDIFF(MONTH, art_start_date, treatment_end_date) >= 3
       AND lost_follow_up_status not in ('Transferred out', 'Stop all', 'Dead')
       AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
       AND sex = 'Male'
@@ -192,7 +192,7 @@ BEGIN
            '< 15 years, Female'    as Activity,
            COUNT(*)                as Value
     FROM interrupted_art
-    WHERE TIMESTAMPDIFF(MONTH, art_start_date, treatment_end_date) > 3
+    WHERE TIMESTAMPDIFF(MONTH, art_start_date, treatment_end_date) >= 3
       AND lost_follow_up_status not in ('Transferred out', 'Stop all', 'Dead')
       AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
       AND sex = 'Female'
@@ -202,7 +202,7 @@ BEGIN
            '>= 15 years, Male'     as Activity,
            COUNT(*)                as Value
     FROM interrupted_art
-    WHERE TIMESTAMPDIFF(MONTH, art_start_date, treatment_end_date) > 3
+    WHERE TIMESTAMPDIFF(MONTH, art_start_date, treatment_end_date) >= 3
       AND lost_follow_up_status not in ('Transferred out', 'Stop all', 'Dead')
       AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
       AND sex = 'Male'
@@ -212,7 +212,7 @@ BEGIN
            '>= 15 years, Female'   as Activity,
            COUNT(*)                as Value
     FROM interrupted_art
-    WHERE TIMESTAMPDIFF(MONTH, art_start_date, treatment_end_date) > 3
+    WHERE TIMESTAMPDIFF(MONTH, art_start_date, treatment_end_date) >= 3
       AND lost_follow_up_status not in ('Transferred out', 'Stop all', 'Dead')
       AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
       AND sex = 'Female'
