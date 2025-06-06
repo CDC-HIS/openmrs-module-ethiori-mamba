@@ -201,6 +201,8 @@ BEGIN
         select ''Experienced treatment interruption of 6+ months before returning to treatment'' ,COUNT(*) from tx_rtt where interrupted_months >6';
     ELSEIF REPORT_TYPE = 'TOTAL' THEN
         SET group_query = 'SELECT COUNT(*) AS NUMERATOR FROM tx_rtt';
+    ELSEIF REPORT_TYPE = 'DEBUG' THEN
+        SET group_query = 'SELECT * FROM tx_rtt';
     ELSE
         SET group_query = CONCAT('
         SELECT
