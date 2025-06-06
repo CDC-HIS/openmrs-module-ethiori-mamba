@@ -94,7 +94,7 @@ BEGIN
                     )                                         AS `Date of 15th Birth Day`,
                     DATE_ADD(date_of_birth, INTERVAL 15 YEAR) AS `Date of 15th Birth Day EC.`,
                     CASE
-                        WHEN TIMESTAMPDIFF(MONTH, date_of_birth, REPORT_END_DATE) >= 15 THEN 'YES'
+                        WHEN TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15 THEN 'YES'
                         ELSE 'NO'
                         END                                   AS age_out
     FROM latest_follow_up_encounter
@@ -104,7 +104,7 @@ BEGIN
              LEFT OUTER JOIN firstArtRegimen2 on firstArtRegimen2.patient_id = Follow_up.patient_id
     where rn = 1
 
-      and (TIMESTAMPDIFF(YEAR, date_of_birth, registration_date) <= 15)
+      and (TIMESTAMPDIFF(YEAR, date_of_birth, art_sart_date) <= 15)
 --       and DATE_ADD(
 --             date_of_birth, INTERVAL 15 YEAR
 --           ) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
