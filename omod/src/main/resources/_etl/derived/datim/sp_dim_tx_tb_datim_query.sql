@@ -158,6 +158,8 @@ from tb_screening where specimen_sent_to_lab=''Yes'' ';
         SET group_query ='select COUNT(*) as `Subtotal` FROM tb_screening';
     ELSEIF REPORT_TYPE='DEBUG' THEN
         SET group_query ='select * FROM tb_screening';
+    ELSEIF REPORT_TYPE='DEBUG' THEN
+        SET group_query ='select * FROM tb_screening';
     ELSE
         SET group_query = CONCAT('
         SELECT

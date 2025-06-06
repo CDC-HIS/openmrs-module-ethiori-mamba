@@ -116,6 +116,8 @@ BEGIN
         ');
     ELSEIF REPORT_TYPE = 'TOTAL' THEN
             SET group_query = 'SELECT COUNT(*) AS NUMERATOR FROM prep_new';
+    ELSEIF REPORT_TYPE = 'DEBUG' THEN
+        SET group_query = 'SELECT * FROM prep_new';
     ELSEIF REPORT_TYPE = 'PREP_TYPE' THEN
         SET group_query = 'select ''Oral'' as `Name`, COUNT(*) as count from prep_new
         UNION ALL

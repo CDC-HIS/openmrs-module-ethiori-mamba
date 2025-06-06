@@ -128,6 +128,8 @@ END IF;
         ');
 ELSEIF REPORT_TYPE = 'NUMERATOR_TOTAL' THEN
     SET disaggregate_query = 'SELECT COUNT(*) as Subtotal FROM pvls_numerator';
+ELSEIF REPORT_TYPE = 'NUMERATOR_DEBUG' THEN
+    SET disaggregate_query = 'SELECT * FROM pvls_numerator';
 ELSEIF REPORT_TYPE = 'NUMERATOR_BREAST_FEEDING_PREGNANT' THEN
         SET disaggregate_query = 'SELECT COUNT(CASE WHEN pregnancy_status = ''Yes'' THEN 1 ELSE NULL END ) AS Pregnant,
        COUNT(CASE WHEN breast_feeding_status = ''Yes'' THEN 1 ELSE NULL END ) AS Breastfeeding
@@ -153,6 +155,8 @@ ELSEIF REPORT_TYPE = 'DENOMINATOR' THEN
         ');
     ELSEIF REPORT_TYPE = 'DENOMINATOR_TOTAL' THEN
         SET disaggregate_query = 'SELECT COUNT(*) as Subtotal FROM pvls';
+    ELSEIF REPORT_TYPE = 'DENOMINATOR_DEBUG' THEN
+        SET disaggregate_query = 'SELECT * FROM pvls';
     ELSEIF REPORT_TYPE = 'DENOMINATOR_BREAST_FEEDING_PREGNANT' THEN
         SET disaggregate_query = 'SELECT COUNT(CASE WHEN pregnancy_status = ''Yes'' THEN 1 ELSE NULL END ) AS Pregnant,
        COUNT(CASE WHEN breast_feeding_status = ''Yes'' THEN 1 ELSE NULL END ) AS Breastfeeding

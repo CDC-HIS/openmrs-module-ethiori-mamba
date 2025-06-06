@@ -85,6 +85,8 @@ BEGIN
     END IF;
     IF REPORT_TYPE = 'TOTAL' THEN
         SET group_query = 'SELECT COUNT(*) AS NUMERATOR FROM cx_rx';
+    ELSEIF REPORT_TYPE = 'DEBUG' THEN
+        SET group_query = 'SELECT * FROM cx_rx';
     ELSE
     SET group_query = CONCAT('
         SELECT
