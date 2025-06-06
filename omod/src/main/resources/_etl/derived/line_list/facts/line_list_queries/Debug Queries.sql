@@ -64,6 +64,9 @@ WITH FollowUp AS (select follow_up.encounter_id,
          select tmp_latest_follow_up.*,
                 sex,
                 date_of_birth,
+                mrn,
+                uan,
+                DATE_ADD(tb_treatment_start_date, INTERVAL 1 YEAR ) as ON_TREATMENT_MONTH,
                 (SELECT datim_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,:REPORT_END_DATE)=age) as fine_age_group,
                 (SELECT normal_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,:REPORT_END_DATE)=age) as coarse_age_group
          from tmp_latest_follow_up
@@ -73,11 +76,9 @@ WITH FollowUp AS (select follow_up.encounter_id,
            and art_start_date <= :REPORT_END_DATE
            and (active_tb_diagnosed_date <= :REPORT_END_DATE OR tb_treatment_start_date <= :REPORT_END_DATE)
            and (
-             (date_active_tbrx_dc is null and date_active_tbrx_completed is null)
+             (date_active_tbrx_dc is null and date_active_tbrx_completed is null and  (DATE_ADD(tb_treatment_start_date, INTERVAL 1 YEAR ) >= :REPORT_END_DATE ))
                  OR
              (date_active_tbrx_completed > :REPORT_END_DATE OR date_active_tbrx_dc > :REPORT_END_DATE )
-                 OR
-             (TIMESTAMPDIFF(YEAR,tb_treatment_start_date,:REPORT_END_DATE) <=1)
              )
      )
 select * from tb_art;
