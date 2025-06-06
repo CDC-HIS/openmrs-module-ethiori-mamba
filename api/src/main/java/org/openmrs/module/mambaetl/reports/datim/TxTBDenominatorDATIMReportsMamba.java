@@ -99,7 +99,7 @@ public class TxTBDenominatorDATIMReportsMamba implements ReportManager {
 		
 		TxTBDenominatorDataSetDefinitionMamba txTBScreenTypeDenominatorDataSetDefinitionMamba = new TxTBDenominatorDataSetDefinitionMamba();
 		txTBScreenTypeDenominatorDataSetDefinitionMamba.addParameters(getParameters());
-		txTBScreenTypeDenominatorDataSetDefinitionMamba.setTxTBAggregationTypes(TxTBAggregationTypes.PREV_ART_NEGATIVE);
+		txTBScreenTypeDenominatorDataSetDefinitionMamba.setTxTBAggregationTypes(TxTBAggregationTypes.SCREEN_TYPE);
 		txTBScreenTypeDenominatorDataSetDefinitionMamba.setDescription("Disaggregated by Screen Type");
 		reportDefinition.addDataSetDefinition("Disaggregated by Screen Type", EthiOhriUtil.map(
 		    txTBScreenTypeDenominatorDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));

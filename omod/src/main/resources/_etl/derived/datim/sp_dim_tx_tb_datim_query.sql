@@ -151,11 +151,13 @@ from tb_screening where specimen_sent_to_lab=''Yes'' ';
     ELSEIF REPORT_TYPE = 'DIAGNOSTIC_TEST' THEN
         SET group_query = ' select  ''Number of ART patients who had a specimen sent for bacteriologic diagnosis of active TB disease'' AS `Name`,COUNT(*) AS `Value` from tb_screening where specimen_sent_to_lab=''Yes'' ';
     ELSEIF REPORT_TYPE='POSITIVE_RESULT' THEN
-        SET group_query = ' select  ''Number of ART patients who had a positive result returned for bacteriologic diagnosis of active TB disease'' AS `Name`,COUNT(*) AS `Value` from tb_screening where specimen_sent_to_lab=''Yes'' and screening_result = ''Positive'' ';
+        SET group_query = ' select  ''Number of ART patients who had a positive result returned for bacteriologic diagnosis of active TB disease'' AS `Name`,COUNT(*) AS `Value` from tb_screening where specimen_sent_to_lab=''Yes'' and (lf_lam_result=''Positive'' or gene_xpert_result=''Positive'') ';
     ELSEIF REPORT_TYPE='NUMERATOR_TOTAL' THEN
         SET group_query = CONCAT(' select COUNT(*) as `Subtotal` FROM tb_screening WHERE ',outcome_condition);
     ELSEIF REPORT_TYPE='TOTAL' THEN
         SET group_query ='select COUNT(*) as `Subtotal` FROM tb_screening';
+    ELSEIF REPORT_TYPE='DEBUG' THEN
+        SET group_query ='select * FROM tb_screening';
     ELSE
         SET group_query = CONCAT('
         SELECT

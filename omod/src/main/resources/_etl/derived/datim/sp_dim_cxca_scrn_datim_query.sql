@@ -94,7 +94,8 @@ BEGIN
                                 WHEN screening_method = ''Visual Inspection of the Cervix with Acetic Acid (VIA)'' and
                                      (via_screening_result = ''VIA positive: eligible for cryo/thermo-coagulation'' or
                                       via_screening_result = ''VIA positive: eligible for cryo/thermo-coagula'' or
-                                      via_screening_result = ''VIA positive: non-eligible for cryo/thermo-coagulation'')
+                                      via_screening_result = ''VIA positive: non-eligible for cryo/thermo-coagulation'' or
+                                      via_screening_result = ''VIA positive: non-eligible for cryo/thermo-coagula'')
                                     then ''Cervical Cancer screen: Positive''
                                 WHEN screening_method = ''Visual Inspection of the Cervix with Acetic Acid (VIA)'' and
                                      via_screening_result = ''Suspicious for cervical cancer'' or via_screening_result = ''suspected cervical cancer''
@@ -175,7 +176,7 @@ BEGIN
     END IF;
     IF REPORT_TYPE = 'TOTAL' THEN
         SET group_query = 'SELECT COUNT(*) AS NUMERATOR FROM cx_screened';
-    ELSEIF REPORT_TYPE = 'TEST' THEN
+    ELSEIF REPORT_TYPE = 'DEBUG' THEN
         SET group_query = 'SELECT * FROM cx_screened';
     ELSE
         SET group_query = CONCAT('
