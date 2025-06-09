@@ -57,12 +57,21 @@ public class DataSetEvaluatorHelper {
 	
 	public static void mapResultSet(SimpleDataSet data, ResultSetMapper resultSetMapper, ResultSet[] resultSets,
 	        Boolean addTotal) throws SQLException {
-				DataSetRow totalRow = new DataSetRow();
-				if (addTotal) {
-					DataSetColumn column = new DataSetColumn("patient_name", "Patient Name", String.class);
-					totalRow.addColumnValue(column, 500); // getTotalRowCount(resultSets)
-					data.addRow(0, totalRow);
-				}
+		
+		// Adding total row at the start of dataset to be updated later
+		DataSetRow totalRow = new DataSetRow();
+		// Using total text and total count columns from restultset first and second indexes
+		DataSetColumn totalCountColumn = new DataSetColumn();
+		DataSetColumn totalCountNameColumn;
+		if (addTotal && resultSets.length > 0) {
+			totalCountNameColumn = new DataSetColumn(resultSets[0].getMetaData().getColumnLabel(1), resultSets[0]
+			        .getMetaData().getColumnLabel(1), resultSets[0].getMetaData().getColumnTypeName(1).getClass());
+			totalCountColumn = new DataSetColumn(resultSets[0].getMetaData().getColumnLabel(2), resultSets[0].getMetaData()
+			        .getColumnLabel(2), resultSets[0].getMetaData().getColumnTypeName(2).getClass());
+			totalRow.addColumnValue(totalCountNameColumn, "TOTAL");
+			totalRow.addColumnValue(totalCountColumn, 0);
+			data.addRow(totalRow);
+		}
 		for (ResultSet resultSet : resultSets) {
 			if (resultSet != null) {
 				resultSetMapper.mapResultSetToDataSet(resultSet, data);
@@ -70,24 +79,11 @@ public class DataSetEvaluatorHelper {
 			}
 		}
 		
-	}
-	
-	public static int getTotalRowCount(ResultSet[] resultSets) throws SQLException {
-		int totalRowCount = 0;
-		
-		if (resultSets == null) {
-			return 0;
+		if (addTotal && resultSets.length > 0) {
+			int dataRowCount = data.getRows().size() - 1;
+			totalRow.addColumnValue(totalCountColumn, dataRowCount);
 		}
 		
-		for (ResultSet rs : resultSets) {
-			if (rs != null) {
-				while (rs.next()) {
-					totalRowCount++;
-				}
-				
-			}
-		}
-		return totalRowCount;
 	}
 	
 	/**
