@@ -1,5 +1,6 @@
 package org.openmrs.module.mambaetl.reports.linelist;
 
+import org.openmrs.module.mambaetl.datasetdefinition.linelist.HVLLineListDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.datasetdefinition.linelist.TXMLLineListDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
@@ -45,10 +46,10 @@ public class HVLLineListReportMamba implements ReportManager {
 		reportDefinition.setDescription(getDescription());
 		reportDefinition.setParameters(getParameters());
 		
-		TXMLLineListDataSetDefinitionMamba txmlLineListDataSetDefinitionMamba = new TXMLLineListDataSetDefinitionMamba();
-		txmlLineListDataSetDefinitionMamba.addParameters(getParameters());
+		HVLLineListDataSetDefinitionMamba hvlLineListDataSetDefinitionMamba = new HVLLineListDataSetDefinitionMamba();
+		hvlLineListDataSetDefinitionMamba.addParameters(getParameters());
 		reportDefinition.addDataSetDefinition("Unsuppressed Viral Load & EAC Cascade Report",
-		    EthiOhriUtil.map(txmlLineListDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(hvlLineListDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
 		
 		return reportDefinition;
 	}
