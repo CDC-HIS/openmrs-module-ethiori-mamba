@@ -8,7 +8,7 @@ BEGIN
                               follow_up.client_id                                 AS patient_id,
                               follow_up.encounter_id                              AS encounter_id,
                               follow_up_status,
-                              TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) AS age,
+                              TIMESTAMPDIFF(YEAR, date_of_birth, COALESCE(REPORT_END_DATE,CURDATE())) AS age,
                               mrn,
                               uan,
                               sex,
@@ -36,7 +36,7 @@ BEGIN
                                 left join mamba_flat_encounter_intake_a intake_a
                                           on intake_a.client_id = follow_up.client_id
                        where follow_up_date_followup_
-                                 <= REPORT_END_DATE)
+                                 <= COALESCE(REPORT_END_DATE,CURDATE()))
        , firstArtRegimen as (select patient_id,
                                     follow_up_date                                                                              as followupdate,
                                     encounter_id,
@@ -76,14 +76,21 @@ BEGIN
                     art_sart_date                             as `Art Start Date EC.`,
                     follow_up_date                            AS `Follow Up Date`,
                     follow_up_date                            AS `Follow Up Date EC.`,
-                    follow_up_status,
-                    CASE
-                        WHEN TIMESTAMPDIFF(DAY, next_visit_date, REPORT_END_DATE) >= 30
-                            AND TIMESTAMPDIFF(DAY, next_visit_date, REPORT_END_DATE) <= 60 THEN '1lost'
-                        WHEN TIMESTAMPDIFF(DAY, next_visit_date, REPORT_END_DATE) > 60
-                            AND TIMESTAMPDIFF(DAY, next_visit_date, REPORT_END_DATE) <= 90 THEN '2lost'
-                        WHEN TIMESTAMPDIFF(DAY, next_visit_date, REPORT_END_DATE) > 90 THEN 'dropped'
-                        ELSE ' ' END                          AS current_status,
+                    CASE follow_up_status
+                        WHEN 'Alive' THEN 'Alive on ART'
+                        WHEN 'Restart medication' THEN 'Restart'
+                        WHEN 'Transferred out' THEN 'TO'
+                        WHEN 'Stop all' THEN 'Stop'
+                        WHEN 'Loss to follow-up (LTFU)' THEN 'Lost'
+                        WHEN 'Ran away' THEN 'Drop'
+                        END AS follow_up_status,
+#                     CASE
+#                         WHEN TIMESTAMPDIFF(DAY, next_visit_date, REPORT_END_DATE) >= 30
+#                             AND TIMESTAMPDIFF(DAY, next_visit_date, REPORT_END_DATE) <= 60 THEN '1lost'
+#                         WHEN TIMESTAMPDIFF(DAY, next_visit_date, REPORT_END_DATE) > 60
+#                             AND TIMESTAMPDIFF(DAY, next_visit_date, REPORT_END_DATE) <= 90 THEN '2lost'
+#                         WHEN TIMESTAMPDIFF(DAY, next_visit_date, REPORT_END_DATE) > 90 THEN 'dropped'
+#                         ELSE ' ' END                          AS current_status,
                     firstArtRegimen2.regimen                  AS arv_regimen_when_started_art,
                     Follow_up.regimen                         AS `Regimen`,
                     art_dose                                  AS `Dose Days`,
@@ -105,9 +112,9 @@ BEGIN
     where rn = 1
 
       and (TIMESTAMPDIFF(YEAR, date_of_birth, art_sart_date) <= 15)
---       and DATE_ADD(
---             date_of_birth, INTERVAL 15 YEAR
---           ) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
+      and (REPORT_START_DATE is not null and REPORT_END_DATE is not null and DATE_ADD(
+            date_of_birth, INTERVAL 15 YEAR
+          ) BETWEEN REPORT_START_DATE AND REPORT_END_DATE)
     order by patient_name;
 END //
 

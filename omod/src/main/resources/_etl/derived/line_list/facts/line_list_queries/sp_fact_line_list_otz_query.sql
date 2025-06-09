@@ -158,10 +158,11 @@ BEGIN
          curr_regimen_start as (select * from tmp_curr_regimen_start where row_num = 1)
 
 
-    SELECT otz.otz_date                                                                        AS EnrollementDate,
+    SELECT dim_client.patient_name                                                             AS `Patient Name`,
+           patient_uuid                                                                        as `UUID`,
+           otz.otz_date                                                                        AS EnrollementDate,
            otz.otz_date                                                                        AS `EnrollementDate EC.`,
            otz_enrolled                                                                        AS EnrollementStatus,
-           dim_client.patient_name                                                             AS Name,
            TIMESTAMPDIFF(YEAR, dim_client.date_of_birth, COALESCE(REPORT_END_DATE, CURDATE())) as Age,
            dim_client.sex                                                                      as Sex,
            latest_follow_up.weight                                                             AS Weight,

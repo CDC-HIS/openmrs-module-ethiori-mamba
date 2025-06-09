@@ -142,7 +142,7 @@ BEGIN
                              join mamba_dim_client client on interrupted_at_start.client_id = client.client_id
                              join restart_follow_up_end on tx_curr_end.client_id = restart_follow_up_end.client_id)
 
-    select patient_name                          as `Full Name`,
+    select patient_name                          as `Patient Name`,
            patient_uuid                          as `UUID` ,
            MRN,
            UAN,
