@@ -84,7 +84,8 @@ BEGIN
                                                 'Six months after the first viral load test at postnatal period',
                                                 'Every six months until MTCT ends'))
                                            OR (viral_load_test_indication = 'Targeted viral load test indication'
-                                           and targeted_viral_load_test_indication in ('Suspected Antiretroviral failure')
+                                           and targeted_viral_load_test_indication in
+                                               ('Suspected Antiretroviral failure')
                                            and (viral_load_count > 50 or viral_load_test_status in ('Uncontrolled',
                                                                                                     'HIV infection with high viral load',
                                                                                                     'Low-level viremia'))
@@ -147,8 +148,8 @@ BEGIN
                                                   ('Repeat or confirmatory VL: initial viral load greater than 1000')
                                               )
                                           )
-                                        and
-                                          FollowUp.viral_load_performed_date >= vl_performed_date.viral_load_performed_date
+                                        and FollowUp.viral_load_performed_date >=
+                                            vl_performed_date.viral_load_performed_date
                                         and FollowUp.viral_load_performed_date <= REPORT_END_DATE),
          vl_performed_date_cf as (select * from tmp_vl_performed_date_cf where row_num = 1),
 
@@ -238,7 +239,14 @@ BEGIN
                         f_case.art_dose_end_date                                   as art_dose_End,
                         vlperfdate.viral_load_sent_date                            as `First VL Sent Date`,
                         vlperfdate.viral_load_performed_date                       as `First VL Received Date`,
-                        vlperfdate.viral_load_test_status                          as `First VL Status`,
+                        CASE vlperfdate.viral_load_test_status
+                            WHEN 'Uncontrolled'
+                                THEN 'Unsuppressed'
+                            WHEN 'HIV infection with high viral load'
+                                THEN 'High Viral Load (>1000 copies/ML)'
+                            WHEN 'Low-level viremia'
+                                THEN 'Low Level Viremia (51-1000)'
+                            END                                                    as `First VL Status`,
                         vlperfdate.viral_load_count                                as `First VL Count`,
                         COALESCE(vlperfdate.targeted_viral_load_test_indication,
                                  vlperfdate.routine_viral_load_test_indication)    as `First VL Indication`,
@@ -248,7 +256,15 @@ BEGIN
                         date_eac3.Date_EAC_Provided                                as `First VL EAC3`,
                         vlperfdate_cf.viral_load_sent_date                         as `Confirmatory VL Sent Date`,
                         vlperfdate_cf.viral_load_performed_date                    as `Confirmatory VL Received Date`,
-                        vlperfdate_cf.viral_load_test_status                       as `Confirmatory VL Status`,
+                        CASE vlperfdate_cf.viral_load_test_status
+                            WHEN 'Uncontrolled'
+                                THEN 'Unsuppressed'
+                            WHEN 'HIV infection with high viral load'
+                                THEN 'High Viral Load (>1000 copies/ML)'
+                            WHEN 'Low-level viremia'
+                                THEN 'Low Level Viremia (51-1000)'
+                            END
+                                                                                   as `Confirmatory VL Status`,
                         vlperfdate_cf.viral_load_count                             as `Confirmatory VL Count`,
                         COALESCE(vlperfdate_cf.targeted_viral_load_test_indication,
                                  vlperfdate_cf.routine_viral_load_test_indication) as `Confirmatory VL Indication`,
