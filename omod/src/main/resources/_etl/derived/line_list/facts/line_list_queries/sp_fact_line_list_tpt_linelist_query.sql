@@ -183,6 +183,7 @@ BEGIN
            tmp_tpt.tpt_start_date                            as `TPT Start Date EC.`,
            tmp_tpt.tpt_completed_date                    as `TPT Completed Date`,
            tmp_tpt.tpt_completed_date                    as `TPT Completed Date EC.`,
+           TIMESTAMPDIFF(YEAR, tmp_tpt.tpt_start_date, tmp_tpt.tpt_completed_date) as `Days Difference`,
            FollowUp.TB_ProphylaxisType                         as `TPT Type`,
            FollowUp.TB_ProphylaxisTypeALT                      as `TPT Type ALT`,
            tmp_tpt.hiv_confirmed_date                          as `Hiv Confirmed Date`,

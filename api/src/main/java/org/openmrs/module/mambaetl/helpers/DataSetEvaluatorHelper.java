@@ -57,12 +57,12 @@ public class DataSetEvaluatorHelper {
 	
 	public static void mapResultSet(SimpleDataSet data, ResultSetMapper resultSetMapper, ResultSet[] resultSets,
 	        Boolean addTotal) throws SQLException {
-		//		DataSetRow totalRow = new DataSetRow();
-		//		if (addTotal) {
-		//			// totalRow.addColumnValue(new DataSetColumn("#", "#", String.class), "TOTAL");
-		//			totalRow.addColumnValue(new DataSetColumn("#", "#", Integer.class), getTotalRowCount(resultSets));
-		//			data.addRow(0, totalRow);
-		//		}
+				DataSetRow totalRow = new DataSetRow();
+				if (addTotal) {
+					DataSetColumn column = new DataSetColumn("patient_name", "Patient Name", String.class);
+					totalRow.addColumnValue(column, 500); // getTotalRowCount(resultSets)
+					data.addRow(0, totalRow);
+				}
 		for (ResultSet resultSet : resultSets) {
 			if (resultSet != null) {
 				resultSetMapper.mapResultSetToDataSet(resultSet, data);
