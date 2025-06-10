@@ -23,7 +23,8 @@ jobs:
         path: ~/.m2/repository  # Ensure this is the correct path
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}  # Cache key to invalidate when dependencies change
     - name: Build and install with Maven
-      run: mvn clean install -DskipTests=true -Dmaven.javadoc.skip=true --batch-mode --show-version --file pom.xml
+      run: mvn clean install -DskipTests=true -Dmaven.javadoc.skip=true 
+      # Commenting out batch mode --batch-mode --show-version --file pom.xml
     - name: List files in target directory
       run: ls -al  /home/ubuntu/actions-runner-group/_work/openmrs-module-ethiori-mamba/openmrs-module-ethiori-mamba/omod/target
     - name: Moving omod file to shared folder for publish
@@ -44,7 +45,7 @@ jobs:
         distribution: 'temurin'
     - name: Updating module
       run: |
-        sudo mv ~/ethiohri-modules/*.omod  /usr/share/tomcat/tomcat8/.OpenMRS/modules/ && \
+        sudo cp ~/ethiohri-modules/*.omod  /usr/share/tomcat/tomcat8/.OpenMRS/modules/ && \
         sudo chown tomcat8:tomcat8 /usr/share/tomcat/tomcat8/.OpenMRS/modules/ -R && \
         sudo chmod 777 /usr/share/tomcat/tomcat8/.OpenMRS/modules/ -R 
     - name: Restarting server
