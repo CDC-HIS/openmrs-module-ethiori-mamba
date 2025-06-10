@@ -30,7 +30,7 @@ BEGIN
 
                              COALESCE(
                                      at_3436_weeks_of_gestation,
-                                 -- viral_load_after_eac_confirmatory_viral_load_where_initial_v,
+                                     viral_load_after_eac_confirmatory_viral_load_where_initial_v,
                                      viral_load_after_eac_repeat_viral_load_where_initial_viral_l,
                                      every_six_months_until_mtct_ends,
                                      six_months_after_the_first_viral_load_test_at_postnatal_peri,
@@ -42,7 +42,7 @@ BEGIN
                                      first_viral_load_test_at_3_months_or_longer_post_art
                              )                                                 AS routine_viral_load_test_indication,
                              COALESCE(
-                                 -- repeat_or_confirmatory_vl_initial_viral_load_greater_than_10,
+                                     repeat_or_confirmatory_vl_initial_viral_load_greater_than_10,
                                      suspected_antiretroviral_failure
                              )                                                 AS targeted_viral_load_test_indication,
                              annual_viral_load_test
@@ -290,3 +290,6 @@ BEGIN
 END //
 
 DELIMITER ;
+
+-- TODO Check if only tx curr clients are needed
+-- TODO Check vl_performed_date_cf eac dates need viral_load_count or vl_status to be checked
