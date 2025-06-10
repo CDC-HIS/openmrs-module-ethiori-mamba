@@ -27,7 +27,6 @@ BEGIN
                              treatment_end_date                                   art_dose_end_date,
                              hiv_viral_load_status,
                              viral_load_test_indication,
-
                              COALESCE(
                                      at_3436_weeks_of_gestation,
                                      viral_load_after_eac_confirmatory_viral_load_where_initial_v,
@@ -93,34 +92,7 @@ BEGIN
                                        )
                                      and viral_load_performed_date <= REPORT_END_DATE),
          vl_performed_date as (select * from tmp_vl_performed_date where row_num = 1),
-         tmp_vl_perf_date_eac_1 AS (SELECT FollowUp.client_id,
-                                           eac_1                                                                                                          AS Date_EAC_Provided,
-                                           ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY FollowUp.eac_1 DESC , FollowUp.encounter_id DESC ) AS row_num
-                                    FROM FollowUp
-                                             INNER JOIN vl_performed_date ON vl_performed_date.client_id = FollowUp.client_id
-                                    WHERE FollowUp.eac_1 is not null
-                                      AND vl_performed_date.viral_load_performed_date <= FollowUp.follow_up_date
-                                      AND eac_1 <= REPORT_END_DATE),
 
-         tmp_vl_perf_date_eac_2 AS (SELECT FollowUp.client_id,
-                                           eac_2                                                                                                          AS Date_EAC_Provided,
-                                           ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY FollowUp.eac_2 DESC , FollowUp.encounter_id DESC ) AS row_num
-                                    FROM FollowUp
-                                             INNER JOIN vl_performed_date ON vl_performed_date.client_id = FollowUp.client_id
-                                    WHERE FollowUp.eac_2 is not null
-                                      AND vl_performed_date.viral_load_performed_date <= FollowUp.follow_up_date
-                                      AND eac_2 <= REPORT_END_DATE),
-         tmp_vl_perf_date_eac_3 AS (SELECT FollowUp.client_id,
-                                           eac_3                                                                                                          AS Date_EAC_Provided,
-                                           ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY FollowUp.eac_3 DESC , FollowUp.encounter_id DESC ) as row_num
-                                    FROM FollowUp
-                                             INNER JOIN vl_performed_date ON vl_performed_date.client_id = FollowUp.client_id
-                                    WHERE FollowUp.eac_3 is not null
-                                      AND vl_performed_date.viral_load_performed_date <= FollowUp.follow_up_date
-                                      AND eac_3 <= REPORT_END_DATE),
-         vl_perf_date_eac_1 AS (select * from tmp_vl_perf_date_eac_1 where row_num = 1),
-         vl_perf_date_eac_2 AS (select * from tmp_vl_perf_date_eac_2 where row_num = 1),
-         vl_perf_date_eac_3 AS (select * from tmp_vl_perf_date_eac_3 where row_num = 1),
          tmp_vl_performed_date_cf as (select FollowUp.encounter_id,
                                              FollowUp.client_id,
                                              FollowUp.viral_load_performed_date,
@@ -153,6 +125,33 @@ BEGIN
                                         and FollowUp.viral_load_performed_date <= REPORT_END_DATE),
          vl_performed_date_cf as (select * from tmp_vl_performed_date_cf where row_num = 1),
 
+
+         tmp_vl_perf_date_eac_1 AS (SELECT FollowUp.client_id,
+                                           eac_1                                                                                                          AS Date_EAC_Provided,
+                                           ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY FollowUp.eac_1 DESC , FollowUp.encounter_id DESC ) AS row_num
+                                    FROM FollowUp
+                                             INNER JOIN vl_performed_date ON vl_performed_date.client_id = FollowUp.client_id
+                                    WHERE FollowUp.eac_1 is not null
+                                      AND vl_performed_date.viral_load_performed_date <= FollowUp.eac_1
+                                      AND eac_1 <= REPORT_END_DATE),
+
+         tmp_vl_perf_date_eac_2 AS (SELECT FollowUp.client_id,
+                                           eac_2                                                                                                          AS Date_EAC_Provided,
+                                           ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY FollowUp.eac_2 DESC , FollowUp.encounter_id DESC ) AS row_num
+                                    FROM FollowUp
+                                             INNER JOIN vl_performed_date ON vl_performed_date.client_id = FollowUp.client_id
+                                    WHERE FollowUp.eac_2 is not null
+                                      AND vl_performed_date.viral_load_performed_date <= FollowUp.eac_2
+                                      AND eac_2 <= REPORT_END_DATE),
+         tmp_vl_perf_date_eac_3 AS (SELECT FollowUp.client_id,
+                                           eac_3                                                                                                          AS Date_EAC_Provided,
+                                           ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY FollowUp.eac_3 DESC , FollowUp.encounter_id DESC ) as row_num
+                                    FROM FollowUp
+                                             INNER JOIN vl_performed_date ON vl_performed_date.client_id = FollowUp.client_id
+                                    WHERE FollowUp.eac_3 is not null
+                                      AND vl_performed_date.viral_load_performed_date <= FollowUp.eac_3
+                                      AND eac_3 <= REPORT_END_DATE),
+
          tmp_vl_perf_date_eac_1_cf AS (SELECT FollowUp.client_id,
                                               eac_1                                                                                                          AS Date_EAC_Provided,
                                               ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY FollowUp.eac_1 DESC , FollowUp.encounter_id DESC ) AS row_num
@@ -160,7 +159,7 @@ BEGIN
                                                 INNER JOIN vl_performed_date_cf
                                                            ON vl_performed_date_cf.client_id = FollowUp.client_id
                                        WHERE FollowUp.eac_1 is not null
-                                         AND vl_performed_date_cf.viral_load_performed_date <= FollowUp.follow_up_date
+                                         AND vl_performed_date_cf.viral_load_performed_date <= FollowUp.eac_1
                                          and (FollowUp.viral_load_count > 50 or
                                               FollowUp.viral_load_test_status in ('Uncontrolled',
                                                                                   'HIV infection with high viral load',
@@ -175,7 +174,7 @@ BEGIN
                                                 INNER JOIN vl_performed_date_cf
                                                            ON vl_performed_date_cf.client_id = FollowUp.client_id
                                        WHERE FollowUp.eac_2 is not null
-                                         AND vl_performed_date_cf.viral_load_performed_date <= FollowUp.follow_up_date
+                                         AND vl_performed_date_cf.viral_load_performed_date <= FollowUp.eac_2
                                          and (FollowUp.viral_load_count > 50 or
                                               FollowUp.viral_load_test_status in ('Uncontrolled',
                                                                                   'HIV infection with high viral load',
@@ -188,12 +187,15 @@ BEGIN
                                                 INNER JOIN vl_performed_date_cf
                                                            ON vl_performed_date_cf.client_id = FollowUp.client_id
                                        WHERE FollowUp.eac_3 is not null
-                                         AND vl_performed_date_cf.viral_load_performed_date <= FollowUp.follow_up_date
+                                         AND vl_performed_date_cf.viral_load_performed_date <= FollowUp.eac_3
                                          and (FollowUp.viral_load_count > 50 or
                                               FollowUp.viral_load_test_status in ('Uncontrolled',
                                                                                   'HIV infection with high viral load',
                                                                                   'Low-level viremia'))
                                          AND eac_3 <= REPORT_END_DATE),
+         vl_perf_date_eac_1 AS (select * from tmp_vl_perf_date_eac_1 where row_num = 1),
+         vl_perf_date_eac_2 AS (select * from tmp_vl_perf_date_eac_2 where row_num = 1),
+         vl_perf_date_eac_3 AS (select * from tmp_vl_perf_date_eac_3 where row_num = 1),
          vl_perf_date_eac_1_cf AS (select * from tmp_vl_perf_date_eac_1_cf where row_num = 1),
          vl_perf_date_eac_2_cf AS (select * from tmp_vl_perf_date_eac_2_cf where row_num = 1),
          vl_perf_date_eac_3_cf AS (select * from tmp_vl_perf_date_eac_3_cf where row_num = 1),
@@ -293,3 +295,4 @@ DELIMITER ;
 
 -- TODO Check if only tx curr clients are needed
 -- TODO Check vl_performed_date_cf eac dates need viral_load_count or vl_status to be checked
+-- TODO EAC Dates might collide for cf and vl_performed
