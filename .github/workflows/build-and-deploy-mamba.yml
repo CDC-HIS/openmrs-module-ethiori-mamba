@@ -1,0 +1,81 @@
+name: Compile & Deploy Mamba
+
+on:
+  push:
+    branches: [ "master", "dev" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build_and_deploy:
+    runs-on: ethiohri-dev # Your custom self-hosted runner
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 8
+        uses: actions/setup-java@v4
+        with:
+          java-version: '8'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Build OpenMRS Module with Maven
+        run: |
+          echo "Starting Maven build..."
+          mvn clean install -DskipTests
+          echo "Maven build completed."
+
+      - name: Find .omod File
+        id: find_omod
+        run: |
+          # Use 'find' to locate the .omod file, assuming it's in a 'target' directory within 'omod'.
+          # The 'head -n 1' ensures we only get the first one if multiple are found.
+          OMOD_PATH=$(find "${{ github.workspace }}" -name "*.omod" | head -n 1)
+          
+          if [ -z "$OMOD_PATH" ]; then
+            echo "Error: No .omod file found after build. Please check your module's pom.xml and build logs."
+            exit 1
+          fi
+          
+          echo "Found .omod at: $OMOD_PATH"
+          # Store the path as a step output, so subsequent steps can use it.
+          echo "omod_file_path=$OMOD_PATH" >> "$GITHUB_OUTPUT"
+          
+          echo "Listing contents of the omod/target directory:"
+          ls -al "${{ github.workspace }}/omod/target" || true
+
+      - name: Deploy OMOD to Tomcat Modules Directory
+        run: |
+          # Ensure the target directory exists and is writable by the user
+          # (or by sudo if the runner user is in sudoers and no password is required).
+          TARGET_MODULES_DIR="/usr/share/tomcat/tomcat8/.OpenMRS/modules/"
+          OMOD_FILE_SOURCE="${{ steps.find_omod.outputs.omod_file_path }}"
+          
+          echo "Attempting to copy $OMOD_FILE_SOURCE to $TARGET_MODULES_DIR"
+          sudo cp "$OMOD_FILE_SOURCE" "$TARGET_MODULES_DIR"
+          echo "Copied $(basename "$OMOD_FILE_SOURCE") to $TARGET_MODULES_DIR"
+          
+          echo "Setting ownership and permissions for $TARGET_MODULES_DIR"
+          sudo chown -R tomcat8:tomcat8 "$TARGET_MODULES_DIR"
+          sudo chmod -R 777 "$TARGET_MODULES_DIR" # Be cautious with 777. Consider 755 for dirs, 644 for files.
+          echo "Permissions updated."
+
+      - name: Restart Tomcat Server
+        run: |
+          echo "Restarting tomcat8 service..."
+          sudo systemctl restart tomcat8
+          echo "Tomcat restart command issued."
+
+      - name: Upload OMOD as Artifact # This is still useful for debugging or manual deployment
+        uses: actions/upload-artifact@v4
+        with:
+          name: openmrs-module-${{ github.run_id }}
+          path: ${{ steps.find_omod.outputs.omod_file_path }}
+          retention-days: 7
+
+      - name: Workflow Completed
+        run: echo "Module compilation and local deployment finished successfully!"
