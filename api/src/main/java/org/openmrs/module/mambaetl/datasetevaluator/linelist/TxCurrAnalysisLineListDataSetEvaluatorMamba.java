@@ -55,7 +55,7 @@ public class TxCurrAnalysisLineListDataSetEvaluatorMamba implements DataSetEvalu
                 executeStatements(statementContainer, procedureCalls);
 
                 ResultSet[] allResultSets = statementContainer.getResultSets();
-                mapResultSet(data, resultSetMapper, allResultSets,Boolean.TRUE);
+                mapResultSet(data, resultSetMapper, allResultSets,txCurrAnalysisLineListDataSetDefinitionMamba.getTxCurrAnalysisCategories().getSqlValue().equalsIgnoreCase("SUMMARY")?Boolean.FALSE:Boolean.TRUE);
                 connection.commit();
                 return data;
 
