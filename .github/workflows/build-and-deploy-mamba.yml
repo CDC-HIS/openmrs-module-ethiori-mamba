@@ -19,7 +19,7 @@ jobs:
       - name: Set up JDK 8
         uses: actions/setup-java@v4
         with:
-          java-version: '8.452.09.1'
+          java-version: '8.452'
           distribution: 'corretto'
           cache: 'maven'
 
