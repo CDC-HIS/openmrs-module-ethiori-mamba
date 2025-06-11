@@ -33,7 +33,7 @@ public class HVLLineListReportMamba implements ReportManager {
 	public String getDescription() {
 		return "Unsuppressed Viral Load & EAC Cascade Report";
 	}
-
+	
 	@Override
 	public List<Parameter> getParameters() {
 		Parameter startDate = new Parameter("startDate", "Start Date", Date.class);
@@ -45,10 +45,9 @@ public class HVLLineListReportMamba implements ReportManager {
 		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
 		endDateGC.setRequired(false);
 		return Arrays.asList(startDate, startDateGC, endDate, endDateGC);
-
+		
 	}
-
-
+	
 	@Override
 	public ReportDefinition constructReportDefinition() {
 		ReportDefinition reportDefinition = new ReportDefinition();

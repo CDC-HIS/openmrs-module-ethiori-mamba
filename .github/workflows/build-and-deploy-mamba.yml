@@ -69,6 +69,7 @@ jobs:
           echo "Restarting tomcat8 service..."
           sudo systemctl restart tomcat8
           echo "Tomcat restart command issued."
+          java -version
 
       - name: Upload OMOD as Artifact # This is still useful for debugging or manual deployment
         uses: actions/upload-artifact@v4
