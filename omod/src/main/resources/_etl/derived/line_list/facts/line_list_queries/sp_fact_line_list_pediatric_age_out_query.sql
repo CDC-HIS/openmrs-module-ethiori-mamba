@@ -84,13 +84,7 @@ BEGIN
                         WHEN 'Loss to follow-up (LTFU)' THEN 'Lost'
                         WHEN 'Ran away' THEN 'Drop'
                         END AS follow_up_status,
-#                     CASE
-#                         WHEN TIMESTAMPDIFF(DAY, next_visit_date, REPORT_END_DATE) >= 30
-#                             AND TIMESTAMPDIFF(DAY, next_visit_date, REPORT_END_DATE) <= 60 THEN '1lost'
-#                         WHEN TIMESTAMPDIFF(DAY, next_visit_date, REPORT_END_DATE) > 60
-#                             AND TIMESTAMPDIFF(DAY, next_visit_date, REPORT_END_DATE) <= 90 THEN '2lost'
-#                         WHEN TIMESTAMPDIFF(DAY, next_visit_date, REPORT_END_DATE) > 90 THEN 'dropped'
-#                         ELSE ' ' END                          AS current_status,
+
                     firstArtRegimen2.regimen                  AS arv_regimen_when_started_art,
                     Follow_up.regimen                         AS `Regimen`,
                     art_dose                                  AS `Dose Days`,
@@ -106,15 +100,19 @@ BEGIN
                         END                                   AS age_out
     FROM latest_follow_up_encounter
              left join Follow_up on latest_follow_up_encounter.encounter_id = Follow_up.encounter_id
-
-
              LEFT OUTER JOIN firstArtRegimen2 on firstArtRegimen2.patient_id = Follow_up.patient_id
     where rn = 1
 
       and (TIMESTAMPDIFF(YEAR, date_of_birth, art_sart_date) <= 15)
-      and (REPORT_START_DATE is not null and REPORT_END_DATE is not null and DATE_ADD(
-            date_of_birth, INTERVAL 15 YEAR
-          ) BETWEEN REPORT_START_DATE AND REPORT_END_DATE)
+      and (
+        (REPORT_START_DATE is not null and REPORT_END_DATE is not null and DATE_ADD(
+                date_of_birth, INTERVAL 15 YEAR
+                                                                           ) BETWEEN REPORT_START_DATE AND REPORT_END_DATE)
+          OR
+        ((REPORT_START_DATE is null and REPORT_END_DATE is null and DATE_ADD(
+                date_of_birth, INTERVAL 15 YEAR
+                                                                            ) <= CURDATE()))
+        )
     order by patient_name;
 END //
 

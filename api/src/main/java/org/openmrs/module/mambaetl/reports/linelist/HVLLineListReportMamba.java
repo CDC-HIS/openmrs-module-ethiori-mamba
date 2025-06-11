@@ -11,7 +11,9 @@ import org.openmrs.module.reporting.report.manager.ReportManager;
 import org.openmrs.module.reporting.report.manager.ReportManagerUtil;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 @Component
@@ -31,13 +33,22 @@ public class HVLLineListReportMamba implements ReportManager {
 	public String getDescription() {
 		return "Unsuppressed Viral Load & EAC Cascade Report";
 	}
-	
+
 	@Override
 	public List<Parameter> getParameters() {
-		return EthiOhriUtil.getDateRangeParameters();
-		
+		Parameter startDate = new Parameter("startDate", "Start Date", Date.class);
+		startDate.setRequired(false);
+		Parameter startDateGC = new Parameter("startDateGC", " ", Date.class);
+		startDateGC.setRequired(false);
+		Parameter endDate = new Parameter("endDate", "End Date", Date.class);
+		endDate.setRequired(false);
+		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
+		endDateGC.setRequired(false);
+		return Arrays.asList(startDate, startDateGC, endDate, endDateGC);
+
 	}
-	
+
+
 	@Override
 	public ReportDefinition constructReportDefinition() {
 		ReportDefinition reportDefinition = new ReportDefinition();
