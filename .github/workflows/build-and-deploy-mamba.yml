@@ -27,7 +27,9 @@ jobs:
         run: |
           echo "Starting Maven build..."
           mvn clean install -DskipTests
-          echo "Maven build completed."
+          echo "Maven build completed. debug env"
+          java -version
+          jq -V
 
       - name: Find .omod File
         id: find_omod
@@ -69,7 +71,6 @@ jobs:
           echo "Restarting tomcat8 service..."
           sudo systemctl restart tomcat8
           echo "Tomcat restart command issued."
-          java -version
 
       - name: Upload OMOD as Artifact # This is still useful for debugging or manual deployment
         uses: actions/upload-artifact@v4
