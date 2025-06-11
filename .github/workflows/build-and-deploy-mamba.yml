@@ -19,8 +19,8 @@ jobs:
       - name: Set up JDK 8
         uses: actions/setup-java@v4
         with:
-          java-version: '8'
-          distribution: 'temurin'
+          java-version: '8.452.09.1'
+          distribution: 'corretto'
           cache: 'maven'
 
       - name: Build OpenMRS Module with Maven
