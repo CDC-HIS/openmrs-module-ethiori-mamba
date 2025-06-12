@@ -204,9 +204,9 @@ BEGIN
                         vlperfdate_cf.viral_load_count                                                  as `Confirmatory VL Count`,
                         COALESCE(vlperfdate_cf.targeted_viral_load_test_indication,
                                  vlperfdate_cf.routine_viral_load_test_indication)                      as `Confirmatory VL Indication`,
-                        vl_performed_date_cf.eac_1                                                      as `Confirmatory EAC1  Date`,
-                        vl_performed_date_cf.eac_2                                                      as `Confirmatory EAC2  Date`,
-                        vl_performed_date_cf.eac_3                                                      as `Confirmatory EAC3  Date`
+                        vlperfdate_cf.eac_1                                                      as `Confirmatory EAC1  Date`,
+                        vlperfdate_cf.eac_2                                                      as `Confirmatory EAC2  Date`,
+                        vlperfdate_cf.eac_3                                                      as `Confirmatory EAC3  Date`
                  FROM FollowUp AS f_case
                           JOIN latest_follow_up ON f_case.encounter_id = latest_follow_up.encounter_id
                           JOIN vl_performed_date as vlperfdate ON vlperfdate.client_id = f_case.client_id
