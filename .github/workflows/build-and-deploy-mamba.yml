@@ -23,31 +23,56 @@ jobs:
           distribution: 'corretto'
           cache: 'maven'
 
+      - name: Debug Environment Before Build
+        run: |
+          echo "Current working directory: $(pwd)"
+          echo "User running the job: $(whoami)"
+          echo "Permissions of current directory:"
+          ls -ld .
+          echo "Permissions of api/src/main/resources:"
+          ls -ld api/src/main/resources || true
+          echo "Contents of api/src/main/resources/mamba:"
+          ls -al api/src/main/resources/mamba || true
+
       - name: Build OpenMRS Module with Maven
         run: |
           echo "Starting Maven build..."
-          mvn clean install -DskipTests
+          mvn clean install -DskipTests -X # Add -X for extended debug output from Maven
           echo "Maven build completed. debug env"
           java -version
           jq -V
           whoami
+          echo "Contents of api/target after build:"
+          ls -al api/target || true
+          echo "Contents of api/target/classes after build (where resources should go):"
+          ls -al api/target/classes || true
+          echo "Contents of api/target/classes/mamba after build:"
+          ls -al api/target/classes/mamba || true
 
-      - name: Verify Mamba Artifacts
+      - name: Verify Mamba Artifacts in API JAR
         run: |
-          MAMBA_DIR="${{ github.workspace }}/api/src/main/resources/mamba"
-          SQL_FILE="$MAMBA_DIR/jdbc_create_stored_procedures.sql"
+          API_TARGET_DIR="${{ github.workspace }}/api/target"
+          API_JAR_FILE=$(find "$API_TARGET_DIR" -name "*api-*.jar" | head -n 1) # Adjust if your API jar name is different
 
-          if [ ! -d "$MAMBA_DIR" ] || [ -z "$(ls -A "$MAMBA_DIR")" ]; then
-            echo "Error: Mamba directory not created or is empty after build."
+          if [ -z "$API_JAR_FILE" ]; then
+            echo "Error: API JAR file not found in $API_TARGET_DIR. This is unexpected."
             exit 1
           fi
-          echo "Mamba directory is present and not empty."
 
-          if [ ! -f "$SQL_FILE" ]; then
-            echo "Error: jdbc_create_stored_procedures.sql not found after build."
+          echo "Found API JAR: $API_JAR_FILE"
+          echo "Listing contents of the API JAR to check for mamba resources:"
+          jar tvf "$API_JAR_FILE" | grep "mamba" # Check if mamba resources are inside the API JAR
+
+          if ! jar tvf "$API_JAR_FILE" | grep -q "mamba/jdbc_create_stored_procedures.sql"; then
+            echo "Error: jdbc_create_stored_procedures.sql not found inside the API JAR."
+            # Optionally, you can extract the jar contents to a temporary directory for more detailed inspection
+            # mkdir /tmp/api_jar_contents && unzip -q "$API_JAR_FILE" -d /tmp/api_jar_contents
+            # echo "Extracted API JAR contents to /tmp/api_jar_contents:"
+            # ls -R /tmp/api_jar_contents
             exit 1
           fi
-          echo "Found jdbc_create_stored_procedures.sql."
+          echo "Found jdbc_create_stored_procedures.sql inside the API JAR."
+
 
       - name: Find .omod File
         id: find_omod
@@ -68,20 +93,48 @@ jobs:
           echo "Listing contents of the omod/target directory:"
           ls -al "${{ github.workspace }}/omod/target" || true
 
+      - name: Verify Mamba Artifacts in OMOD
+        # This step assumes the previous 'Verify Mamba Artifacts in API JAR' passed.
+        # If the API JAR contains the resources, and the OMOD bundles the API JAR,
+        # then the OMOD should contain them too.
+        # However, it's good to verify the final artifact.
+        run: |
+          OMOD_FILE="${{ steps.find_omod.outputs.omod_file_path }}"
+
+          if [ -z "$OMOD_FILE" ]; then
+            echo "Error: OMOD file path not set from previous step. Cannot verify OMOD contents."
+            exit 1
+          fi
+
+          echo "Listing contents of the OMOD to check for API JAR and mamba resources:"
+          jar tvf "$OMOD_FILE" | grep "api" # Look for the API JAR within the OMOD
+          jar tvf "$OMOD_FILE" | grep "mamba" # Look for mamba resources directly (less likely if bundled in API JAR)
+
+          if ! jar tvf "$OMOD_FILE" | grep -q "$(basename "$API_JAR_FILE")"; then # Check if the API JAR is within the OMOD
+            echo "Error: API JAR file not found inside the OMOD."
+            exit 1
+          fi
+
+          echo "API JAR found inside the OMOD."
+          echo "Mamba resources are implicitly verified if they are in the API JAR, and the API JAR is in the OMOD."
+
+
       - name: Deploy OMOD to Tomcat Modules Directory
         run: |
-          # Ensure the target directory exists and is writable by the user
-          # (or by sudo if the runner user is in sudoers and no password is required).
           TARGET_MODULES_DIR="/usr/share/tomcat/tomcat8/.OpenMRS/modules/"
           OMOD_FILE_SOURCE="${{ steps.find_omod.outputs.omod_file_path }}"
 
           echo "Attempting to copy $OMOD_FILE_SOURCE to $TARGET_MODULES_DIR"
+          # Using sudo with -E (preserve environment) might be needed if your runner relies on specific environment variables
           sudo cp "$OMOD_FILE_SOURCE" "$TARGET_MODULES_DIR"
           echo "Copied $(basename "$OMOD_FILE_SOURCE") to $TARGET_MODULES_DIR"
 
           echo "Setting ownership and permissions for $TARGET_MODULES_DIR"
+          # Stricter permissions are generally better for security.
+          # 755 for directories, 644 for files.
           sudo chown -R tomcat8:tomcat8 "$TARGET_MODULES_DIR"
-          sudo chmod -R 777 "$TARGET_MODULES_DIR" # Be cautious with 777. Consider 755 for dirs, 644 for files.
+          sudo find "$TARGET_MODULES_DIR" -type d -exec chmod 755 {} +
+          sudo find "$TARGET_MODULES_DIR" -type f -exec chmod 644 {} +
           echo "Permissions updated."
 
       - name: Restart Tomcat Server
@@ -89,6 +142,10 @@ jobs:
           echo "Restarting tomcat8 service..."
           sudo systemctl restart tomcat8
           echo "Tomcat restart command issued."
+          # Add a delay to ensure Tomcat has time to start
+          sleep 10
+          # Check if Tomcat is actually running (optional but good for robustness)
+          sudo systemctl is-active tomcat8 && echo "Tomcat is active." || echo "Tomcat is not active. Check logs."
 
       - name: Upload OMOD as Artifact # This is still useful for debugging or manual deployment
         uses: actions/upload-artifact@v4
