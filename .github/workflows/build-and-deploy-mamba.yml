@@ -30,6 +30,7 @@ jobs:
           echo "Maven build completed. debug env"
           java -version
           jq -V
+          whoami
 
       - name: Verify Mamba Artifacts
         run: |
