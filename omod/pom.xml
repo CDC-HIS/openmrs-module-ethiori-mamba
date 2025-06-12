@@ -98,6 +98,43 @@
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>3.4.1</version>
+                <executions>
+                    <!-- This is our custom rule to verify the SQL script exists -->
+                    <execution>
+                        <id>enforce-sql-script-exists</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <phase>verify</phase>
+                        <configuration>
+                            <rules>
+                                <requireFilesExist>
+                                    <files>
+                                        <file>${project.build.directory}/mamba-etl/_core/database/mysql/build/jdbc_create_stored_procedures.sql</file>
+                                    </files>
+                                    <message>
+                                        [ERROR] The build script 'jdbc_create_stored_procedures.sql' was not generated. This indicates a failure in the mamba-etl script compiler.
+                                    </message>
+                                </requireFilesExist>
+                            </rules>
+                            <fail>true</fail>
+                        </configuration>
+                    </execution>
+                    <!-- This disables the inherited rule from the parent POM -->
+                    <execution>
+                        <id>enforce-no-snapshots</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <phase>none</phase>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
             </plugin>
 
