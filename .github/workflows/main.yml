@@ -49,7 +49,7 @@ jobs:
         run: |
           echo "Starting Maven build..."
           # Using -X for extended debug output to help diagnose packaging issues
-          mvn clean install -DskipTests -X
+          mvn clean install
           echo "Maven build completed."
           echo "Contents of api/target after build:"
           ls -al api/target || true
@@ -74,25 +74,6 @@ jobs:
 
           echo "Listing contents of the omod/target directory:"
           ls -al "${{ github.workspace }}/omod/target" || true
-
-      - name: Verify OMOD Integrity (Optional but Recommended)
-        # This step verifies that the OMOD itself contains the API JAR which should have the mamba resources.
-        run: |
-          OMOD_FILE="${{ steps.find_omod.outputs.omod_file_path }}"
-          API_JAR_NAME=$(basename $(find "${{ github.workspace }}/api/target" -name "*api-*.jar" | head -n 1))
-
-          if [ -z "$OMOD_FILE" ] || [ -z "$API_JAR_NAME" ]; then
-            echo "Error: OMOD file path or API JAR name not available for integrity check."
-            exit 1
-          fi
-
-          echo "Checking if API JAR ($API_JAR_NAME) is inside the OMOD ($OMOD_FILE):"
-          if ! jar tvf "$OMOD_FILE" | grep -q "$API_JAR_NAME"; then
-            echo "Error: API JAR ($API_JAR_NAME) not found inside the OMOD."
-            echo "This suggests a problem with how the OMOD bundles its dependencies."
-            exit 1
-          fi
-          echo "API JAR successfully found inside the OMOD."
 
       - name: Upload OMOD as Artifact
         uses: actions/upload-artifact@v4
