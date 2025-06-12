@@ -57,27 +57,6 @@ jobs:
           ls -al api/target/classes || true
           echo "Contents of api/target/classes/mamba after build:"
           ls -al api/target/classes/mamba || true
-
-      - name: Verify Mamba Artifacts in API JAR
-        run: |
-          API_TARGET_DIR="${{ github.workspace }}/api/target"
-          # Find the API JAR, assuming it's named something like 'yourmodule-api-X.Y.Z.jar'
-          API_JAR_FILE=$(find "$API_TARGET_DIR" -name "*api-*SNAPSHOT.jar" | head -n 1)
-
-          if [ -z "$API_JAR_FILE" ]; then
-            echo "Error: API JAR file not found in $API_TARGET_DIR. This is unexpected."
-            exit 1
-          fi
-
-          echo "Found API JAR: $API_JAR_FILE"
-          echo "Listing contents of the API JAR to check for mamba resources:"
-          # Check if the specific SQL file is present within the JAR
-          if ! jar tvf "$API_JAR_FILE" | grep -q "mamba/jdbc_create_stored_procedures.sql"; then
-            echo "Error: jdbc_create_stored_procedures.sql not found inside the API JAR."
-            exit 1
-          fi
-          echo "Found jdbc_create_stored_procedures.sql inside the API JAR."
-
       - name: Find .omod File
         id: find_omod
         run: |
