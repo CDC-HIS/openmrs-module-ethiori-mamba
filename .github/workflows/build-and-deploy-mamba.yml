@@ -31,22 +31,6 @@ jobs:
           java -version
           jq -V
 
-      - name: Verify Mamba Artifacts
-        run: |
-          MAMBA_DIR="${{ github.workspace }}/api/src/main/resources/mamba"
-          SQL_FILE="$MAMBA_DIR/jdbc_create_stored_procedures.sql"
-
-          if [ ! -d "$MAMBA_DIR" ] || [ -z "$(ls -A "$MAMBA_DIR")" ]; then
-            echo "Error: Mamba directory not created or is empty after build."
-            exit 1
-          fi
-          echo "Mamba directory is present and not empty."
-
-          if [ ! -f "$SQL_FILE" ]; then
-            echo "Error: jdbc_create_stored_procedures.sql not found after build."
-            exit 1
-          fi
-          echo "Found jdbc_create_stored_procedures.sql."
 
       - name: Find .omod File
         id: find_omod
@@ -66,6 +50,33 @@ jobs:
 
           echo "Listing contents of the omod/target directory:"
           ls -al "${{ github.workspace }}/omod/target" || true
+
+      - name: Verify OMOD Contents
+        run: |
+          OMOD_FILE="$(find omod/target -name '*.omod')"
+          TEMP_DIR="$(mktemp -d)"
+
+          # Unzip the .omod file to a temporary directory
+          unzip -q "$OMOD_FILE" -d "$TEMP_DIR"
+
+          # Find the api jar within the unzipped contents
+          API_JAR="$(find "$TEMP_DIR/lib" -name 'ethiohri-mamba-api-*.jar')"
+
+          if [ -z "$API_JAR" ]; then
+            echo "Error: ethiohri-mamba-api-*.jar not found in the .omod file."
+            exit 1
+          fi
+
+          # Check for the SQL file inside the api jar
+          if unzip -l "$API_JAR" | grep -q "mamba/jdbc_create_stored_procedures.sql"; then
+            echo "Verification successful: Found jdbc_create_stored_procedures.sql in the nested API jar."
+          else
+            echo "Error: jdbc_create_stored_procedures.sql not found in $API_JAR."
+            exit 1
+          fi
+
+          # Clean up the temporary directory
+          rm -rf "$TEMP_DIR"
 
       - name: Deploy OMOD to Tomcat Modules Directory
         run: |
