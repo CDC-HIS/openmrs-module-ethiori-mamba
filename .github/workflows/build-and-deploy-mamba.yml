@@ -31,22 +31,39 @@ jobs:
           java -version
           jq -V
 
+      - name: Verify Mamba Artifacts
+        run: |
+          MAMBA_DIR="${{ github.workspace }}/api/src/main/resources/mamba"
+          SQL_FILE="$MAMBA_DIR/jdbc_create_stored_procedures.sql"
+
+          if [ ! -d "$MAMBA_DIR" ] || [ -z "$(ls -A "$MAMBA_DIR")" ]; then
+            echo "Error: Mamba directory not created or is empty after build."
+            exit 1
+          fi
+          echo "Mamba directory is present and not empty."
+
+          if [ ! -f "$SQL_FILE" ]; then
+            echo "Error: jdbc_create_stored_procedures.sql not found after build."
+            exit 1
+          fi
+          echo "Found jdbc_create_stored_procedures.sql."
+
       - name: Find .omod File
         id: find_omod
         run: |
           # Use 'find' to locate the .omod file, assuming it's in a 'target' directory within 'omod'.
           # The 'head -n 1' ensures we only get the first one if multiple are found.
           OMOD_PATH=$(find "${{ github.workspace }}" -name "*.omod" | head -n 1)
-          
+
           if [ -z "$OMOD_PATH" ]; then
             echo "Error: No .omod file found after build. Please check your module's pom.xml and build logs."
             exit 1
           fi
-          
+
           echo "Found .omod at: $OMOD_PATH"
           # Store the path as a step output, so subsequent steps can use it.
           echo "omod_file_path=$OMOD_PATH" >> "$GITHUB_OUTPUT"
-          
+
           echo "Listing contents of the omod/target directory:"
           ls -al "${{ github.workspace }}/omod/target" || true
 
@@ -56,11 +73,11 @@ jobs:
           # (or by sudo if the runner user is in sudoers and no password is required).
           TARGET_MODULES_DIR="/usr/share/tomcat/tomcat8/.OpenMRS/modules/"
           OMOD_FILE_SOURCE="${{ steps.find_omod.outputs.omod_file_path }}"
-          
+
           echo "Attempting to copy $OMOD_FILE_SOURCE to $TARGET_MODULES_DIR"
           sudo cp "$OMOD_FILE_SOURCE" "$TARGET_MODULES_DIR"
           echo "Copied $(basename "$OMOD_FILE_SOURCE") to $TARGET_MODULES_DIR"
-          
+
           echo "Setting ownership and permissions for $TARGET_MODULES_DIR"
           sudo chown -R tomcat8:tomcat8 "$TARGET_MODULES_DIR"
           sudo chmod -R 777 "$TARGET_MODULES_DIR" # Be cautious with 777. Consider 755 for dirs, 644 for files.
