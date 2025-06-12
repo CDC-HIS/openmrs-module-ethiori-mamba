@@ -47,14 +47,16 @@ WITH PreExposure AS (select screening.client_id,
                                          ) AS row_num
                               from PreExposure
                                        join mamba_dim_client client on PreExposure.client_id = client.client_id
-                              where follow_up_date_followup_ <= REPORT_END_DATE
-                                 or follow_up_date_followup_ is null
+                              where (follow_up_date_followup_ <= REPORT_END_DATE
+                                 or follow_up_date_followup_ is null)
+                                  AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
      ),
      tx_new as (select *
                 from tmp_latest_follow_up
                 WHERE treatment_start_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE
                   AND type_of_client = 'New client'
                   AND row_num = 1
+
          -- AND follow_up_status
      ),
      tx_curr as (select *
@@ -373,6 +375,8 @@ SELECT 'HIV_PrEP_CURR.2'    AS S_NO,
        'By Client Category' as Activity,
        COUNT(*)             as Value  -- TODO check sero-discordant couple handling
 FROM tx_curr
+WHERE do_you_have_an_hiv_positive_partner = 'Yes'
+  OR sex_worker = 'Yes'
 -- Discordant Couple
 UNION ALL
 SELECT 'HIV_PrEP_CURR.2. 1' AS S_NO,
