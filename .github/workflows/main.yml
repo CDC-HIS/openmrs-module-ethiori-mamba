@@ -62,7 +62,7 @@ jobs:
         run: |
           API_TARGET_DIR="${{ github.workspace }}/api/target"
           # Find the API JAR, assuming it's named something like 'yourmodule-api-X.Y.Z.jar'
-          API_JAR_FILE=$(find "$API_TARGET_DIR" -name "*api-*.jar" | head -n 1)
+          API_JAR_FILE=$(find "$API_TARGET_DIR" -name "*api-*SNAPSHOT.jar" | head -n 1)
 
           if [ -z "$API_JAR_FILE" ]; then
             echo "Error: API JAR file not found in $API_TARGET_DIR. This is unexpected."
