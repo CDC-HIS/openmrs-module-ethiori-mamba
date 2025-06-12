@@ -28,7 +28,7 @@ jobs:
         # GitHub-hosted runners usually have jq pre-installed, but this ensures it.
         run: |
           sudo apt-get update
-          sudo apt-get install -y jq
+          sudo apt-get install -y jq rsync
 
       - name: Debug Environment Before Build
         run: |
