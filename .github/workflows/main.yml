@@ -2,9 +2,9 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ "none","none" ]
+    branches: [ "disable"]
   pull_request:
-    branches: [ "none" ]
+    branches: [ "disable" ]
 
 jobs:
   build:
