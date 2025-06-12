@@ -2,7 +2,7 @@ name: Compile & Deploy Mamba
 
 on:
   push:
-    branches: ["disable"] #  "master", "dev"
+    branches: ["master"] #  "master", "dev"
   pull_request:
     branches: [ "disable" ]
 
@@ -37,18 +37,11 @@ jobs:
       - name: Build OpenMRS Module with Maven
         run: |
           echo "Starting Maven build..."
-          mvn clean install -DskipTests -X # Add -X for extended debug output from Maven
+          mvn clean install # -DskipTests -X  Add -X for extended debug output from Maven
           echo "Maven build completed. debug env"
-          java -version
-          jq -V
-          whoami
           echo "Contents of api/target after build:"
           ls -al api/target || true
-          echo "Contents of api/target/classes after build (where resources should go):"
-          ls -al api/target/classes || true
           echo "Contents of api/target/classes/mamba after build:"
-          ls -al api/target/classes/mamba || true
-
       - name: Verify Mamba Artifacts in API JAR
         run: |
           API_TARGET_DIR="${{ github.workspace }}/api/target"
