@@ -2,7 +2,7 @@ name: Compile & Deploy Mamba
 
 on:
   push:
-    branches: ["master"] #  "master", "dev"
+    branches: ["disable"] #  "master", "dev"
   pull_request:
     branches: [ "disable" ]
 
