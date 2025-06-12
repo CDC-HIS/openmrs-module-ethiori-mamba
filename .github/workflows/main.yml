@@ -1,52 +1,126 @@
-name: Java CI with Maven
+name: Compile & Avail OMOD Artifact (GitHub Hosted)
 
 on:
   push:
-    branches: [ "disable"]
+    branches: [ "master", "dev" ]
   pull_request:
-    branches: [ "disable" ]
+    branches: [ "master" ]
 
 jobs:
-  build:
-    runs-on: ethiohri-dev  # Replace with 'ethiohri-dev' if it's a valid custom runner
+  build_and_upload_omod:
+    # Use a GitHub-hosted runner (e.g., Ubuntu Latest)
+    runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up JDK 8
-      uses: actions/setup-java@v4
-      with:
-        java-version: '8'
-        distribution: 'temurin'
-    - name: Cache local Maven repository
-      uses: actions/cache@v4
-      with:
-        path: ~/.m2/repository  # Ensure this is the correct path
-        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}  # Cache key to invalidate when dependencies change
-    - name: Build and install with Maven
-      run: mvn clean install -DskipTests=true -Dmaven.javadoc.skip=true 
-      # Commenting out batch mode --batch-mode --show-version --file pom.xml
-    - name: List files in target directory
-      run: ls -al  /home/ubuntu/actions-runner-group/_work/openmrs-module-ethiori-mamba/openmrs-module-ethiori-mamba/omod/target
-    - name: Moving omod file to shared folder for publish
-      run: |
-        sudo mkdir -p ~/ethiohri-modules && \
-        sudo mv  /home/ubuntu/actions-runner-group/_work/openmrs-module-ethiori-mamba/openmrs-module-ethiori-mamba/omod/target/*.omod ~/ethiohri-modules
-   
-  publish:
-    runs-on: ethiohri-dev  
-    needs: build
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-    steps:
-    - uses: actions/checkout@v4
-    - name: Set up JDK 8
-      uses: actions/setup-java@v4
-      with:
-        java-version: '8'
-        distribution: 'temurin'
-    - name: Updating module
-      run: |
-        sudo cp ~/ethiohri-modules/*.omod  /usr/share/tomcat/tomcat8/.OpenMRS/modules/ && \
-        sudo chown tomcat8:tomcat8 /usr/share/tomcat/tomcat8/.OpenMRS/modules/ -R && \
-        sudo chmod 777 /usr/share/tomcat/tomcat8/.OpenMRS/modules/ -R 
-    - name: Restarting server
-      run: sudo systemctl restart tomcat8
+      - name: Set up JDK 8
+        uses: actions/setup-java@v4
+        with:
+          java-version: '8'
+          distribution: 'corretto'
+          cache: 'maven'
+
+      - name: Install jq (if not pre-installed or to ensure latest)
+        # GitHub-hosted runners usually have jq pre-installed, but this ensures it.
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+
+      - name: Debug Environment Before Build
+        run: |
+          echo "Current working directory: $(pwd)"
+          echo "User running the job: $(whoami)"
+          echo "Java version (should be 8):"
+          java -version
+          echo "jq version:"
+          jq -V
+          echo "Permissions of current directory:"
+          ls -ld .
+          echo "Permissions of api/src/main/resources:"
+          ls -ld api/src/main/resources || true
+          echo "Contents of api/src/main/resources/mamba:"
+          ls -al api/src/main/resources/mamba || true
+
+      - name: Build OpenMRS Module with Maven
+        run: |
+          echo "Starting Maven build..."
+          # Using -X for extended debug output to help diagnose packaging issues
+          mvn clean install -DskipTests -X
+          echo "Maven build completed."
+          echo "Contents of api/target after build:"
+          ls -al api/target || true
+          echo "Contents of api/target/classes after build (where resources should go):"
+          ls -al api/target/classes || true
+          echo "Contents of api/target/classes/mamba after build:"
+          ls -al api/target/classes/mamba || true
+
+      - name: Verify Mamba Artifacts in API JAR
+        run: |
+          API_TARGET_DIR="${{ github.workspace }}/api/target"
+          # Find the API JAR, assuming it's named something like 'yourmodule-api-X.Y.Z.jar'
+          API_JAR_FILE=$(find "$API_TARGET_DIR" -name "*api-*.jar" | head -n 1)
+
+          if [ -z "$API_JAR_FILE" ]; then
+            echo "Error: API JAR file not found in $API_TARGET_DIR. This is unexpected."
+            exit 1
+          fi
+
+          echo "Found API JAR: $API_JAR_FILE"
+          echo "Listing contents of the API JAR to check for mamba resources:"
+          # Check if the specific SQL file is present within the JAR
+          if ! jar tvf "$API_JAR_FILE" | grep -q "mamba/jdbc_create_stored_procedures.sql"; then
+            echo "Error: jdbc_create_stored_procedures.sql not found inside the API JAR."
+            exit 1
+          fi
+          echo "Found jdbc_create_stored_procedures.sql inside the API JAR."
+
+      - name: Find .omod File
+        id: find_omod
+        run: |
+          # Use 'find' to locate the .omod file, assuming it's in a 'target' directory within 'omod'.
+          OMOD_PATH=$(find "${{ github.workspace }}" -name "*.omod" | head -n 1)
+
+          if [ -z "$OMOD_PATH" ]; then
+            echo "Error: No .omod file found after build. Please check your module's pom.xml and build logs."
+            exit 1
+          fi
+
+          echo "Found .omod at: $OMOD_PATH"
+          # Store the path as a step output, so subsequent steps can use it.
+          echo "omod_file_path=$OMOD_PATH" >> "$GITHUB_OUTPUT"
+
+          echo "Listing contents of the omod/target directory:"
+          ls -al "${{ github.workspace }}/omod/target" || true
+
+      - name: Verify OMOD Integrity (Optional but Recommended)
+        # This step verifies that the OMOD itself contains the API JAR which should have the mamba resources.
+        run: |
+          OMOD_FILE="${{ steps.find_omod.outputs.omod_file_path }}"
+          API_JAR_NAME=$(basename $(find "${{ github.workspace }}/api/target" -name "*api-*.jar" | head -n 1))
+
+          if [ -z "$OMOD_FILE" ] || [ -z "$API_JAR_NAME" ]; then
+            echo "Error: OMOD file path or API JAR name not available for integrity check."
+            exit 1
+          fi
+
+          echo "Checking if API JAR ($API_JAR_NAME) is inside the OMOD ($OMOD_FILE):"
+          if ! jar tvf "$OMOD_FILE" | grep -q "$API_JAR_NAME"; then
+            echo "Error: API JAR ($API_JAR_NAME) not found inside the OMOD."
+            echo "This suggests a problem with how the OMOD bundles its dependencies."
+            exit 1
+          fi
+          echo "API JAR successfully found inside the OMOD."
+
+      - name: Upload OMOD as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: openmrs-module-${{ github.run_id }} # Name for the uploaded artifact
+          path: ${{ steps.find_omod.outputs.omod_file_path }} # Path to the .omod file
+          retention-days: 7 # How long to keep the artifact (optional)
+
+      - name: Workflow Completed
+        run: echo "Module compilation completed and OMOD artifact uploaded successfully!"
