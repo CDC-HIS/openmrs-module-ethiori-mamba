@@ -2,9 +2,9 @@ name: Compile & Avail OMOD Artifact (GitHub Hosted)
 
 on:
   push:
-    branches: [ "master", "dev" ]
+    branches: [ "Disabled", "Disabled" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "Disabled" ]
 
 jobs:
   build_and_upload_omod:
