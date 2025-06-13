@@ -271,10 +271,11 @@ BEGIN
                                   FROM FollowUp
                                   where CCS_ScreenDoneYes IS NOT NULL),
          cca_screened AS (select * from tmp_cca_screened_tmp where row_num = 1)
-    SELECT client.sex                                                 as Sex,
+    SELECT client.patient_name                                        as `Patient Name`,
+           client.patient_uuid                                        as UUID,
+           client.sex                                                 as Sex,
            f_case.Weight                                              as Weight,
            TIMESTAMPDIFF(YEAR, client.date_of_birth, COALESCE(REPORT_END_DATE,CURDATE())) as Age,
-           client.patient_uuid                                        as PatientGUID,
            f_case.height                                              as Height,
            f_case.date_hiv_confirmed                                  as HIV_Confirmed_Date,
            f_case.art_start_date                                      as ARTStartDate,
