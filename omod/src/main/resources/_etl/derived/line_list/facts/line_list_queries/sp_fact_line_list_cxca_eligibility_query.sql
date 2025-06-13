@@ -71,7 +71,7 @@ BEGIN
                                          date_of_birth,
                                          CCaCounsellingGiven,
                                          follow_up_date,
-                                         follow_up_status                                                                                    ,
+                                         follow_up_status,
                                          eligible_for_cxca_screening,
                                          reason_for_not_being_eligible,
                                          other_reason_for_not_being_eligible_for_cxca,
@@ -114,8 +114,7 @@ BEGIN
                               where row_num = 1
                                 and follow_up_status NOT IN ('Dead', 'Transferred out')
                                 and sex = 'Female'
-                                and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 25 AND 65
-         ),
+                                and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 25 AND 65),
 
          tmp_prev_screening as (select *,
                                        ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS scrn_row_num
@@ -524,8 +523,8 @@ BEGIN
            patient_uuid                           `UUID`,
            mrn,
            uan,
-           mobile_no as `Mobile No`,
-           phone_no as `Home Telephone No`,
+           mobile_no                           as `Mobile No`,
+           phone_no                            as `Home Telephone No`,
            Weight,
            Age,
            EligibilityDate                     as `Eligibility Date`,
@@ -533,9 +532,12 @@ BEGIN
            LEFT(EligibilityStatus, 8)          as `Eligibility Status`,
            SUBSTR(EligibilityStatus, 10)       as `Eligibility Reason`,
            follow_up_date                      as `Follow Up Date`,
+           follow_up_date                      as `Follow Up Date EC.`,
            ArtStartDate                        as `Art Start Date`,
-           follow_up_status                      as `Follow Up Status`,
+           ArtStartDate                        as `Art Start Date EC.`,
+           follow_up_status                    as `Follow Up Status`,
            next_visit_date                     as `Next Appointment Date`,
+           next_visit_date                     as `Next Appointment Date EC.`,
            regimen                             as `ARV Regimen`,
            dose_days                           as `ART Dose Days`,
            CCaCounsellingGiven                 as Counselled,
@@ -545,6 +547,7 @@ BEGIN
            hpv_subtype                         as `HPV SubType`,
            date_hpv_test_was_done              as `HPV Sample Collected Date`,
            date_hpv_test_was_done              as `HPV Sample Collected Date EC.`,
+           hpv_dna_result_received_date        as `HPV DNA Result Received Date`,
            hpv_dna_result_received_date        as `HPV DNA Result Received Date EC.`,
            ccs_hpv_result                      as `HPV Result`,
            via_date                            as `VIA Screening Date`,
@@ -574,7 +577,8 @@ BEGIN
            date_client_arrived_in_the_referred as `Date Client Arrived in Reffered HF EC.`,
            date_client_served_in_the_referred_ as `Date Client Served in Reffered HF`,
            date_client_served_in_the_referred_ as `Date Client Served in Reffered HF EC.`,
-           ccs_next_date                       as `Next Appointment Date for CCS`
+           ccs_next_date                       as `Next Appointment Date for CCS`,
+           ccs_next_date                       as `Next Appointment Date for CCS EC.`
     from cx_base_clients;
 
 END //

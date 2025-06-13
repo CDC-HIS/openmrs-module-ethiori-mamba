@@ -8,3 +8,4 @@ SELECT COUNT(*) AS 'Stored Procedures' FROM INFORMATION_SCHEMA.ROUTINES WHERE RO
 
 
 select count(*) from obs;
+cat re-test.json | jq '.. | select(type=="object" and .concept) | .concept'
