@@ -103,6 +103,8 @@ BEGIN
                                          date_client_served_in_the_referred_,
                                          Accepted,
                                          weight_text_                                                                                        as Weight,
+                                         mobile_no,
+                                         phone_no,
                                          ROW_NUMBER() OVER (PARTITION BY FollowUP.client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
                                   from FollowUP
                                            join mamba_dim_client client on FollowUP.client_id = client.client_id
@@ -522,6 +524,8 @@ BEGIN
            patient_uuid                           `UUID`,
            mrn,
            uan,
+           mobile_no as `Mobile No`,
+           phone_no as `Home Telephone No`,
            Weight,
            Age,
            EligibilityDate                     as `Eligibility Date`,

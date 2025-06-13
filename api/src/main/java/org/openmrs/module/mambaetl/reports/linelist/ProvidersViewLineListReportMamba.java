@@ -24,12 +24,12 @@ public class ProvidersViewLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "MAMBA LINELIST- PROVERS_VIEW";
+		return "MAMBA LINELIST- Data Quality & Data Use";
 	}
 	
 	@Override
 	public String getDescription() {
-		return null;
+		return "Data Quality & Data Use";
 	}
 	
 	@Override
@@ -70,7 +70,7 @@ public class ProvidersViewLineListReportMamba implements ReportManager {
 		ProvidersViewLineListDataSetDefinitionMamba providersViewLineListDataSetDefinitionMamba = new ProvidersViewLineListDataSetDefinitionMamba();
 		providersViewLineListDataSetDefinitionMamba.addParameters(getParameters());
 		
-		reportDefinition.addDataSetDefinition("List of Patients for Providers", EthiOhriUtil.map(
+		reportDefinition.addDataSetDefinition("Data Quality & Data Use", EthiOhriUtil.map(
 		    providersViewLineListDataSetDefinitionMamba,
 		    "startDate=${startDateGC},endDate=${endDateGC},clientType=${clientType},patientGUID=${patientGUID}"));
 		return reportDefinition;

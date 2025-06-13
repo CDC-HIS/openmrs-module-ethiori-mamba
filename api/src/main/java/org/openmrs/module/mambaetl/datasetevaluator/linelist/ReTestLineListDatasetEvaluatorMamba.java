@@ -3,7 +3,7 @@ package org.openmrs.module.mambaetl.datasetevaluator.linelist;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.mambaetl.datasetdefinition.linelist.OTZLineListDataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.datasetdefinition.linelist.ReTestLineListDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
 import org.openmrs.module.reporting.dataset.DataSet;
@@ -22,10 +22,10 @@ import java.util.List;
 import static org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper.*;
 import static org.openmrs.module.mambaetl.helpers.ValidationHelper.ValidateDates;
 
-@Handler(supports = { OTZLineListDataSetDefinitionMamba.class })
-public class OTZLineListDatasetEvaluatorMamba implements DataSetEvaluator {
+@Handler(supports = { ReTestLineListDataSetDefinitionMamba.class })
+public class ReTestLineListDatasetEvaluatorMamba implements DataSetEvaluator {
 	
-	private static final Log log = LogFactory.getLog(OTZLineListDatasetEvaluatorMamba.class);
+	private static final Log log = LogFactory.getLog(ReTestLineListDatasetEvaluatorMamba.class);
 	
 	private static final String ERROR_PROCESSING_RESULT_SET = "Error processing ResultSet: ";
 	
@@ -35,7 +35,7 @@ public class OTZLineListDatasetEvaluatorMamba implements DataSetEvaluator {
     public DataSet evaluate(DataSetDefinition dataSetDefinition, EvaluationContext evalContext)
             throws EvaluationException {
 
-        OTZLineListDataSetDefinitionMamba dataSetDefinitionMamba = (OTZLineListDataSetDefinitionMamba) dataSetDefinition;
+        ReTestLineListDataSetDefinitionMamba dataSetDefinitionMamba = (ReTestLineListDataSetDefinitionMamba) dataSetDefinition;
         SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
         ResultSetMapper resultSetMapper = new ResultSetMapper();
 
@@ -65,12 +65,12 @@ public class OTZLineListDatasetEvaluatorMamba implements DataSetEvaluator {
         return null;
     }
 	
-	private List<ProcedureCall> createProcedureCalls(OTZLineListDataSetDefinitionMamba dataSetDefinitionMamba) {
+	private List<ProcedureCall> createProcedureCalls(ReTestLineListDataSetDefinitionMamba dataSetDefinitionMamba) {
         java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null ? new java.sql.Date( dataSetDefinitionMamba.getStartDate().getTime()):null ;
         java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date( dataSetDefinitionMamba.getEndDate().getTime()):null ;
 
         return Collections.singletonList(
-                new ProcedureCall("{call sp_fact_line_list_re_test_query(?,?)}", statement -> {
+                new ProcedureCall("{call sp_fact_line_list_otz_query(?,?)}", statement -> {
                         statement.setDate(1, startDate);
                         statement.setDate(2, endDate);
                 })

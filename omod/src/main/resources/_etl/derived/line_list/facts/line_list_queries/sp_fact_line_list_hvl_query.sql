@@ -161,6 +161,8 @@ BEGIN
 
          hvl as (SELECT client.patient_name                                                             as `Patient Name`,
                         client.patient_uuid                                                             as `UUID`,
+                        client.mrn,
+                        client.uan,
                         TIMESTAMPDIFF(YEAR, client.date_of_birth, COALESCE(REPORT_END_DATE, CURDATE())) AS age,
                         Sex,
                         f_case.weight,
@@ -168,7 +170,7 @@ BEGIN
                         f_case.art_start_date,
                         f_case.follow_up_date                                                           as FollowUpDate,
                         f_case.pregnancy_status                                                         as IsPregnant,
-                        f_case.dispensed_dose                                                           as ARVDispendsedDose,
+                        f_case.dispensed_dose                                                           as `ART Regimen`,
                         f_case.regimen                                                                  as art_dose,
                         f_case.next_visit_date,
                         f_case.follow_up_status,
