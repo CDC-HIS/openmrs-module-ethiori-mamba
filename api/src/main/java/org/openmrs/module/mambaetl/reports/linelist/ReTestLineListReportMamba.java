@@ -1,7 +1,6 @@
 package org.openmrs.module.mambaetl.reports.linelist;
 
-import org.openmrs.module.mambaetl.datasetdefinition.linelist.HVLLineListDataSetDefinitionMamba;
-import org.openmrs.module.mambaetl.datasetdefinition.linelist.TXMLLineListDataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.datasetdefinition.linelist.TXNewLineListDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.report.ReportDesign;
@@ -17,23 +16,23 @@ import java.util.Date;
 import java.util.List;
 
 @Component
-public class HVLLineListReportMamba implements ReportManager {
+public class ReTestLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getUuid() {
-		return "06064fb0-7052-4e25-90ff-5b2cb1bd76ca";
-	}
+		return "f8dbf325-41d4-4f25-9ca0-f570f6bf737a";
+	} //4d7b385f-331f-400c-8592-f539f4565d9d
 	
 	@Override
 	public String getName() {
-		return "MAMBA LINELIST- Unsuppressed Viral Load & EAC Cascade Report";
+		return "MAMBA LINELIST- RE_TEST";
 	}
 	
 	@Override
 	public String getDescription() {
-		return "Unsuppressed Viral Load & EAC Cascade Report";
+		return "Re Test Line List";
 	}
-	
+
 	@Override
 	public List<Parameter> getParameters() {
 		Parameter startDate = new Parameter("startDate", "Start Date", Date.class);
@@ -45,7 +44,7 @@ public class HVLLineListReportMamba implements ReportManager {
 		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
 		endDateGC.setRequired(false);
 		return Arrays.asList(startDate, startDateGC, endDate, endDateGC);
-		
+
 	}
 	
 	@Override
@@ -56,10 +55,10 @@ public class HVLLineListReportMamba implements ReportManager {
 		reportDefinition.setDescription(getDescription());
 		reportDefinition.setParameters(getParameters());
 		
-		HVLLineListDataSetDefinitionMamba hvlLineListDataSetDefinitionMamba = new HVLLineListDataSetDefinitionMamba();
-		hvlLineListDataSetDefinitionMamba.addParameters(getParameters());
-		reportDefinition.addDataSetDefinition("Unsuppressed Viral Load & EAC Cascade Report",
-		    EthiOhriUtil.map(hvlLineListDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		TXNewLineListDataSetDefinitionMamba txNewLineListDataSetDefinitionMamba = new TXNewLineListDataSetDefinitionMamba();
+		txNewLineListDataSetDefinitionMamba.addParameters(getParameters());
+		reportDefinition.addDataSetDefinition("Re Test Line List",
+		    EthiOhriUtil.map(txNewLineListDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
 		
 		return reportDefinition;
 	}
@@ -67,7 +66,7 @@ public class HVLLineListReportMamba implements ReportManager {
 	@Override
 	public List<ReportDesign> constructReportDesigns(ReportDefinition reportDefinition) {
 		
-		ReportDesign design = ReportManagerUtil.createExcelDesign("d9445f80-b98c-4a58-8d19-546a960a86fd", reportDefinition);
+		ReportDesign design = ReportManagerUtil.createExcelDesign("d7691fa8-95e7-454b-8b1f-48a8e68a9634", reportDefinition);
 		
 		return Collections.singletonList(design);
 	}
