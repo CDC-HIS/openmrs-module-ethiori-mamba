@@ -32,7 +32,7 @@ public class ReTestLineListReportMamba implements ReportManager {
 	public String getDescription() {
 		return "Re Test Line List";
 	}
-
+	
 	@Override
 	public List<Parameter> getParameters() {
 		Parameter startDate = new Parameter("startDate", "Start Date", Date.class);
@@ -44,7 +44,7 @@ public class ReTestLineListReportMamba implements ReportManager {
 		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
 		endDateGC.setRequired(false);
 		return Arrays.asList(startDate, startDateGC, endDate, endDateGC);
-
+		
 	}
 	
 	@Override
