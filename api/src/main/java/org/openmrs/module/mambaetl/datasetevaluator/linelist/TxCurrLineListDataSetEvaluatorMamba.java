@@ -66,8 +66,8 @@ public class TxCurrLineListDataSetEvaluatorMamba implements DataSetEvaluator {
 		return null;
 	}
 	
-	private List<ProcedureCall> createProcedureCalls(TxCurrLineListDataSetDefinitionMamba txCurrLineListDataSetDefinitionMamba) {
-		java.sql.Date endDate = new java.sql.Date(txCurrLineListDataSetDefinitionMamba.getEndDate().getTime());
+	private List<ProcedureCall> createProcedureCalls(TxCurrLineListDataSetDefinitionMamba dataSetDefinitionMamba) {
+		java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date( dataSetDefinitionMamba.getEndDate().getTime()):null ;
 
 		return Collections.singletonList(
                 new ProcedureCall("{call sp_fact_line_list_tx_curr_query(?)}", statement -> {
