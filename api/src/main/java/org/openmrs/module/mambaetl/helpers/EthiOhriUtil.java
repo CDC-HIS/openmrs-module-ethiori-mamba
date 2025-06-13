@@ -12,27 +12,28 @@ import java.util.*;
 
 public class EthiOhriUtil {
 	
-	public static List<Parameter> getDateRangeParameters() {
+	public static List<Parameter> getDateRangeParameters(Boolean required) {
 		Parameter startDate = new Parameter("startDate", "Start Date", Date.class);
-		startDate.setRequired(true);
+		startDate.setRequired(required);
 		Parameter startDateGC = new Parameter("startDateGC", " ", Date.class);
 		startDateGC.setRequired(false);
 		Parameter endDate = new Parameter("endDate", "End Date", Date.class);
-		endDate.setRequired(true);
+		endDate.setRequired(required);
 		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
 		endDateGC.setRequired(false);
 		return Arrays.asList(startDate, startDateGC, endDate, endDateGC);
 	}
 	
-	//	public static List<Parameter> getEndDateParameters() {
-	//
-	//		Parameter endDate = new Parameter("endDate", "On Month", Date.class);
-	//		endDate.setRequired(false);
-	//		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
-	//		endDateGC.setRequired(false);
-	//		return Arrays.asList(endDate, endDateGC);
-	//
-	//	}
+	public static List<Parameter> getEndDateParameters(Boolean required) {
+		
+		Parameter endDate = new Parameter("endDate", "On Month", Date.class);
+		endDate.setRequired(required);
+		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
+		endDateGC.setRequired(false);
+		return Arrays.asList(endDate, endDateGC);
+		
+	}
+	
 	//
 	//	public List<Parameter> getStartDateParameters() {
 	//

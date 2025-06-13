@@ -63,7 +63,7 @@ public class DataSetEvaluatorHelper {
 		// Using total text and total count columns from restultset first and second indexes
 		DataSetColumn totalCountColumn = new DataSetColumn();
 		DataSetColumn totalCountNameColumn;
-		if (addTotal && resultSets.length > 0) {
+		if (addTotal && resultSets.length > 0 && data.getMetaData().getColumn("Error") == null) {
 			totalCountNameColumn = new DataSetColumn(resultSets[0].getMetaData().getColumnLabel(1), resultSets[0]
 			        .getMetaData().getColumnLabel(1), resultSets[0].getMetaData().getColumnTypeName(1).getClass());
 			totalCountColumn = new DataSetColumn(resultSets[0].getMetaData().getColumnLabel(2), resultSets[0].getMetaData()

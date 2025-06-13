@@ -124,7 +124,7 @@ ELSE
 END IF;
     SET @sql = CONCAT(tx_curr_query,group_query);
     PREPARE stmt FROM @sql;
-    SET @end_date = REPORT_END_DATE;
+    SET @end_date = COALESCE(REPORT_END_DATE,CURDATE());
     EXECUTE stmt USING @end_date, @end_date, @end_date, @end_date;
     DEALLOCATE PREPARE stmt;
 

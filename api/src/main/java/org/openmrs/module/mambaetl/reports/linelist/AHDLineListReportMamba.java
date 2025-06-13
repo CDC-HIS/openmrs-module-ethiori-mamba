@@ -2,6 +2,7 @@ package org.openmrs.module.mambaetl.reports.linelist;
 
 import org.openmrs.module.mambaetl.datasetdefinition.linelist.AHDLineListDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.datasetdefinition.linelist.TxCurrLineListDataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.report.ReportDesign;
 import org.openmrs.module.reporting.report.ReportRequest;
@@ -35,11 +36,7 @@ public class AHDLineListReportMamba implements ReportManager {
 	@Override
 	public List<Parameter> getParameters() {
 		
-		Parameter endDate = new Parameter("endDate", "On Month", Date.class);
-		endDate.setRequired(false);
-		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
-		endDateGC.setRequired(false);
-		return Arrays.asList(endDate, endDateGC);
+		return EthiOhriUtil.getEndDateParameters(Boolean.FALSE);
 		
 	}
 	

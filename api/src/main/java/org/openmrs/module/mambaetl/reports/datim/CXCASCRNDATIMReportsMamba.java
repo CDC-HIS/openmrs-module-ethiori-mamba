@@ -36,7 +36,7 @@ public class CXCASCRNDATIMReportsMamba implements ReportManager {
 	
 	@Override
 	public List<Parameter> getParameters() {
-		return EthiOhriUtil.getDateRangeParameters();
+		return EthiOhriUtil.getDateRangeParameters(Boolean.TRUE);
 		
 	}
 	
