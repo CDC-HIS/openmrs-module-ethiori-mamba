@@ -16,7 +16,7 @@ public class ValidationHelper {
 			row.addColumnValue(new DataSetColumn("Error", "Error", String.class),
 			    "Report start date cannot be after report end date");
 			data.addRow(row);
-			throw new EvaluationException("Start date cannot be greater than end date");
+			//	throw new EvaluationException("Start date cannot be greater than end date");
 		}
 	}
 }

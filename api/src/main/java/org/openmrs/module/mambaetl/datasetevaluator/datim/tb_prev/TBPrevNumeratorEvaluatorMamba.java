@@ -23,6 +23,7 @@ import java.sql.SQLException;
 import java.util.*;
 
 import static org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper.*;
+import static org.openmrs.module.mambaetl.helpers.ValidationHelper.ValidateDates;
 
 @Handler(supports = { TBPrevNumeratorDataSetDefinitionMamba.class })
 public class TBPrevNumeratorEvaluatorMamba implements DataSetEvaluator {
@@ -39,7 +40,7 @@ public class TBPrevNumeratorEvaluatorMamba implements DataSetEvaluator {
 
         TBPrevNumeratorDataSetDefinitionMamba dataSetDefinitionMamba = (TBPrevNumeratorDataSetDefinitionMamba) dataSetDefinition;
         SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
-
+        ValidateDates(data, dataSetDefinitionMamba.getStartDate(), dataSetDefinitionMamba.getEndDate());
         try (Connection connection = DataSetEvaluatorHelper.getDataSource().getConnection()) {
             connection.setAutoCommit(false);
 

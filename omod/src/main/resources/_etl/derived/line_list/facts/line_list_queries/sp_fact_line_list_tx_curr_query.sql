@@ -74,13 +74,13 @@ BEGIN
                          FROM FollowUp
                          WHERE follow_up_status IS NOT NULL
                            AND art_start_date IS NOT NULL
-                           AND follow_up_date <= REPORT_END_DATE),
+                           AND follow_up_date <= COALESCE(REPORT_END_DATE,CURDATE())),
 
          tx_curr AS (select *
                      from tx_curr_all
                      where row_num = 1
                        AND follow_up_status in ('Alive', 'Restart medication')
-                       AND treatment_end_date >= REPORT_END_DATE),
+                       AND treatment_end_date >= COALESCE(REPORT_END_DATE,CURDATE())),
          latestDSD_tmp AS (SELECT PatientId,
                                   assessment_date                                                                              AS latestDsdDate,
                                   encounter_id,
@@ -88,34 +88,34 @@ BEGIN
                                   ROW_NUMBER() OVER (PARTITION BY PatientId ORDER BY assessment_date DESC, follow_up_date desc , encounter_id DESC ) AS row_num
                            FROM FollowUp
                            WHERE assessment_date IS NOT NULL
-                             AND assessment_date <= REPORT_END_DATE),
+                             AND assessment_date <= COALESCE(REPORT_END_DATE,CURDATE())),
          tmp_tpt_start as (select encounter_id,
                                   PatientId,
                                   inhprophylaxis_started_date                                                                                                          as inhprophylaxis_started_date,
                                   ROW_NUMBER() OVER (PARTITION BY FollowUp.PatientId ORDER BY FollowUp.inhprophylaxis_started_date DESC , FollowUp.encounter_id DESC ) AS row_num
                            from FollowUp
                            where inhprophylaxis_started_date is not null
-                             and FollowUp.inhprophylaxis_started_date <= REPORT_END_DATE),
+                             and FollowUp.inhprophylaxis_started_date <= COALESCE(REPORT_END_DATE,CURDATE())),
          tmp_tpt_completed as (select encounter_id,
                                       PatientId,
                                       InhprophylaxisCompletedDate                                                                                                          as InhprophylaxisCompletedDate,
                                       ROW_NUMBER() OVER (PARTITION BY FollowUp.PatientId ORDER BY FollowUp.InhprophylaxisCompletedDate DESC , FollowUp.encounter_id DESC ) AS row_num
                                from FollowUp
                                where InhprophylaxisCompletedDate is not null
-                                 and FollowUp.InhprophylaxisCompletedDate <= REPORT_END_DATE),
+                                 and FollowUp.InhprophylaxisCompletedDate <= COALESCE(REPORT_END_DATE,CURDATE())),
          tmp_vl_sent_date as (SELECT PatientId,
                                      encounter_id,
                                      viral_load_sent_date                                                                             as VL_Sent_Date,
                                      ROW_NUMBER() over (PARTITION BY PatientId ORDER BY viral_load_sent_date DESC, encounter_id DESC) AS row_num
                               FROM FollowUp
-                              WHERE viral_load_sent_date <= REPORT_END_DATE),
+                              WHERE viral_load_sent_date <= COALESCE(REPORT_END_DATE,CURDATE())),
          tmp_vl_performed_date as (SELECT PatientId,
                                           encounter_id,
                                           viral_load_perform_date,
                                           viral_load_test_status,
                                           ROW_NUMBER() over (PARTITION BY PatientId ORDER BY viral_load_perform_date DESC, encounter_id DESC) AS row_num
                                    FROM FollowUp
-                                   WHERE viral_load_perform_date <= REPORT_END_DATE),
+                                   WHERE viral_load_perform_date <= COALESCE(REPORT_END_DATE,CURDATE())),
          vl_sent_date as (select * from tmp_vl_sent_date where row_num = 1),
          latestDSD AS (select * from latestDSD_tmp where row_num = 1),
          tpt_start as (select * from tmp_tpt_start where row_num = 1),
@@ -126,7 +126,7 @@ BEGIN
            MRN,
            UAN,
            TIMESTAMPDIFF(YEAR, date_of_birth, art_start_date)                         as 'Age at Enrollment',
-           TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE)                        as 'Current Age',
+           TIMESTAMPDIFF(YEAR, date_of_birth, COALESCE(REPORT_END_DATE,CURDATE()))                        as 'Current Age',
            Sex,
            Weight,
            cd4_count                                                                  as CD4,

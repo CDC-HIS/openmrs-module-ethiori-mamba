@@ -39,11 +39,7 @@ public class VLEligibilityLineListReportMamba implements ReportManager {
 	@Override
 	public List<Parameter> getParameters() {
 		
-		Parameter endDate = new Parameter("endDate", "On Month", java.util.Date.class);
-		endDate.setRequired(false);
-		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
-		endDateGC.setRequired(false);
-		return Arrays.asList(endDate, endDateGC);
+		return EthiOhriUtil.getEndDateParameters(Boolean.TRUE);
 		
 	}
 	

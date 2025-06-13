@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper.*;
+import static org.openmrs.module.mambaetl.helpers.ValidationHelper.ValidateDates;
 
 @Handler(supports = { HVLLineListDataSetDefinitionMamba.class })
 public class HVLLineListDataSetEvaluatorMamba implements DataSetEvaluator {
@@ -37,7 +38,7 @@ public class HVLLineListDataSetEvaluatorMamba implements DataSetEvaluator {
 		HVLLineListDataSetDefinitionMamba hvlLineListDataSetDefinitionMamba = (HVLLineListDataSetDefinitionMamba) dataSetDefinition;
 		SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
 		ResultSetMapper resultSetMapper = new ResultSetMapper();
-
+		ValidateDates(data, hvlLineListDataSetDefinitionMamba.getStartDate(), hvlLineListDataSetDefinitionMamba.getEndDate());
 		try (Connection connection = DataSetEvaluatorHelper.getDataSource().getConnection()) {
 			connection.setAutoCommit(false);
 
