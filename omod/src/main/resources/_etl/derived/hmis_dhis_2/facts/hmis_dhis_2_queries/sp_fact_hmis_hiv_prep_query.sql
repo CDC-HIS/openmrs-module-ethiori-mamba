@@ -19,7 +19,8 @@ WITH PreExposure AS (select screening.client_id,
                             follow_up.follow_up_status,
                             follow_up.pregnancy_status as f_pregnancy_status,
                             follow_up.prep_dose_end_date,
-                            follow_up.follow_up_date_followup_
+                            follow_up.follow_up_date_followup_,
+                            final_hiv_test_result
                      FROM mamba_flat_encounter_pre_exposure_scree screening
                               LEFT JOIN mamba_flat_encounter_pre_exposure_follo follow_up
                                         on screening.client_id = follow_up.client_id),
@@ -66,7 +67,7 @@ WITH PreExposure AS (select screening.client_id,
                          DATE_ADD(treatment_start_date, INTERVAL dose_dispensed DAY) >= REPORT_END_DATE) -- Param 6 @end_date, Param 7 @end_date
                             and prep_started = 'Yes'
                             )
-                  or follow_up_date_followup_ BETWEEN REPORT_START_DATE AND REPORT_END_DATE AND final_hiv_test_result = 'Positive') -- Param 8 @end_date, Param 9 @end_date
+                  or (follow_up_date_followup_ BETWEEN REPORT_START_DATE AND REPORT_END_DATE AND final_hiv_test_result = 'Positive') -- Param 8 @end_date, Param 9 @end_date
      )
 -- Number of individuals receiving Pre-Exposure Prophylaxis
 SELECT 'HIV_PrEP'                                                 AS S_NO,
@@ -226,7 +227,7 @@ SELECT 'HIV_PrEP.1.2. 1'   AS S_NO,
        'Discordant Couple' as Activity,
        COUNT(*)            as Value
 FROM tx_new
-WHERE do_you_have_an_hiv_positive_partner = 'Yes' and sex_worker = !'Yes'
+WHERE do_you_have_an_hiv_positive_partner = 'Yes' OR sex_worker = !'Yes'
 -- Female sex worker[FSW]
 UNION ALL
 SELECT 'HIV_PrEP.1.2. 2'        AS S_NO,
