@@ -68,7 +68,7 @@ BEGIN
                                ?) -- Param 6 @end_date, Param 7 @end_date
                                )
                         or (follow_up_date_followup_ BETWEEN ? AND ? AND
-                            final_hiv_test_result = 'Positive') -- Param 8 @end_date, Param 9 @end_date
+                            (final_hiv_test_result = 'Positive' OR follow_up_status = 'Restart medication' OR follow_up_status = 'Alive')) -- Param 8 @end_date, Param 9 @end_date
                          and prep_started = 'Yes')
 -- Number of individuals receiving Pre-Exposure Prophylaxis
     SELECT 'HIV_PrEP'                                                 AS S_NO,
