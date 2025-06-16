@@ -219,13 +219,14 @@ SELECT 'HIV_PrEP.1.2'       AS S_NO,
        'By Client Category' as Activity,
        COUNT(*)             as Value
 FROM tx_new
+where do_you_have_an_hiv_positive_partner = 'Yes' or sex_worker = 'Yes'
 -- Discordant Couple
 UNION ALL
 SELECT 'HIV_PrEP.1.2. 1'   AS S_NO,
        'Discordant Couple' as Activity,
        COUNT(*)            as Value
 FROM tx_new
-WHERE do_you_have_an_hiv_positive_partner = 'Yes'
+WHERE do_you_have_an_hiv_positive_partner = 'Yes' and sex_worker = !'Yes'
 -- Female sex worker[FSW]
 UNION ALL
 SELECT 'HIV_PrEP.1.2. 2'        AS S_NO,
