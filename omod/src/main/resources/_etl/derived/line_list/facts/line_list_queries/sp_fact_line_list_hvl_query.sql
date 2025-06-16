@@ -166,17 +166,24 @@ BEGIN
                         TIMESTAMPDIFF(YEAR, client.date_of_birth, COALESCE(REPORT_END_DATE, CURDATE())) AS age,
                         Sex,
                         f_case.weight,
-                        f_case.hiv_confirmed_date                                                       as date_hiv_confirmed,
-                        f_case.art_start_date,
-                        f_case.follow_up_date                                                           as FollowUpDate,
+                        f_case.hiv_confirmed_date                                                       as `HIV Confirmed Date`,
+                        f_case.hiv_confirmed_date                                                       as `HIV Confirmed Date EC.`,
+                        f_case.art_start_date as `ART Start Date`,
+                        f_case.art_start_date as `ART Start Date EC.`,
+                        f_case.follow_up_date                                                           as `Follow Up Date`,
+                        f_case.follow_up_date                                                           as `Follow Up Date EC.`,
                         f_case.pregnancy_status                                                         as IsPregnant,
                         f_case.dispensed_dose                                                           as `ART Regimen`,
                         f_case.regimen                                                                  as art_dose,
-                        f_case.next_visit_date,
+                        f_case.next_visit_date as `Next Visit Date`,
+                        f_case.next_visit_date as `Next Visit Date EC.`,
                         f_case.follow_up_status,
-                        f_case.art_dose_end_date                                                        as art_dose_End,
+                        f_case.art_dose_end_date                                                        as `ART Dose End Date`,
+                        f_case.art_dose_end_date                                                        as `ART Dose End Date EC.`,
                         vlperfdate.viral_load_sent_date                                                 as `First VL Sent Date`,
+                        vlperfdate.viral_load_sent_date                                                 as `First VL Sent Date EC.`,
                         vlperfdate.viral_load_performed_date                                            as `First VL Received Date`,
+                        vlperfdate.viral_load_performed_date                                            as `First VL Received Date EC.`,
                         CASE vlperfdate.viral_load_test_status
                             WHEN 'Uncontrolled'
                                 THEN 'Unsuppressed'
@@ -189,11 +196,17 @@ BEGIN
                         COALESCE(vlperfdate.targeted_viral_load_test_indication,
                                  vlperfdate.routine_viral_load_test_indication)                         as `First VL Indication`,
                         sub_switch_date.switch_date                                                     as `Regimen Change Date`,
+                        sub_switch_date.switch_date                                                     as `Regimen Change Date EC.`,
                         vlperfdate.eac_1                                                                as `First VL EAC1`,
+                        vlperfdate.eac_1                                                                as `First VL EAC1 EC.`,
                         vlperfdate.eac_2                                                                as `First VL EAC2`,
+                        vlperfdate.eac_2                                                                as `First VL EAC2 EC.`,
                         vlperfdate.eac_3                                                                as `First VL EAC3`,
+                        vlperfdate.eac_3                                                                as `First VL EAC3 EC.`,
                         vlperfdate_cf.viral_load_sent_date                                              as `Confirmatory VL Sent Date`,
+                        vlperfdate_cf.viral_load_sent_date                                              as `Confirmatory VL Sent Date EC.`,
                         vlperfdate_cf.viral_load_performed_date                                         as `Confirmatory VL Received Date`,
+                        vlperfdate_cf.viral_load_performed_date                                         as `Confirmatory VL Received Date EC.`,
                         CASE vlperfdate_cf.viral_load_test_status
                             WHEN 'Uncontrolled'
                                 THEN 'Unsuppressed'
@@ -207,8 +220,11 @@ BEGIN
                         COALESCE(vlperfdate_cf.targeted_viral_load_test_indication,
                                  vlperfdate_cf.routine_viral_load_test_indication)                      as `Confirmatory VL Indication`,
                         vlperfdate_cf.eac_1                                                      as `Confirmatory EAC1  Date`,
+                        vlperfdate_cf.eac_1                                                      as `Confirmatory EAC1  Date EC.`,
                         vlperfdate_cf.eac_2                                                      as `Confirmatory EAC2  Date`,
-                        vlperfdate_cf.eac_3                                                      as `Confirmatory EAC3  Date`
+                        vlperfdate_cf.eac_2                                                      as `Confirmatory EAC2  Date EC.`,
+                        vlperfdate_cf.eac_3                                                      as `Confirmatory EAC3  Date`,
+                        vlperfdate_cf.eac_3                                                      as `Confirmatory EAC3  Date EC.`
                  FROM FollowUp AS f_case
                           JOIN latest_follow_up ON f_case.encounter_id = latest_follow_up.encounter_id
                           JOIN vl_performed_date as vlperfdate ON vlperfdate.client_id = f_case.client_id
