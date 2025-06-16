@@ -60,7 +60,7 @@ BEGIN
                                            follow_up_date                                                                             AS FollowUpDate,
                                            ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
                                     FROM FollowUp
-                                    WHERE follow_up_date <= REPORT_END_DATE),
+                                    WHERE follow_up_date <= COALESCE(REPORT_END_DATE,CURDATE())),
 
          all_art_follow_ups as (select * from tmp_all_art_follow_ups where row_num = 1),
 
@@ -69,7 +69,7 @@ BEGIN
                                      viral_load_sent_date                                                                             AS VL_Sent_Date,
                                      ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY viral_load_sent_date DESC, encounter_id DESC) AS row_num
                               FROM FollowUp
-                              WHERE viral_load_sent_date <= REPORT_END_DATE),
+                              WHERE viral_load_sent_date <= COALESCE(REPORT_END_DATE,CURDATE())),
          vl_sent_date as (select * from tmp_vl_sent_date where row_num = 1),
 
          tmp_switch_sub_date as (SELECT encounter_id,
@@ -77,7 +77,7 @@ BEGIN
                                         follow_up_date                                                                             AS FollowUpDate,
                                         ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
                                  FROM FollowUp
-                                 WHERE follow_up_date <= REPORT_END_DATE
+                                 WHERE follow_up_date <= COALESCE(REPORT_END_DATE,CURDATE())
                                    and regimen_change is not null),
          switch_sub_date as (select * from tmp_switch_sub_date where row_num = 1),
 
@@ -89,7 +89,7 @@ BEGIN
                                      WHERE art_start_date IS NOT NULL
                                        AND (
                                          (viral_load_perform_date IS NOT NULL AND
-                                          viral_load_perform_date <= REPORT_END_DATE
+                                          viral_load_perform_date <= COALESCE(REPORT_END_DATE,CURDATE())
                                              -- AND viral_load_perform_date >= '2024-08-27'
                                              )
                                              OR
@@ -163,7 +163,7 @@ BEGIN
                                              follow_up_status,
                                              ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
                                       FROM FollowUp
-                                      WHERE follow_up_date <= REPORT_END_DATE),
+                                      WHERE follow_up_date <= COALESCE(REPORT_END_DATE,CURDATE())),
          latest_alive_restart as (select *
                                   from tmp_latest_alive_restart
                                   where row_num = 1
@@ -212,18 +212,18 @@ BEGIN
                                        WHEN
                                            (vlperfdate.viral_load_ref_date IS NULL
                                                AND f_case.pregnancy_status = 'Yes'
-                                               AND TIMESTAMPDIFF(DAY, f_case.art_start_date, REPORT_END_DATE) > 90)
+                                               AND TIMESTAMPDIFF(DAY, f_case.art_start_date, COALESCE(REPORT_END_DATE,CURDATE())) > 90)
                                            THEN DATE_ADD(f_case.art_start_date, INTERVAL 91 DAY)
 
                                        WHEN
                                            (vlperfdate.viral_load_ref_date IS NULL
-                                               AND TIMESTAMPDIFF(DAY, f_case.art_start_date, REPORT_END_DATE) <= 180)
+                                               AND TIMESTAMPDIFF(DAY, f_case.art_start_date, COALESCE(REPORT_END_DATE,CURDATE())) <= 180)
                                            THEN NULL
 
 
                                        WHEN
                                            (vlperfdate.viral_load_ref_date IS NULL
-                                               AND TIMESTAMPDIFF(DAY, f_case.art_start_date, REPORT_END_DATE) > 180)
+                                               AND TIMESTAMPDIFF(DAY, f_case.art_start_date, COALESCE(REPORT_END_DATE,CURDATE())) > 180)
                                            THEN DATE_ADD(f_case.art_start_date, INTERVAL 181 DAY)
 
                                        WHEN
@@ -289,17 +289,17 @@ BEGIN
                                        WHEN
                                            (vlperfdate.viral_load_ref_date IS NULL
                                                AND f_case.pregnancy_status = 'Yes'
-                                               AND TIMESTAMPDIFF(DAY, f_case.art_start_date, REPORT_END_DATE) > 90)
+                                               AND TIMESTAMPDIFF(DAY, f_case.art_start_date, COALESCE(REPORT_END_DATE,CURDATE())) > 90)
                                            THEN 'First VL for Pregnant'
 
                                        WHEN
                                            (vlperfdate.viral_load_ref_date IS NULL
-                                               AND TIMESTAMPDIFF(DAY, f_case.art_start_date, REPORT_END_DATE) <= 180)
+                                               AND TIMESTAMPDIFF(DAY, f_case.art_start_date, COALESCE(REPORT_END_DATE,CURDATE())) <= 180)
                                            THEN 'N/A'
 
                                        WHEN
                                            (vlperfdate.viral_load_ref_date IS NULL
-                                               AND TIMESTAMPDIFF(DAY, f_case.art_start_date, REPORT_END_DATE) > 180)
+                                               AND TIMESTAMPDIFF(DAY, f_case.art_start_date, COALESCE(REPORT_END_DATE,CURDATE())) > 180)
                                            THEN 'First VL'
 
 
@@ -395,8 +395,8 @@ BEGIN
            case
 
                when t.vl_status_final = 'N/A' THEN 'Not Applicable'
-               when t.eligiblityDate <= REPORT_END_DATE THEN 'Eligible for Viral Load'
-               when t.eligiblityDate > REPORT_END_DATE THEN  'Not Applicable' -- 'Viral Load Done'
+               when t.eligiblityDate <= COALESCE(REPORT_END_DATE,CURDATE()) THEN 'Eligible for Viral Load'
+               when t.eligiblityDate > COALESCE(REPORT_END_DATE,CURDATE()) THEN  'Not Applicable' -- 'Viral Load Done'
                when t.art_start_date is NULL and t.follow_up_status is null THEN 'Not Started ART'
                end                                          as `Viral Load Eligibility Status`
     from vl_eligibility t

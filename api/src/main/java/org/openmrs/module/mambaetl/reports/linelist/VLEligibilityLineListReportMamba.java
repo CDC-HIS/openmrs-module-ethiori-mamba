@@ -39,7 +39,7 @@ public class VLEligibilityLineListReportMamba implements ReportManager {
 	@Override
 	public List<Parameter> getParameters() {
 		
-		return EthiOhriUtil.getEndDateParameters(Boolean.TRUE);
+		return EthiOhriUtil.getEndDateParameters(Boolean.FALSE);
 		
 	}
 	
