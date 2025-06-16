@@ -74,33 +74,35 @@ BEGIN
                                    from FollowUp
                                    where hiv_viral_load_status = 'Completed'
                                      and (
-                                       (viral_load_test_indication = 'Routine viral load test indication'
-                                           and routine_viral_load_test_indication in
-                                               ('First viral load test at 6 months or longer post ART',
-                                                'Second viral load test at 12 months post ART',
-                                                'Annual viral load test',
-                                                'First viral load test at 3 months or longer post ART',
-                                                'At the first antenatal care visit',
-                                                'At 34-36 weeks of gestation'
-                                                    'Three months after delivery',
-                                                'Six months after the first viral load test at postnatal period',
-                                                'Every six months until MTCT ends'))
-                                           OR (viral_load_test_indication = 'Targeted viral load test indication'
-                                           and targeted_viral_load_test_indication in
-                                               ('Suspected Antiretroviral failure')
-                                           and (viral_load_count > 50 or viral_load_test_status in ('Uncontrolled',
-                                                                                                    'HIV infection with high viral load',
-                                                                                                    'Low-level viremia'))
-                                           )
-                                       )
-                                     and (
-                                           (REPORT_START_DATE is not null and REPORT_END_DATE is not null and
-                                            (viral_load_performed_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE))
-                                               OR
-                                           (REPORT_START_DATE is null and REPORT_END_DATE is null and
-                                            viral_load_performed_date <= CURDATE())
+                                       (REPORT_START_DATE is not null and REPORT_END_DATE is not null and
+                                        (viral_load_performed_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE))
+                                           OR
+                                       (REPORT_START_DATE is null and REPORT_END_DATE is null and
+                                        viral_load_performed_date <= CURDATE())
                                        )),
-         vl_performed_date as (select * from tmp_vl_performed_date where row_num = 1),
+         vl_performed_date as (select *
+                               from tmp_vl_performed_date
+                               where row_num = 1
+                                 and (
+                                   (viral_load_test_indication = 'Routine viral load test indication'
+                                       and routine_viral_load_test_indication in
+                                           ('First viral load test at 6 months or longer post ART',
+                                            'Second viral load test at 12 months post ART',
+                                            'Annual viral load test',
+                                            'First viral load test at 3 months or longer post ART',
+                                            'At the first antenatal care visit',
+                                            'At 34-36 weeks of gestation'
+                                                'Three months after delivery',
+                                            'Six months after the first viral load test at postnatal period',
+                                            'Every six months until MTCT ends'))
+                                       OR (viral_load_test_indication = 'Targeted viral load test indication'
+                                       and targeted_viral_load_test_indication in
+                                           ('Suspected Antiretroviral failure')
+                                       )
+                                   )
+                                 and (viral_load_count > 50 or viral_load_test_status in ('Uncontrolled',
+                                                                                          'HIV infection with high viral load',
+                                                                                          'Low-level viremia'))),
 
          tmp_vl_performed_date_cf as (select FollowUp.encounter_id,
                                              FollowUp.client_id,
@@ -168,15 +170,15 @@ BEGIN
                         f_case.weight,
                         f_case.hiv_confirmed_date                                                       as `HIV Confirmed Date`,
                         f_case.hiv_confirmed_date                                                       as `HIV Confirmed Date EC.`,
-                        f_case.art_start_date as `ART Start Date`,
-                        f_case.art_start_date as `ART Start Date EC.`,
+                        f_case.art_start_date                                                           as `ART Start Date`,
+                        f_case.art_start_date                                                           as `ART Start Date EC.`,
                         f_case.follow_up_date                                                           as `Follow Up Date`,
                         f_case.follow_up_date                                                           as `Follow Up Date EC.`,
                         f_case.pregnancy_status                                                         as IsPregnant,
                         f_case.dispensed_dose                                                           as `ART Regimen`,
                         f_case.regimen                                                                  as art_dose,
-                        f_case.next_visit_date as `Next Visit Date`,
-                        f_case.next_visit_date as `Next Visit Date EC.`,
+                        f_case.next_visit_date                                                          as `Next Visit Date`,
+                        f_case.next_visit_date                                                          as `Next Visit Date EC.`,
                         f_case.follow_up_status,
                         f_case.art_dose_end_date                                                        as `ART Dose End Date`,
                         f_case.art_dose_end_date                                                        as `ART Dose End Date EC.`,
@@ -219,12 +221,12 @@ BEGIN
                         vlperfdate_cf.viral_load_count                                                  as `Confirmatory VL Count`,
                         COALESCE(vlperfdate_cf.targeted_viral_load_test_indication,
                                  vlperfdate_cf.routine_viral_load_test_indication)                      as `Confirmatory VL Indication`,
-                        vlperfdate_cf.eac_1                                                      as `Confirmatory EAC1  Date`,
-                        vlperfdate_cf.eac_1                                                      as `Confirmatory EAC1  Date EC.`,
-                        vlperfdate_cf.eac_2                                                      as `Confirmatory EAC2  Date`,
-                        vlperfdate_cf.eac_2                                                      as `Confirmatory EAC2  Date EC.`,
-                        vlperfdate_cf.eac_3                                                      as `Confirmatory EAC3  Date`,
-                        vlperfdate_cf.eac_3                                                      as `Confirmatory EAC3  Date EC.`
+                        vlperfdate_cf.eac_1                                                             as `Confirmatory EAC1  Date`,
+                        vlperfdate_cf.eac_1                                                             as `Confirmatory EAC1  Date EC.`,
+                        vlperfdate_cf.eac_2                                                             as `Confirmatory EAC2  Date`,
+                        vlperfdate_cf.eac_2                                                             as `Confirmatory EAC2  Date EC.`,
+                        vlperfdate_cf.eac_3                                                             as `Confirmatory EAC3  Date`,
+                        vlperfdate_cf.eac_3                                                             as `Confirmatory EAC3  Date EC.`
                  FROM FollowUp AS f_case
                           JOIN latest_follow_up ON f_case.encounter_id = latest_follow_up.encounter_id
                           JOIN vl_performed_date as vlperfdate ON vlperfdate.client_id = f_case.client_id
