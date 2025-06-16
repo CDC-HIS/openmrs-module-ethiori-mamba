@@ -1,5 +1,6 @@
 package org.openmrs.module.mambaetl.reports.linelist;
 
+import org.openmrs.module.mambaetl.datasetdefinition.linelist.ReTestLineListDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.datasetdefinition.linelist.TXNewLineListDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
@@ -47,10 +48,10 @@ public class ReTestLineListReportMamba implements ReportManager {
 		reportDefinition.setDescription(getDescription());
 		reportDefinition.setParameters(getParameters());
 		
-		TXNewLineListDataSetDefinitionMamba txNewLineListDataSetDefinitionMamba = new TXNewLineListDataSetDefinitionMamba();
-		txNewLineListDataSetDefinitionMamba.addParameters(getParameters());
+		ReTestLineListDataSetDefinitionMamba reTestLineListDataSetDefinitionMamba = new ReTestLineListDataSetDefinitionMamba();
+		reTestLineListDataSetDefinitionMamba.addParameters(getParameters());
 		reportDefinition.addDataSetDefinition("Re Test Line List",
-		    EthiOhriUtil.map(txNewLineListDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(reTestLineListDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
 		
 		return reportDefinition;
 	}
