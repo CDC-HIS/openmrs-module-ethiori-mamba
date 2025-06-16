@@ -382,7 +382,7 @@ BEGIN
     UNION ALL
     SELECT 'HIV_PrEP_CURR.2'    AS S_NO,
            'By Client Category' as Activity,
-           COUNT(*)             as Value -- TODO check sero-discordant couple handling
+           COUNT(*)             as Value
     FROM tx_curr
     WHERE do_you_have_an_hiv_positive_partner = 'Yes'
        OR sex_worker = 'Yes'
