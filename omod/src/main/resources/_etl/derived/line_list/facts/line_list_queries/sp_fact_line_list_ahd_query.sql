@@ -273,6 +273,8 @@ BEGIN
          cca_screened AS (select * from tmp_cca_screened_tmp where row_num = 1)
     SELECT client.patient_name                                        as `Patient Name`,
            client.patient_uuid                                        as UUID,
+           client.mrn,
+           client.uan,
            client.sex                                                 as Sex,
            f_case.Weight                                              as Weight,
            TIMESTAMPDIFF(YEAR, client.date_of_birth, COALESCE(REPORT_END_DATE,CURDATE())) as Age,
