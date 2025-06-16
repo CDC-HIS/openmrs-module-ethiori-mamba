@@ -28,13 +28,13 @@ import java.util.List;
 
 @Handler(supports = { VLEligibilityLineListDatasetDefinition.class })
 public class VLEligibilityLineListDataSetEvaluator implements DataSetEvaluator {
-
+	
 	private static final Log log = LogFactory.getLog(VLEligibilityLineListDataSetEvaluator.class);
-
+	
 	private static final String ERROR_PROCESSING_RESULT_SET = "Error processing ResultSet: ";
-
+	
 	private static final String DATABASE_CONNECTION_ERROR = "Database connection error: ";
-
+	
 	@Override
 	public DataSet evaluate(DataSetDefinition dataSetDefinition, EvaluationContext evalContext)
 			throws EvaluationException {
@@ -66,7 +66,7 @@ public class VLEligibilityLineListDataSetEvaluator implements DataSetEvaluator {
 		}
 		return null;
 	}
-
+	
 	private List<ProcedureCall> createProcedureCalls(VLEligibilityLineListDatasetDefinition vlEligibilityLineListDatasetDefinition) {
 		java.sql.Date endDate = vlEligibilityLineListDatasetDefinition.getEndDate()!= null? new java.sql.Date(vlEligibilityLineListDatasetDefinition.getEndDate().getTime()):null;
 
