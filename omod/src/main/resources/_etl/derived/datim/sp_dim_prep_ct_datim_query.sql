@@ -42,8 +42,12 @@ BEGIN
                                      sex,
                                      client.uan,
                                      client.mrn,
-                                     (SELECT datim_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as fine_age_group,
-                                     (SELECT normal_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as coarse_age_group,
+                                     (SELECT datim_agegroup
+                                      from mamba_dim_agegroup
+                                      where TIMESTAMPDIFF(YEAR, date_of_birth, ?) = age) as fine_age_group,   -- Param 1 @end_date
+                                     (SELECT normal_agegroup
+                                      from mamba_dim_agegroup
+                                      where TIMESTAMPDIFF(YEAR, date_of_birth, ?) = age) as coarse_age_group, -- Param 2 @end_date
                                      do_you_have_an_hiv_positive_partner,
                                      sex_worker,
                                      treatment_start_date,
@@ -60,22 +64,26 @@ BEGIN
                                          ORDER BY
                                              PreExposure.follow_up_date_followup_ DESC,
                                              PreExposure.encounter_id DESC
-                                         )                                                            AS row_num
+                                         )                                               AS row_num
                               from PreExposure
                                        join mamba_dim_client client on PreExposure.client_id = client.client_id
-                              where follow_up_date_followup_ between ? AND ?
-                                 or follow_up_date_followup_ is null),
-     tx_new as (select *
-                from tmp_latest_follow_up
-                WHERE treatment_start_date BETWEEN ? AND ?
-                  AND type_of_client = ''New client''
-                  AND row_num = 1
-         -- AND follow_up_status
-     ),
+                              where (follow_up_date_followup_ <= ? -- Param 3 @end_date
+                                  or follow_up_date_followup_ is null)),
+     prep_new as (select *
+                  from tmp_latest_follow_up
+                  WHERE treatment_start_date BETWEEN ? AND ? -- Param 4 @start_date, Param 5 @end_date
+                    AND type_of_client = ''New client''
+                    AND row_num = 1),
      prep as (select *
               from tmp_latest_follow_up
               where row_num = 1
-                and client_id not in (select client_id from tx_new)) ';
+                  and (   (prep_dose_end_date >= ? or
+                           DATE_ADD(treatment_start_date, INTERVAL dose_dispensed DAY) >= ?) -- Param 6 @end_date, Param 7 @end_date
+                              and prep_started = ''Yes''
+                              and client_id not in (select client_id from prep_new)
+
+                  or follow_up_date_followup_ BETWEEN ? AND ? AND final_hiv_test_result = ''Positive'') -- Param 8 @end_date, Param 9 @end_date
+                 ) ';
     IF IS_COURSE_AGE_GROUP THEN
         SELECT GROUP_CONCAT(CONCAT('SUM(CASE WHEN coarse_age_group = ''', normal_agegroup,
                                    ''' THEN count ELSE 0 END) AS `',
@@ -147,7 +155,7 @@ BEGIN
     PREPARE stmt FROM @sql;
     SET @start_date = REPORT_START_DATE;
     SET @end_date = REPORT_END_DATE;
-    EXECUTE stmt USING @end_date , @end_date, @start_date, @end_date , @start_date, @end_date ;
+    EXECUTE stmt USING @end_date , @end_date, @end_date, @start_date , @end_date, @end_date, @end_date, @end_date, @end_date ;
 
 END //
 
