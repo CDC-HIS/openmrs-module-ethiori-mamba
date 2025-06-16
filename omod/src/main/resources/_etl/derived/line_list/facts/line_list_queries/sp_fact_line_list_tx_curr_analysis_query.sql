@@ -362,9 +362,6 @@ BEGIN
                           where r.factor is not null
                           ) ';
 
-    -- Construct the final select query by concatenating the base query and the
-    -- dynamically built SELECT and WHERE clause based on REPORT_TYPE.
-    -- We select all relevant columns from tx_curr_analysis and apply the filter.
     IF REPORT_TYPE = 'SUMMARY' THEN
         SET final_select_query = CONCAT(' SELECT ',
                                         columns_list);
