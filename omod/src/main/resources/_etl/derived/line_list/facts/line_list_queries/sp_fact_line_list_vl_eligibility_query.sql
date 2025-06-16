@@ -354,7 +354,6 @@ BEGIN
     select
            patient_name                                     AS 'Patient Name',
            patient_uuid                             as `UUID`,
-           eligiblityDate,
            mrn                                              as MRN,
            uan                                              as UniqueArtNumber,
            TIMESTAMPDIFF(YEAR, date_of_birth, FollowUpDate) as Age,
@@ -362,6 +361,8 @@ BEGIN
            Weight,
            client.phone_no                                  as PNumber,
            client.mobile_no                                 as Mobile,
+           eligiblityDate as `Eligiblity Date`,
+           eligiblityDate as `Eligiblity Date EC.`,
            art_start_date                                   as `ART Start Date`,
            art_start_date                                   as `ART Start Date EC.`,
            FollowUpDate                                     as `Follow Up Date`,
@@ -390,14 +391,14 @@ BEGIN
            date_hiv_confirmed                               as `Hiv Confirmed Date EC`,
            date_hiv_confirmed                               as `Hiv Confirmed Date EC.`,
            t.arv_dispensed_dose                             as ARTDoseDays,
-           vl_status_final,
+           vl_status_final as `Reason for Viral Load Eligibility`,
            case
 
                when t.vl_status_final = 'N/A' THEN 'Not Applicable'
                when t.eligiblityDate <= REPORT_END_DATE THEN 'Eligible for Viral Load'
-               when t.eligiblityDate > REPORT_END_DATE THEN 'Viral Load Done'
+               when t.eligiblityDate > REPORT_END_DATE THEN  'Not Applicable' -- 'Viral Load Done'
                when t.art_start_date is NULL and t.follow_up_status is null THEN 'Not Started ART'
-               end                                          as viral_load_status_compare
+               end                                          as `Viral Load Eligibility Status`
     from vl_eligibility t
              join mamba_dim_client client on t.PatientId = client_id;
 END //
