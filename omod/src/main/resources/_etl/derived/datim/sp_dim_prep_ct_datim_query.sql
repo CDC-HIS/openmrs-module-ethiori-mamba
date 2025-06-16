@@ -74,15 +74,16 @@ BEGIN
                   WHERE treatment_start_date BETWEEN ? AND ? -- Param 4 @start_date, Param 5 @end_date
                     AND type_of_client = ''New client''
                     AND row_num = 1),
-     prep as (select *
-              from tmp_latest_follow_up
-              where row_num = 1
-                  and (   (prep_dose_end_date >= ? or
-                           DATE_ADD(treatment_start_date, INTERVAL dose_dispensed DAY) >= ?) -- Param 6 @end_date, Param 7 @end_date
-                              and prep_started = ''Yes''
-                              and client_id not in (select client_id from prep_new)
-
-                  or follow_up_date_followup_ BETWEEN ? AND ? AND final_hiv_test_result = ''Positive'') -- Param 8 @end_date, Param 9 @end_date
+     prep as ( select *
+                from tmp_latest_follow_up
+                where row_num = 1
+                    and ((prep_dose_end_date >= ? or
+                          DATE_ADD(treatment_start_date, INTERVAL dose_dispensed DAY) >= ?) -- Param 6 @end_date, Param 7 @end_date
+                          )
+                   or (follow_up_date_followup_ BETWEEN ? AND ? AND
+                       final_hiv_test_result = ''Positive'') -- Param 8 @end_date, Param 9 @end_date
+                    and prep_started = ''Yes''
+                    and client_id not in (select client_id from prep_new)
                  ) ';
     IF IS_COURSE_AGE_GROUP THEN
         SELECT GROUP_CONCAT(CONCAT('SUM(CASE WHEN coarse_age_group = ''', normal_agegroup,
