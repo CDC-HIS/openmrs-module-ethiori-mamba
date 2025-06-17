@@ -83,8 +83,6 @@ BEGIN
                               FROM FollowUp
                               WHERE follow_up_status IS NOT NULL
                                 AND art_start_date IS NOT NULL
-                                --     AND tb_screened = ''Yes''
-                                -- AND follow_up_date <= ?
                               ),
      tpt_started as (
          select tmp_latest_follow_up.*,
@@ -94,8 +92,7 @@ BEGIN
                 (SELECT coarse_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as coarse_age_group
          from tmp_latest_follow_up
                   join mamba_dim_client client on client.client_id=tmp_latest_follow_up.client_id
-         where follow_up_status in (''Alive'',''Restart medication'')
-           and row_num=1
+         where  row_num=1
            and tpt_start_date BETWEEN DATE_ADD(?, INTERVAL -6 MONTH) AND ?
      ) ,
      tmp_tpt_completed as (

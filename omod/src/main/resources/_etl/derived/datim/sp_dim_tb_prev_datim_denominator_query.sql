@@ -81,7 +81,6 @@ BEGIN
                               FROM FollowUp
                               WHERE follow_up_status IS NOT NULL
                                 AND art_start_date IS NOT NULL
-                             --   AND follow_up_date <= ?
                                 ),
      tpt as (
          select tmp_latest_follow_up.*,
@@ -91,8 +90,7 @@ BEGIN
                 (SELECT normal_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as coarse_age_group
          from tmp_latest_follow_up
                   join mamba_dim_client client on client.client_id=tmp_latest_follow_up.client_id
-         where follow_up_status in (''Alive'',''Restart medication'')
-           and row_num=1
+         where row_num=1
            and tpt_start_date BETWEEN DATE_ADD(?, INTERVAL -6 MONTH) AND ?
      ) ,
     new_art_tpt as ( select * from tpt where art_start_date BETWEEN DATE_ADD(?, INTERVAL -6 MONTH) AND ?),
