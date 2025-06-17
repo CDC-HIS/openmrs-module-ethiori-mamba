@@ -82,7 +82,8 @@ BEGIN
                                from FollowUp
                                where tpt_completed_date is not null
                                  and tpt_completed_date between ? and ?
-                                 and followup_date <= ?),
+                              --   and followup_date <= ?
+                            ),
          -- CPT
          tmp_cpt_start as (select encounter_id,
                                   client_id,
@@ -233,7 +234,7 @@ BEGIN
     PREPARE stmt FROM @sql;
     SET @start_date = REPORT_START_DATE;
     SET @end_date = REPORT_END_DATE;
-    EXECUTE stmt USING @start_date, @end_date, @end_date, @start_date, @end_date, @end_date, @start_date, @end_date, @end_date, @start_date, @end_date , @end_date, @start_date, @end_date
+    EXECUTE stmt USING @end_date, @end_date, @start_date, @end_date, @end_date, @start_date, @end_date, @end_date, @start_date, @end_date , @end_date, @start_date, @end_date
         , @end_date, @start_date, @end_date, @end_date, @end_date, @end_date;
     DEALLOCATE PREPARE stmt;
 END //

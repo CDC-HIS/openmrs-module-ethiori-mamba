@@ -26,12 +26,12 @@ public class HVLLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "MAMBA LINELIST- Unsuppressed Viral Load & EAC Cascade Report";
+		return "MAMBA LINELIST- Unsuppressed Viral Load AND EAC Cascade Report";
 	}
 	
 	@Override
 	public String getDescription() {
-		return "Unsuppressed Viral Load & EAC Cascade Report";
+		return "Unsuppressed Viral Load AND EAC Cascade Report";
 	}
 	
 	@Override
@@ -50,7 +50,7 @@ public class HVLLineListReportMamba implements ReportManager {
 		
 		HVLLineListDataSetDefinitionMamba hvlLineListDataSetDefinitionMamba = new HVLLineListDataSetDefinitionMamba();
 		hvlLineListDataSetDefinitionMamba.addParameters(getParameters());
-		reportDefinition.addDataSetDefinition("Unsuppressed Viral Load & EAC Cascade Report",
+		reportDefinition.addDataSetDefinition("Unsuppressed Viral Load AND EAC Cascade Report",
 		    EthiOhriUtil.map(hvlLineListDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
 		
 		return reportDefinition;

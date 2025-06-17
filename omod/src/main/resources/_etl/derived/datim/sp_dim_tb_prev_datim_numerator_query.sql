@@ -84,7 +84,8 @@ BEGIN
                               WHERE follow_up_status IS NOT NULL
                                 AND art_start_date IS NOT NULL
                                 --     AND tb_screened = ''Yes''
-                                AND follow_up_date <= ?),
+                                -- AND follow_up_date <= ?
+                              ),
      tpt_started as (
          select tmp_latest_follow_up.*,
                 sex,
@@ -180,7 +181,7 @@ BEGIN
     PREPARE stmt FROM @sql;
     SET @start_date = REPORT_START_DATE;
     SET @end_date = REPORT_END_DATE;
-    EXECUTE stmt USING @start_date, @end_date, @end_date, @start_date , @start_date, @end_date, @end_date, @start_date , @end_date, @start_date,@start_date,@start_date;
+    EXECUTE stmt USING @end_date, @end_date, @start_date , @start_date, @end_date, @end_date, @start_date , @end_date, @start_date,@start_date,@start_date;
     DEALLOCATE PREPARE stmt;
 END //
 
