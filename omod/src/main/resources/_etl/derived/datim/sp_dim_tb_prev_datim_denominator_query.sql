@@ -77,10 +77,11 @@ BEGIN
                                      active_tb_diagnosed_date,
                                      tb_treatment_start_date,
                                      tpt_start_date,
-                                     ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
+                                     ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY art_start_date DESC, encounter_id DESC) AS row_num
                               FROM FollowUp
                               WHERE follow_up_status IS NOT NULL
                                 AND art_start_date IS NOT NULL
+                                AND tpt_start_date IS NOT NULL
                                 ),
      tpt as (
          select tmp_latest_follow_up.*,
