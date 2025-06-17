@@ -163,7 +163,7 @@ BEGIN
 
          hvl as (SELECT client.patient_name                                                             as `Patient Name`,
                         client.patient_uuid                                                             as `UUID`,
-                        client.mrn,
+                        CAST(client.mrn AS CHAR(20)) as mrn,
                         client.uan,
                         TIMESTAMPDIFF(YEAR, client.date_of_birth, COALESCE(REPORT_END_DATE, CURDATE())) AS age,
                         Sex,

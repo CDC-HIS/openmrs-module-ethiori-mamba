@@ -92,7 +92,7 @@ BEGIN
                            patient_name,
                            patient_uuid                             ,
                            sex,
-                           mrn,
+                           CAST(mrn AS CHAR(20)) as mrn,
                            uan,
                            weight,
                            current_who_hiv_stage,

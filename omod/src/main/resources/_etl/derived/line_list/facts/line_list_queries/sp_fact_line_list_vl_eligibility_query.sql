@@ -354,7 +354,7 @@ BEGIN
     select
            patient_name                                     AS 'Patient Name',
            patient_uuid                             as `UUID`,
-           mrn                                              as MRN,
+           CAST(client.mrn AS CHAR(20))                                              as MRN,
            uan                                              as UniqueArtNumber,
            TIMESTAMPDIFF(YEAR, date_of_birth, FollowUpDate) as Age,
            client.sex,

@@ -182,7 +182,7 @@ BEGIN
            patient_uuid                                        as `UUID`,
            sex                                                 as Sex,
            tmp_tpt.weight_in_kg                                as Weight,
-           MRN,
+           CAST(mrn AS CHAR(20)) as mrn,
            UAN,
            TIMESTAMPDIFF(YEAR, date_of_birth, ?) as Age,
            tmp_tpt.tpt_start_date                            as `TPT Start Date`,

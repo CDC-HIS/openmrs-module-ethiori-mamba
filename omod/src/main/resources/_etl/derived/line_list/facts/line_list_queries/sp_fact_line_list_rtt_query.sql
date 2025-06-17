@@ -168,7 +168,7 @@ BEGIN
 
     select patient_name                                        as `Patient Name`,
            patient_uuid                                        as `UUID`,
-           MRN,
+           CAST(mrn AS CHAR(20)) as mrn,
            UAN,
            TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) as Age, -- Param 10 @end_date
            Sex,
