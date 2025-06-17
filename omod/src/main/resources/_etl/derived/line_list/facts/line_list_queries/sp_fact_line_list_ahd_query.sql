@@ -288,7 +288,14 @@ BEGIN
            f_case.cd4_count                                           as CD4Count,
            f_case.art_dose_days                                       as ARTDoseDays,
            f_case.regimen                                             as ARVRegimen,
-           f_case.follow_up_status                                    as FollowupStatus,
+           CASE f_case.follow_up_status
+               WHEN 'Alive' THEN 'Alive on ART'
+               WHEN 'Restart medication' THEN 'Restart'
+               WHEN 'Transferred out' THEN 'TO'
+               WHEN 'Stop all' THEN 'Stop'
+               WHEN 'Loss to follow-up (LTFU)' THEN 'Lost'
+               WHEN 'Ran away' THEN 'Drop'
+               END AS FollowupStatus,
            f_case.adherence                                           as AdheranceLevel,
            f_case.pregnancy_status                                    as IsPregnant,
            f_case.method_of_family_planning                           as FpMethodUsed,

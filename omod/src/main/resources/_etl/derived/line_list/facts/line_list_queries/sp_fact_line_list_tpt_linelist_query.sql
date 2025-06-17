@@ -146,8 +146,14 @@ BEGIN
                             f_case.why_eligible_reason_,
                             art_dose_days                       as artdosecode,
                             f_case.next_visit_date,
-                            f_case.follow_up_status,
-                            f_case.follow_up_status             as statuscode,
+                            CASE f_case.follow_up_status
+                               WHEN ''Alive'' THEN ''Alive on ART''
+                               WHEN ''Restart medication'' THEN ''Restart''
+                               WHEN ''Transferred out'' THEN ''TO''
+                               WHEN ''Stop all'' THEN ''Stop''
+                               WHEN ''Loss to follow-up (LTFU)'' THEN ''Lost''
+                               WHEN ''Ran away'' THEN ''Drop''
+                               END as statuscode,
                             f_case.art_end_date,
                             f_case.current_who_hiv_stage        AS WHOStage,
                             cd4_count                              AdultCD4Count,

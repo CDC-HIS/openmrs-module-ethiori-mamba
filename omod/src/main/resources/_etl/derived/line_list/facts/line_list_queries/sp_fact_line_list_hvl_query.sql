@@ -179,7 +179,14 @@ BEGIN
                         f_case.regimen                                                                  as art_dose,
                         f_case.next_visit_date                                                          as `Next Visit Date`,
                         f_case.next_visit_date                                                          as `Next Visit Date EC.`,
-                        f_case.follow_up_status,
+                        CASE f_case.follow_up_status
+                            WHEN 'Alive' THEN 'Alive on ART'
+                            WHEN 'Restart medication' THEN 'Restart'
+                            WHEN 'Transferred out' THEN 'TO'
+                            WHEN 'Stop all' THEN 'Stop'
+                            WHEN 'Loss to follow-up (LTFU)' THEN 'Lost'
+                            WHEN 'Ran away' THEN 'Drop'
+                            END AS `Follow Up Status`,
                         f_case.art_dose_end_date                                                        as `ART Dose End Date`,
                         f_case.art_dose_end_date                                                        as `ART Dose End Date EC.`,
                         vlperfdate.viral_load_sent_date                                                 as `First VL Sent Date`,
@@ -216,6 +223,7 @@ BEGIN
                                 THEN 'High Viral Load (>1000 copies/ML)'
                             WHEN 'Low-level viremia'
                                 THEN 'Low Level Viremia (51-1000)'
+                            ELSE vlperfdate.viral_load_test_status
                             END
                                                                                                         as `Confirmatory VL Status`,
                         vlperfdate_cf.viral_load_count                                                  as `Confirmatory VL Count`,

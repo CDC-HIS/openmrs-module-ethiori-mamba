@@ -285,13 +285,27 @@ BEGIN
                                latest_curr.client_id as curr_client,
                                latest_all.follow_up_date                   as FollowUpDate_curr,
                                latest_all.treatment_end_date               as art_dose_End_curr,
-                               latest_all.follow_up_status                 as follow_up_status_curr,
+                                CASE latest_all.follow_up_status
+                               WHEN ''Alive'' THEN ''Alive on ART''
+                               WHEN ''Restart medication'' THEN ''Restart''
+                               WHEN ''Transferred out'' THEN ''TO''
+                               WHEN ''Stop all'' THEN ''Stop''
+                               WHEN ''Loss to follow-up (LTFU)'' THEN ''Lost''
+                               WHEN ''Ran away'' THEN ''Drop''
+                               END                as follow_up_status_curr,
                                latest_all.art_antiretroviral_start_date    as art_start_date_curr,
                                latest_all.TIStatus                         as TIStatus_curr,
                                previous_curr.client_id is not null         as in_prev_period,
                                previous_curr.follow_up_date                as FollowUpDate_prev,
                                previous_curr.treatment_end_date            as art_dose_End_prev,
-                               previous_curr.follow_up_status              as follow_up_status_prev,
+                               CASE previous_curr.follow_up_status
+                               WHEN ''Alive'' THEN ''Alive on ART''
+                               WHEN ''Restart medication'' THEN ''Restart''
+                               WHEN ''Transferred out'' THEN ''TO''
+                               WHEN ''Stop all'' THEN ''Stop''
+                               WHEN ''Loss to follow-up (LTFU)'' THEN ''Lost''
+                               WHEN ''Ran away'' THEN ''Drop''
+                               END             as follow_up_status_prev,
                                previous_curr.next_visit_date               as next_visit_date_prev,
                                previous_curr.art_antiretroviral_start_date as art_start_date_prev,
                                latest_all.regimen,

@@ -183,7 +183,14 @@ BEGIN
            latest_follow_up.next_visit_date                                                    AS `nextvisitdate EC.`,
            latest_follow_up.arv_dispensed_dose                                                 AS Dosedays,
            latest_follow_up.regimen                                                            AS Regimen,
-           latest_follow_up.follow_up_status                                                   AS FollowUpStatus,
+           CASE latest_follow_up.follow_up_status
+               WHEN 'Alive' THEN 'Alive on ART'
+               WHEN 'Restart medication' THEN 'Restart'
+               WHEN 'Transferred out' THEN 'TO'
+               WHEN 'Stop all' THEN 'Stop'
+               WHEN 'Loss to follow-up (LTFU)' THEN 'Lost'
+               WHEN 'Ran away' THEN 'Drop'
+               END                                                                             AS FollowUpStatus,
            otz_vl_performed_date.viral_load_sent_date                                          AS BaselineVLsent,
            otz_vl_performed_date.viral_load_sent_date                                          AS `BaselineVLsent EC.`,
            otz_vl_performed_date.viral_load_perform_date                                       AS BaselineVLReceived,

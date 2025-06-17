@@ -535,7 +535,14 @@ BEGIN
            follow_up_date                      as `Follow Up Date EC.`,
            ArtStartDate                        as `Art Start Date`,
            ArtStartDate                        as `Art Start Date EC.`,
-           follow_up_status                    as `Follow Up Status`,
+           CASE follow_up_status
+               WHEN 'Alive' THEN 'Alive on ART'
+               WHEN 'Restart medication' THEN 'Restart'
+               WHEN 'Transferred out' THEN 'TO'
+               WHEN 'Stop all' THEN 'Stop'
+               WHEN 'Loss to follow-up (LTFU)' THEN 'Lost'
+               WHEN 'Ran away' THEN 'Drop'
+               END AS `Follow Up Status`,
            next_visit_date                     as `Next Appointment Date`,
            next_visit_date                     as `Next Appointment Date EC.`,
            regimen                             as `ARV Regimen`,
