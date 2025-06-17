@@ -32,7 +32,7 @@ BEGIN
          re_test as (select * from tmp_re_test where row_num = 1)
     select client.patient_name                                                      as `Patient Name`,
            client.patient_uuid                                                      as `UUID`,
-           MRN,
+           CAST(client.mrn AS CHAR(20)) as mrn,
            uan,
            TIMESTAMPDIFF(YEAR, date_of_birth, COALESCE(REPORT_END_DATE, CURDATE())) as Age,
            sex,

@@ -122,7 +122,7 @@ BEGIN
                                         THEN 'Cervical Cancer screen: Positive'
                                     END AS screening_result,
                                 client.uan,
-                                client.mrn,
+                                CAST(client.mrn AS CHAR(20)) as mrn,
                                 client.patient_uuid,
                                 client.sex,
                                 client.date_of_birth,

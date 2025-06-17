@@ -364,7 +364,7 @@ BEGIN
                                  left join previous_follow_up previous_all
                                            on latest_all.client_id = previous_all.client_id
                         ),
-     tx_curr_analysis as (select dim_client.mrn as MRN,
+     tx_curr_analysis as (select CAST(dim_client.mrn AS CHAR(20)) as MRN,
                                  dim_client.uan as UAN,
                                  dim_client.patient_name,
                                  dim_client.date_of_birth,

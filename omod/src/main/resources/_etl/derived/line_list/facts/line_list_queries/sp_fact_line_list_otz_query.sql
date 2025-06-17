@@ -168,7 +168,7 @@ BEGIN
            latest_follow_up.weight                                                             AS Weight,
            dim_client.phone_no                                                                 AS PNumber,
            dim_client.mobile_no                                                                AS Mobile,
-           dim_client.mrn                                                                      AS MRN,
+           CAST(dim_client.mrn AS CHAR(20))                                                    AS MRN,
            dim_client.uan                                                                      AS UART,
            latest_follow_up.date_hiv_confirmed                                                 AS confirmeddate,
            latest_follow_up.date_hiv_confirmed                                                 AS `confirmeddate EC.`,

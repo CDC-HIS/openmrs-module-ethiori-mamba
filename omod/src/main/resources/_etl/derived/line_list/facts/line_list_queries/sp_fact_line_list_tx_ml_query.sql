@@ -104,7 +104,7 @@ BEGIN
                                     TIMESTAMPDIFF(YEAR, client.date_of_birth, REPORT_END_DATE)        as Age,
                                     patient_name,
                                     patient_uuid,
-                                    mrn,
+                                    CAST(client.mrn AS CHAR(20)) as mrn,
                                     uan,
                                     mobile_no,
                                     kebele,

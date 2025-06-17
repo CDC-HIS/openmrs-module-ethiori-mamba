@@ -123,7 +123,7 @@ BEGIN
          vl_performed_date as (select * from tmp_vl_performed_date where row_num = 1)
     select client.patient_name                                                        as 'Patient Name',
            patient_uuid                             as `UUID`,
-           MRN,
+           CAST(mrn AS CHAR(20)) as mrn,
            UAN,
            TIMESTAMPDIFF(YEAR, date_of_birth, art_start_date)                         as 'Age at Enrollment',
            TIMESTAMPDIFF(YEAR, date_of_birth, COALESCE(REPORT_END_DATE,CURDATE()))                        as 'Current Age',

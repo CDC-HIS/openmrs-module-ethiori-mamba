@@ -521,7 +521,7 @@ BEGIN
                                       left join prev_screening on prev_screening.client_id = latest_follow_up.client_id)
     select patient_name                           `Patient Name`,
            patient_uuid                           `UUID`,
-           mrn,
+           CAST(mrn AS CHAR(20)) as mrn,
            uan,
            mobile_no                           as `Mobile No`,
            phone_no                            as `Home Telephone No`,

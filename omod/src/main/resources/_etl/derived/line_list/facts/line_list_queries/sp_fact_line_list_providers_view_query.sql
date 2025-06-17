@@ -83,7 +83,7 @@ WITH FollowUp as (select follow_up.encounter_id,
                                         ) THEN 'Green'
                                 ELSE 'Yellow'
                                 END                                      AS Adrress,
-                            mrn,
+                            CAST(mrn AS CHAR(20)) as mrn,
                             uan
                      from mamba_dim_client
                      where mrn is not null),
