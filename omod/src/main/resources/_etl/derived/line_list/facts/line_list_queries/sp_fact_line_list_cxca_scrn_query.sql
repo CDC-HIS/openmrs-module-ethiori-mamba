@@ -188,7 +188,14 @@ BEGIN
 # Feedback from the other HF
            date_client_served_in_the_referred_                 as `Date Client Served in the referred HF`,
            date_client_served_in_the_referred_                 as `Date Client Served in the referred HF EC.`,
-           follow_up_status                                    as `Latest Follow-Up Status`,
+           CASE follow_up_status
+               WHEN 'Alive' THEN 'Alive on ART'
+               WHEN 'Restart medication' THEN 'Restart'
+               WHEN 'Transferred out' THEN 'TO'
+               WHEN 'Stop all' THEN 'Stop'
+               WHEN 'Loss to follow-up (LTFU)' THEN 'Lost'
+               WHEN 'Ran away' THEN 'Drop'
+               END                                    as `Latest Follow-Up Status`,
            regimen                                             as `Latest Regimen`,
            dose_days                                           as `Latest ARV Dose Days`,
            adherence                                              `Latest Adherence`,
