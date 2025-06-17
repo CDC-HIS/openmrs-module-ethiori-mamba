@@ -63,11 +63,11 @@ BEGIN
          tx_curr as (select *
                      from tmp_latest_follow_up
                      where row_num = 1
-                         and ((prep_dose_end_date >= ? or
+                         and ((prep_dose_end_date >= REPORT_END_DATE or
                                DATE_ADD(treatment_start_date, INTERVAL dose_dispensed DAY) >=
-                               ?) -- Param 6 @end_date, Param 7 @end_date
+                               REPORT_END_DATE) -- Param 6 @end_date, Param 7 @end_date
                                )
-                        or (follow_up_date_followup_ BETWEEN ? AND ? AND
+                        or (follow_up_date_followup_ BETWEEN REPORT_START_DATE AND REPORT_END_DATE AND
                             (final_hiv_test_result = 'Positive' OR follow_up_status = 'Restart medication' OR follow_up_status = 'Alive')) -- Param 8 @end_date, Param 9 @end_date
                          and prep_started = 'Yes')
 -- Number of individuals receiving Pre-Exposure Prophylaxis

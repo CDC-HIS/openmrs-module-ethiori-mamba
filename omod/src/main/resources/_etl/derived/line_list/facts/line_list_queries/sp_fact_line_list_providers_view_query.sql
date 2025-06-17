@@ -1,5 +1,4 @@
-DELIMITER
-//
+DELIMITER //
 DROP PROCEDURE IF EXISTS sp_fact_line_list_providers_view_query;
 CREATE PROCEDURE sp_fact_line_list_providers_view_query(IN TYPE_OF_CLIENT VARCHAR (50), IN START_DATE DATE,
                                                         IN END_DATE DATE,
@@ -873,6 +872,5 @@ where (
     )
 ORDER BY tmp_address.PatientName;
 
-END
-//
+END //
 DELIMITER ;
