@@ -32,6 +32,7 @@ BEGIN
                              date_viral_load_results_received    AS viral_load_perform_date,
                              viral_load_test_status,
                              hiv_viral_load                      AS viral_load_count,
+                             hiv_viral_load_status,
                              viral_load_test_indication,
                              treatment_end_date,
                              weight_text_                        AS Weight,
@@ -128,7 +129,7 @@ BEGIN
                                           viral_load_count,
                                           ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY viral_load_perform_date DESC , FollowUp.encounter_id DESC) AS row_num
                                    from FollowUp
-                                   where viral_load_test_status = 'Completed'
+                                   where hiv_viral_load_status = 'Completed'
                                      and viral_load_perform_date <= COALESCE(REPORT_END_DATE, CURDATE())),
          vl_performed_date as (select *
                                from tmp_vl_performed_date
