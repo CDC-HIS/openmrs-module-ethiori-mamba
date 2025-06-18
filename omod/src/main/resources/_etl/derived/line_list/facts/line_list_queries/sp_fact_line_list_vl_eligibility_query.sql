@@ -396,7 +396,7 @@ BEGIN
 
                when t.vl_status_final = 'N/A' THEN 'Not Applicable'
                when t.eligiblityDate <= COALESCE(REPORT_END_DATE,CURDATE()) THEN 'Eligible for Viral Load'
-               when t.eligiblityDate > COALESCE(REPORT_END_DATE,CURDATE()) THEN  'Not Applicable' -- 'Viral Load Done'
+               when t.eligiblityDate > COALESCE(REPORT_END_DATE,CURDATE()) THEN  'Viral Load Done' -- 'Viral Load Done'
                when t.art_start_date is NULL and t.follow_up_status is null THEN 'Not Started ART'
                end                                          as `Viral Load Eligibility Status`
     from vl_eligibility t
