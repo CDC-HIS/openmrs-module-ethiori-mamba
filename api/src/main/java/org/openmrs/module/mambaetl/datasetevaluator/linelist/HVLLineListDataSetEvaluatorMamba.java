@@ -39,6 +39,9 @@ public class HVLLineListDataSetEvaluatorMamba implements DataSetEvaluator {
 		SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
 		ResultSetMapper resultSetMapper = new ResultSetMapper();
 		ValidateDates(data, hvlLineListDataSetDefinitionMamba.getStartDate(), hvlLineListDataSetDefinitionMamba.getEndDate());
+		if(!data.getRows().isEmpty()){
+			return data;
+		}
 		try (Connection connection = DataSetEvaluatorHelper.getDataSource().getConnection()) {
 			connection.setAutoCommit(false);
 

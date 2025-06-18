@@ -40,7 +40,9 @@ public class ReTestLineListDatasetEvaluatorMamba implements DataSetEvaluator {
         ResultSetMapper resultSetMapper = new ResultSetMapper();
 
         ValidateDates(data, dataSetDefinitionMamba.getStartDate(), dataSetDefinitionMamba.getEndDate());
-
+        if(!data.getRows().isEmpty()){
+            return data;
+        }
         try (Connection connection = DataSetEvaluatorHelper.getDataSource().getConnection()) { // Use static method from helper
             connection.setAutoCommit(false); // Ensure consistency across multiple queries
 
