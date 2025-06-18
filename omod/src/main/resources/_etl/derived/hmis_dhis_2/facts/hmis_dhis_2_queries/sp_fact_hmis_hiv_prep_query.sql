@@ -13,17 +13,23 @@ BEGIN
                                 screening.sex_worker,
                                 screening.prep_started,
                                 screening.type_of_client,
-                                screening.treatment_start_date,
-                                screening.do_you_have_an_hiv_positive_partner,
-                                screening.antiretroviral_art_dispensed_dose_i as dose_dispensed,
+                                screening_1.treatment_start_date,
+                                screening_1.do_you_have_an_hiv_positive_partner,
+                                screening_1.antiretroviral_art_dispensed_dose_in_days as dose_dispensed,
                                 follow_up.follow_up_status,
-                                follow_up.pregnancy_status                    as f_pregnancy_status,
-                                follow_up.prep_dose_end_date,
-                                follow_up.follow_up_date_followup_,
-                                final_hiv_test_result
+                                follow_up.pregnancy_status                            as f_pregnancy_status,
+                                follow_up_1.prep_dose_end_date,
+                                follow_up_1.followup_date_followup_1,
+                                screening.screening_date,
+                                final_hiv_test_result,
+                                currently_breastfeeding_child
                          FROM mamba_flat_encounter_pre_exposure_scree screening
+                                  left join mamba_flat_encounter_pre_exposure_scree_1 screening_1
+                                            on screening.encounter_id = screening_1.encounter_id
                                   LEFT JOIN mamba_flat_encounter_pre_exposure_follo follow_up
-                                            on screening.client_id = follow_up.client_id),
+                                            on screening.client_id = follow_up.client_id
+                                  LEFT JOIN mamba_flat_encounter_pre_exposure_follo_1 follow_up_1
+                                            on follow_up.encounter_id = follow_up_1.encounter_id),
          tmp_latest_follow_up as (select prep_dose_end_date,
                                          prep_started,
                                          date_of_birth,
@@ -35,22 +41,22 @@ BEGIN
                                          final_hiv_test_result,
                                          type_of_client,
                                          client.client_id,
-                                         follow_up_date_followup_,
+                                         followup_date_followup_1,
                                          dose_dispensed,
                                          ROW_NUMBER() OVER (
                                              PARTITION BY PreExposure.client_id
                                              ORDER BY
                                                  CASE
-                                                     WHEN PreExposure.follow_up_date_followup_ IS NULL THEN 1
+                                                     WHEN PreExposure.followup_date_followup_1 IS NULL THEN 1
                                                      ELSE 0
                                                      END,
-                                                 PreExposure.follow_up_date_followup_ DESC,
+                                                 PreExposure.followup_date_followup_1 DESC,
                                                  PreExposure.encounter_id DESC
                                              ) AS row_num
                                   from PreExposure
                                            join mamba_dim_client client on PreExposure.client_id = client.client_id
-                                  where (follow_up_date_followup_ <= REPORT_END_DATE
-                                      or follow_up_date_followup_ is null)
+                                  where (followup_date_followup_1 <= REPORT_END_DATE
+                                      or followup_date_followup_1 is null)
                                     AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15),
          tx_new as (select *
                     from tmp_latest_follow_up
@@ -67,7 +73,7 @@ BEGIN
                                DATE_ADD(treatment_start_date, INTERVAL dose_dispensed DAY) >=
                                REPORT_END_DATE) -- Param 6 @end_date, Param 7 @end_date
                                )
-                        or (follow_up_date_followup_ BETWEEN REPORT_START_DATE AND REPORT_END_DATE AND
+                        or (followup_date_followup_1 BETWEEN REPORT_START_DATE AND REPORT_END_DATE AND
                             (final_hiv_test_result = 'Positive' OR follow_up_status = 'Restart medication' OR follow_up_status = 'Alive')) -- Param 8 @end_date, Param 9 @end_date
                          and prep_started = 'Yes')
 -- Number of individuals receiving Pre-Exposure Prophylaxis
