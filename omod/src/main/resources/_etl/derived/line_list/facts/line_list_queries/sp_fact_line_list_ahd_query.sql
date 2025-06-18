@@ -111,7 +111,7 @@ BEGIN
                                   FROM FollowUp
                                   WHERE follow_up_status IS NOT NULL
                                     AND art_start_date IS NOT NULL
-                                    AND follow_up_date <= COALESCE(REPORT_END_DATE,CURDATE())),
+                                    AND follow_up_date <= COALESCE(REPORT_END_DATE, CURDATE())),
          latest_follow_up AS (select *
                               from tmp_latest_follow_up
                               where row_num = 1
@@ -129,41 +129,45 @@ BEGIN
                                           ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY viral_load_perform_date DESC , FollowUp.encounter_id DESC) AS row_num
                                    from FollowUp
                                    where viral_load_test_status = 'Completed'
-                                     and (
-                                       (viral_load_test_indication = 'Routine viral load test indication'
-                                           and routine_viral_load_test_indication in
-                                               ('First viral load test at 6 months or longer post ART',
-                                                'Second viral load test at 12 months post ART',
-                                                'Annual viral load test',
-                                                'First viral load test at 3 months or longer post ART',
-                                                'At the first antenatal care visit',
-                                                'At 34-36 weeks of gestation'
-                                                    'Three months after delivery',
-                                                'Six months after the first viral load test at postnatal period',
-                                                'Every six months until MTCT ends'))
-                                           OR (viral_load_test_indication = 'Targeted viral load test indication'
-                                           and targeted_viral_load_test_indication in
-                                               ('Suspected Antiretroviral failure')
-                                           and (viral_load_count > 50 or viral_load_test_status in ('Uncontrolled',
-                                                                                                    'HIV infection with high viral load',
-                                                                                                    'Low-level viremia'))
-                                           )
+                                     and viral_load_perform_date <= COALESCE(REPORT_END_DATE, CURDATE())),
+         vl_performed_date as (select *
+                               from tmp_vl_performed_date
+                               where row_num = 1
+                                 and (
+                                   (viral_load_test_indication = 'Routine viral load test indication'
+                                       and routine_viral_load_test_indication in
+                                           ('First viral load test at 6 months or longer post ART',
+                                            'Second viral load test at 12 months post ART',
+                                            'Annual viral load test',
+                                            'First viral load test at 3 months or longer post ART',
+                                            'At the first antenatal care visit',
+                                            'At 34-36 weeks of gestation'
+                                                'Three months after delivery',
+                                            'Six months after the first viral load test at postnatal period',
+                                            'Every six months until MTCT ends'))
+                                       OR (viral_load_test_indication = 'Targeted viral load test indication'
+                                       and targeted_viral_load_test_indication in
+                                           ('Suspected Antiretroviral failure')
+                                       and (viral_load_count > 50 or viral_load_test_status in ('Uncontrolled',
+                                                                                                'HIV infection with high viral load',
+                                                                                                'Low-level viremia'))
                                        )
-                                     and viral_load_perform_date <= COALESCE(REPORT_END_DATE,CURDATE())),
-         vl_performed_date as (select * from tmp_vl_performed_date where row_num = 1),
+                                   )),
 
          tmp_tpt_start AS (SELECT client_id,
                                   tpt_start_date,
                                   ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY tpt_start_date DESC, encounter_id DESC) AS row_num
                            FROM FollowUp
-                           WHERE tpt_start_date IS NOT NULL AND tpt_start_date <= COALESCE(REPORT_END_DATE,CURDATE())),
+                           WHERE tpt_start_date IS NOT NULL
+                             AND tpt_start_date <= COALESCE(REPORT_END_DATE, CURDATE())),
          tpt_start as (select * from tmp_tpt_start where row_num = 1),
 
          tmp_tpt_completed AS (SELECT client_id,
                                       tpt_completed_date,
                                       ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY tpt_completed_date DESC, encounter_id DESC) AS row_num
                                FROM FollowUp
-                               WHERE tpt_completed_date IS NOT NULL AND tpt_completed_date <= COALESCE(REPORT_END_DATE,CURDATE())),
+                               WHERE tpt_completed_date IS NOT NULL
+                                 AND tpt_completed_date <= COALESCE(REPORT_END_DATE, CURDATE())),
          tpt_completed as (select *
                            from tmp_tpt_completed
                            where row_num = 1),
@@ -201,7 +205,7 @@ BEGIN
                                            ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
                                     FROM FollowUp
                                     WHERE DiagnosticTest IS NOT NULL
-                                      AND follow_up_date <= COALESCE(REPORT_END_DATE,CURDATE())),
+                                      AND follow_up_date <= COALESCE(REPORT_END_DATE, CURDATE())),
          tb_diagnostic_test as (select * from tmp_tb_diagnostic_test where row_num = 1),
 
          tmp_tb_diagnostic_result AS (SELECT client_id,
@@ -209,7 +213,7 @@ BEGIN
                                              ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
                                       FROM FollowUp
                                       WHERE DiagnosticTestResult IS NOT NULL
-                                        AND follow_up_date <= COALESCE(REPORT_END_DATE,CURDATE())),
+                                        AND follow_up_date <= COALESCE(REPORT_END_DATE, CURDATE())),
          tb_diagnostic_result as (select * from tmp_tb_diagnostic_result where row_num = 1),
 
          tmp_tb_LF_LAM_result AS (SELECT client_id,
@@ -217,14 +221,14 @@ BEGIN
                                          ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
                                   FROM FollowUp
                                   WHERE LF_LAM_result IS NOT NULL
-                                    AND follow_up_date <= COALESCE(REPORT_END_DATE,CURDATE())),
+                                    AND follow_up_date <= COALESCE(REPORT_END_DATE, CURDATE())),
          tb_LF_LAM_result as (select * from tmp_tb_LF_LAM_result where row_num = 1),
          tmp_tb_Gene_Xpert_result AS (SELECT client_id,
                                              Gene_Xpert_result                                                                          AS Gene_Xpert_result,
                                              ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
                                       FROM FollowUp
                                       WHERE Gene_Xpert_result IS NOT NULL
-                                        AND follow_up_date <= COALESCE(REPORT_END_DATE,CURDATE())),
+                                        AND follow_up_date <= COALESCE(REPORT_END_DATE, CURDATE())),
          tb_Gene_Xpert_result as (select * from tmp_tb_Gene_Xpert_result where row_num = 1),
 
          tmp_tpt_screened AS (SELECT client_id,
@@ -239,7 +243,7 @@ BEGIN
                                       ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
                                FROM FollowUp
                                WHERE tb_screening IS NOT NULL
-                                 AND follow_up_date <= COALESCE(REPORT_END_DATE,CURDATE())),
+                                 AND follow_up_date <= COALESCE(REPORT_END_DATE, CURDATE())),
          tpt_screening as (select * from tmp_tpt_screening where row_num = 1),
          tmp_tpt_adherence AS (SELECT client_id,
                                       TPT_Adherance                                                                              AS TPT_Adherence,
@@ -251,19 +255,23 @@ BEGIN
                                                  activetbtreatmentStartDate                                                                             AS ActiveTBTreatmentStartDate,
                                                  ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY activetbtreatmentStartDate DESC, encounter_id DESC) AS row_num
                                           FROM FollowUp
-                                          WHERE activetbtreatmentStartDate IS NOT NULL AND activetbtreatmentStartDate <= COALESCE(REPORT_END_DATE,CURDATE())),
+                                          WHERE activetbtreatmentStartDate IS NOT NULL
+                                            AND activetbtreatmentStartDate <= COALESCE(REPORT_END_DATE, CURDATE())),
          ActiveTBTreatmentStarted as (select * from tmp_ActiveTBTreatmentStarted where row_num = 1),
          tmp_TBTreatmentCompleted AS (SELECT client_id,
                                              ActiveTBTreatmentCompletedDate                                                                             AS ActiveTBTreatmentCompletedDate,
                                              ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY ActiveTBTreatmentCompletedDate DESC, encounter_id DESC) AS row_num
                                       FROM FollowUp
-                                      WHERE ActiveTBTreatmentCompletedDate IS NOT NULL AND ActiveTBTreatmentCompletedDate <= COALESCE(REPORT_END_DATE,CURDATE())),
+                                      WHERE ActiveTBTreatmentCompletedDate IS NOT NULL
+                                        AND ActiveTBTreatmentCompletedDate <= COALESCE(REPORT_END_DATE, CURDATE())),
          TBTreatmentCompleted as (select * from tmp_TBTreatmentCompleted where row_num = 1),
          tmp_TBTreatmentDiscontinued AS (SELECT client_id,
                                                 activetbtreatmentDisContinuedDate                                                                             AS ActiveTBTreatmentDiscontinuedDate,
                                                 ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY activetbtreatmentDisContinuedDate DESC, encounter_id DESC) AS row_num
                                          FROM FollowUp
-                                         WHERE activetbtreatmentDisContinuedDate IS NOT NULL AND activetbtreatmentDisContinuedDate <= COALESCE(REPORT_END_DATE,CURDATE())),
+                                         WHERE activetbtreatmentDisContinuedDate IS NOT NULL
+                                           AND
+                                             activetbtreatmentDisContinuedDate <= COALESCE(REPORT_END_DATE, CURDATE())),
          TBTreatmentDiscontinued as (select * from tmp_TBTreatmentDiscontinued where row_num = 1),
          tmp_cca_screened_tmp AS (SELECT DISTINCT client_id,
                                                   CCS_ScreenDoneYes                                                                          AS CCA_Screened,
@@ -271,23 +279,23 @@ BEGIN
                                   FROM FollowUp
                                   where CCS_ScreenDoneYes IS NOT NULL),
          cca_screened AS (select * from tmp_cca_screened_tmp where row_num = 1)
-    SELECT client.patient_name                                        as `Patient Name`,
-           client.patient_uuid                                        as UUID,
-           CAST(client.mrn AS CHAR(20)) as mrn,
+    SELECT client.patient_name                                                             as `Patient Name`,
+           client.patient_uuid                                                             as UUID,
+           CAST(client.mrn AS CHAR(20))                                                    as mrn,
            client.uan,
-           client.sex                                                 as Sex,
-           f_case.Weight                                              as Weight,
-           TIMESTAMPDIFF(YEAR, client.date_of_birth, COALESCE(REPORT_END_DATE,CURDATE())) as Age,
-           f_case.height                                              as Height,
-           f_case.date_hiv_confirmed                                  as HIV_Confirmed_Date,
-           f_case.art_start_date                                      as ARTStartDate,
-           PERIOD_DIFF(date_format(COALESCE(REPORT_END_DATE,CURDATE()), '%Y%m'),
-                       date_format(f_case.art_start_date, '%Y%m'))    as MonthsOnART,
-           f_case.follow_up_date                                      as FollowUpDate,
-           f_case.current_who_hiv_stage                               as WHOStage,
-           f_case.cd4_count                                           as CD4Count,
-           f_case.art_dose_days                                       as ARTDoseDays,
-           f_case.regimen                                             as ARVRegimen,
+           client.sex                                                                      as Sex,
+           f_case.Weight                                                                   as Weight,
+           TIMESTAMPDIFF(YEAR, client.date_of_birth, COALESCE(REPORT_END_DATE, CURDATE())) as Age,
+           f_case.height                                                                   as Height,
+           f_case.date_hiv_confirmed                                                       as HIV_Confirmed_Date,
+           f_case.art_start_date                                                           as ARTStartDate,
+           PERIOD_DIFF(date_format(COALESCE(REPORT_END_DATE, CURDATE()), '%Y%m'),
+                       date_format(f_case.art_start_date, '%Y%m'))                         as MonthsOnART,
+           f_case.follow_up_date                                                           as FollowUpDate,
+           f_case.current_who_hiv_stage                                                    as WHOStage,
+           f_case.cd4_count                                                                as CD4Count,
+           f_case.art_dose_days                                                            as ARTDoseDays,
+           f_case.regimen                                                                  as ARVRegimen,
            CASE f_case.follow_up_status
                WHEN 'Alive' THEN 'Alive on ART'
                WHEN 'Restart medication' THEN 'Restart'
@@ -295,17 +303,17 @@ BEGIN
                WHEN 'Stop all' THEN 'Stop'
                WHEN 'Loss to follow-up (LTFU)' THEN 'Lost'
                WHEN 'Ran away' THEN 'Drop'
-               END AS FollowupStatus,
-           f_case.adherence                                           as AdheranceLevel,
-           f_case.pregnancy_status                                    as IsPregnant,
-           f_case.method_of_family_planning                           as FpMethodUsed,
-           f_case.crag                                                as CrAg,
+               END                                                                         AS FollowupStatus,
+           f_case.adherence                                                                as AdheranceLevel,
+           f_case.pregnancy_status                                                         as IsPregnant,
+           f_case.method_of_family_planning                                                as FpMethodUsed,
+           f_case.crag                                                                     as CrAg,
            COALESCE(
                    f_case.ns_adult,
                    f_case.NSAdolescent,
                    f_case.NSLessthanFive
-           )                                                          as NutritionalStatus,
-           f_case.current_functional_status                           as FunctionalStatus,
+           )                                                                               as NutritionalStatus,
+           f_case.current_functional_status                                                as FunctionalStatus,
            CONCAT_WS(
                    ', ',
                    NULLIF(f_case.No_OI, ''),
@@ -327,27 +335,27 @@ BEGIN
                    NULLIF(f_case.NonHodgkins_Lymphoma, ''),
                    NULLIF(f_case.Genital_Ulcer, ''),
                    NULLIF(f_case.OI_Other, '')
-           ) AS OIs,
-           f_case.Med1                                                as Med1,
-           f_case.Med2                                                as Med2,
-           f_case.cotrimoxazole_prophylaxis_start_dat                 as CotrimoxazoleStartDate,
-           f_case.cotrimoxazole_prophylaxis_stop_date                    cortimoxazole_stop_date,
-           f_case.Fluconazole_Start_Date                              as Fluconazole_Start_Date,
-           f_case.Fluconazole_End_Date                                as Fluconazole_End_Date,
-           tpt_type.TB_ProphylaxisType                                as TPT_Type,
-           tpt_start.tpt_start_date                                   as inhprophylaxis_started_date,
-           tpt_completed.tpt_completed_date                           as InhprophylaxisCompletedDate,
-           tpt_dose_ALT.TPT_DoseDaysNumberALT                         as TPT_DoseDaysNumberALT,
-           tpt_dose_INH.TPT_DoseDaysNumberINH                         as TPT_DoseDaysNumberINH,
+           )                                                                               AS OIs,
+           f_case.Med1                                                                     as Med1,
+           f_case.Med2                                                                     as Med2,
+           f_case.cotrimoxazole_prophylaxis_start_dat                                      as CotrimoxazoleStartDate,
+           f_case.cotrimoxazole_prophylaxis_stop_date                                         cortimoxazole_stop_date,
+           f_case.Fluconazole_Start_Date                                                   as Fluconazole_Start_Date,
+           f_case.Fluconazole_End_Date                                                     as Fluconazole_End_Date,
+           tpt_type.TB_ProphylaxisType                                                     as TPT_Type,
+           tpt_start.tpt_start_date                                                        as inhprophylaxis_started_date,
+           tpt_completed.tpt_completed_date                                                as InhprophylaxisCompletedDate,
+           tpt_dose_ALT.TPT_DoseDaysNumberALT                                              as TPT_DoseDaysNumberALT,
+           tpt_dose_INH.TPT_DoseDaysNumberINH                                              as TPT_DoseDaysNumberINH,
            COALESCE(tpt_dose_INH.TPT_DoseDaysNumberINH,
-                    tpt_dose_ALT.TPT_DoseDaysNumberALT)               AS TPT_Dispensed_Dose,
-           tpt_side_effect.TPT_SideEffect                             as TPT_SideEffect,
-           tpt_adherence.TPT_Adherence                                as TPT_Adherence,
-           tpt_screened.TB_Screened                                   as tb_screened,
-           tpt_screening.TB_Screening_Result                          as tb_screening_result,
-           tb_diagnostic_result.TB_Diagnostic_Result                  as TB_Diagnostic_Result,
-           tb_LF_LAM_result.LF_LAM_result                             as LF_LAM_result,
-           tb_Gene_Xpert_result.Gene_Xpert_result                     as Gene_Xpert_result,
+                    tpt_dose_ALT.TPT_DoseDaysNumberALT)                                    AS TPT_Dispensed_Dose,
+           tpt_side_effect.TPT_SideEffect                                                  as TPT_SideEffect,
+           tpt_adherence.TPT_Adherence                                                     as TPT_Adherence,
+           tpt_screened.TB_Screened                                                        as tb_screened,
+           tpt_screening.TB_Screening_Result                                               as tb_screening_result,
+           tb_diagnostic_result.TB_Diagnostic_Result                                       as TB_Diagnostic_Result,
+           tb_LF_LAM_result.LF_LAM_result                                                  as LF_LAM_result,
+           tb_Gene_Xpert_result.Gene_Xpert_result                                          as Gene_Xpert_result,
            CASE
                WHEN tb_diagnostic_test.TB_Diagnostic_Test = 'Smear microscopy only' AND
                     tb_diagnostic_result.TB_Diagnostic_Result = 'Positive'
@@ -355,7 +363,7 @@ BEGIN
                WHEN tb_diagnostic_test.TB_Diagnostic_Test = 'Smear microscopy only' AND
                     tb_diagnostic_result.TB_Diagnostic_Result = 'Negative'
                    THEN 'Negative'
-               ELSE '' END                                            AS Smear_Microscopy_Result,
+               ELSE '' END                                                                 AS Smear_Microscopy_Result,
            CASE
                WHEN tb_diagnostic_test.TB_Diagnostic_Test = 'Additional test other than Gene-Xpert' AND
                     tb_diagnostic_result.TB_Diagnostic_Result = 'Positive'
@@ -363,33 +371,33 @@ BEGIN
                WHEN tb_diagnostic_test.TB_Diagnostic_Test = 'Additional test other than Gene-Xpert' AND
                     tb_diagnostic_result.TB_Diagnostic_Result = 'Negative'
                    THEN 'Negative'
-               ELSE '' END                                            AS Additional_TB_Diagnostic_Test_Result,
-           f_case.patient_diagnosed_with_active_tuber                 as Active_TB,
-           ActiveTBTreatmentStarted.ActiveTBTreatmentStartDate        as ActiveTBTreatmentStartDate,
-           TBTreatmentCompleted.ActiveTBTreatmentCompletedDate        as ActiveTBTreatmentCompletedDate,
-           TBTreatmentDiscontinued.ActiveTBTreatmentDiscontinuedDate  as ActiveTBTreatmentDiscontinuedDate,
-           vlperfdate.viral_load_perform_date                         as Viral_Load_Perform_Date,
-           vlperfdate.viral_load_test_status                          as Viral_Load_Status,
-           vlperfdate.viral_load_count                                as Viral_Load_count,
-           vlperfdate.viral_load_sent_date                            as VL_Sent_Date,
-           vlperfdate.viral_load_perform_date                         as Viral_Load_Ref_Date,
-           cca_screened.CCA_Screened                                  as CCA_Screened,
-           f_case.dsd_category                                        as DSD_Category,
+               ELSE '' END                                                                 AS Additional_TB_Diagnostic_Test_Result,
+           f_case.patient_diagnosed_with_active_tuber                                      as Active_TB,
+           ActiveTBTreatmentStarted.ActiveTBTreatmentStartDate                             as ActiveTBTreatmentStartDate,
+           TBTreatmentCompleted.ActiveTBTreatmentCompletedDate                             as ActiveTBTreatmentCompletedDate,
+           TBTreatmentDiscontinued.ActiveTBTreatmentDiscontinuedDate                       as ActiveTBTreatmentDiscontinuedDate,
+           vlperfdate.viral_load_perform_date                                              as Viral_Load_Perform_Date,
+           vlperfdate.viral_load_test_status                                               as Viral_Load_Status,
+           vlperfdate.viral_load_count                                                     as Viral_Load_count,
+           vlperfdate.viral_load_sent_date                                                 as VL_Sent_Date,
+           vlperfdate.viral_load_perform_date                                              as Viral_Load_Ref_Date,
+           cca_screened.CCA_Screened                                                       as CCA_Screened,
+           f_case.dsd_category                                                             as DSD_Category,
            CASE
-               WHEN TIMESTAMPDIFF(YEAR, client.date_of_birth, COALESCE(REPORT_END_DATE,CURDATE())) < 5 THEN 'Yes'
-               WHEN TIMESTAMPDIFF(YEAR, client.date_of_birth, COALESCE(REPORT_END_DATE,CURDATE())) >= 5 AND
+               WHEN TIMESTAMPDIFF(YEAR, client.date_of_birth, COALESCE(REPORT_END_DATE, CURDATE())) < 5 THEN 'Yes'
+               WHEN TIMESTAMPDIFF(YEAR, client.date_of_birth, COALESCE(REPORT_END_DATE, CURDATE())) >= 5 AND
                     f_case.cd4_count IS NOT NULL AND
                     f_case.cd4_count < 200 THEN 'Yes'
-               WHEN TIMESTAMPDIFF(YEAR, client.date_of_birth, COALESCE(REPORT_END_DATE,CURDATE())) >= 5 AND
+               WHEN TIMESTAMPDIFF(YEAR, client.date_of_birth, COALESCE(REPORT_END_DATE, CURDATE())) >= 5 AND
                     f_case.current_who_hiv_stage IS NOT NULL AND
                     (f_case.current_who_hiv_stage = 'WHO stage 3 adult' Or
                      f_case.current_who_hiv_stage = 'WHO stage 3 peds' Or
                      f_case.current_who_hiv_stage = 'WHO stage 4 peds') THEN 'Yes'
-               WHEN (TIMESTAMPDIFF(YEAR, client.date_of_birth, COALESCE(REPORT_END_DATE,CURDATE())) >= 5 AND
+               WHEN (TIMESTAMPDIFF(YEAR, client.date_of_birth, COALESCE(REPORT_END_DATE, CURDATE())) >= 5 AND
                      f_case.current_who_hiv_stage IS NOT NULL AND
                      f_case.current_who_hiv_stage = 'WHO stage 4 adult') THEN 'Yes'
-               ELSE 'No' END                                          as AHD,
-           f_case.follow_up_status                                    as current_status
+               ELSE 'No' END                                                               as AHD,
+           f_case.follow_up_status                                                         as current_status
     FROM FollowUp AS f_case
              INNER JOIN latest_follow_up ON f_case.encounter_id = latest_follow_up.encounter_id
              LEFT JOIN mamba_dim_client client on latest_follow_up.client_id = client.client_id
