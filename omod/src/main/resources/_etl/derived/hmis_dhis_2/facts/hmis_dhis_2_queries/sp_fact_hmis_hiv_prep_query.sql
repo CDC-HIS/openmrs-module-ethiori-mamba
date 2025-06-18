@@ -228,7 +228,8 @@ BEGIN
            COUNT(*)             as Value
     FROM tx_new
     where do_you_have_an_hiv_positive_partner = 'Yes'
-       or sex_worker = 'Yes'
+       or sex_worker = 'Yes' OR (do_you_have_an_hiv_positive_partner = 'No'
+        and sex_worker = 'No')
 -- Discordant Couple
     UNION ALL
     SELECT 'HIV_PrEP.1.2. 1'   AS S_NO,
@@ -243,7 +244,8 @@ BEGIN
            'Female sex worker[FSW]' as Activity,
            COUNT(*)                 as Value
     FROM tx_new
-    WHERE sex_worker = 'Yes'
+    WHERE sex_worker = 'Yes' OR (do_you_have_an_hiv_positive_partner = 'No'
+        and sex_worker = 'No')
 -- HIV_PrEP_CURR.1.
     UNION ALL
     SELECT 'HIV_PrEP_CURR.1'                                                                       AS S_NO,
@@ -391,7 +393,8 @@ BEGIN
            COUNT(*)             as Value
     FROM tx_curr
     WHERE do_you_have_an_hiv_positive_partner = 'Yes'
-       OR sex_worker = 'Yes'
+       OR sex_worker = 'Yes' OR (do_you_have_an_hiv_positive_partner = 'No'
+        and sex_worker = 'No')
 -- Discordant Couple
     UNION ALL
     SELECT 'HIV_PrEP_CURR.2. 1' AS S_NO,
@@ -406,7 +409,8 @@ BEGIN
            'Female sex worker[FSW]' as Activity,
            COUNT(*)                 as Value
     FROM tx_curr
-    WHERE sex_worker = 'Yes';
+    WHERE sex_worker = 'Yes' OR (do_you_have_an_hiv_positive_partner = 'No'
+        and sex_worker = 'No');
 END //
 
 DELIMITER ;
