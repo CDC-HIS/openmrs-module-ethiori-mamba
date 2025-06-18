@@ -44,7 +44,7 @@ BEGIN
            COALESCE(test_3_result, test_2_result, test_1_result)                       `Previous result`,
            date_enrolled_in_care                                                    as `Date Started ART`
     from re_test
-             join mamba_dim_client client on re_test.client_id = client.client_id
+             join mamba_dim_client client on re_test.client_id = client.client_id;
 
 
 END //
