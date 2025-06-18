@@ -65,53 +65,41 @@ BEGIN
                                      ON follow_up.encounter_id = follow_up_3.encounter_id
                            LEFT JOIN mamba_flat_encounter_follow_up_4 follow_up_4
                                      ON follow_up.encounter_id = follow_up_4.encounter_id),
-     tmp_latest_follow_up as (SELECT client_id,
-                                     follow_up_date                                                                             ,
-                                     encounter_id,
-                                     follow_up_status,
-                                     tb_screening_date,
-                                     art_start_date,
-                                     tb_screened,
-                                     screening_result,
-                                     lf_lam_result,
-                                     patient_diagnosed_with_active_tuber,
-                                     active_tb_diagnosed_date,
-                                     tb_treatment_start_date,
-                                     tpt_start_date,
-                                     tpt_completed_date,
-                                     ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
-                              FROM FollowUp
-                              WHERE follow_up_status IS NOT NULL
-                                AND art_start_date IS NOT NULL
-                              ),
-     tpt_started as (
-         select tmp_latest_follow_up.*,
-                sex,
-                date_of_birth,
-                (SELECT fine_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as fine_age_group,
-                (SELECT coarse_age_group from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as coarse_age_group
-         from tmp_latest_follow_up
-                  join mamba_dim_client client on client.client_id=tmp_latest_follow_up.client_id
-         where  row_num=1
-           and tpt_start_date BETWEEN DATE_ADD(?, INTERVAL -6 MONTH) AND ?
-     ) ,
-     tmp_tpt_completed as (
-         select tmp_latest_follow_up.*,
-                sex,
-                date_of_birth,
-                (SELECT datim_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as fine_age_group,
-                (SELECT normal_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as coarse_age_group
-         from tmp_latest_follow_up
-                  join mamba_dim_client client on client.client_id=tmp_latest_follow_up.client_id
-         where follow_up_status in (''Alive'',''Restart medication'')
-           and row_num=1
-           and tpt_completed_date BETWEEN DATE_ADD(?, INTERVAL -6 MONTH) AND ?
-     ) ,
-     tpt_completed as (  select tmp_tpt_completed.* from tmp_tpt_completed
-                                  join tpt_started on tpt_started.client_id=tmp_tpt_completed.client_id
-                                  ),
-    new_art_tpt as ( select * from tpt_completed where art_start_date BETWEEN DATE_ADD(?, INTERVAL -6 MONTH) AND ?),
-    prev_art_tpt as ( select * from tpt_completed where art_start_date < DATE_ADD(?, INTERVAL -6 MONTH)) ';
+     tmp_tpt_start as (select client_id,
+                              tpt_start_date,
+                              art_start_date,
+                              ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY tpt_start_date DESC, FollowUp.encounter_id DESC) AS row_num
+                       from FollowUp
+                       where tpt_start_date is not null),
+     tpt_started as (select tmp_tpt_start.*,
+                            sex,
+                            date_of_birth,
+                            (SELECT datim_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as fine_age_group,
+                            (SELECT normal_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as coarse_age_group
+                     from tmp_tpt_start
+                              join mamba_dim_client client on client.client_id=tmp_tpt_start.client_id
+                     where row_num=1
+                       and tpt_start_date BETWEEN DATE_ADD(?, INTERVAL -6 MONTH) AND ?),
+
+     tmp_tpt_complete as (select client_id,
+                                 tpt_completed_date,
+                              art_start_date,
+                              ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY tpt_completed_date DESC, FollowUp.encounter_id DESC) AS row_num
+                       from FollowUp
+                       where tpt_completed_date is not null),
+     tpt_completed as (select tmp_tpt_complete.*,
+                              client.sex,
+                              client.date_of_birth,
+                            (SELECT datim_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,client.date_of_birth,?)=age) as fine_age_group,
+                            (SELECT normal_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,client.date_of_birth,?)=age) as coarse_age_group
+                     from tmp_tpt_complete
+                              join mamba_dim_client client on client.client_id=tmp_tpt_complete.client_id
+                              join tpt_started on tpt_started.client_id=tmp_tpt_complete.client_id
+                     where tmp_tpt_complete.row_num=1
+                       and tpt_completed_date BETWEEN DATE_ADD(?, INTERVAL -6 MONTH) AND ?),
+
+     new_art_tpt as ( select * from tpt_completed where art_start_date BETWEEN DATE_ADD(?, INTERVAL -6 MONTH) AND ?),
+     prev_art_tpt as ( select * from tpt_completed where art_start_date < DATE_ADD(?, INTERVAL -6 MONTH)) ';
     IF REPORT_TYPE = 'TOTAL' THEN
         SET group_query = 'SELECT COUNT(*) AS NUMERATOR FROM tpt_completed';
     ELSEIF REPORT_TYPE = 'DEBUG' THEN
