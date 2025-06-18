@@ -120,7 +120,7 @@ BEGIN
                                              FollowUp.eac_3,
                                              ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY FollowUp.viral_load_performed_date DESC , FollowUp.encounter_id DESC ) AS row_num
                                       from FollowUp
-                                               left join vl_performed_date on FollowUp.client_id = vl_performed_date.client_id
+                                               join vl_performed_date on FollowUp.client_id = vl_performed_date.client_id
                                       where FollowUp.hiv_viral_load_status = 'Completed'
                                         and (
                                           (FollowUp.viral_load_test_indication = 'Routine viral load test indication'
@@ -166,7 +166,7 @@ BEGIN
                         CAST(client.mrn AS CHAR(20)) as mrn,
                         client.uan,
                         TIMESTAMPDIFF(YEAR, client.date_of_birth, COALESCE(REPORT_END_DATE, CURDATE())) AS age,
-                        Sex,
+                        sex,
                         f_case.weight,
                         f_case.hiv_confirmed_date                                                       as `HIV Confirmed Date`,
                         f_case.hiv_confirmed_date                                                       as `HIV Confirmed Date EC.`,
