@@ -43,7 +43,9 @@ public class CXCAEligibilityLineListDataSetEvaluator implements DataSetEvaluator
 		ResultSetMapper resultSetMapper = new ResultSetMapper();
 
 		ValidateDates(data, cxcaEligibilityListDatasetDefinition.getStartDate(), cxcaEligibilityListDatasetDefinition.getEndDate());
-
+		if(!data.getRows().isEmpty()){
+			return data;
+		}
 		try (Connection connection = DataSetEvaluatorHelper.getDataSource().getConnection()) {
 			connection.setAutoCommit(false);
 

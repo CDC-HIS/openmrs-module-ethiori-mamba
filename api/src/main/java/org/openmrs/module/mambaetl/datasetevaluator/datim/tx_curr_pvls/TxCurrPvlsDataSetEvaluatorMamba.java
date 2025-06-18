@@ -40,7 +40,6 @@ public class TxCurrPvlsDataSetEvaluatorMamba implements DataSetEvaluator {
 
         ResultSetMapper resultSetMapper = new ResultSetMapper();
 
-
         try (Connection connection = DataSetEvaluatorHelper.getDataSource().getConnection()) { // Use static method from helper
             connection.setAutoCommit(false); // Ensure consistency across multiple queries
 

@@ -41,6 +41,9 @@ public class TBPrevNumeratorEvaluatorMamba implements DataSetEvaluator {
         TBPrevNumeratorDataSetDefinitionMamba dataSetDefinitionMamba = (TBPrevNumeratorDataSetDefinitionMamba) dataSetDefinition;
         SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
         ValidateDates(data, dataSetDefinitionMamba.getStartDate(), dataSetDefinitionMamba.getEndDate());
+        if(!data.getRows().isEmpty()){
+            return data;
+        }
         try (Connection connection = DataSetEvaluatorHelper.getDataSource().getConnection()) {
             connection.setAutoCommit(false);
 

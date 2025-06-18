@@ -44,7 +44,9 @@ public class TxCurrAnalysisLineListDataSetEvaluatorMamba implements DataSetEvalu
         ResultSetMapper resultSetMapper = new ResultSetMapper();
 
         ValidateDates(data, txCurrAnalysisLineListDataSetDefinitionMamba.getStartDate(), txCurrAnalysisLineListDataSetDefinitionMamba.getEndDate());
-
+        if(!data.getRows().isEmpty()){
+            return data;
+        }
         try (Connection connection = DataSetEvaluatorHelper.getDataSource().getConnection()) {
             connection.setAutoCommit(false);
 

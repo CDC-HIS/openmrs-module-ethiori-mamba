@@ -43,7 +43,9 @@ public class TPTLineListDataSetEvaluatorMamba implements DataSetEvaluator {
         ResultSetMapper resultSetMapper = new ResultSetMapper();
 
         ValidateDates(data, tptLineListDataSetDefinitionMamba.getStartDate(), tptLineListDataSetDefinitionMamba.getEndDate());
-
+        if(!data.getRows().isEmpty()){
+            return data;
+        }
         try (Connection connection = DataSetEvaluatorHelper.getDataSource().getConnection()) {
             connection.setAutoCommit(false);
 

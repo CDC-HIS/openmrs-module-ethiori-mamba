@@ -42,7 +42,9 @@ public class ProvidersViewListDatasetEvaluatorMamba implements DataSetEvaluator 
         ResultSetMapper resultSetMapper = new ResultSetMapper();
 
         ValidateDates(data, dataSetDefinitionMamba.getStartDate(), dataSetDefinitionMamba.getEndDate());
-
+        if(!data.getRows().isEmpty()){
+            return data;
+        }
         try (Connection connection = DataSetEvaluatorHelper.getDataSource().getConnection()) {
             connection.setAutoCommit(false);
 
