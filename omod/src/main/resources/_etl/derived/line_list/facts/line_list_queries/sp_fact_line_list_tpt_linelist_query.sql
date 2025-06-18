@@ -72,17 +72,14 @@ BEGIN
                                   tpt_start_date,
                                   ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY FollowUp.tpt_start_date DESC , FollowUp.encounter_id DESC ) AS row_num
                            from FollowUp
-                           where tpt_start_date is not null
-                             and tpt_start_date between ? and ?
-                             and followup_date <= ?),
+                           where tpt_start_date between ? and ?
+                            ),
          tmp_tpt_completed as (select encounter_id,
                                       client_id,
                                       tpt_completed_date,
                                       ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY FollowUp.tpt_completed_date DESC , FollowUp.encounter_id DESC ) AS row_num
                                from FollowUp
-                               where tpt_completed_date is not null
-                                 and tpt_completed_date between ? and ?
-                              --   and followup_date <= ?
+                               where tpt_completed_date between ? and ?
                             ),
          -- CPT
          tmp_cpt_start as (select encounter_id,
@@ -90,17 +87,15 @@ BEGIN
                                   cpt_start_date,
                                   ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY FollowUp.cpt_start_date DESC , FollowUp.encounter_id DESC ) AS row_num
                            from FollowUp
-                           where cpt_start_date is not null
-                             and cpt_start_date between ? and ?
-                             and followup_date <= ?),
+                           where cpt_start_date between ? and ?
+                             ),
          tmp_cpt_completed as (select encounter_id,
                                       client_id,
                                       cpt_stop_date,
                                       ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY FollowUp.cpt_stop_date DESC , FollowUp.encounter_id DESC ) AS row_num
                                from FollowUp
-                               where cpt_stop_date is not null
-                                 and cpt_stop_date between ? and ?
-                                 and followup_date <= ?),
+                               where cpt_stop_date between ? and ?
+                             ),
 
          -- FPT
          tmp_fpt_start as (select encounter_id,
@@ -108,17 +103,15 @@ BEGIN
                                   fpt_start_date,
                                   ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY FollowUp.fpt_start_date DESC , FollowUp.encounter_id DESC ) AS row_num
                            from FollowUp
-                           where fpt_start_date is not null
-                             and fpt_start_date between ? and ?
-                             and followup_date <= ?),
+                           where fpt_start_date between ? and ?
+                             ),
          tmp_fpt_completed as (select encounter_id,
                                       client_id,
                                       fpt_stop_date,
                                       ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY FollowUp.fpt_stop_date DESC , FollowUp.encounter_id DESC ) AS row_num
                                from FollowUp
-                               where fpt_stop_date is not null
-                                 and fpt_stop_date between ? and ?
-                                 and followup_date <= ?),
+                               where fpt_stop_date between ? and ?
+                               ),
 
 
          tmp_latest_follow_up as (SELECT encounter_id,
@@ -154,7 +147,7 @@ BEGIN
                                WHEN ''Stop all'' THEN ''Stop''
                                WHEN ''Loss to follow-up (LTFU)'' THEN ''Lost''
                                WHEN ''Ran away'' THEN ''Drop''
-                               END as statuscode,
+                               END as follow_up_status,
                             f_case.art_end_date,
                             f_case.current_who_hiv_stage        AS WHOStage,
                             cd4_count                              AdultCD4Count,
@@ -234,8 +227,7 @@ BEGIN
     PREPARE stmt FROM @sql;
     SET @start_date = REPORT_START_DATE;
     SET @end_date = REPORT_END_DATE;
-    EXECUTE stmt USING @end_date, @end_date, @start_date, @end_date, @end_date, @start_date, @end_date, @end_date, @start_date, @end_date , @end_date, @start_date, @end_date
-        , @end_date, @start_date, @end_date, @end_date, @end_date, @end_date;
+    EXECUTE stmt USING @start_date, @end_date, @start_date, @end_date, @start_date, @end_date, @start_date, @end_date, @start_date, @end_date, @start_date, @end_date, @end_date, @end_date;
     DEALLOCATE PREPARE stmt;
 END //
 
