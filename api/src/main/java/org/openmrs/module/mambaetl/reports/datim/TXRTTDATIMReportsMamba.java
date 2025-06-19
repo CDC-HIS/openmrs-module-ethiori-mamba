@@ -106,7 +106,6 @@ public class TXRTTDATIMReportsMamba implements ReportManager {
 		txRTTIITDataSetDefinitionMamba.setDescription("Disaggregated by IIT");
 		reportDefinition.addDataSetDefinition("Disaggregated by IIT",
 		    EthiOhriUtil.map(txRTTIITDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
-
 		
 		return reportDefinition;
 	}
