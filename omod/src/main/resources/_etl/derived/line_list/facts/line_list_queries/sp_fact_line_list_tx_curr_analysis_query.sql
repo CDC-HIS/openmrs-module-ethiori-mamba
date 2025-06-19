@@ -18,7 +18,7 @@ BEGIN
         -- Corresponds to factors: 'NEWLY STARTED', 'RESTART', 'TI', 'TRACED BACK' , 'STILL ON CARE'
         SET filter_condition =
                 ' factor in (''NEWLY STARTED'', ''STILL ON CARE'', ''RESTART'',''TO/TI'' ,''TI'', ''TRACED BACK'')';
-        SET columns_list = 'patient_name as `Patient Name`, MRN , UAN , TIMESTAMPDIFF(YEAR, date_of_birth, ?) as age,
+        SET columns_list = 'patient_name as `Patient Name`, MRN , UAN , TIMESTAMPDIFF(YEAR, date_of_birth, ?) as age, age_out as `Age Out`,
        sex, regimen , follow_up_status_curr as `follow up status` , art_start_date_curr as `art start date`, art_start_date_curr as `art start date EC.` , adherence ,
        CASE WHEN in_prev_period THEN ''Counted'' ELSE '''' END   AS `Previous status`, pregnancy_status as `Pregnancy status`,
        nutritional_status_of_adult as `Nutritional status`, FollowUpDate_curr as `Follow up date`, FollowUpDate_curr as `Follow up date EC.`, next_visit_date as `Appointment date`, next_visit_date as `Appointment date EC.`,
@@ -31,6 +31,7 @@ BEGIN
            MRN,
            UAN,
            TIMESTAMPDIFF(YEAR, date_of_birth, ?) as age,
+           age_out as `Age Out`,
            sex,
            regimen,
            follow_up_status_prev                                 as `follow up status`,
@@ -50,6 +51,7 @@ BEGIN
            MRN,
            UAN,
            TIMESTAMPDIFF(YEAR, date_of_birth, ?) as age,
+           age_out as `Age Out`,
            sex,
            regimen,
            follow_up_status_curr                                 as `follow up status`,
@@ -70,6 +72,7 @@ BEGIN
            MRN,
            UAN,
            TIMESTAMPDIFF(YEAR, date_of_birth, ?) as age,
+           age_out as `Age Out`,
            sex,
            regimen,
            follow_up_status_curr                                 as `follow up status`,
@@ -90,6 +93,7 @@ BEGIN
            MRN,
            UAN,
            TIMESTAMPDIFF(YEAR, date_of_birth, ?) as age,
+           age_out as `Age Out`,
            sex,
            regimen,
            follow_up_status_curr                                 as `follow up status`,
@@ -109,6 +113,7 @@ BEGIN
            MRN,
            UAN,
            TIMESTAMPDIFF(YEAR, date_of_birth, ?) as age,
+           age_out as `Age Out`,
            sex,
            regimen,
            follow_up_status_curr                                 as `follow up status`,
@@ -370,7 +375,11 @@ BEGIN
                                  dim_client.date_of_birth,
                                  patient_uuid,
                                  dim_client.sex,
-                                 r.* -- Select all columns from the modified f_result
+                                 CASE WHEN (TIMESTAMPDIFF(YEAR, date_of_birth, art_start_date_curr) <= 15) AND
+                                           TIMESTAMPDIFF(YEAR, date_of_birth, COALESCE(?,CURDATE())) >= 15 AND
+                                           DATE_ADD(date_of_birth, INTERVAL 15 YEAR) BETWEEN ? AND ? THEN ''YES''
+                                      ELSE ''NO'' END AS age_out,
+                                 r.*
                           from tx_curr_factor r
                                    inner join mamba_dim_client dim_client on r.client_id = dim_client.client_id
                           where r.factor is not null
@@ -392,9 +401,9 @@ BEGIN
     SET @end_date = REPORT_END_DATE;
     SET @start_date = REPORT_START_DATE;
     IF REPORT_TYPE = 'SUMMARY' THEN
-        EXECUTE stmt USING @end_date, @start_date, @end_date, @end_date, @end_date, @start_date, @start_date, @start_date, @start_date, @end_date, @end_date;
+        EXECUTE stmt USING @end_date, @start_date, @end_date, @end_date, @end_date, @start_date, @start_date, @start_date, @start_date, @end_date, @end_date, @end_date, @start_date, @end_date;
     ELSE
-        EXECUTE stmt USING @end_date, @start_date, @end_date, @end_date, @end_date, @start_date, @start_date, @start_date, @start_date, @end_date, @end_date, @end_date;
+        EXECUTE stmt USING @end_date, @start_date, @end_date, @end_date, @end_date, @start_date, @start_date, @start_date, @start_date, @end_date, @end_date, @end_date, @start_date, @end_date, @end_date;
     END IF;
 
     DEALLOCATE PREPARE stmt;

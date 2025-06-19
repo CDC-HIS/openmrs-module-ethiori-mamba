@@ -1,5 +1,4 @@
-DELIMITER
-//
+DELIMITER //
 
 DROP PROCEDURE IF EXISTS sp_fact_line_list_vl_eligibility_query;
 
@@ -408,8 +407,7 @@ select patient_name AS 'Patient Name', patient_uuid as `UUID`,
            end                                          as `Viral Load Eligibility Status`
 from vl_eligibility t
          join mamba_dim_client client on t.PatientId = client_id;
-END
-//
+END //
 
 DELIMITER ;
 
