@@ -87,6 +87,7 @@ BEGIN
                                   dsd_category,
                                   ROW_NUMBER() OVER (PARTITION BY PatientId ORDER BY assessment_date DESC, follow_up_date desc , encounter_id DESC ) AS row_num
                            FROM FollowUp
+                           join tx_curr_all on FollowUp.encounter_id=tx_curr_all.encounter_id
                            WHERE assessment_date IS NOT NULL
                              AND assessment_date <= COALESCE(REPORT_END_DATE,CURDATE())),
          tmp_tpt_start as (select encounter_id,
