@@ -626,7 +626,7 @@ BEGIN
                                 dsd_category,
                                 follow_up_date                                                                             AS dsd_fdate,
                                 assessment_status,
-                                ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
+                                ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY assessment_date DESC, encounter_id DESC) AS row_num
                          FROM FollowUp
                          WHERE follow_up_date <= END_DATE
                            and assessment_date is not null),
