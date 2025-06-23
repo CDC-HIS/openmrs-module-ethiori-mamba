@@ -1,5 +1,6 @@
 
 show full processlist ;
+select count(*) from mamba_z_encounter_obs;
 
 SELECT * FROM INFORMATION_SCHEMA.ROUTINES WHERE ROUTINE_SCHEMA = 'analytics_db';
 SELECT COUNT(*) AS 'Stored Procedures' FROM INFORMATION_SCHEMA.ROUTINES WHERE ROUTINE_SCHEMA = 'analytics_db';
