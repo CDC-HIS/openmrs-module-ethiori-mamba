@@ -210,6 +210,7 @@ BEGIN
                                 THEN 'High Viral Load (>1000 copies/ML)'
                             WHEN 'Low-level viremia'
                                 THEN 'Low Level Viremia (51-1000)'
+                            ELSE vlperfdate.viral_load_test_status
                             END                                                                         as `First VL Status`,
                         vlperfdate.viral_load_count                                                     as `First VL Count`,
                         COALESCE(vlperfdate.targeted_viral_load_test_indication,
@@ -233,7 +234,7 @@ BEGIN
                                 THEN 'High Viral Load (>1000 copies/ML)'
                             WHEN 'Low-level viremia'
                                 THEN 'Low Level Viremia (51-1000)'
-                            ELSE vlperfdate.viral_load_test_status
+                            ELSE vlperfdate_cf.viral_load_test_status
                             END
                                                                                                         as `Confirmatory VL Status`,
                         vlperfdate_cf.viral_load_count                                                  as `Confirmatory VL Count`,
