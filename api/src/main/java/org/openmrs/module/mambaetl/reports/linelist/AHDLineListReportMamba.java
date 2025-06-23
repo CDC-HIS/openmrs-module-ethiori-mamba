@@ -25,7 +25,7 @@ public class AHDLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "MAMBA LINELIST- AHD";
+		return "LINELIST- AHD";
 	}
 	
 	@Override

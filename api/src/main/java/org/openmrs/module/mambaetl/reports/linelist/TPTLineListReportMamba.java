@@ -25,7 +25,7 @@ public class TPTLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "MAMBA LINELIST- TPT_LINE_LIST";
+		return "LINELIST- TPT_LINE_LIST";
 	}
 	
 	@Override

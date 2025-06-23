@@ -23,7 +23,7 @@ public class TxRTTLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "MAMBA LINELIST- TX_RTT";
+		return "LINELIST- TX_RTT";
 	}
 	
 	@Override

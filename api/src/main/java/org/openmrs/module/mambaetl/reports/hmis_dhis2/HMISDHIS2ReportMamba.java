@@ -23,7 +23,7 @@ public class HMISDHIS2ReportMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "MAMBA HMIS- HMIS DHIS 2";
+		return "HMIS- HMIS DHIS 2";
 	}
 	
 	@Override

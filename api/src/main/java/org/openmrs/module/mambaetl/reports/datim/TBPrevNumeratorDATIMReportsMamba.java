@@ -25,7 +25,7 @@ public class TBPrevNumeratorDATIMReportsMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "MAMBA DATIM PREVENTION- TB_PREV(NUMERATOR)";
+		return "DATIM PREVENTION- TB_PREV(NUMERATOR)";
 	}
 	
 	@Override

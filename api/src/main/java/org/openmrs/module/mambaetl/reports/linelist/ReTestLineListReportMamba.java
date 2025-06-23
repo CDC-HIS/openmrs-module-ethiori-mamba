@@ -26,7 +26,7 @@ public class ReTestLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "MAMBA LINELIST- RE_TEST";
+		return "LINELIST- RE_TEST";
 	}
 	
 	@Override
