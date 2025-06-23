@@ -26,7 +26,7 @@ public class CXCASCRNDATIMReportsMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "MAMBA DATIM TESTING- CXCA_SCRN";
+		return "DATIM TESTING- CXCA_SCRN";
 	}
 	
 	@Override

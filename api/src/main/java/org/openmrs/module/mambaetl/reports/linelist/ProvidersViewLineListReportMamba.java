@@ -24,7 +24,7 @@ public class ProvidersViewLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "MAMBA LINELIST- Data Quality & Data Use";
+		return "LINELIST- Data Quality & Data Use";
 	}
 	
 	@Override

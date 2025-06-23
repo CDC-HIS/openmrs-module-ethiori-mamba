@@ -26,7 +26,7 @@ public class OTZLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "MAMBA LINELIST- OTZ";
+		return "LINELIST- OTZ";
 	}
 	
 	@Override

@@ -25,7 +25,7 @@ public class PediatricAgeOutLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "MAMBA LINELIST- PEDIATRIC_AGE_OUT";
+		return "LINELIST- PEDIATRIC_AGE_OUT";
 	}
 	
 	@Override

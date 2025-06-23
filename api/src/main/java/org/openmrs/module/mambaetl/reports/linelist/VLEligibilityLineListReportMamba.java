@@ -28,7 +28,7 @@ public class VLEligibilityLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "MAMBA LINELIST- VL_ELIGIBLE";
+		return "LINELIST- VL_ELIGIBLE";
 	}
 	
 	@Override

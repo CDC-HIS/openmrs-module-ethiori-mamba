@@ -25,7 +25,7 @@ public class TxPvlsNumeratorDATIMReportsMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "MAMBA DATIM VIRAL SUPPRESSION- TX_PVLS (Numerator) ";
+		return "DATIM VIRAL SUPPRESSION- TX_PVLS (Numerator) ";
 	}
 	
 	@Override

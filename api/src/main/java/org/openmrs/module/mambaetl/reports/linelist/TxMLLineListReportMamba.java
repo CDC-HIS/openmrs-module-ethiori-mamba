@@ -24,7 +24,7 @@ public class TxMLLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "MAMBA LINELIST- TX_ML";
+		return "LINELIST- TX_ML";
 	}
 	
 	@Override
