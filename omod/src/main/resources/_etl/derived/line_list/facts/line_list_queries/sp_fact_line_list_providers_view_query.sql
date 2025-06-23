@@ -408,6 +408,7 @@ BEGIN
                           f_case.adherence,
                           f_case.breastfeeding_status,
                           f_case.cd4_count,
+                          f_case.dsd_category,
                           vlperfdate.viral_load_perform_date,
                           vlperfdate.viral_load_test_status,
                           vlperfdate.viral_load_count,
@@ -836,7 +837,7 @@ BEGIN
                Else '' end                                                   as asm_status
             ,
            case
-               when asm.dsd_category is not null then asm.dsd_category
+               when tmp_3.dsd_category is not null then tmp_3.dsd_category
                Else 'Not enrolled to any DSD' end                            as dsd_category
             ,
 

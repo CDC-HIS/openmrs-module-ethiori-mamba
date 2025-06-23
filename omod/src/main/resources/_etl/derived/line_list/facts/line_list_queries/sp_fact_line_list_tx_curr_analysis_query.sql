@@ -328,7 +328,7 @@ BEGIN
                                latest_all.pregnancy_status,
                                latest_all.nutritional_status_of_adult,
                                latest_all.next_visit_date,
-                               latest_all.dsd_category,
+                               latest_curr.dsd_category,
                                latest_all.assessment_date,
                                latest_all.cd4_count,
                                latest_all.visit_type,
