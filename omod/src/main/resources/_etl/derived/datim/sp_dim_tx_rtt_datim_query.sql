@@ -88,14 +88,24 @@ BEGIN
                          transferred_in_check_this_for_all_t AS transferred_in,
                          cd4_count
                   FROM mamba_flat_encounter_follow_up follow_up
-                           LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1
-                                     ON follow_up.encounter_id = follow_up_1.encounter_id
-                           LEFT JOIN mamba_flat_encounter_follow_up_2 follow_up_2
-                                     ON follow_up.encounter_id = follow_up_2.encounter_id
-                           LEFT JOIN mamba_flat_encounter_follow_up_3 follow_up_3
-                                     ON follow_up.encounter_id = follow_up_3.encounter_id
-                           LEFT JOIN mamba_flat_encounter_follow_up_4 follow_up_4
-                                     ON follow_up.encounter_id = follow_up_4.encounter_id),
+                               LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1
+                                         ON follow_up.encounter_id = follow_up_1.encounter_id
+                               LEFT JOIN mamba_flat_encounter_follow_up_2 follow_up_2
+                                         ON follow_up.encounter_id = follow_up_2.encounter_id
+                               LEFT JOIN mamba_flat_encounter_follow_up_3 follow_up_3
+                                         ON follow_up.encounter_id = follow_up_3.encounter_id
+                               LEFT JOIN mamba_flat_encounter_follow_up_4 follow_up_4
+                                         ON follow_up.encounter_id = follow_up_4.encounter_id
+                               LEFT JOIN mamba_flat_encounter_follow_up_5 follow_up_5
+                                         ON follow_up.encounter_id = follow_up_5.encounter_id
+                               LEFT JOIN mamba_flat_encounter_follow_up_6 follow_up_6
+                                         ON follow_up.encounter_id = follow_up_6.encounter_id
+                               LEFT JOIN mamba_flat_encounter_follow_up_7 follow_up_7
+                                         ON follow_up.encounter_id = follow_up_7.encounter_id
+                               LEFT JOIN mamba_flat_encounter_follow_up_8 follow_up_8
+                                         ON follow_up.encounter_id = follow_up_8.encounter_id
+                               LEFT JOIN mamba_flat_encounter_follow_up_9 follow_up_9
+                                         ON follow_up.encounter_id = follow_up_9.encounter_id),
      -- TX curr start
      tmp_latest_follow_up_start AS (SELECT client_id,
                                            follow_up_date,
