@@ -23,7 +23,7 @@ public class CXCAEligibilityLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "LINELIST- CX_CA_Eligibility";
+		return "LINELIST- CXCA Eligibility Status";
 	}
 	
 	@Override
