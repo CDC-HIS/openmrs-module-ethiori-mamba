@@ -44,8 +44,6 @@ public class TxCurrAnalysisLineListDataSetDefinitionMamba extends BaseDataSetDef
 	}
 	
 	public void setTxCurrAnalysisCategories(String txCurrAnalysisCategories) {
-		log.info("Attempting to set txCurrAnalysisCategories. Input string: '" + txCurrAnalysisCategories + "'");
-		
-		//this.txCurrAnalysisCategories = txCurrAnalysisCategories;
+		this.txCurrAnalysisCategories = txCurrAnalysisCategories;
 	}
 }
