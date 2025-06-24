@@ -1,9 +1,7 @@
 package org.openmrs.module.mambaetl.reports.linelist;
 
 import org.openmrs.module.mambaetl.datasetdefinition.linelist.ProvidersViewLineListDataSetDefinitionMamba;
-import org.openmrs.module.mambaetl.datasetdefinition.linelist.TxCurrAnalysisLineListDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
-import org.openmrs.module.mambaetl.helpers.reportOptions.TxCurrAnalysisCategories;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.report.ReportDesign;
 import org.openmrs.module.reporting.report.ReportRequest;
