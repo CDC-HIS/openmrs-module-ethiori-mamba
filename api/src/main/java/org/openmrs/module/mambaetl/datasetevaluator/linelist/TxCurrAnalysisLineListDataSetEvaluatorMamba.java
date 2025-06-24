@@ -57,7 +57,7 @@ public class TxCurrAnalysisLineListDataSetEvaluatorMamba implements DataSetEvalu
                 executeStatements(statementContainer, procedureCalls);
 
                 ResultSet[] allResultSets = statementContainer.getResultSets();
-                mapResultSet(data, resultSetMapper, allResultSets,txCurrAnalysisLineListDataSetDefinitionMamba.getTxCurrAnalysisCategories().getSqlValue().equalsIgnoreCase("SUMMARY")?Boolean.FALSE:Boolean.TRUE);
+                mapResultSet(data, resultSetMapper, allResultSets,txCurrAnalysisLineListDataSetDefinitionMamba.getTxCurrAnalysisCategories().name().equalsIgnoreCase("SUMMARY")?Boolean.FALSE:Boolean.TRUE);
                 connection.commit();
                 return data;
 
@@ -78,7 +78,7 @@ public class TxCurrAnalysisLineListDataSetEvaluatorMamba implements DataSetEvalu
                 new ProcedureCall("{call sp_fact_line_list_tx_curr_analysis_query(?,?,?)}", statement -> {
                     statement.setDate(1, startDate);
                     statement.setDate(2, endDate);
-                    statement.setString(3,txCurrAnalysisLineListDataSetDefinitionMamba.getTxCurrAnalysisCategories().getSqlValue());
+                        statement.setString(3,txCurrAnalysisLineListDataSetDefinitionMamba.getTxCurrAnalysisCategories().name());
                 })
         );
     }

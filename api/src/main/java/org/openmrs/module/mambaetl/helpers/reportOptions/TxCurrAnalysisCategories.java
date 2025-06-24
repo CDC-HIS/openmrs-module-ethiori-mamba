@@ -1,9 +1,9 @@
 package org.openmrs.module.mambaetl.helpers.reportOptions;
 
 public enum TxCurrAnalysisCategories {
-	TX_CURR_THIS_MONTH("TX_CURR_THIS_MONTH"), TX_CURR_LAST_MONTH("TX_CURR_LAST_MONTH"), TX_CURR_NEWLY_INCLUDED(
-	        "TX_CURR_NEWLY_INCLUDED"), TX_CURR_EXCLUDED_THIS_MONTH("TX_CURR_EXCLUDED_THIS_MONTH"), OTHER_OUTCOME(
-	        "OTHER_OUTCOME"), NOT_UPDATED("NOT_UPDATED"), SUMMARY("SUMMARY"), ON_DSD("ON_DSD");
+	TX_CURR_THIS_MONTH("This Month TX_Curr"), TX_CURR_LAST_MONTH("Previous Month Tx_Curr"), TX_CURR_NEWLY_INCLUDED(
+	        "Newly Included Tx_Curr"), TX_CURR_EXCLUDED_THIS_MONTH("Excluded From Tx_Curr"), OTHER_OUTCOME(
+	        "Other Outcome"), NOT_UPDATED("Not Updated"), SUMMARY("Tx_Curr Summary"), ON_DSD("Tx_Curr On DSD");
 	
 	private final String sqlValue;
 	
