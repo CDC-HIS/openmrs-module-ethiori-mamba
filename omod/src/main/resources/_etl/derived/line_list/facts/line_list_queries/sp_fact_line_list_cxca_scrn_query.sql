@@ -80,7 +80,8 @@ BEGIN
          currently_on_art AS (select *
                               from tmp_latest_follow_up
                               where row_num = 1
-                                AND follow_up_status in ('Alive', 'Restart medication')),
+                                -- AND follow_up_status in ('Alive', 'Restart medication')
+                              ),
          tmp_cx_screened as (select FollowUp.*,
                                     ROW_NUMBER() over (PARTITION BY FollowUp.client_id ORDER BY via_date DESC,hpv_received_date DESC,cytology_received_date DESC , FollowUp.encounter_id DESC) as row_num
                              from FollowUp
