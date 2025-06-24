@@ -26,7 +26,7 @@ public class HVLLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "LINELIST- Unsuppressed Viral Load AND EAC Cascade Report";
+		return "LINELIST- Unsuppressed VL and EAC Cascade";
 	}
 	
 	@Override
