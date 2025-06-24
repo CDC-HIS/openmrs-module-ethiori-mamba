@@ -44,7 +44,7 @@ public class TPTLineListReportMamba implements ReportManager {
 		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
 		endDateGC.setRequired(false);
 		
-		Parameter tptType = new Parameter("tptType", "TPT Type", String.class);
+		Parameter tptType = new Parameter("tptType", "Preventive Therapy Type", String.class);
 		tptType.setRequired(true);
 		tptType.addToWidgetConfiguration("codedOptions", "ALL,CPT,TPT,FPT");
 		tptType.setDefaultValue("all");

@@ -23,7 +23,7 @@ public class CXCAScreeningLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "LINELIST- CX_CA_SCRN";
+		return "LINELIST- CXCA_Screening and Treatment";
 	}
 	
 	@Override
