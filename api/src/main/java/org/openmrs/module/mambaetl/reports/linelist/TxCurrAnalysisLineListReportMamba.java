@@ -46,11 +46,10 @@ public class TxCurrAnalysisLineListReportMamba implements ReportManager {
 			String value = category.getSqlValue(); // Or category.name() if preferred as backend value
 			optionStrings.add(value);
 		}
-
 		String codedOptionsValue = String.join(",", optionStrings);
 
 		Parameter txCurrAnalysisCategories = new Parameter("txCurrAnalysisCategories", "Analysis Group",
-				TxCurrAnalysisCategories.class); // Parameter type is the ENUM class
+				String.class); // Parameter type is the ENUM class
 		txCurrAnalysisCategories.addToWidgetConfiguration("codedOptions", codedOptionsValue); // Use the generated string
 		txCurrAnalysisCategories.setDefaultValue(optionStrings.get(0));
 

@@ -10,6 +10,8 @@ import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
 import static org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper.*;
 import static org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper.rollbackAndThrowException;
 import static org.openmrs.module.mambaetl.helpers.ValidationHelper.ValidateDates;
+
+import org.openmrs.module.mambaetl.helpers.reportOptions.TxCurrAnalysisCategories;
 import org.openmrs.module.reporting.dataset.DataSet;
 import org.openmrs.module.reporting.dataset.DataSetColumn;
 import org.openmrs.module.reporting.dataset.DataSetRow;
@@ -57,7 +59,7 @@ public class TxCurrAnalysisLineListDataSetEvaluatorMamba implements DataSetEvalu
                 executeStatements(statementContainer, procedureCalls);
 
                 ResultSet[] allResultSets = statementContainer.getResultSets();
-                mapResultSet(data, resultSetMapper, allResultSets,txCurrAnalysisLineListDataSetDefinitionMamba.getTxCurrAnalysisCategories().name().equalsIgnoreCase("SUMMARY")?Boolean.FALSE:Boolean.TRUE);
+                mapResultSet(data, resultSetMapper, allResultSets, TxCurrAnalysisCategories.fromString(txCurrAnalysisLineListDataSetDefinitionMamba.getTxCurrAnalysisCategories()).name().equalsIgnoreCase("SUMMARY")?Boolean.FALSE:Boolean.TRUE);
                 connection.commit();
                 return data;
 
@@ -78,7 +80,7 @@ public class TxCurrAnalysisLineListDataSetEvaluatorMamba implements DataSetEvalu
                 new ProcedureCall("{call sp_fact_line_list_tx_curr_analysis_query(?,?,?)}", statement -> {
                     statement.setDate(1, startDate);
                     statement.setDate(2, endDate);
-                        statement.setString(3,txCurrAnalysisLineListDataSetDefinitionMamba.getTxCurrAnalysisCategories().name());
+                        statement.setString(3,TxCurrAnalysisCategories.fromString(txCurrAnalysisLineListDataSetDefinitionMamba.getTxCurrAnalysisCategories()).name());
                 })
         );
     }
