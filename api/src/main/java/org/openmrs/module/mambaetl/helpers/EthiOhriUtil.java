@@ -1,6 +1,5 @@
 package org.openmrs.module.mambaetl.helpers;
 
-import org.openmrs.module.mambaetl.helpers.reportOptions.TxCurrAnalysisCategories;
 import org.openmrs.module.reporting.evaluation.parameter.Mapped;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.evaluation.parameter.Parameterizable;
