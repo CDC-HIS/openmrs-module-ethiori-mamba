@@ -7,6 +7,7 @@ BEGIN
 WITH FollowUp AS (SELECT follow_up.client_id,
                          follow_up.encounter_id,
                          date_viral_load_results_received AS viral_load_perform_date,
+                         date_of_reported_hiv_viral_load as viral_load_sent_date,
                          viral_load_received_,
                          follow_up_status,
                          follow_up_date_followup_         AS follow_up_date,
@@ -62,13 +63,7 @@ WITH FollowUp AS (SELECT follow_up.client_id,
                                       FollowUp.client_id,
                                       FollowUp.viral_load_perform_date,
                                       FollowUp.viral_load_test_status,
-                                      CASE
-                                          WHEN viral_load_count > 0 THEN CAST(viral_load_count AS DECIMAL(12, 0))
-                                          END AS   viral_load_count,
-                                      CASE
-                                          WHEN FollowUp.viral_load_perform_date IS NOT NULL
-                                              THEN FollowUp.viral_load_perform_date
-                                          END AS   viral_load_ref_date,
+                                       viral_load_count,
                                       routine_viral_load_test_indication,
                                       targeted_viral_load_test_indication,
                                       ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY viral_load_perform_date DESC, encounter_id DESC) AS row_num
@@ -76,6 +71,19 @@ WITH FollowUp AS (SELECT follow_up.client_id,
                                WHERE follow_up_status IS NOT NULL
                                  AND art_start_date IS NOT NULL
                                  AND viral_load_perform_date <= REPORT_END_DATE
+                               GROUP BY client_id, encounter_id),
+     vl_sent_date_tmp AS (SELECT FollowUp.encounter_id,
+                                      FollowUp.client_id,
+                                      FollowUp.viral_load_perform_date,
+                                      FollowUp.viral_load_test_status,
+                                   FollowUp.viral_load_sent_date,
+                                      routine_viral_load_test_indication,
+                                      targeted_viral_load_test_indication,
+                                      ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY viral_load_sent_date DESC, encounter_id DESC) AS row_num
+                               FROM FollowUp
+                               WHERE follow_up_status IS NOT NULL
+                                 AND art_start_date IS NOT NULL
+                                 AND viral_load_sent_date <= REPORT_END_DATE
                                GROUP BY client_id, encounter_id),
      latest_follow_up_tmp AS (SELECT client_id,
                                      follow_up_date AS FollowupDate,
@@ -85,8 +93,13 @@ WITH FollowUp AS (SELECT follow_up.client_id,
                               WHERE follow_up_status IS NOT NULL
                                 AND art_start_date IS NOT NULL
                                 AND follow_up_date <= REPORT_END_DATE),
+
+
+
+
      latest_follow_up AS (select * from latest_follow_up_tmp where row_num = 1),
      vl_performed_date as (select * from vl_performed_date_tmp where row_num = 1),
+     vl_sent_date as (select * from vl_sent_date_tmp where row_num = 1),
      vl_test_received AS (SELECT current_age,
                                  arv_dispensed_dose,
                                  treatment_end_date,
