@@ -144,7 +144,8 @@ BEGIN
 
                                         -- TC-06 User-Labeled as Eligible
                                         WHEN prev_screening.client_id IS NULL
-                                            AND latest_follow_up.screening_status != 'Cervical cancer screening performed'
+                                            AND
+                                             latest_follow_up.screening_status != 'Cervical cancer screening performed'
                                             AND latest_follow_up.eligible_for_cxca_screening = 'Yes'
                                             THEN 'Eligible Labeled by User'
 
@@ -235,8 +236,9 @@ BEGIN
                                             (prev_screening.cytology_result =
                                              'ASCUS (Atypical Squamous Cells of Undetermined Significance) on Pap Smear'
                                                 or prev_screening.cytology_result = '> Ascus')
-                                                AND prev_screening.ccs_hpv_result ='Negative result'
-                                                AND prev_screening.hpv_dna_result_received_date > prev_screening.cytology_result_date
+                                                AND prev_screening.ccs_hpv_result = 'Negative result'
+                                                AND prev_screening.hpv_dna_result_received_date >
+                                                    prev_screening.cytology_result_date
                                                 and TIMESTAMPDIFF(DAY, prev_screening.hpv_dna_result_received_date,
                                                                   REPORT_END_DATE) > 730
                                             THEN 'Eligible Needs Re-Screening'
@@ -247,21 +249,22 @@ BEGIN
                                              'ASCUS (Atypical Squamous Cells of Undetermined Significance) on Pap Smear'
                                                 or prev_screening.cytology_result = '> Ascus')
                                                 AND prev_screening.ccs_hpv_result = 'Positive'
-                                                AND prev_screening.hpv_dna_result_received_date > prev_screening.cytology_result_date
+                                                AND prev_screening.hpv_dna_result_received_date >
+                                                    prev_screening.cytology_result_date
                                                 and prev_screening.colposcopy_exam_finding is null
                                             THEN 'Eligible Needs Colposcopy Test'
 
                                         -- TC-19 Biopsy +ve (> CIN3) AND Treatment Give/Referred (See Algorithm 1, 2, 3 & 6)
                                         WHEN (prev_screening.biopsy_result = 'Carcinoma in situ'
-                                            or prev_screening.biopsy_result='Invasive cervical cancer'
-                                            or prev_screening.biopsy_result='Other')
+                                            or prev_screening.biopsy_result = 'Invasive cervical cancer'
+                                            or prev_screening.biopsy_result = 'Other')
                                             AND (prev_screening.ccs_treat_received_date <= REPORT_END_DATE
                                                 or prev_screening.date_patient_referred_out <= REPORT_END_DATE)
                                             THEN 'Not Eligible Confirmed Cirvical Cancer'
 
                                         -- TC-20 Biopsy Result CIN-1, CIN-2 Rescreening Needed After One YEAR (See Algorithm 1, 2, 3 & 6)
                                         WHEN (prev_screening.biopsy_result = 'CIN (1-3)'
-                                            or prev_screening.biopsy_result='CIN-2'
+                                            or prev_screening.biopsy_result = 'CIN-2'
                                                  )
                                             and TIMESTAMPDIFF(DAY, prev_screening.biopsy_result_received_date,
                                                               REPORT_END_DATE) > 365
@@ -274,10 +277,13 @@ BEGIN
                                                 'VIA positive: non-eligible for cryo/thermo-coagula' or
                                                 prev_screening.ccs_via_result = 'suspected cervical cancer'
                                                 )
-                                                AND  (prev_screening.biopsy_result = 'CIN (1-3)'  or prev_screening.biopsy_result='CIN-2'  or prev_screening.biopsy_result='Negative result')
+                                                AND (prev_screening.biopsy_result = 'CIN (1-3)' or
+                                                     prev_screening.biopsy_result = 'CIN-2' or
+                                                     prev_screening.biopsy_result = 'Negative result')
                                                 and TIMESTAMPDIFF(DAY, prev_screening.biopsy_result_received_date,
                                                                   REPORT_END_DATE) > 365
-                                                AND prev_screening.biopsy_result_received_date >= prev_screening.via_date
+                                                AND
+                                            prev_screening.biopsy_result_received_date >= prev_screening.via_date
                                             THEN 'Eligible Needs Re-Screening'
 
                                         -- TC-21 Colposcopy +ve but No Treatment/Referral
@@ -402,7 +408,173 @@ BEGIN
                                             THEN 'Eligible Needs Colposcopy Test'
                                         END                       AS EligibilityStatus,
 
+
                                     CASE
+                                        WHEN prev_screening.client_id IS NULL
+                                            AND latest_follow_up.eligible_for_cxca_screening = 'No'
+                                            THEN
+                                            'Not Eligible '
+
+                                        -- TC-06 User-Labeled as Eligible
+                                        WHEN prev_screening.client_id IS NULL
+                                            AND latest_follow_up.screening_status !=
+                                                'Cervical cancer screening performed'
+                                            AND latest_follow_up.eligible_for_cxca_screening = 'Yes'
+                                            THEN REPORT_END_DATE
+
+                                        -- TC-07 Never screened/assessed
+                                        WHEN prev_screening.client_id IS NULL
+                                            AND latest_follow_up.eligible_for_cxca_screening IS NULL
+                                            THEN REPORT_END_DATE
+
+                                        -- TC-08 Unknown VIA result
+                                        WHEN prev_screening.ccs_via_result = 'Unknown'
+                                            THEN REPORT_END_DATE
+
+                                        -- TC-09 VIA negative >2 years ago
+                                        WHEN (TIMESTAMPDIFF(DAY, prev_screening.via_date, REPORT_END_DATE)) > 730
+                                            AND prev_screening.ccs_via_result = 'VIA negative'
+                                            THEN DATE_ADD(prev_screening.via_date, INTERVAL 730 DAY)
+
+                                        -- TC-10 VIA Positive: Eligible for Cryo/Thermocoagulation & Treatment Given/Referred
+                                        WHEN (prev_screening.ccs_via_result =
+                                              'VIA positive: eligible for cryo/thermo-coagula')
+                                            AND ((TIMESTAMPDIFF(DAY, prev_screening.ccs_treat_received_date,
+                                                                REPORT_END_DATE)) > 365 or
+                                                 (TIMESTAMPDIFF(DAY, prev_screening.date_patient_referred_out,
+                                                                REPORT_END_DATE)) > 365)
+                                            AND prev_screening.biopsy_result is null
+                                            THEN COALESCE(
+                                                DATE_ADD(prev_screening.ccs_treat_received_date, INTERVAL 365 DAY),
+                                                DATE_ADD(prev_screening.date_patient_referred_out, INTERVAL 365 DAY))
+
+                                        -- TC-11 VIA Positive: Eligible for Cryo/Thermocoagulation No Treatment/Referral
+                                        WHEN (prev_screening.ccs_via_result =
+                                              'VIA positive: eligible for cryo/thermo-coagula')
+                                            AND (prev_screening.ccs_treat_received_date is null
+                                                or prev_screening.ccs_treat_received_date > REPORT_END_DATE)
+                                            and
+                                             (prev_screening.date_patient_referred_out is null
+                                                 or prev_screening.date_patient_referred_out > REPORT_END_DATE)
+                                            AND prev_screening.biopsy_result is null
+                                            THEN REPORT_END_DATE
+
+                                        -- TC-12 VIA Positive & Not Eligible for Cryo/Thermocoagulation OR Suspicious for Cervical Cancer Treatment & NO BIOPSY
+                                        WHEN (prev_screening.ccs_via_result =
+                                              'VIA positive: non-eligible for cryo/thermo-coagula'
+                                            or
+                                              prev_screening.ccs_via_result = 'suspected cervical cancer'
+                                                 )
+                                            AND prev_screening.biopsy_result is null
+                                            THEN REPORT_END_DATE
+
+                                        -- TC-13 HPV negative >3 years ago
+                                        WHEN
+                                            -- prev_screening.ccs_via_result is null and
+                                            prev_screening.ccs_hpv_result = 'Negative result'
+                                                and TIMESTAMPDIFF(DAY, prev_screening.hpv_dna_result_received_date,
+                                                                  REPORT_END_DATE) > 1095
+                                            THEN DATE_ADD(prev_screening.hpv_dna_result_received_date, INTERVAL 1095
+                                                          DAY)
+
+                                        -- TC-14 HPV positive, needs VIA triage
+                                        WHEN
+                                            prev_screening.ccs_via_result is null
+                                                and prev_screening.ccs_hpv_result = 'Positive'
+                                            THEN REPORT_END_DATE
+
+                                        -- TC-15 Cytology Negative >3 years ago
+                                        WHEN
+                                            prev_screening.cytology_result = 'Negative result'
+                                                and
+                                            TIMESTAMPDIFF(DAY, prev_screening.cytology_result_date,
+                                                          REPORT_END_DATE) >
+                                            1095
+                                            THEN DATE_ADD(prev_screening.cytology_result_date, INTERVAL 1095 DAY)
+
+                                        -- TC-16 Cytology Positive  NO HPV Test Followed
+                                        WHEN
+                                            (prev_screening.cytology_result =
+                                             'ASCUS (Atypical Squamous Cells of Undetermined Significance) on Pap Smear'
+                                                or prev_screening.cytology_result = '> Ascus')
+                                                AND prev_screening.hpv_dna_result_received_date is null
+                                            THEN REPORT_END_DATE
+
+                                        -- TC-17 Cytology Positive, HPV Test Done Next & Result Nagative (Reassess after Two Years)(Algorithm 7)
+                                        WHEN
+                                            (prev_screening.cytology_result =
+                                             'ASCUS (Atypical Squamous Cells of Undetermined Significance) on Pap Smear'
+                                                or prev_screening.cytology_result = '> Ascus')
+                                                AND prev_screening.ccs_hpv_result = 'Negative result'
+                                                AND prev_screening.hpv_dna_result_received_date >
+                                                    prev_screening.cytology_result_date
+                                                and TIMESTAMPDIFF(DAY, prev_screening.hpv_dna_result_received_date,
+                                                                  REPORT_END_DATE) > 730
+                                            THEN DATE_ADD(prev_screening.hpv_dna_result_received_date, INTERVAL 730
+                                                          DAY)
+
+                                        -- TC-18 Cytology Positive, HPV Test Done Next & Result Positive (Colposcopy Triage Needed)(Algorithm 7)
+                                        WHEN
+                                            (prev_screening.cytology_result =
+                                             'ASCUS (Atypical Squamous Cells of Undetermined Significance) on Pap Smear'
+                                                or prev_screening.cytology_result = '> Ascus')
+                                                AND prev_screening.ccs_hpv_result = 'Positive'
+                                                AND prev_screening.hpv_dna_result_received_date >
+                                                    prev_screening.cytology_result_date
+                                                and prev_screening.colposcopy_exam_finding is null
+                                            THEN REPORT_END_DATE
+
+                                        -- TC-19 Biopsy +ve (> CIN3) AND Treatment Give/Referred (See Algorithm 1, 2, 3 & 6)
+                                        WHEN (prev_screening.biopsy_result = 'Carcinoma in situ'
+                                            or prev_screening.biopsy_result = 'Invasive cervical cancer'
+                                            or prev_screening.biopsy_result = 'Other')
+                                            AND (prev_screening.ccs_treat_received_date <= REPORT_END_DATE
+                                                or prev_screening.date_patient_referred_out <= REPORT_END_DATE)
+                                            THEN 'Not Applicable'
+
+                                        -- TC-20 Biopsy Result CIN-1, CIN-2 Rescreening Needed After One YEAR (See Algorithm 1, 2, 3 & 6)
+                                        WHEN (prev_screening.biopsy_result = 'CIN (1-3)'
+                                            or prev_screening.biopsy_result = 'CIN-2'
+                                                 )
+                                            and TIMESTAMPDIFF(DAY, prev_screening.biopsy_result_received_date,
+                                                              REPORT_END_DATE) > 365
+                                            THEN DATE_ADD(prev_screening.biopsy_result, INTERVAL 365 DAY)
+
+                                        -- TC-20A,TC-20B,TC-20C VIA result Positive & Biopsy Done (CIN1),CIN2,Negative
+                                        WHEN
+                                            (
+                                                prev_screening.ccs_via_result =
+                                                'VIA positive: non-eligible for cryo/thermo-coagula' or
+                                                prev_screening.ccs_via_result = 'suspected cervical cancer'
+                                                )
+                                                AND (prev_screening.biopsy_result = 'CIN (1-3)' or
+                                                     prev_screening.biopsy_result = 'CIN-2' or
+                                                     prev_screening.biopsy_result = 'Negative result')
+                                                and TIMESTAMPDIFF(DAY, prev_screening.biopsy_result_received_date,
+                                                                  REPORT_END_DATE) > 365
+                                                AND
+                                            prev_screening.biopsy_result_received_date >= prev_screening.via_date
+                                            THEN DATE_ADD(prev_screening.biopsy_result, INTERVAL 365 DAY)
+
+                                        -- TC-21 Colposcopy +ve but No Treatment/Referral
+                                        WHEN (prev_screening.colposcopy_exam_finding = 'Low Grade' or
+                                              prev_screening.colposcopy_exam_finding = 'High Grade')
+                                            AND (prev_screening.ccs_treat_received_date is null
+                                                or prev_screening.ccs_treat_received_date > REPORT_END_DATE)
+                                            and
+                                             (prev_screening.date_patient_referred_out is null
+                                                 or prev_screening.date_patient_referred_out > REPORT_END_DATE)
+                                            THEN 'Not Applicable'
+
+                                        -- TC-22 Colposcopy +ve and treatment given
+                                        WHEN (prev_screening.colposcopy_exam_finding = 'Low Grade' or
+                                              prev_screening.colposcopy_exam_finding = 'High Grade')
+                                            AND ((TIMESTAMPDIFF(DAY, prev_screening.ccs_treat_received_date,
+                                                                REPORT_END_DATE)) > 365 or
+                                                 (TIMESTAMPDIFF(DAY, prev_screening.date_patient_referred_out,
+                                                                REPORT_END_DATE)) > 365)
+                                            THEN REPORT_END_DATE
+                                        -- OLD
                                         -- No previous screening and eligible for cxca screening
                                         WHEN prev_screening.client_id IS NULL AND
                                              latest_follow_up.eligible_for_cxca_screening = 'Yes'
@@ -413,8 +585,9 @@ BEGIN
                                             THEN REPORT_END_DATE
 
                                         -- VIA Negative and prev via date > 730 days
-                                        WHEN (TIMESTAMPDIFF(DAY, prev_screening.via_date, REPORT_END_DATE)) > 730 AND
-                                             prev_screening.ccs_via_result = 'VIA negative'
+                                        WHEN
+                                            (TIMESTAMPDIFF(DAY, prev_screening.via_date, REPORT_END_DATE)) > 730 AND
+                                            prev_screening.ccs_via_result = 'VIA negative'
                                             THEN DATE_ADD(prev_screening.via_date, INTERVAL 730 DAY)
 
                                         -- VIA Positive or suspicious 365 days since treatment or referral
@@ -430,7 +603,8 @@ BEGIN
                                                  (TIMESTAMPDIFF(DAY, prev_screening.date_patient_referred_out,
                                                                 REPORT_END_DATE)) > 365)
                                             THEN DATE_ADD(COALESCE(prev_screening.ccs_treat_received_date,
-                                                                   prev_screening.date_patient_referred_out), INTERVAL
+                                                                   prev_screening.date_patient_referred_out),
+                                                          INTERVAL
                                                           730 DAY)
 
                                         -- VIA Positive or suspicious and no treatment and not referred
@@ -473,7 +647,8 @@ BEGIN
                                             -- prev_screening.ccs_via_result is null and
                                             -- prev_screening.ccs_hpv_result is null and
                                             prev_screening.cytology_result = 'Negative result' and
-                                            TIMESTAMPDIFF(DAY, prev_screening.cytology_result_date, REPORT_END_DATE) >
+                                            TIMESTAMPDIFF(DAY, prev_screening.cytology_result_date,
+                                                          REPORT_END_DATE) >
                                             1095
                                             THEN DATE_ADD(prev_screening.cytology_result_date, INTERVAL 1095 DAY)
                                         -- Cytology ASCUS, hpv positive, colposcopy normal
@@ -484,7 +659,8 @@ BEGIN
                                             'ASCUS (Atypical Squamous Cells of Undetermined Significance) on Pap Smear'
                                                 and prev_screening.colposcopy_exam_finding = 'Normal'
                                                 and
-                                            TIMESTAMPDIFF(DAY, prev_screening.colposcopy_exam_date, REPORT_END_DATE) >
+                                            TIMESTAMPDIFF(DAY, prev_screening.colposcopy_exam_date,
+                                                          REPORT_END_DATE) >
                                             1095
                                             THEN DATE_ADD(prev_screening.colposcopy_exam_date, INTERVAL 1095 DAY)
                                         -- Cytology ASCUS, hpv positive, colposcopy low/high and 365 days since treatment or referral
@@ -502,7 +678,8 @@ BEGIN
                                                      (TIMESTAMPDIFF(DAY, prev_screening.date_patient_referred_out,
                                                                     REPORT_END_DATE)) > 365)
                                             THEN DATE_ADD(COALESCE(prev_screening.ccs_treat_received_date,
-                                                                   prev_screening.date_patient_referred_out), INTERVAL
+                                                                   prev_screening.date_patient_referred_out),
+                                                          INTERVAL
                                                           365 DAY)
                                         -- Cytology ASCUS, hpv positive, colposcopy low/high and no referral or treatment
                                         WHEN
@@ -557,7 +734,8 @@ BEGIN
                                             '> Ascus'
                                                 and prev_screening.colposcopy_exam_finding = 'Normal'
                                                 and
-                                            TIMESTAMPDIFF(DAY, prev_screening.colposcopy_exam_date, REPORT_END_DATE) >
+                                            TIMESTAMPDIFF(DAY, prev_screening.colposcopy_exam_date,
+                                                          REPORT_END_DATE) >
                                             1095
                                             THEN DATE_ADD(prev_screening.colposcopy_exam_date, INTERVAL 1095 DAY)
                                         -- Cytology > ASCUS, colposcopy low/high and 365 days since treatment or referral
@@ -573,7 +751,8 @@ BEGIN
                                                      (TIMESTAMPDIFF(DAY, prev_screening.date_patient_referred_out,
                                                                     REPORT_END_DATE)) > 365)
                                             THEN DATE_ADD(COALESCE(prev_screening.ccs_treat_received_date,
-                                                                   prev_screening.date_patient_referred_out), INTERVAL
+                                                                   prev_screening.date_patient_referred_out),
+                                                          INTERVAL
                                                           365 DAY)
                                         -- Cytology > ASCUS, colposcopy low/high and no treatment or referral
                                         WHEN
@@ -598,26 +777,24 @@ BEGIN
                                                 and prev_screening.colposcopy_exam_finding is null
                                             THEN REPORT_END_DATE
                                         END                       AS EligibilityDate
-
-
                              from latest_follow_up
                                       left join prev_screening on prev_screening.client_id = latest_follow_up.client_id)
-    select patient_name                           `Patient Name`,
-           patient_uuid                           `UUID`,
-           CAST(mrn AS CHAR(20)) as mrn,
+    select patient_name                                                                 `Patient Name`,
+           patient_uuid                                                                 `UUID`,
+           CAST(mrn AS CHAR(20))                                                     as mrn,
            uan,
-           mobile_no                           as `Mobile No`,
-           phone_no                            as `Home Telephone No`,
+           mobile_no                                                                 as `Mobile No`,
+           phone_no                                                                  as `Home Telephone No`,
            Weight,
            Age,
-           EligibilityDate                     as `Eligibility Date`,
-           EligibilityDate                     as `Eligibility Date EC.`,
-           LEFT(EligibilityStatus, IF(LEFT(EligibilityStatus,3)='Eli',8,12))          as `Eligibility Status`,
-           SUBSTR(EligibilityStatus, IF(LEFT(EligibilityStatus,3)='Eli',10,14))       as `Eligibility Reason`,
-           follow_up_date                      as `Follow Up Date`,
-           follow_up_date                      as `Follow Up Date EC.`,
-           ArtStartDate                        as `Art Start Date`,
-           ArtStartDate                        as `Art Start Date EC.`,
+           EligibilityDate                                                           as `Eligibility Date`,
+           EligibilityDate                                                           as `Eligibility Date EC.`,
+           LEFT(EligibilityStatus, IF(LEFT(EligibilityStatus, 3) = 'Eli', 8, 12))    as `Eligibility Status`,
+           SUBSTR(EligibilityStatus, IF(LEFT(EligibilityStatus, 3) = 'Eli', 10, 14)) as `Eligibility Reason`,
+           follow_up_date                                                            as `Follow Up Date`,
+           follow_up_date                                                            as `Follow Up Date EC.`,
+           ArtStartDate                                                              as `Art Start Date`,
+           ArtStartDate                                                              as `Art Start Date EC.`,
            CASE follow_up_status
                WHEN 'Alive' THEN 'Alive on ART'
                WHEN 'Restart medication' THEN 'Restart'
@@ -625,50 +802,50 @@ BEGIN
                WHEN 'Stop all' THEN 'Stop'
                WHEN 'Loss to follow-up (LTFU)' THEN 'Lost'
                WHEN 'Ran away' THEN 'Drop'
-               END AS `Follow Up Status`,
-           next_visit_date                     as `Next Appointment Date`,
-           next_visit_date                     as `Next Appointment Date EC.`,
-           regimen                             as `ARV Regimen`,
-           dose_days                           as `ART Dose Days`,
-           CCaCounsellingGiven                 as Counselled,
+               END                                                                   AS `Follow Up Status`,
+           next_visit_date                                                           as `Next Appointment Date`,
+           next_visit_date                                                           as `Next Appointment Date EC.`,
+           regimen                                                                   as `ARV Regimen`,
+           dose_days                                                                 as `ART Dose Days`,
+           CCaCounsellingGiven                                                       as Counselled,
            Accepted,
-           screening_type                      as `Screening Type`,
-           screening_method                       `Screening Method`,
-           hpv_subtype                         as `HPV SubType`,
-           date_hpv_test_was_done              as `HPV Sample Collected Date`,
-           date_hpv_test_was_done              as `HPV Sample Collected Date EC.`,
-           hpv_dna_result_received_date        as `HPV DNA Result Received Date`,
-           hpv_dna_result_received_date        as `HPV DNA Result Received Date EC.`,
-           ccs_hpv_result                      as `HPV Result`,
-           via_date                            as `VIA Screening Date`,
-           via_date                            as `VIA Screening Date EC.`,
-           ccs_via_result                      as `VIA Screening Result`,
-           cytology_sample_collection_date     as `Cytology Sample Collected Date`,
-           cytology_sample_collection_date     as `Cytology Sample Collected Date EC.`,
-           cytology_result_date                as `Cytology Result Received Date`,
-           cytology_result_date                as `Cytology Result Received Date EC.`,
-           cytology_result                     as `Cytology Result`,
-           colposcopy_exam_date                as `Colposcopy Exam Date`,
-           colposcopy_exam_date                as `Colposcopy Exam Date EC.`,
-           colposcopy_exam_finding             as `Colposcopy Exam Result`,
-           biopsy_sample_collected_date        as `Biopsy Sample Collected Date`,
-           biopsy_sample_collected_date        as `Biopsy Sample Collected Date EC.`,
-           biopsy_result_received_date         as `Biopsy Result Received Date`,
-           biopsy_result_received_date         as `Biopsy Result Received Date EC.`,
-           biopsy_result                       as `Biopsy Result`,
-           CCS_Precancerous_Treat              as `Treatment Received For Precancerous Lesion`,
-           ccs_treat_received_date             as `Date Treatment Given`,
-           ccs_treat_received_date             as `Date Treatment Given EC.`,
-           referral_or_linkage_status          as `Referral Status`,
-           reason_for_referral_cacx            as `Reason For Referral`,
-           date_patient_referred_out           as `Date Referred to Other HF`,
-           date_patient_referred_out           as `Date Referred to Other HF EC.`,
-           date_client_arrived_in_the_referred as `Date Client Arrived in Reffered HF`,
-           date_client_arrived_in_the_referred as `Date Client Arrived in Reffered HF EC.`,
-           date_client_served_in_the_referred_ as `Date Client Served in Reffered HF`,
-           date_client_served_in_the_referred_ as `Date Client Served in Reffered HF EC.`,
-           ccs_next_date                       as `Next Appointment Date for CCS`,
-           ccs_next_date                       as `Next Appointment Date for CCS EC.`
+           screening_type                                                            as `Screening Type`,
+           screening_method                                                             `Screening Method`,
+           hpv_subtype                                                               as `HPV SubType`,
+           date_hpv_test_was_done                                                    as `HPV Sample Collected Date`,
+           date_hpv_test_was_done                                                    as `HPV Sample Collected Date EC.`,
+           hpv_dna_result_received_date                                              as `HPV DNA Result Received Date`,
+           hpv_dna_result_received_date                                              as `HPV DNA Result Received Date EC.`,
+           ccs_hpv_result                                                            as `HPV Result`,
+           via_date                                                                  as `VIA Screening Date`,
+           via_date                                                                  as `VIA Screening Date EC.`,
+           ccs_via_result                                                            as `VIA Screening Result`,
+           cytology_sample_collection_date                                           as `Cytology Sample Collected Date`,
+           cytology_sample_collection_date                                           as `Cytology Sample Collected Date EC.`,
+           cytology_result_date                                                      as `Cytology Result Received Date`,
+           cytology_result_date                                                      as `Cytology Result Received Date EC.`,
+           cytology_result                                                           as `Cytology Result`,
+           colposcopy_exam_date                                                      as `Colposcopy Exam Date`,
+           colposcopy_exam_date                                                      as `Colposcopy Exam Date EC.`,
+           colposcopy_exam_finding                                                   as `Colposcopy Exam Result`,
+           biopsy_sample_collected_date                                              as `Biopsy Sample Collected Date`,
+           biopsy_sample_collected_date                                              as `Biopsy Sample Collected Date EC.`,
+           biopsy_result_received_date                                               as `Biopsy Result Received Date`,
+           biopsy_result_received_date                                               as `Biopsy Result Received Date EC.`,
+           biopsy_result                                                             as `Biopsy Result`,
+           CCS_Precancerous_Treat                                                    as `Treatment Received For Precancerous Lesion`,
+           ccs_treat_received_date                                                   as `Date Treatment Given`,
+           ccs_treat_received_date                                                   as `Date Treatment Given EC.`,
+           referral_or_linkage_status                                                as `Referral Status`,
+           reason_for_referral_cacx                                                  as `Reason For Referral`,
+           date_patient_referred_out                                                 as `Date Referred to Other HF`,
+           date_patient_referred_out                                                 as `Date Referred to Other HF EC.`,
+           date_client_arrived_in_the_referred                                       as `Date Client Arrived in Reffered HF`,
+           date_client_arrived_in_the_referred                                       as `Date Client Arrived in Reffered HF EC.`,
+           date_client_served_in_the_referred_                                       as `Date Client Served in Reffered HF`,
+           date_client_served_in_the_referred_                                       as `Date Client Served in Reffered HF EC.`,
+           ccs_next_date                                                             as `Next Appointment Date for CCS`,
+           ccs_next_date                                                             as `Next Appointment Date for CCS EC.`
     from cx_base_clients;
 
 END //
