@@ -17,7 +17,7 @@ public class VlSentReceivedLineListDataSetDefinitionMamba extends BaseDataSetDef
 	
 	@ConfigurationProperty
 	private Date endDate;
-
+	
 	@ConfigurationProperty
 	private String type;
 	
@@ -36,10 +36,11 @@ public class VlSentReceivedLineListDataSetDefinitionMamba extends BaseDataSetDef
 	public void setEndDate(Date endDate) {
 		this.endDate = endDate;
 	}
-
+	
 	public String getType() {
 		return type;
 	}
+	
 	public void setType(String type) {
 		this.type = type;
 	}

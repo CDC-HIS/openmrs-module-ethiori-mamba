@@ -36,22 +36,22 @@ public class VLSentReceivedLineListReportMamba implements ReportManager {
 	
 	@Override
 	public List<Parameter> getParameters() {
-
+		
 		Parameter startDate = new Parameter("startDate", "Start Date", Date.class);
 		startDate.setRequired(true);
 		Parameter startDateGC = new Parameter("startDateGC", " ", Date.class);
 		startDateGC.setRequired(false);
-
+		
 		Parameter endDate = new Parameter("endDate", "End Date", Date.class);
 		endDate.setRequired(true);
 		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
 		endDateGC.setRequired(false);
-
+		
 		Parameter type = new Parameter("type", "Type", String.class);
 		type.setRequired(true);
 		type.addToWidgetConfiguration("codedOptions", "Sent,Received");
 		type.setDefaultValue("all");
-
+		
 		return Arrays.asList(startDate, startDateGC, endDate, endDateGC, type);
 		
 	}
@@ -68,8 +68,8 @@ public class VLSentReceivedLineListReportMamba implements ReportManager {
 		VlSentReceivedLineListDataSetDefinitionMamba vlSentReceivedLineListDataSetDefinitionMamba = new VlSentReceivedLineListDataSetDefinitionMamba();
 		vlSentReceivedLineListDataSetDefinitionMamba.addParameters(getParameters());
 		
-		reportDefinition.addDataSetDefinition("VL Sent/Received Line List",
-		    EthiOhriUtil.map(vlSentReceivedLineListDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC},type=${type}"));
+		reportDefinition.addDataSetDefinition("VL Sent/Received Line List", EthiOhriUtil.map(
+		    vlSentReceivedLineListDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC},type=${type}"));
 		
 		return reportDefinition;
 	}
