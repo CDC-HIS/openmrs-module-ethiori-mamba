@@ -178,18 +178,18 @@ BEGIN
                                   from tmp_latest_alive_restart
                                   where row_num = 1
                                     AND follow_up_status in ('Alive', 'Restart medication')),
-         vl_eligibility as (SELECT f_case.art_start_date                         as art_start_date,
-                                   f_case.breastfeeding_status                   as BreastFeeding,
-                                   f_case.date_hiv_confirmed                     as date_hiv_confirmed,
-                                   sub_switch_date.FollowupDate                  as date_regimen_change,
-                                   all_art_follow_ups.follow_up_status           as follow_up_status,
-                                   f_case.follow_up_date                         as FollowUpDate,
-                                   f_case.pregnancy_status                       as IsPregnant,
-                                   f_case.client_id                              as PatientId,
-                                   vlperfdate.viral_load_count                   as viral_load_count,
-                                   vlperfdate.viral_load_perform_date            as viral_load_perform_date,
-                                   vlsentdate.VL_Sent_Date                       as viral_load_sent_date,
-                                   vlperfdate.viral_load_status                  as viral_load_status,
+         vl_eligibility as (SELECT f_case.art_start_date                                     as art_start_date,
+                                   f_case.breastfeeding_status                               as BreastFeeding,
+                                   f_case.date_hiv_confirmed                                 as date_hiv_confirmed,
+                                   sub_switch_date.FollowupDate                              as date_regimen_change,
+                                   all_art_follow_ups.follow_up_status                       as follow_up_status,
+                                   f_case.follow_up_date                                     as FollowUpDate,
+                                   f_case.pregnancy_status                                   as IsPregnant,
+                                   f_case.client_id                                          as PatientId,
+                                   vlperfdate.viral_load_count                               as viral_load_count,
+                                   vlperfdate.viral_load_perform_date                        as viral_load_perform_date,
+                                   vlsentdate.VL_Sent_Date                                   as viral_load_sent_date,
+                                   vlperfdate.viral_load_status                              as viral_load_status,
                                    f_case.weight,
                                    arv_dispensed_dose,
                                    f_case.regimen,
@@ -200,11 +200,11 @@ BEGIN
                                            THEN vlsentdate.VL_Sent_Date
                                        WHEN vlperfdate.viral_load_perform_date IS NOT NULL
                                            THEN vlperfdate.viral_load_perform_date
-                                       ELSE NULL END                             AS viral_load_ref_date,
-                                   sub_switch_date.FollowupDate                  as switchDate,
+                                       ELSE NULL END                                         AS viral_load_ref_date,
+                                   sub_switch_date.FollowupDate                              as switchDate,
                                    vlperfdate.viral_load_status_inferred,
 
-                                   vlperfdate.routine_viral_load_test_indication as viral_load_indication,
+                                   vlperfdate.routine_viral_load_test_indication             as viral_load_indication,
 
                                    CASE
 
@@ -283,7 +283,7 @@ BEGIN
                                            (vlperfdate.viral_load_ref_date IS NOT NULL)
                                            THEN DATE_ADD(vlperfdate.viral_load_ref_date, INTERVAL 365 DAY)
 
-                                       ELSE '12-31-9999' End                     AS eligiblityDate,
+                                       ELSE DATE_ADD(REPORT_END_DATE, INTERVAL 100 YEAR) End AS eligiblityDate,
 
                                    CASE
 
@@ -348,7 +348,7 @@ BEGIN
                                            (vlperfdate.viral_load_ref_date IS NOT NULL)
                                            THEN 'Annual Viral Load Test'
 
-                                       ELSE 'Unassigned' End                     AS vl_status_final
+                                       ELSE 'Unassigned' End                                 AS vl_status_final
 
                             FROM FollowUp AS f_case
                                      INNER JOIN latest_alive_restart
@@ -366,58 +366,60 @@ BEGIN
 
                                      Left join all_art_follow_ups on f_case.client_id = all_art_follow_ups.client_id
 
-                            where all_art_follow_ups.follow_up_status in ('Alive', 'Restart Medication'))
-    select patient_name                                     AS 'Patient Name',
-           patient_uuid                                     as `UUID`,
-           CAST(client.mrn AS CHAR(20))                     as MRN,
-           uan                                              as UniqueArtNumber,
-           TIMESTAMPDIFF(YEAR, date_of_birth, FollowUpDate) as Age,
-           client.sex,
-           Weight,
-           client.phone_no                                  as PNumber,
-           client.mobile_no                                 as Mobile,
-           DATE_FORMAT(eligiblityDate, '%c/%d/%Y')          as `Eligiblity Date`,
-           DATE_FORMAT(eligiblityDate, '%c/%d/%Y')          as `Eligiblity Date EC.`,
-           art_start_date                                   as `ART Start Date`,
-           art_start_date                                   as `ART Start Date EC.`,
-           FollowUpDate                                     as `Follow Up Date`,
-           FollowUpDate                                     as `Follow Up Date EC.`,
-           date_regimen_change                              as `Date Regiment Change`,
-           date_regimen_change                              as `Date Regiment Change EC.`,
-           viral_load_sent_date                             as `Viral Load Sent Date`,
-           viral_load_sent_date                             as `Viral Load Sent Date EC.`,
-           viral_load_perform_date                          as `Viral Load Received Date`,
-           viral_load_perform_date                          as `Viral Load Received Date EC.`,
-           IsPregnant,
-           next_visit_date                                  as `Next Visit Date`,
-           next_visit_date                                  as `Next Visit Date EC.`,
-           follow_up_status                                 as followupstatus,
-           viral_load_ref_date                              as `Viral Load Ref Date`,
-           viral_load_ref_date                              as `Viral Load Ref Date EC.`,
-           treatment_end_date                               as `Art Dose End Date`,
-           treatment_end_date                               as `Art Dose End Date EC.`,
-           viral_load_status                                as vl_status,
-           viral_load_count                                 as VLCount,
-           regimen                                          as artdose,
-           CASE
-               WHEN IsPregnant = 'Yes' OR BreastFeeding = 'Yes' THEN
-                   'Yes'
-               ELSE 'No' END                                AS `PMTCT-ART`,
-           date_hiv_confirmed                               as `Hiv Confirmed Date EC`,
-           date_hiv_confirmed                               as `Hiv Confirmed Date EC.`,
-           t.arv_dispensed_dose                             as ARTDoseDays,
-           CASE
-               WHEN t.eligiblityDate > COALESCE(REPORT_END_DATE, CURDATE()) THEN 'N/A'
-               ELSE vl_status_final END                     as `Reason for Viral Load Eligibility`,
-           case
+                            where all_art_follow_ups.follow_up_status in ('Alive', 'Restart Medication')),
+        eligibility as ( select patient_name                                     AS 'Patient Name',
+                                patient_uuid                                     as `UUID`,
+                                CAST(client.mrn AS CHAR(20))                     as MRN,
+                                uan                                              as UniqueArtNumber,
+                                TIMESTAMPDIFF(YEAR, date_of_birth, FollowUpDate) as Age,
+                                client.sex,
+                                Weight,
+                                client.phone_no                                  as PNumber,
+                                client.mobile_no                                 as Mobile,
+                                CAST(eligiblityDate AS DATE)                     as `Eligiblity Date`,
+                                CAST(eligiblityDate AS DATE)                     as `Eligiblity Date EC.`,
+                                art_start_date                                   as `ART Start Date`,
+                                art_start_date                                   as `ART Start Date EC.`,
+                                FollowUpDate                                     as `Follow Up Date`,
+                                FollowUpDate                                     as `Follow Up Date EC.`,
+                                date_regimen_change                              as `Date Regiment Change`,
+                                date_regimen_change                              as `Date Regiment Change EC.`,
+                                viral_load_sent_date                             as `Viral Load Sent Date`,
+                                viral_load_sent_date                             as `Viral Load Sent Date EC.`,
+                                viral_load_perform_date                          as `Viral Load Received Date`,
+                                viral_load_perform_date                          as `Viral Load Received Date EC.`,
+                                IsPregnant,
+                                next_visit_date                                  as `Next Visit Date`,
+                                next_visit_date                                  as `Next Visit Date EC.`,
+                                follow_up_status                                 as followupstatus,
+                                viral_load_ref_date                              as `Viral Load Ref Date`,
+                                viral_load_ref_date                              as `Viral Load Ref Date EC.`,
+                                treatment_end_date                               as `Art Dose End Date`,
+                                treatment_end_date                               as `Art Dose End Date EC.`,
+                                viral_load_status                                as vl_status,
+                                viral_load_count                                 as VLCount,
+                                regimen                                          as artdose,
+                                CASE
+                                    WHEN IsPregnant = 'Yes' OR BreastFeeding = 'Yes' THEN
+                                        'Yes'
+                                    ELSE 'No' END                                AS `PMTCT-ART`,
+                                date_hiv_confirmed                               as `Hiv Confirmed Date EC`,
+                                date_hiv_confirmed                               as `Hiv Confirmed Date EC.`,
+                                t.arv_dispensed_dose                             as ARTDoseDays,
+                                CASE
+                                    WHEN t.eligiblityDate > COALESCE(REPORT_END_DATE, CURDATE()) THEN 'N/A'
+                                    ELSE vl_status_final END                     as `Reason for Viral Load Eligibility`,
+                                case
 
-               when t.vl_status_final = 'N/A' THEN 'Not Applicable'
-               when t.eligiblityDate <= COALESCE(REPORT_END_DATE, CURDATE()) THEN 'Eligible for Viral Load'
-               when t.eligiblityDate > COALESCE(REPORT_END_DATE, CURDATE()) THEN 'Viral Load Done' -- 'Viral Load Done'
-               when t.art_start_date is NULL and t.follow_up_status is null THEN 'Not Started ART'
-               end                                          as `Viral Load Eligibility Status`
-    from vl_eligibility t
-             join mamba_dim_client client on t.PatientId = client_id;
+                                    when t.vl_status_final = 'N/A' THEN 'Not Applicable'
+                                    when t.eligiblityDate <= COALESCE(REPORT_END_DATE, CURDATE()) THEN 'Eligible for Viral Load'
+                                    when t.eligiblityDate > COALESCE(REPORT_END_DATE, CURDATE()) THEN 'Viral Load Done' -- 'Viral Load Done'
+                                    when t.art_start_date is NULL and t.follow_up_status is null THEN 'Not Started ART'
+                                    end                                          as `Viral Load Eligibility Status`
+                         from vl_eligibility t
+                                  join mamba_dim_client client on t.PatientId = client_id )
+    select *
+    from eligibility;
 END //
 
 DELIMITER ;
