@@ -47,7 +47,8 @@ BEGIN
                          cytology_result,
                          purpose_for_visit_cervical_screening      as visit_type,
                          hpv_dna_result_received_date              as hpv_received_date,
-                         date_cytology_result_received             as cytology_received_date
+                         date_cytology_result_received             as cytology_received_date,
+                         is_the_client_screened_in_this_facility
                   FROM mamba_flat_encounter_follow_up follow_up
                                LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1
                                          ON follow_up.encounter_id = follow_up_1.encounter_id
@@ -89,6 +90,7 @@ BEGIN
                          from FollowUp
                                   join currently_on_art on FollowUp.client_id = currently_on_art.client_id
                          where cx_ca_screening_status = ''Cervical cancer screening performed''
+                           and is_the_client_screened_in_this_facility = ''Yes''
                            and ((via_date BETWEEN ? AND ?
                                     -- AND screening_method != ''Human Papillomavirus test''
                                ) OR
