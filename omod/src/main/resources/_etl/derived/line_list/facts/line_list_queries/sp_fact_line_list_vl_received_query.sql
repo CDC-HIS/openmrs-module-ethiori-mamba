@@ -153,8 +153,8 @@ BEGIN
 
                                FROM FollowUp
                                         INNER JOIN vl_performed_date as vlperfdate
-                                                   ON vlperfdate.client_id = FollowUp.client_id
-                                        LEFT JOIN mamba_dim_client client ON latest_follow_up.client_id = client.client_id
+                                                   ON vlperfdate.encounter_id = FollowUp.encounter_id
+                                        LEFT JOIN mamba_dim_client client ON vlperfdate.client_id = client.client_id
                                         LEFT JOIN latest_follow_up
                                                   ON latest_follow_up.encounter_id = FollowUp.encounter_id)
     select *

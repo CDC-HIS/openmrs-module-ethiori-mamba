@@ -42,7 +42,6 @@ public class CXCAEligibilityLineListDataSetEvaluator implements DataSetEvaluator
 
 		ResultSetMapper resultSetMapper = new ResultSetMapper();
 
-		ValidateDates(data, cxcaEligibilityListDatasetDefinition.getStartDate(), cxcaEligibilityListDatasetDefinition.getEndDate());
 		if(!data.getRows().isEmpty()){
 			return data;
 		}
@@ -70,14 +69,13 @@ public class CXCAEligibilityLineListDataSetEvaluator implements DataSetEvaluator
 	}
 	
 	private List<ProcedureCall> createProcedureCalls(CXCAEligibilityListDatasetDefinition cxcaEligibilityListDatasetDefinition) {
-		java.sql.Date startDate = new java.sql.Date(cxcaEligibilityListDatasetDefinition.getStartDate().getTime());
+
 		java.sql.Date endDate = new java.sql.Date(cxcaEligibilityListDatasetDefinition.getEndDate().getTime());
 
 		return Collections.singletonList(
 
-                new ProcedureCall("{call sp_fact_line_list_cxca_eligibility_query(?,?)}", statement -> {
-                    statement.setDate(1, startDate);
-                    statement.setDate(2, endDate);
+                new ProcedureCall("{call sp_fact_line_list_cxca_eligibility_query(?)}", statement -> {
+                    statement.setDate(1, endDate);
                 })
         );
 	}

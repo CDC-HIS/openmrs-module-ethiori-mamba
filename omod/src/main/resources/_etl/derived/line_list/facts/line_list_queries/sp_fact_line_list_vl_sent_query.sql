@@ -139,8 +139,8 @@ BEGIN
 
                           FROM FollowUp
                                    INNER JOIN vl_sent_date as vlsent
-                                              ON vlsent.client_id = FollowUp.client_id
-                                   LEFT JOIN mamba_dim_client client ON latest_follow_up.client_id = client.client_id
+                                              ON vlsent.encounter_id = FollowUp.encounter_id
+                                   LEFT JOIN mamba_dim_client client ON vlsent.client_id = client.client_id
                                    LEFT JOIN latest_follow_up
                                              ON latest_follow_up.encounter_id = FollowUp.encounter_id)
     select *
