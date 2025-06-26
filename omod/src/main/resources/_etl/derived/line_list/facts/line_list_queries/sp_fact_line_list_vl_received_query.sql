@@ -82,20 +82,6 @@ BEGIN
                                      AND art_start_date IS NOT NULL
                                      AND viral_load_perform_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE
                                    GROUP BY client_id, encounter_id),
-         vl_sent_date_tmp AS (SELECT FollowUp.encounter_id,
-                                     FollowUp.client_id,
-                                     FollowUp.viral_load_perform_date,
-                                     FollowUp.viral_load_test_status,
-                                     'vl_sent'                                                                                        as vl_type,
-                                     FollowUp.viral_load_sent_date,
-                                     routine_viral_load_test_indication,
-                                     targeted_viral_load_test_indication,
-                                     ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY viral_load_sent_date DESC, encounter_id DESC) AS row_num
-                              FROM FollowUp
-                              WHERE follow_up_status IS NOT NULL
-                                AND art_start_date IS NOT NULL
-                                AND viral_load_sent_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE
-                              GROUP BY client_id, encounter_id),
          latest_follow_up_tmp AS (SELECT client_id,
                                          follow_up_date                                                                             AS FollowupDate,
                                          encounter_id,
@@ -112,10 +98,9 @@ BEGIN
                                     AND follow_up_date <= REPORT_END_DATE),
          latest_follow_up AS (select * from latest_follow_up_tmp where row_num = 1),
          vl_performed_date as (select * from vl_performed_date_tmp where row_num = 1),
-         vl_sent_date as (select * from vl_sent_date_tmp where row_num = 1),
-
 
          vl_test_performed AS (SELECT patient_name                                        as `Patient Name`,
+                                      patient_uuid as `UUID`,
                                       MRN,
                                       UAN,
                                       TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) as Age,
