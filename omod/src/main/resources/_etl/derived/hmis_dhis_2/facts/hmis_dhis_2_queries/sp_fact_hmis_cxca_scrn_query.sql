@@ -16,7 +16,8 @@ WITH FollowUp as (select follow_up.encounter_id,
                          follow_up_date_followup_                  as follow_up_date,
                          date_hpv_test_was_done                    as hpv_date,
                          date_visual_inspection_of_the_cervi       as via_date,
-                         hpv_dna_result_received_date          as hpv_received_date
+                         hpv_dna_result_received_date          as hpv_received_date,
+                         is_the_client_screened_in_this_facility
                   FROM mamba_flat_encounter_follow_up follow_up
                            LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1
                                      ON follow_up.encounter_id = follow_up_1.encounter_id
@@ -51,6 +52,7 @@ WITH FollowUp as (select follow_up.encounter_id,
                                --  AND screening_type != 'Human Papillomavirus test'
                                 )
                          )
+                     and is_the_client_screened_in_this_facility = 'Yes'
                      )
 --  Cervical Cancer screening by type of test
 SELECT 'HIV_CXCA_SCRN.1'                     AS S_NO,
