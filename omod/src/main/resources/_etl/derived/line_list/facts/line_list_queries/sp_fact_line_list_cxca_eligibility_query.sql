@@ -2,7 +2,7 @@ DELIMITER //
 
 DROP PROCEDURE IF EXISTS sp_fact_line_list_cxca_eligibility_query;
 
-CREATE PROCEDURE sp_fact_line_list_cxca_eligibility_query(IN REPORT_START_DATE DATE, IN REPORT_END_DATE DATE)
+CREATE PROCEDURE sp_fact_line_list_cxca_eligibility_query(IN REPORT_END_DATE DATE)
 BEGIN
     WITH FollowUP AS (SELECT follow_up.encounter_id,
                              follow_up.client_id,
@@ -778,75 +778,76 @@ BEGIN
                                             THEN REPORT_END_DATE
                                         END                       AS EligibilityDate
                              from latest_follow_up
-                                      left join prev_screening on prev_screening.client_id = latest_follow_up.client_id)
-    select patient_name                                                                 `Patient Name`,
-           patient_uuid                                                                 `UUID`,
-           CAST(mrn AS CHAR(20))                                                     as mrn,
-           uan,
-           mobile_no                                                                 as `Mobile No`,
-           phone_no                                                                  as `Home Telephone No`,
-           Weight,
-           Age,
-           EligibilityDate                                                           as `Eligibility Date`,
-           EligibilityDate                                                           as `Eligibility Date EC.`,
-           LEFT(EligibilityStatus, IF(LEFT(EligibilityStatus, 3) = 'Eli', 8, 12))    as `Eligibility Status`,
-           SUBSTR(EligibilityStatus, IF(LEFT(EligibilityStatus, 3) = 'Eli', 10, 14)) as `Eligibility Reason`,
-           follow_up_date                                                            as `Follow Up Date`,
-           follow_up_date                                                            as `Follow Up Date EC.`,
-           ArtStartDate                                                              as `Art Start Date`,
-           ArtStartDate                                                              as `Art Start Date EC.`,
-           CASE follow_up_status
-               WHEN 'Alive' THEN 'Alive on ART'
-               WHEN 'Restart medication' THEN 'Restart'
-               WHEN 'Transferred out' THEN 'TO'
-               WHEN 'Stop all' THEN 'Stop'
-               WHEN 'Loss to follow-up (LTFU)' THEN 'Lost'
-               WHEN 'Ran away' THEN 'Drop'
-               END                                                                   AS `Follow Up Status`,
-           next_visit_date                                                           as `Next Appointment Date`,
-           next_visit_date                                                           as `Next Appointment Date EC.`,
-           regimen                                                                   as `ARV Regimen`,
-           dose_days                                                                 as `ART Dose Days`,
-           CCaCounsellingGiven                                                       as Counselled,
-           Accepted,
-           screening_type                                                            as `Screening Type`,
-           screening_method                                                             `Screening Method`,
-           hpv_subtype                                                               as `HPV SubType`,
-           date_hpv_test_was_done                                                    as `HPV Sample Collected Date`,
-           date_hpv_test_was_done                                                    as `HPV Sample Collected Date EC.`,
-           hpv_dna_result_received_date                                              as `HPV DNA Result Received Date`,
-           hpv_dna_result_received_date                                              as `HPV DNA Result Received Date EC.`,
-           ccs_hpv_result                                                            as `HPV Result`,
-           via_date                                                                  as `VIA Screening Date`,
-           via_date                                                                  as `VIA Screening Date EC.`,
-           ccs_via_result                                                            as `VIA Screening Result`,
-           cytology_sample_collection_date                                           as `Cytology Sample Collected Date`,
-           cytology_sample_collection_date                                           as `Cytology Sample Collected Date EC.`,
-           cytology_result_date                                                      as `Cytology Result Received Date`,
-           cytology_result_date                                                      as `Cytology Result Received Date EC.`,
-           cytology_result                                                           as `Cytology Result`,
-           colposcopy_exam_date                                                      as `Colposcopy Exam Date`,
-           colposcopy_exam_date                                                      as `Colposcopy Exam Date EC.`,
-           colposcopy_exam_finding                                                   as `Colposcopy Exam Result`,
-           biopsy_sample_collected_date                                              as `Biopsy Sample Collected Date`,
-           biopsy_sample_collected_date                                              as `Biopsy Sample Collected Date EC.`,
-           biopsy_result_received_date                                               as `Biopsy Result Received Date`,
-           biopsy_result_received_date                                               as `Biopsy Result Received Date EC.`,
-           biopsy_result                                                             as `Biopsy Result`,
-           CCS_Precancerous_Treat                                                    as `Treatment Received For Precancerous Lesion`,
-           ccs_treat_received_date                                                   as `Date Treatment Given`,
-           ccs_treat_received_date                                                   as `Date Treatment Given EC.`,
-           referral_or_linkage_status                                                as `Referral Status`,
-           reason_for_referral_cacx                                                  as `Reason For Referral`,
-           date_patient_referred_out                                                 as `Date Referred to Other HF`,
-           date_patient_referred_out                                                 as `Date Referred to Other HF EC.`,
-           date_client_arrived_in_the_referred                                       as `Date Client Arrived in Reffered HF`,
-           date_client_arrived_in_the_referred                                       as `Date Client Arrived in Reffered HF EC.`,
-           date_client_served_in_the_referred_                                       as `Date Client Served in Reffered HF`,
-           date_client_served_in_the_referred_                                       as `Date Client Served in Reffered HF EC.`,
-           ccs_next_date                                                             as `Next Appointment Date for CCS`,
-           ccs_next_date                                                             as `Next Appointment Date for CCS EC.`
-    from cx_base_clients;
+                                      left join prev_screening on prev_screening.client_id = latest_follow_up.client_id),
+        cx_eligibility as (  select patient_name                                                                 `Patient Name`,
+                                    patient_uuid                                                                 `UUID`,
+                                    CAST(mrn AS CHAR(20))                                                     as mrn,
+                                    uan,
+                                    mobile_no                                                                 as `Mobile No`,
+                                    phone_no                                                                  as `Home Telephone No`,
+                                    Weight,
+                                    Age,
+                                    CAST(EligibilityDate AS Date)                                                           as `Eligibility Date`,
+                                    CAST(EligibilityDate AS Date)                                                           as `Eligibility Date EC.`,
+                                    LEFT(EligibilityStatus, IF(LEFT(EligibilityStatus, 3) = 'Eli', 8, 12))    as `Eligibility Status`,
+                                    SUBSTR(EligibilityStatus, IF(LEFT(EligibilityStatus, 3) = 'Eli', 10, 14)) as `Eligibility Reason`,
+                                    follow_up_date                                                            as `Follow Up Date`,
+                                    follow_up_date                                                            as `Follow Up Date EC.`,
+                                    ArtStartDate                                                              as `Art Start Date`,
+                                    ArtStartDate                                                              as `Art Start Date EC.`,
+                                    CASE follow_up_status
+                                        WHEN 'Alive' THEN 'Alive on ART'
+                                        WHEN 'Restart medication' THEN 'Restart'
+                                        WHEN 'Transferred out' THEN 'TO'
+                                        WHEN 'Stop all' THEN 'Stop'
+                                        WHEN 'Loss to follow-up (LTFU)' THEN 'Lost'
+                                        WHEN 'Ran away' THEN 'Drop'
+                                        END                                                                   AS `Follow Up Status`,
+                                    next_visit_date                                                           as `Next Appointment Date`,
+                                    next_visit_date                                                           as `Next Appointment Date EC.`,
+                                    regimen                                                                   as `ARV Regimen`,
+                                    dose_days                                                                 as `ART Dose Days`,
+                                    CCaCounsellingGiven                                                       as Counselled,
+                                    Accepted,
+                                    screening_type                                                            as `Screening Type`,
+                                    screening_method                                                             `Screening Method`,
+                                    hpv_subtype                                                               as `HPV SubType`,
+                                    date_hpv_test_was_done                                                    as `HPV Sample Collected Date`,
+                                    date_hpv_test_was_done                                                    as `HPV Sample Collected Date EC.`,
+                                    hpv_dna_result_received_date                                              as `HPV DNA Result Received Date`,
+                                    hpv_dna_result_received_date                                              as `HPV DNA Result Received Date EC.`,
+                                    ccs_hpv_result                                                            as `HPV Result`,
+                                    via_date                                                                  as `VIA Screening Date`,
+                                    via_date                                                                  as `VIA Screening Date EC.`,
+                                    ccs_via_result                                                            as `VIA Screening Result`,
+                                    cytology_sample_collection_date                                           as `Cytology Sample Collected Date`,
+                                    cytology_sample_collection_date                                           as `Cytology Sample Collected Date EC.`,
+                                    cytology_result_date                                                      as `Cytology Result Received Date`,
+                                    cytology_result_date                                                      as `Cytology Result Received Date EC.`,
+                                    cytology_result                                                           as `Cytology Result`,
+                                    colposcopy_exam_date                                                      as `Colposcopy Exam Date`,
+                                    colposcopy_exam_date                                                      as `Colposcopy Exam Date EC.`,
+                                    colposcopy_exam_finding                                                   as `Colposcopy Exam Result`,
+                                    biopsy_sample_collected_date                                              as `Biopsy Sample Collected Date`,
+                                    biopsy_sample_collected_date                                              as `Biopsy Sample Collected Date EC.`,
+                                    biopsy_result_received_date                                               as `Biopsy Result Received Date`,
+                                    biopsy_result_received_date                                               as `Biopsy Result Received Date EC.`,
+                                    biopsy_result                                                             as `Biopsy Result`,
+                                    CCS_Precancerous_Treat                                                    as `Treatment Received For Precancerous Lesion`,
+                                    ccs_treat_received_date                                                   as `Date Treatment Given`,
+                                    ccs_treat_received_date                                                   as `Date Treatment Given EC.`,
+                                    referral_or_linkage_status                                                as `Referral Status`,
+                                    reason_for_referral_cacx                                                  as `Reason For Referral`,
+                                    date_patient_referred_out                                                 as `Date Referred to Other HF`,
+                                    date_patient_referred_out                                                 as `Date Referred to Other HF EC.`,
+                                    date_client_arrived_in_the_referred                                       as `Date Client Arrived in Reffered HF`,
+                                    date_client_arrived_in_the_referred                                       as `Date Client Arrived in Reffered HF EC.`,
+                                    date_client_served_in_the_referred_                                       as `Date Client Served in Reffered HF`,
+                                    date_client_served_in_the_referred_                                       as `Date Client Served in Reffered HF EC.`,
+                                    ccs_next_date                                                             as `Next Appointment Date for CCS`,
+                                    ccs_next_date                                                             as `Next Appointment Date for CCS EC.`
+                             from cx_base_clients)
+    select * from cx_eligibility;
 
 END //
 

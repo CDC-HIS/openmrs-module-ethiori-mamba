@@ -33,7 +33,7 @@ public class CXCAEligibilityLineListReportMamba implements ReportManager {
 	
 	@Override
 	public List<Parameter> getParameters() {
-		return EthiOhriUtil.getDateRangeParameters(Boolean.TRUE);
+		return EthiOhriUtil.getEndDateParameters(Boolean.TRUE);
 		
 	}
 	
@@ -50,7 +50,7 @@ public class CXCAEligibilityLineListReportMamba implements ReportManager {
 		cxcaEligibilityListDatasetDefinition.addParameters(getParameters());
 		
 		reportDefinition.addDataSetDefinition("List of Patients Eligible For Cervical Cancer Screening",
-		    EthiOhriUtil.map(cxcaEligibilityListDatasetDefinition, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(cxcaEligibilityListDatasetDefinition, "endDate=${endDateGC}"));
 		return reportDefinition;
 	}
 	
