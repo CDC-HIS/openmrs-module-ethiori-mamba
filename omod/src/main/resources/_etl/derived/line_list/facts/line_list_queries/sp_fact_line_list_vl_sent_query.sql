@@ -128,7 +128,7 @@ BEGIN
                                  vlsent.viral_load_perform_date                      as `VL Received Date`,
                                  vlsent.viral_load_perform_date                      as `VL Received Date EC.`,
                                  TIMESTAMPDIFF(DAY, vlsent.viral_load_sent_date,
-                                               REPORT_END_DATE)                         `TAT (in days)`,
+                                               vlsent.viral_load_perform_date)                         `TAT (in days)`,
                                  vlsent.routine_viral_load_test_indication           as `Routine Test type`,
                                  vlsent.targeted_viral_load_test_indication          as `Targeted Test Type`,
                                  vlsent.viral_load_test_status                       as viral_load_status,
