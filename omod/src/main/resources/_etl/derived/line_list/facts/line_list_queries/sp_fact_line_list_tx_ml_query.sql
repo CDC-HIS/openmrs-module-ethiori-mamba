@@ -145,7 +145,7 @@ BEGIN
            lost_follow_up_date                                      as `Last Follow-up Date in EC.`,
            lost_follow_up_status                                    as `Last Follow-up Status`,
            regimen                                                  as Regimen,
-           dose_days                                                   `ARV Dose Days`,
+           dose_days                                                as   `ARV Dose Days`,
            Adherence,
            next_visit_date                                          as `Next Visit Date`,
            next_visit_date                                          as `Next Visit Date EC.`,
@@ -155,8 +155,8 @@ BEGIN
            -- `On PMTCT?`,
            mobile_no                                                as `Mobile No.`,
            kebele                                                   as `Sub-City`,
-           city_village                                                Woreda,
-           house_number                                                `House No.`
+           city_village                                             as   Woreda,
+           house_number                                             as   `House No.`
     from interrupted_art;
 
 
