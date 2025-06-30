@@ -72,7 +72,7 @@ public class OTZLineListDatasetEvaluatorMamba implements DataSetEvaluator {
         java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date( dataSetDefinitionMamba.getEndDate().getTime()):null ;
 
         return Collections.singletonList(
-                new ProcedureCall("{call sp_fact_line_list_re_test_query(?,?)}", statement -> {
+                new ProcedureCall("{call sp_fact_line_list_otz_query(?,?)}", statement -> {
                         statement.setDate(1, startDate);
                         statement.setDate(2, endDate);
                 })
