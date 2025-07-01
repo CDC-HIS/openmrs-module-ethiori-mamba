@@ -91,11 +91,11 @@ BEGIN
                      where row_num = 1
                        AND follow_up_status in ('Alive', 'Restart medication')
                        AND treatment_end_date >= COALESCE(REPORT_END_DATE,CURDATE())),
-         latestDSD_tmp AS (SELECT PatientId,
+         latestDSD_tmp AS (SELECT FollowUp.PatientId,
                                   assessment_date                                                                              AS latestDsdDate,
-                                  encounter_id,
-                                  dsd_category,
-                                  ROW_NUMBER() OVER (PARTITION BY PatientId ORDER BY assessment_date DESC, follow_up_date desc , encounter_id DESC ) AS row_num
+                                  FollowUp.encounter_id,
+                                  FollowUp.dsd_category,
+                                  ROW_NUMBER() OVER (PARTITION BY FollowUp.PatientId ORDER BY assessment_date DESC, FollowUp.follow_up_date desc , FollowUp.encounter_id DESC ) AS row_num
                            FROM FollowUp
                            join tx_curr_all on FollowUp.encounter_id=tx_curr_all.encounter_id
                            WHERE assessment_date IS NOT NULL
