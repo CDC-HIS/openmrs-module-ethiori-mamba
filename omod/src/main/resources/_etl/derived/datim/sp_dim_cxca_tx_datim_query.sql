@@ -12,7 +12,7 @@ CREATE PROCEDURE sp_dim_cxca_tx_datim_query(
 BEGIN
 
     DECLARE age_group_cols VARCHAR(5000);
-    DECLARE cxca_tx_query VARCHAR(3000);
+    DECLARE cxca_tx_query text;
     DECLARE cxca_visit_condition VARCHAR(1000);
     DECLARE group_query TEXT;
 
