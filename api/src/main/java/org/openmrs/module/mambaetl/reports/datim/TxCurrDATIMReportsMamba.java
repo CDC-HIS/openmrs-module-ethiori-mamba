@@ -35,7 +35,7 @@ public class TxCurrDATIMReportsMamba implements ReportManager {
 	
 	@Override
 	public List<Parameter> getParameters() {
-		return EthiOhriUtil.getEndDateParameters(Boolean.FALSE);
+		return EthiOhriUtil.getEndDateParameters(Boolean.TRUE);
 		
 	}
 	

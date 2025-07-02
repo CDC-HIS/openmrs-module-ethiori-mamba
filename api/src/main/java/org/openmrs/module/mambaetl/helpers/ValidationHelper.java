@@ -14,7 +14,7 @@ public class ValidationHelper {
 		if (startDate != null && endDate != null && startDate.after(endDate)) {
 			DataSetRow row = new DataSetRow();
 			row.addColumnValue(new DataSetColumn("Error", "Error", String.class),
-			    "Report start date cannot be after report end date");
+			    "Invalid date range: End date precedes start date.");
 			data.addRow(row);
 			//	throw new EvaluationException("Start date cannot be greater than end date");
 		}
