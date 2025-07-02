@@ -76,7 +76,7 @@ public class HMISDHIS2DataSetEvaluator implements DataSetEvaluator {
 
 		java.sql.Date startDateVL12Month;
 
-		String viralLoadType = Context.getService(AdministrationService.class).getGlobalProperty("_viralLoad12MSetting");
+		String viralLoadType = Context.getService(AdministrationService.class).getGlobalProperty("_viralLoad12MSetting")!=null?Context.getService(AdministrationService.class).getGlobalProperty("_viralLoad12MSetting"):"";
 		if( Objects.nonNull(viralLoadType) && viralLoadType.equalsIgnoreCase("YES")){
 			Calendar calendar = Calendar.getInstance();
 			calendar.setTime(endDate);
