@@ -46,7 +46,7 @@ public class ProvidersViewLineListReportMamba implements ReportManager {
 		Parameter clientType = new Parameter("clientType", "Client Type", String.class);
 		clientType.setRequired(true);
 		clientType.addToWidgetConfiguration("codedOptions", "ALL,TX_CURR");
-		clientType.setDefaultValue("all");
+		clientType.setDefaultValue("ALL");
 		
 		Parameter patientGUID = new Parameter("patientGUID", "Patient GUID", String.class);
 		patientGUID.setRequired(false);

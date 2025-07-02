@@ -876,11 +876,11 @@ BEGIN
             OR (tmp_3.next_visit_date BETWEEN START_NV_DATE AND END_NV_DATE)
         )
       AND (
-        (TYPE_OF_CLIENT = 'curr'
+        (TYPE_OF_CLIENT = 'TX_CURR'
             AND tmp_3.follow_up_status IN ('Alive', 'Restart medication')
             AND tmp_3.art_dose_end_date >= END_DATE
             )
-            OR TYPE_OF_CLIENT = 'all'
+            OR TYPE_OF_CLIENT = 'ALL'
         )
       AND (
         PATIENT_GUID IS NULL
