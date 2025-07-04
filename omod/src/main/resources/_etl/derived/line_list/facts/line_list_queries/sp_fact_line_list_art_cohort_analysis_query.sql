@@ -46,7 +46,8 @@ BEGIN
     ART_Initiation AS (
         SELECT PatientId, MIN(art_start_date) AS art_start_date
         FROM FollowUpEncounters
-        WHERE art_start_date IS NOT NULL and art_start_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE
+        WHERE art_start_date IS NOT NULL
+        and art_start_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE
         GROUP BY PatientId
     ),
 
@@ -72,7 +73,7 @@ BEGIN
             DATE_ADD(a.art_start_date, INTERVAL i.interval_month MONTH) as interval_end_date
         FROM ART_Initiation a
         CROSS JOIN IntervalsDef i
-        WHERE DATE_ADD(a.art_start_date, INTERVAL i.interval_month MONTH) <= COALESCE(REPORT_END_DATE, CURDATE())
+    --    WHERE DATE_ADD(a.art_start_date, INTERVAL i.interval_month MONTH) <= COALESCE(REPORT_END_DATE, CURDATE())
     ),
 
     -- Finds the latest follow-up for each patient within each interval to determine their status and general clinical details.
