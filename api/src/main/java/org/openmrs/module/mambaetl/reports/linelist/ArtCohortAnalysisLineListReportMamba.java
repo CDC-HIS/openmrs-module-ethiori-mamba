@@ -1,5 +1,6 @@
 package org.openmrs.module.mambaetl.reports.linelist;
 
+import org.openmrs.module.mambaetl.datasetdefinition.linelist.ArtCohortAnalysisLineListDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.datasetdefinition.linelist.TxCurrLineListDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
@@ -50,11 +51,11 @@ public class ArtCohortAnalysisLineListReportMamba implements ReportManager {
 		
 		reportDefinition.setParameters(getParameters());
 		
-		TxCurrLineListDataSetDefinitionMamba txCurrDataSetDefinition = new TxCurrLineListDataSetDefinitionMamba();
-		txCurrDataSetDefinition.addParameters(getParameters());
+		ArtCohortAnalysisLineListDataSetDefinitionMamba artCohortAnalysisLineListDataSetDefinitionMamba = new ArtCohortAnalysisLineListDataSetDefinitionMamba();
+		artCohortAnalysisLineListDataSetDefinitionMamba.addParameters(getParameters());
 		
 		reportDefinition.addDataSetDefinition("ART Cohort Analysis LineList",
-		    map(txCurrDataSetDefinition, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    map(artCohortAnalysisLineListDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
 		return reportDefinition;
 	}
 	
