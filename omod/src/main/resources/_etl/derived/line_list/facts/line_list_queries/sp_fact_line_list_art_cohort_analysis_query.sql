@@ -70,10 +70,11 @@ BEGIN
             a.PatientId,
             a.art_start_date,
             i.interval_month,
-            DATE_ADD(a.art_start_date, INTERVAL i.interval_month MONTH) as interval_end_date
+            DATE_ADD(a.art_start_date, INTERVAL i.interval_month MONTH) as interval_end_date,
+            LAG(DATE_ADD(a.art_start_date, INTERVAL i.interval_month MONTH), 1, a.art_start_date) OVER (PARTITION BY a.PatientId ORDER BY i.interval_month) as interval_start_date
         FROM ART_Initiation a
         CROSS JOIN IntervalsDef i
-    --    WHERE DATE_ADD(a.art_start_date, INTERVAL i.interval_month MONTH) <= COALESCE(REPORT_END_DATE, CURDATE())
+    WHERE DATE_ADD(a.art_start_date, INTERVAL i.interval_month MONTH) <= COALESCE(REPORT_END_DATE, CURDATE())
     ),
 
     -- Finds the latest follow-up for each patient within each interval to determine their status and general clinical details.
@@ -97,7 +98,7 @@ BEGIN
             ROW_NUMBER() OVER(PARTITION BY pi.PatientId, pi.interval_month ORDER BY f.follow_up_date DESC, f.encounter_id DESC) as rn
         FROM PatientIntervals pi
         JOIN FollowUpEncounters f ON pi.PatientId = f.PatientId
-        WHERE f.follow_up_date <= pi.interval_end_date
+        WHERE f.follow_up_date >= pi.interval_start_date AND f.follow_up_date <= pi.interval_end_date
     ),
 
     -- Finds the latest Viral Load Sent record for each patient within each interval, independent of the main follow-up.
@@ -109,7 +110,7 @@ BEGIN
             ROW_NUMBER() OVER(PARTITION BY pi.PatientId, pi.interval_month ORDER BY f.viral_load_sent_date DESC, f.encounter_id DESC) as rn_vl_sent
         FROM PatientIntervals pi
         JOIN FollowUpEncounters f ON pi.PatientId = f.PatientId
-        WHERE f.follow_up_date <= pi.interval_end_date AND f.viral_load_sent_date IS NOT NULL
+        WHERE f.follow_up_date <= pi.interval_end_date and f.follow_up_date>=pi.art_start_date AND f.viral_load_sent_date IS NOT NULL
     ),
     -- Finds the latest Viral Load Performed record for each patient within each interval, independent of the main follow-up.
     LatestViralLoadPerformedInInterval AS (
@@ -121,7 +122,7 @@ BEGIN
             ROW_NUMBER() OVER(PARTITION BY pi.PatientId, pi.interval_month ORDER BY f.viral_load_received_date DESC, f.encounter_id DESC) as rn_vl_performed
         FROM PatientIntervals pi
         JOIN FollowUpEncounters f ON pi.PatientId = f.PatientId
-        WHERE f.follow_up_date <= pi.interval_end_date AND f.viral_load_received_date IS NOT NULL
+        WHERE f.follow_up_date <= pi.interval_end_date and f.follow_up_date>=pi.art_start_date AND f.viral_load_received_date IS NOT NULL
     ),
 
     -- Combines the latest follow-up details with the latest viral load details for each interval.
