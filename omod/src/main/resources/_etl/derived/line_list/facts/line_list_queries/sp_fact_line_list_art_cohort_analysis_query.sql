@@ -24,7 +24,8 @@ BEGIN
             hiv_viral_load as viral_load_count,
             cd4_count,
             cd4_ as cd4_percent,
-            current_functional_status
+            current_functional_status,
+            transferred_in_check_this_for_all_t
         FROM mamba_flat_encounter_follow_up follow_up
         LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1 ON follow_up.encounter_id = follow_up_1.encounter_id
         LEFT JOIN mamba_flat_encounter_follow_up_2 follow_up_2 ON follow_up.encounter_id = follow_up_2.encounter_id
@@ -93,7 +94,7 @@ BEGIN
                  f.current_functional_status,
                  ROW_NUMBER() OVER(PARTITION BY pi.PatientId, pi.interval_month ORDER BY f.follow_up_date DESC, f.encounter_id DESC) as rn
              FROM PatientIntervals pi
-                      LEFT JOIN  FollowUpEncounters f ON pi.PatientId = f.PatientId AND f.follow_up_date BETWEEN pi.interval_start_date AND pi.interval_end_date
+                      LEFT JOIN  FollowUpEncounters f ON pi.PatientId = f.PatientId WHERE f.follow_up_date BETWEEN pi.interval_start_date AND pi.interval_end_date
 
          ),
          -- Finds the latest Viral Load Sent record for each patient within each interval, independent of the main follow-up.
