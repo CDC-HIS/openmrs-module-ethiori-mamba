@@ -4,7 +4,6 @@ DROP PROCEDURE IF EXISTS sp_fact_line_list_ahd_query;
 
 CREATE PROCEDURE sp_fact_line_list_ahd_query(IN REPORT_END_DATE DATE)
 BEGIN
-
     WITH FollowUp AS (select follow_up.encounter_id,
                              follow_up.client_id,
                              follow_up_status,
