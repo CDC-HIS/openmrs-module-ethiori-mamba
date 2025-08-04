@@ -70,12 +70,20 @@ public class ArtCohortAnalysisLineListDatasetEvaluatorMamba implements DataSetEv
 	private List<ProcedureCall> createProcedureCalls(ArtCohortAnalysisLineListDataSetDefinitionMamba dataSetDefinitionMamba) {
         java.sql.Date startDate = new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime());
         java.sql.Date endDate = new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime());
-
-        return Collections.singletonList(
+        if (dataSetDefinitionMamba.getType().equalsIgnoreCase("LineList")){
+            return Collections.singletonList(
+                    new ProcedureCall("{call sp_fact_line_list_art_cohort_analysis_query(?,?)}", statement -> {
+                        statement.setDate(1, startDate);
+                        statement.setDate(2, endDate);
+                    })
+            );
+        }
+        else return Collections.singletonList(
                 new ProcedureCall("{call sp_fact_line_list_art_cohort_analysis_query(?,?)}", statement -> {
                     statement.setDate(1, startDate);
                     statement.setDate(2, endDate);
                 })
         );
+
     }
 }

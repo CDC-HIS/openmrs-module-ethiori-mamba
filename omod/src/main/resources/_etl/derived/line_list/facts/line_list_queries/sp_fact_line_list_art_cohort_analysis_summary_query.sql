@@ -1,5 +1,9 @@
-call sp_fact_line_list_art_cohort_analysis_query('2022-08-27', '2022-09-30');
-select * from mamba_dim_client where patient_uuid='d7d6f997b4ee4e8c99becdd50fe5bbf0';
+DELIMITER //
+
+DROP PROCEDURE IF EXISTS sp_fact_line_list_art_cohort_analysis_summary_query;
+
+CREATE PROCEDURE sp_fact_line_list_art_cohort_analysis_summary_query(IN REPORT_START_DATE DATE, IN REPORT_END_DATE DATE)
+BEGIN
 WITH FollowUpEncounters AS (SELECT follow_up.encounter_id,
                                    follow_up.client_id                 AS PatientId,
                                    follow_up_status,
@@ -45,7 +49,7 @@ WITH FollowUpEncounters AS (SELECT follow_up.encounter_id,
      ART_Initiation AS (SELECT PatientId, MIN(art_start_date) AS art_start_date
                         FROM FollowUpEncounters
                         WHERE art_start_date IS NOT NULL
-                          and art_start_date BETWEEN '2022-08-27' AND '2022-09-30'
+                          and art_start_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE
                         GROUP BY PatientId),
 
      -- Defines the cohort analysis intervals in months.
@@ -481,4 +485,8 @@ select 'Number of persons who picked up ARVs each month for 36 months ' as Name,
        SUM(CASE WHEN interval_month = 12 THEN 1 ELSE 0 END)             AS 'Month 12',
        SUM(CASE WHEN interval_month = 24 THEN 1 ELSE 0 END)             AS 'Month 24',
        SUM(CASE WHEN interval_month = 36 THEN 1 ELSE 0 END)             AS 'Month 36'
-from CohortDetails
+from CohortDetails;
+
+END //
+
+DELIMITER ;
