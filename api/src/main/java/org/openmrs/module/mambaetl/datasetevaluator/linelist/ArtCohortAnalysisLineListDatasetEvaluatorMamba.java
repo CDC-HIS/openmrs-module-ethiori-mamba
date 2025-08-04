@@ -79,7 +79,7 @@ public class ArtCohortAnalysisLineListDatasetEvaluatorMamba implements DataSetEv
             );
         }
         else return Collections.singletonList(
-                new ProcedureCall("{call sp_fact_line_list_art_cohort_analysis_query(?,?)}", statement -> {
+                new ProcedureCall("{call sp_fact_line_list_art_cohort_analysis_summary_query(?,?)}", statement -> {
                     statement.setDate(1, startDate);
                     statement.setDate(2, endDate);
                 })
