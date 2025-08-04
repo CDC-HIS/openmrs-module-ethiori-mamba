@@ -25,7 +25,7 @@ public class ArtCohortAnalysisLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "LINELIST- ART Cohort Analysis LineList";
+		return "ART-COHORT - ART Cohort Analysis LineList";
 	}
 	
 	@Override
@@ -43,12 +43,12 @@ public class ArtCohortAnalysisLineListReportMamba implements ReportManager {
 		endDate.setRequired(true);
 		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
 		endDateGC.setRequired(false);
-
+		
 		Parameter type = new Parameter("type", "Cohort Report Type", String.class);
 		type.setRequired(true);
 		type.addToWidgetConfiguration("codedOptions", "SUMMARY,LineList");
 		type.setDefaultValue("LineList");
-
+		
 		return Arrays.asList(startDate, startDateGC, endDate, endDateGC, type);
 		
 	}
