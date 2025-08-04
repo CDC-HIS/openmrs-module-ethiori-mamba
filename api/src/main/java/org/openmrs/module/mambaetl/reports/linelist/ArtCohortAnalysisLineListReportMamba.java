@@ -11,9 +11,7 @@ import org.openmrs.module.reporting.report.manager.ReportManager;
 import org.openmrs.module.reporting.report.manager.ReportManagerUtil;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static org.openmrs.module.mambaetl.helpers.EthiOhriUtil.map;
 
@@ -37,8 +35,21 @@ public class ArtCohortAnalysisLineListReportMamba implements ReportManager {
 	
 	@Override
 	public List<Parameter> getParameters() {
-		
-		return EthiOhriUtil.getDateRangeParameters(Boolean.TRUE);
+		Parameter startDate = new Parameter("startDate", "Start Date", Date.class);
+		startDate.setRequired(true);
+		Parameter startDateGC = new Parameter("startDateGC", " ", Date.class);
+		startDateGC.setRequired(false);
+		Parameter endDate = new Parameter("endDate", "End Date", Date.class);
+		endDate.setRequired(true);
+		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
+		endDateGC.setRequired(false);
+
+		Parameter type = new Parameter("type", "Cohort Report Type", String.class);
+		type.setRequired(true);
+		type.addToWidgetConfiguration("codedOptions", "SUMMARY,LineList");
+		type.setDefaultValue("LineList");
+
+		return Arrays.asList(startDate, startDateGC, endDate, endDateGC, type);
 		
 	}
 	
@@ -54,8 +65,10 @@ public class ArtCohortAnalysisLineListReportMamba implements ReportManager {
 		ArtCohortAnalysisLineListDataSetDefinitionMamba artCohortAnalysisLineListDataSetDefinitionMamba = new ArtCohortAnalysisLineListDataSetDefinitionMamba();
 		artCohortAnalysisLineListDataSetDefinitionMamba.addParameters(getParameters());
 		
-		reportDefinition.addDataSetDefinition("ART Cohort Analysis LineList",
-		    map(artCohortAnalysisLineListDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		reportDefinition.addDataSetDefinition(
+		    "ART Cohort Analysis LineList",
+		    map(artCohortAnalysisLineListDataSetDefinitionMamba,
+		        "startDate=${startDateGC},endDate=${endDateGC},type=${type}"));
 		return reportDefinition;
 	}
 	

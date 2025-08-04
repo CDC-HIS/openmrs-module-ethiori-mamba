@@ -107,6 +107,8 @@ WITH FollowUpEncounters AS (SELECT follow_up.encounter_id,
                                                    pi.interval_month,
                                                    f.viral_load_received_date,
                                                    f.viral_load_result,
+                                                   f.cd4_count,
+                                                   f.cd4_percent,
                                                    ROW_NUMBER() OVER (PARTITION BY pi.PatientId, pi.interval_month ORDER BY f.viral_load_received_date DESC, f.encounter_id DESC) as rn_vl_performed
                                             FROM PatientIntervals pi
                                                      JOIN FollowUpEncounters f ON pi.PatientId = f.PatientId
@@ -139,8 +141,8 @@ WITH FollowUpEncounters AS (SELECT follow_up.encounter_id,
                               viral_load_sent.viral_load_sent_date,
                               viral_load_performed.viral_load_received_date,
                               viral_load_performed.viral_load_result,
-                              lfu.cd4_count,
-                              lfu.cd4_percent,
+                              viral_load_performed.cd4_count,
+                              viral_load_performed.cd4_percent,
                               lfu.current_functional_status,
                               client.date_of_birth
                        FROM (SELECT * FROM LatestFollowUpInInterval WHERE rn = 1) lfu
@@ -162,23 +164,22 @@ select 'Started on ART in this clinic: original cohort'     as Name,
 from CohortDetails where interval_month = 0 and follow_up_date is not null
 UNION ALL
 select 'Transfer in Add+'                                   as Name,
-       SUM(CASE WHEN interval_month = 0 THEN 1 ELSE 0 END)  AS 'Month 0',
-       SUM(CASE WHEN interval_month = 6 THEN 1 ELSE 0 END)  AS 'Month 6',
-       SUM(CASE WHEN interval_month = 12 THEN 1 ELSE 0 END) AS 'Month 12',
-       SUM(CASE WHEN interval_month = 24 THEN 1 ELSE 0 END) AS 'Month 24',
-       SUM(CASE WHEN interval_month = 36 THEN 1 ELSE 0 END) AS 'Month 36'
+       SUM(CASE WHEN interval_month = 0 and ti_status = 'TI' THEN 1 ELSE 0 END)  AS 'Month 0',
+       SUM(CASE WHEN interval_month = 6 and ti_status = 'TI' THEN 1 ELSE 0 END)  AS 'Month 6',
+       SUM(CASE WHEN interval_month = 12 and ti_status = 'TI' THEN 1 ELSE 0 END) AS 'Month 12',
+       SUM(CASE WHEN interval_month = 24 and ti_status = 'TI' THEN 1 ELSE 0 END) AS 'Month 24',
+       SUM(CASE WHEN interval_month = 36 and ti_status = 'TI' THEN 1 ELSE 0 END) AS 'Month 36'
 
 from CohortDetails
-where ti_status = 'TI'
+
 UNION ALL
 select 'Transfers Out Subtract -'                            as Name,
-       SUM(CASE WHEN interval_month = 0 THEN 1 ELSE 0 END)   AS 'Month 0',
-       SUM(CASE WHEN interval_month <= 6 THEN 1 ELSE 0 END)  AS 'Month 6',
-       SUM(CASE WHEN interval_month <= 12 THEN 1 ELSE 0 END) AS 'Month 12',
-       SUM(CASE WHEN interval_month <= 24 THEN 1 ELSE 0 END) AS 'Month 24',
-       SUM(CASE WHEN interval_month <= 36 THEN 1 ELSE 0 END) AS 'Month 36'
+       SUM(CASE WHEN interval_month = 0 and  outcome = 'Transferred out' THEN 1 ELSE 0 END)   AS 'Month 0',
+       SUM(CASE WHEN interval_month <= 6 and  outcome = 'Transferred out' THEN 1 ELSE 0 END)  AS 'Month 6',
+       SUM(CASE WHEN interval_month <= 12 and  outcome = 'Transferred out' THEN 1 ELSE 0 END) AS 'Month 12',
+       SUM(CASE WHEN interval_month <= 24 and  outcome = 'Transferred out'THEN 1 ELSE 0 END) AS 'Month 24',
+       SUM(CASE WHEN interval_month <= 36 and  outcome = 'Transferred out' THEN 1 ELSE 0 END) AS 'Month 36'
 from CohortDetails
-where outcome = 'Transferred out'
 UNION ALL
 select 'Net current cohort'                                                                   as Name,
        ((SUM(CASE WHEN interval_month = 0 AND follow_up_date is not null THEN 1 ELSE 0 END) +
@@ -379,19 +380,19 @@ select 'Lost to Follow-up (DROP)'                           as Name,
 from CohortDetails
 UNION ALL
 select 'Percent of cohort alive and on ART'                 as Name,
-       SUM(CASE WHEN interval_month = 0 THEN 1 ELSE 0 END)  AS 'Month 0',
-       SUM(CASE WHEN interval_month = 6 THEN 1 ELSE 0 END)  AS 'Month 6',
-       SUM(CASE WHEN interval_month = 12 THEN 1 ELSE 0 END) AS 'Month 12',
-       SUM(CASE WHEN interval_month = 24 THEN 1 ELSE 0 END) AS 'Month 24',
-       SUM(CASE WHEN interval_month = 36 THEN 1 ELSE 0 END) AS 'Month 36'
+       (SUM(CASE WHEN interval_month = 0 and outcome='Active' THEN 1 ELSE 0 END) /SUM(CASE WHEN interval_month = 0 and follow_up_date is not null THEN 1 ELSE 0 END))* 100  AS 'Month 0',
+       (SUM(CASE WHEN interval_month = 6 and outcome='Active' THEN 1 ELSE 0 END)/SUM(CASE WHEN interval_month = 6 and follow_up_date is not null  THEN 1 ELSE 0 END))*100  AS 'Month 6',
+       (SUM(CASE WHEN interval_month = 12 and outcome='Active' THEN 1 ELSE 0 END)/SUM(CASE WHEN interval_month = 12 and follow_up_date is not null  THEN 1 ELSE 0 END))*100  AS 'Month 12',
+       (SUM(CASE WHEN interval_month = 24 and outcome='Active' THEN 1 ELSE 0 END)/SUM(CASE WHEN interval_month = 24 and follow_up_date is not null  THEN 1 ELSE 0 END))*100 AS 'Month 24',
+       (SUM(CASE WHEN interval_month = 36 and outcome='Active' THEN 1 ELSE 0 END)/SUM(CASE WHEN interval_month = 36 and follow_up_date is not null  THEN 1 ELSE 0 END))*100 AS 'Month 36'
 from CohortDetails
 UNION ALL
 select 'Mean CD4 % (for children)'                          as Name,
-       SUM(CASE WHEN interval_month = 0 THEN 1 ELSE 0 END)  AS 'Month 0',
-       SUM(CASE WHEN interval_month = 6 THEN 1 ELSE 0 END)  AS 'Month 6',
-       SUM(CASE WHEN interval_month = 12 THEN 1 ELSE 0 END) AS 'Month 12',
-       SUM(CASE WHEN interval_month = 24 THEN 1 ELSE 0 END) AS 'Month 24',
-       SUM(CASE WHEN interval_month = 36 THEN 1 ELSE 0 END) AS 'Month 36'
+       AVG(CASE WHEN interval_month = 0 AND TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 THEN cd4_percent ELSE 0 END) AS 'Month 0',
+       AVG(CASE WHEN interval_month = 6 AND TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 THEN cd4_percent ELSE 0 END) AS 'Month 6',
+       AVG(CASE WHEN interval_month = 12 AND TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 THEN cd4_percent ELSE 0 END) AS 'Month 12',
+       AVG(CASE WHEN interval_month = 24 AND TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 THEN cd4_percent ELSE 0 END) AS 'Month 24',
+       AVG(CASE WHEN interval_month = 24 AND TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 THEN cd4_percent ELSE 0 END) AS 'Month 36'
 from CohortDetails
 UNION ALL
 select 'CD4 median or proportion ≥ 200 (optional)'          as Name,
@@ -411,11 +412,11 @@ select 'Viral Load tested'                                  as Name,
 from CohortDetails
 UNION ALL
 select 'Viral load Suppressed ( < 50 copies/ml'             as Name,
-       SUM(CASE WHEN interval_month = 0 THEN 1 ELSE 0 END)  AS 'Month 0',
-       SUM(CASE WHEN interval_month = 6 THEN 1 ELSE 0 END)  AS 'Month 6',
-       SUM(CASE WHEN interval_month = 12 THEN 1 ELSE 0 END) AS 'Month 12',
-       SUM(CASE WHEN interval_month = 24 THEN 1 ELSE 0 END) AS 'Month 24',
-       SUM(CASE WHEN interval_month = 36 THEN 1 ELSE 0 END) AS 'Month 36'
+       SUM(CASE WHEN interval_month = 0 and viral_load_count BETWEEN 0 AND 50 THEN 1 ELSE 0 END)  AS 'Month 0',
+       SUM(CASE WHEN interval_month = 6 and viral_load_count BETWEEN 0 AND 50 THEN 1 ELSE 0 END)  AS 'Month 6',
+       SUM(CASE WHEN interval_month = 12 and viral_load_count BETWEEN 0 AND 50 THEN 1 ELSE 0 END) AS 'Month 12',
+       SUM(CASE WHEN interval_month = 24 and viral_load_count BETWEEN 0 AND 50 THEN 1 ELSE 0 END) AS 'Month 24',
+       SUM(CASE WHEN interval_month = 36 and viral_load_count BETWEEN 0 AND 50 THEN 1 ELSE 0 END) AS 'Month 36'
 from CohortDetails
 UNION ALL
 select 'Functional Status [# W or A or B / D * 100]'        as Name,
