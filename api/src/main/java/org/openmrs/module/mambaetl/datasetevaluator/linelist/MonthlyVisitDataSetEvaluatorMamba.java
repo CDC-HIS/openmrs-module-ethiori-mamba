@@ -3,10 +3,8 @@ package org.openmrs.module.mambaetl.datasetevaluator.linelist;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.mambaetl.datasetdefinition.linelist.AHDLineListDataSetDefinitionMamba;
-import org.openmrs.module.mambaetl.datasetdefinition.linelist.ChronicCareEnrollmentDataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.datasetdefinition.linelist.MonthlyVisitDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper;
-import org.openmrs.module.mambaetl.helpers.FollowUpConstant;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
 import org.openmrs.module.reporting.dataset.DataSet;
 import org.openmrs.module.reporting.dataset.SimpleDataSet;
@@ -16,19 +14,17 @@ import org.openmrs.module.reporting.evaluation.EvaluationContext;
 import org.openmrs.module.reporting.evaluation.EvaluationException;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
 import static org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper.*;
 
-@Handler(supports = { ChronicCareEnrollmentDataSetDefinitionMamba.class })
-public class ChronicCareEnrollmentDataSetEvaluatorMamba implements DataSetEvaluator {
+@Handler(supports = { MonthlyVisitDataSetDefinitionMamba.class })
+public class MonthlyVisitDataSetEvaluatorMamba implements DataSetEvaluator {
 	
-	private static final Log log = LogFactory.getLog(ChronicCareEnrollmentDataSetEvaluatorMamba.class);
+	private static final Log log = LogFactory.getLog(MonthlyVisitDataSetEvaluatorMamba.class);
 	
 	private static final String ERROR_PROCESSING_RESULT_SET = "Error processing ResultSet: ";
 	
@@ -38,14 +34,14 @@ public class ChronicCareEnrollmentDataSetEvaluatorMamba implements DataSetEvalua
 	public DataSet evaluate(DataSetDefinition dataSetDefinition, EvaluationContext evalContext)
 			throws EvaluationException {
 
-		ChronicCareEnrollmentDataSetDefinitionMamba ahdLineListDataSetDefinitionMamba = (ChronicCareEnrollmentDataSetDefinitionMamba) dataSetDefinition;
+		MonthlyVisitDataSetDefinitionMamba lineListDatasetDefinition = (MonthlyVisitDataSetDefinitionMamba) dataSetDefinition;
 		SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
 		ResultSetMapper resultSetMapper = new ResultSetMapper();
 
 		try (Connection connection = DataSetEvaluatorHelper.getDataSource().getConnection()) {
 			connection.setAutoCommit(false);
 
-			List<ProcedureCall> procedureCalls = createProcedureCalls(ahdLineListDataSetDefinitionMamba);
+			List<ProcedureCall> procedureCalls = createProcedureCalls(lineListDatasetDefinition);
 
 			try (CallableStatementContainer statementContainer = prepareStatements(connection, procedureCalls)) {
 
@@ -65,20 +61,17 @@ public class ChronicCareEnrollmentDataSetEvaluatorMamba implements DataSetEvalua
 		return null;
 	}
 	
-	private List<ProcedureCall> createProcedureCalls(ChronicCareEnrollmentDataSetDefinitionMamba dataSetDefinitionMamba) {
+	private List<ProcedureCall> createProcedureCalls(MonthlyVisitDataSetDefinitionMamba dataSetDefinitionMamba) {
 		java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null ?
-				new java.sql.Date( dataSetDefinitionMamba.getStartDate().getTime()): new java.sql.Date(LocalDate.of(1900, 1, 1).toEpochDay() * 24 * 60 * 60 * 1000);
+				new java.sql.Date( dataSetDefinitionMamba.getStartDate().getTime()):null ;
 		java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null ?
-				new java.sql.Date( dataSetDefinitionMamba.getEndDate().getTime()): new java.sql.Date(System.currentTimeMillis());
+				new java.sql.Date( dataSetDefinitionMamba.getEndDate().getTime()):null ;
 
 		return Collections.singletonList(
-                new ProcedureCall("{call sp_fact_line_list_chronic_care_query(?,?,?)}", statement -> {
+                new ProcedureCall("{call sp_fact_line_list_monthly_visit_care_query(?,?,?)}", statement -> {
                     statement.setDate(1, startDate);
 					statement.setDate(2, endDate);
-					statement.setString(3,
-							FollowUpConstant.
-									getDbRepresentation(dataSetDefinitionMamba
-											.getFollowupStatus()));
+					statement.setString(3, "Alive,Restart medication");
                 })
         );
 	}
