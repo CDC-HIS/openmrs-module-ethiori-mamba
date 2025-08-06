@@ -8,6 +8,8 @@
 #############################################################################
 
 ############################ LINE LIST QUERIES #######################
+facts/line_list_queries/sp_fact_line_list_dsd_query.sql
+facts/line_list_queries/sp_fact_line_list_missed_appointment_query.sql
 facts/line_list_queries/sp_fact_line_list_monthly_visit_care_query.sql
 facts/line_list_queries/sp_fact_line_list_chronic_care_query.sql
 facts/line_list_queries/sp_fact_line_list_ahd_query.sql
