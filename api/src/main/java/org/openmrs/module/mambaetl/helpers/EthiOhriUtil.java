@@ -70,4 +70,20 @@ public class EthiOhriUtil {
 		        + ethiopianDate.getYear();
 	}
 	
+	public static EthiopianDate getEthiopiaDate(Date date) {
+		if (date == null) {
+			return null;
+		}
+		LocalDate lDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+		EthiopianDate ethiopianDate = null;
+		try {
+			ethiopianDate = EthiopianDateConverter.ToEthiopianDate(lDate);
+		}
+		catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return ethiopianDate;
+	}
+	
 }
