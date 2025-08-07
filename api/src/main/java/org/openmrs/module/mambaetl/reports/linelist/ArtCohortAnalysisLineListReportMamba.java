@@ -25,7 +25,7 @@ public class ArtCohortAnalysisLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "ART-COHORT - ART Cohort Analysis LineList";
+		return "ART COHORT - ART Cohort Analysis LineList";
 	}
 	
 	@Override
