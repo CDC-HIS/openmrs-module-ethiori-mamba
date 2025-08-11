@@ -32,7 +32,6 @@ public class EthiOhriUtil {
 		return Arrays.asList(endDate, endDateGC);
 		
 	}
-
 	
 	public static <T extends Parameterizable> Mapped<T> map(T parameterizable, String mappings) {
 		if (parameterizable == null) {
