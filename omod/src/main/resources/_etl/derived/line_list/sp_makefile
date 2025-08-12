@@ -8,6 +8,7 @@
 #############################################################################
 
 ############################ LINE LIST QUERIES #######################
+facts/line_list_queries/sp_fact_line_list_schedule_visit_query.sql
 facts/line_list_queries/sp_fact_line_list_art_retention_query.sql
 facts/line_list_queries/sp_fact_line_list_tx_tbt_denominator_query.sql
 facts/line_list_queries/sp_fact_line_list_tx_tbt_numerator_query.sql
