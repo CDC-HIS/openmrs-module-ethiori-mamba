@@ -8,6 +8,7 @@
     "linked_to_hiv_care": "c1bb9738-10aa-4905-bb5d-af4e55b4bb69",
     "final_outcome_known": "4599ebf7-6120-4593-80f0-72458b9fadad",
     "within_the_facility": "d2b461e5-dd7f-4d16-968e-354ac68cbd38",
+    "plan_for_next_step": "e96ea7a2-5285-41d3-bb0d-4f199cf5b8ee",
     "general_patient_note": "165095AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "outside_the_facility": "73d76014-365e-484c-bf5b-0959add4e3f3",
     "date_enrolled_in_care": "1ebc345c-6f09-43e1-a616-d7e52fff4c7d",
@@ -19,3 +20,4 @@
     "reason_art_not_started_the_same_day": "d8ffb301-9a47-45ee-a465-f053cc060aab"
   }
 }
+
