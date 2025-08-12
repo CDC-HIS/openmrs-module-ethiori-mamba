@@ -47,8 +47,6 @@ BEGIN
                                          ON follow_up.encounter_id = follow_up_9.encounter_id
                                LEFT JOIN mamba_flat_encounter_registration reg
                                          ON reg.client_id = follow_up.client_id
-                               LEFT JOIN mamba_flat_encounter_pmtct_enrollment as mfepe
-                                         ON mfepe.client_id = follow_up.client_id
                       WHERE date_started_on_tuberculosis_prophy >= COALESCE(REPORT_START_DATE, CURDATE())
                         AND date_started_on_tuberculosis_prophy <= COALESCE(REPORT_END_DATE, CURDATE())),
 
