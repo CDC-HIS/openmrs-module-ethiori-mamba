@@ -27,7 +27,7 @@ public class DSDLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "LINELIST- DSD-Mamba";
+		return "LINELIST- Mamba DSD";
 	}
 	
 	@Override
@@ -60,7 +60,7 @@ public class DSDLineListReportMamba implements ReportManager {
 		DSDDataSetDefinitionMamba dataSetDefinitionMamba = new DSDDataSetDefinitionMamba();
 		dataSetDefinitionMamba.addParameters(getParameters());
 		
-		reportDefinition.addDataSetDefinition("DSD mamba line list",
+		reportDefinition.addDataSetDefinition("DSD Report",
 		    map(dataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
 		return reportDefinition;
 	}

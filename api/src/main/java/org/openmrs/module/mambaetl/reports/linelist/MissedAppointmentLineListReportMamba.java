@@ -28,7 +28,7 @@ public class MissedAppointmentLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "LINELIST- Missed Appointment-Mamba";
+		return "LINELIST- Mamba Missed Appointment Tracing";
 	}
 	
 	@Override
@@ -41,7 +41,7 @@ public class MissedAppointmentLineListReportMamba implements ReportManager {
 		Date from = Date.from(ZonedDateTime.now().toInstant());
 		EthiopianDate date = EthiOhriUtil.getEthiopiaDate(from);
 		Parameter endDate = new Parameter("endDate", "End Date", Date.class);
-		endDate.setRequired(false);
+		endDate.setRequired(true);
 		endDate.setDefaultValue(date.getMonth() + "/" + date.getDay() + "/" + date.getYear());
 		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
 		endDateGC.setRequired(false);
