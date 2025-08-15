@@ -1,5 +1,7 @@
 package org.openmrs.module.mambaetl.helpers;
 
+import org.jetbrains.annotations.NotNull;
+import org.openmrs.module.mambaetl.datasetevaluator.linelist.PEPLineListDataSetEvaluatorMamba;
 import org.openmrs.module.reporting.evaluation.parameter.Mapped;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.evaluation.parameter.Parameterizable;
@@ -33,16 +35,15 @@ public class EthiOhriUtil {
 		
 	}
 	
-	//
-	//	public List<Parameter> getStartDateParameters() {
-	//
-	//		Parameter endDate = new Parameter("startDate", "On Month", Date.class);
-	//		endDate.setRequired(false);
-	//		Parameter endDateGC = new Parameter("startDateGC", " ", Date.class);
-	//		endDateGC.setRequired(false);
-	//		return Arrays.asList(endDate, endDateGC);
-	//
-	//	}
+	public static DefaultDateParameter getDefaultDateParameter(java.util.Date startDate, java.util.Date endDate) {
+		java.sql.Date _startDate = startDate != null ? new java.sql.Date(startDate.getTime()) : new java.sql.Date(LocalDate
+		        .of(1900, 1, 1).toEpochDay() * 24 * 60 * 60 * 1000);
+		
+		java.sql.Date _endDate = endDate != null ? new java.sql.Date(endDate.getTime()) : new java.sql.Date(
+		        System.currentTimeMillis());
+		DefaultDateParameter result = new DefaultDateParameter(_startDate, _endDate);
+		return result;
+	}
 	
 	public static <T extends Parameterizable> Mapped<T> map(T parameterizable, String mappings) {
 		if (parameterizable == null) {

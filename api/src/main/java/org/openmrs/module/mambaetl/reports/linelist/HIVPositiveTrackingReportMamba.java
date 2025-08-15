@@ -23,7 +23,7 @@ public class HIVPositiveTrackingReportMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "LINELIST- HIV +ve Tracking-Mamba";
+		return "LINELIST- Mamba HIV +ve Tracking";
 	}
 	
 	@Override
@@ -57,7 +57,7 @@ public class HIVPositiveTrackingReportMamba implements ReportManager {
 		HIVPositiveTrackingLineListDataSetDefinitionMamba dataSetDefinitionMamba = new HIVPositiveTrackingLineListDataSetDefinitionMamba();
 		dataSetDefinitionMamba.addParameters(getParameters());
 		
-		reportDefinition.addDataSetDefinition("HIV +ve Tracking Line List Report",
+		reportDefinition.addDataSetDefinition("HIV +ve Tracking",
 		    map(dataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
 		return reportDefinition;
 	}
