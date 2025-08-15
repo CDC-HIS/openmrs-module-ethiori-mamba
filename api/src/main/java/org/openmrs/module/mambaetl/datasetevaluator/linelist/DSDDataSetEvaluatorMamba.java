@@ -6,6 +6,8 @@ import org.openmrs.annotation.Handler;
 import org.openmrs.module.mambaetl.datasetdefinition.linelist.ChronicCareEnrollmentDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.datasetdefinition.linelist.DSDDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper;
+import org.openmrs.module.mambaetl.helpers.DefaultDateParameter;
+import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.mambaetl.helpers.FollowUpConstant;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
 import org.openmrs.module.reporting.dataset.DataSet;
@@ -66,15 +68,13 @@ public class DSDDataSetEvaluatorMamba implements DataSetEvaluator {
 	}
 	
 	private List<ProcedureCall> createProcedureCalls(DSDDataSetDefinitionMamba dataSetDefinitionMamba) {
-		Date startDate = dataSetDefinitionMamba.getStartDate() != null ?
-				new Date( dataSetDefinitionMamba.getStartDate().getTime()): new Date(LocalDate.of(1900, 1, 1).toEpochDay() * 24 * 60 * 60 * 1000);
-		Date endDate = dataSetDefinitionMamba.getEndDate() != null ?
-				new Date( dataSetDefinitionMamba.getEndDate().getTime()): new Date(System.currentTimeMillis());
+        DefaultDateParameter result =  EthiOhriUtil.getDefaultDateParameter(dataSetDefinitionMamba.getStartDate(),
+                dataSetDefinitionMamba.getEndDate());
 
 		return Collections.singletonList(
                 new ProcedureCall("{call sp_fact_line_list_dsd_query(?,?)}", statement -> {
-                    statement.setDate(1, startDate);
-					statement.setDate(2, endDate);
+                    statement.setDate(1, result.startDate);
+					statement.setDate(2, result.endDate);
 
                 })
         );

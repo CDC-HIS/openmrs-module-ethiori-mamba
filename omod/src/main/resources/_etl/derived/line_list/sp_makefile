@@ -8,6 +8,9 @@
 #############################################################################
 
 ############################ LINE LIST QUERIES #######################
+facts/line_list_queries/sp_fact_line_list_ti_query.sql
+facts/line_list_queries/sp_fact_line_list_to_query.sql
+facts/line_list_queries/sp_fact_line_list_post_exposure_query.sql
 facts/line_list_queries/sp_fact_line_list_pre_exposure_query.sql
 facts/line_list_queries/sp_fact_line_list_positive_tracking_query.sql
 facts/line_list_queries/sp_fact_line_list_schedule_visit_query.sql

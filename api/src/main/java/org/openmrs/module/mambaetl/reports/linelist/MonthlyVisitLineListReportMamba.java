@@ -26,7 +26,7 @@ public class MonthlyVisitLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "LINELIST- Monthly Visit-Mamba";
+		return "LINELIST- Mamba Monthly Visit List";
 	}
 	
 	@Override
@@ -36,7 +36,7 @@ public class MonthlyVisitLineListReportMamba implements ReportManager {
 	
 	@Override
 	public List<Parameter> getParameters() {
-		return EthiOhriUtil.getDateRangeParameters(Boolean.FALSE);
+		return EthiOhriUtil.getDateRangeParameters(Boolean.TRUE);
 	}
 	
 	@Override
@@ -51,7 +51,7 @@ public class MonthlyVisitLineListReportMamba implements ReportManager {
 		MonthlyVisitDataSetDefinitionMamba dataSetDefinitionMamba = new MonthlyVisitDataSetDefinitionMamba();
 		dataSetDefinitionMamba.addParameters(getParameters());
 		
-		reportDefinition.addDataSetDefinition("Monthly Visit mamaba line list",
+		reportDefinition.addDataSetDefinition("ART Patients Monthly Visit List ",
 		    map(dataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
 		return reportDefinition;
 	}

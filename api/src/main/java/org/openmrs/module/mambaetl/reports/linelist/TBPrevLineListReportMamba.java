@@ -23,7 +23,7 @@ public class TBPrevLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "LINELIST- TB Prev (Datim)-Mamba";
+		return "LINELIST- Mamba TB_PREV(DATIM)";
 	}
 	
 	@Override
@@ -58,7 +58,7 @@ public class TBPrevLineListReportMamba implements ReportManager {
 		TBPrevDataSetDefinitionMamba dataSetDefinitionMamba = new TBPrevDataSetDefinitionMamba();
 		dataSetDefinitionMamba.addParameters(getParameters());
 		
-		reportDefinition.addDataSetDefinition("TPT Line List Report mamba",
+		reportDefinition.addDataSetDefinition("TPT Line List Report",
 		    map(dataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC},tptStatus=${tptStatus}"));
 		return reportDefinition;
 	}

@@ -27,7 +27,7 @@ public class RetentionLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "LINELIST- Art Retention-Mamba";
+		return "LINELIST- Mamba ART Retention";
 	}
 	
 	@Override
@@ -37,9 +37,7 @@ public class RetentionLineListReportMamba implements ReportManager {
 	
 	@Override
 	public List<Parameter> getParameters() {
-		
 		return EthiOhriUtil.getDateRangeParameters(Boolean.TRUE);
-		
 	}
 	
 	@Override
@@ -54,7 +52,7 @@ public class RetentionLineListReportMamba implements ReportManager {
 		ARTRetentionDataSetDefinitionMamba dataSetDefinitionMamba = new ARTRetentionDataSetDefinitionMamba();
 		dataSetDefinitionMamba.addParameters(getParameters());
 		
-		reportDefinition.addDataSetDefinition("ART Retention line list",
+		reportDefinition.addDataSetDefinition("ART Retention",
 		    map(dataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
 		return reportDefinition;
 	}
