@@ -24,7 +24,7 @@ public class ChronicCareEnrollmentLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "LINELIST- Chronic-Mamba";
+		return "LINELIST- Mamba Chronic Care Enrollment Line List";
 	}
 	
 	@Override
@@ -62,7 +62,7 @@ public class ChronicCareEnrollmentLineListReportMamba implements ReportManager {
 		ChronicCareEnrollmentDataSetDefinitionMamba dataSetDefinitionMamba = new ChronicCareEnrollmentDataSetDefinitionMamba();
 		dataSetDefinitionMamba.addParameters(getParameters());
 		
-		reportDefinition.addDataSetDefinition("Chronic Care mamba line list",
+		reportDefinition.addDataSetDefinition("Chronic Care Enrollment Line List",
 		    map(dataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC},followupStatus=${followupStatus}"));
 		return reportDefinition;
 	}

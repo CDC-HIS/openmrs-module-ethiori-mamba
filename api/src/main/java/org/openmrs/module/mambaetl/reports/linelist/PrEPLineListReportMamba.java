@@ -25,7 +25,7 @@ public class PrEPLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "LINELIST- PrEP Line List Mamba";
+		return "LINELIST- Mamba Pre-Exposure Prophylaxis";
 	}
 	
 	@Override
@@ -60,7 +60,7 @@ public class PrEPLineListReportMamba implements ReportManager {
 		PrEPLineListDataSetDefinitionMamba dataSetDefinitionMamba = new PrEPLineListDataSetDefinitionMamba();
 		dataSetDefinitionMamba.addParameters(getParameters());
 		
-		reportDefinition.addDataSetDefinition("PrEP line list",
+		reportDefinition.addDataSetDefinition("Pre-Exposure Prophylaxis",
 		    map(dataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
 		return reportDefinition;
 	}
