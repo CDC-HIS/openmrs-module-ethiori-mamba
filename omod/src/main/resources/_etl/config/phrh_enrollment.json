@@ -1,0 +1,16 @@
+{
+  "report_name": "People at High risk for HIV Infection Enrollment",
+  "flat_table_name": "mamba_flat_encounter_phrh_enrollment",
+  "encounter_type_uuid": "16e0d4c7-8383-4997-aacb-6fbe3194528d",
+  "table_columns": {
+    "sbcc_completed": "9c135d66-ff6f-4fc0-bd22-6ab7ec72faa4",
+    "unique_art_number": "c8d98ef1-5e58-417c-a7c3-7f30f76a7155",
+    "ever_been_on_prep_": "740e5d37-2b4e-4a38-907d-f6c2cd828af7",
+    "followup_date": "b8cd8630-56dd-495e-8c84-e36a636febe7",
+    "previous_hiv_test_result": "23ef2580-e9e5-4e1b-af9b-584cdd30abc4",
+    "on_art": "1149AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "art_start_date": "ae329187-6232-4142-aa91-22c85bc8e5b5",
+    "reached_with_package_of_service": "c2e939f9-5a2c-437c-8743-ab5a5d0862b9",
+    "previously_tested_for_hiv": "f4bcd7bc-83c2-40b1-9159-dadb97a83fc8"
+  }
+}
