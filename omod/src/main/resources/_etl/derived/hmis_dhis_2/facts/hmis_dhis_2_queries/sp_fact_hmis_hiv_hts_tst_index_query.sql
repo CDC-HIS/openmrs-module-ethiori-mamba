@@ -4,15 +4,34 @@ DROP PROCEDURE IF EXISTS sp_fact_hmis_hiv_hts_tst_index_query;
 
 CREATE PROCEDURE sp_fact_hmis_hiv_hts_tst_index_query(IN REPORT_START_DATE DATE, IN REPORT_END_DATE DATE)
 BEGIN
-    WITH FollowUp as (
-        select client_id from mamba_flat_encounter_follow_up
-        where encounter_datetime = '2055-09-30'
-    )
+    WITH contact_list as (select contact.client_id,
+                             contact.elicited_date,
+                             contact.hiv_test_date,
+                             contact.hiv_test_result,
+                             prior_hiv_test_result,
+                             prior_test_date_estimated,
+                             date_of_case_closure,
+                             client.mrn,
+                             client.uan,
+                             (SELECT datim_agegroup
+                                      from mamba_dim_agegroup
+                                      where TIMESTAMPDIFF(YEAR, date_of_birth, ?) = age) as fine_age_group,
+                                     (SELECT normal_agegroup
+                                      from mamba_dim_agegroup
+                                      where TIMESTAMPDIFF(YEAR, date_of_birth, ?) = age) as coarse_age_group,
+                             TIMESTAMPDIFF(YEAR, date_of_birth, ?) as age,
+                             client.sex
+                      from
+                          mamba_flat_encounter_index_contact_followup contact
+                              left join mamba_flat_encounter_index_contact_followup_1 contact_1
+                                        on contact.encounter_id = contact_1.encounter_id
+                             join mamba_dim_client client on contact.client_id = client.client_id)
+    -- hiv_test_date BETWEEN ? AND ? and hiv_test_result is not null
 -- Number of individuals who were identified and tested using Index testing services and received their result
     SELECT 'HIV_HTS_TST_INDEX'                                                                         AS S_NO,
            'Number of individuals who were identified and tested using Index testing services and received their result' as Activity,
            COUNT(*)                                                                                  AS Value
-    FROM FollowUp
+    FROM c
 -- Number of index cases offered
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.1'                                                                         AS S_NO,
