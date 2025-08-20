@@ -44,7 +44,7 @@ BEGIN
                )
         INTO age_group_cols
         FROM (select normal_agegroup from mamba_dim_agegroup group by normal_agegroup) as order_query;
-    ELSEIF REPORT_TYPE = 'ELICITED' THEN
+    ELSEIF REPORT_TYPE = 'DOCUMENTED_NEGATIVE' THEN
         SELECT GROUP_CONCAT(CONCAT('SUM(CASE WHEN fine_age_group = ''', datim_agegroup,
                                    ''' THEN count ELSE 0 END) AS `',
                                    REPLACE(datim_agegroup, '`', '``'),
@@ -113,7 +113,7 @@ BEGIN
                              join mamba_dim_client client on contact.client_id = client.client_id) ';
 
     IF REPORT_TYPE = 'ICT_TOTAL' THEN
-        SET group_query = CONCAT('SELECT COUNT(*) FROM contact_list WHERE ',filter_condition);
+        SET group_query = CONCAT('SELECT COUNT(*) as Numerator FROM contact_list WHERE ',filter_condition);
     ELSE
         SET group_query = CONCAT('
             SELECT
