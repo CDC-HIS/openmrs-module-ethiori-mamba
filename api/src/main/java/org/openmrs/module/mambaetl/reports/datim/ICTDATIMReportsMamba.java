@@ -59,77 +59,72 @@ public class ICTDATIMReportsMamba implements ReportManager {
 		HTSIndexDataSetDefinitionMamba htsIndexTotalDataSetDefinitionMamba = new HTSIndexDataSetDefinitionMamba();
 		htsIndexTotalDataSetDefinitionMamba.addParameters(getParameters());
 		htsIndexTotalDataSetDefinitionMamba.setHtsIndexAggregationTypes(HTSIndexAggregationTypes.ICT_TOTAL);
-		htsIndexTotalDataSetDefinitionMamba		        .setDescription("Number of individuals who were identified and tested using index testing services and received their results.");
-		reportDefinition
-		        .addDataSetDefinition(
-		            "Number of individuals who were identified and tested using index testing services and received their results.",
-		            EthiOhriUtil.map(htsIndexTotalDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
-
-
+		htsIndexTotalDataSetDefinitionMamba
+		        .setDescription("Number of individuals who were identified and tested using index testing services and received their results.");
+		reportDefinition.addDataSetDefinition(
+		    "Number of individuals who were identified and tested using index testing services and received their results.",
+		    EthiOhriUtil.map(htsIndexTotalDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		
 		HTSIndexDataSetDefinitionMamba htsIndexOfferedDataSetDefinitionMamba = new HTSIndexDataSetDefinitionMamba();
 		htsIndexOfferedDataSetDefinitionMamba.addParameters(getParameters());
 		htsIndexOfferedDataSetDefinitionMamba.setHtsIndexAggregationTypes(HTSIndexAggregationTypes.TESTING_OFFERED);
-		htsIndexOfferedDataSetDefinitionMamba		        .setDescription("Number of index cases offered index testing services by age/sex");
-		reportDefinition
-				.addDataSetDefinition(
-						"Number of index cases offered index testing services by age/sex",
-						EthiOhriUtil.map(htsIndexOfferedDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
-
+		htsIndexOfferedDataSetDefinitionMamba
+		        .setDescription("Number of index cases offered index testing services by age/sex");
+		reportDefinition.addDataSetDefinition("Number of index cases offered index testing services by age/sex",
+		    EthiOhriUtil.map(htsIndexOfferedDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		
 		HTSIndexDataSetDefinitionMamba htsIndexAcceptedDataSetDefinitionMamba = new HTSIndexDataSetDefinitionMamba();
 		htsIndexAcceptedDataSetDefinitionMamba.addParameters(getParameters());
 		htsIndexAcceptedDataSetDefinitionMamba.setHtsIndexAggregationTypes(HTSIndexAggregationTypes.TESTING_ACCEPTED);
-		htsIndexAcceptedDataSetDefinitionMamba		        .setDescription("Number of index cases that accepted index testing services by age/sex");
-		reportDefinition
-				.addDataSetDefinition(
-						"Number of index cases that accepted index testing services by age/sex",
-						EthiOhriUtil.map(htsIndexAcceptedDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
-
+		htsIndexAcceptedDataSetDefinitionMamba
+		        .setDescription("Number of index cases that accepted index testing services by age/sex");
+		reportDefinition.addDataSetDefinition("Number of index cases that accepted index testing services by age/sex",
+		    EthiOhriUtil.map(htsIndexAcceptedDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		
 		HTSIndexDataSetDefinitionMamba htsIndexEllicitedDataSetDefinitionMamba = new HTSIndexDataSetDefinitionMamba();
 		htsIndexEllicitedDataSetDefinitionMamba.addParameters(getParameters());
 		htsIndexEllicitedDataSetDefinitionMamba.setHtsIndexAggregationTypes(HTSIndexAggregationTypes.ELICITED);
-		htsIndexEllicitedDataSetDefinitionMamba		        .setDescription("Number of contacts elicited by age/sex");
-		reportDefinition
-				.addDataSetDefinition(
-						"Number of contacts elicited by age/sex",
-						EthiOhriUtil.map(htsIndexEllicitedDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
-
+		htsIndexEllicitedDataSetDefinitionMamba.setDescription("Number of contacts elicited by age/sex");
+		reportDefinition.addDataSetDefinition("Number of contacts elicited by age/sex",
+		    EthiOhriUtil.map(htsIndexEllicitedDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		
 		HTSIndexDataSetDefinitionMamba htsIndexKnownPositivesDataSetDefinitionMamba = new HTSIndexDataSetDefinitionMamba();
 		htsIndexKnownPositivesDataSetDefinitionMamba.addParameters(getParameters());
 		htsIndexKnownPositivesDataSetDefinitionMamba.setHtsIndexAggregationTypes(HTSIndexAggregationTypes.KNOWN_POSITIVE);
-		htsIndexKnownPositivesDataSetDefinitionMamba		        .setDescription("Number of contacts tested by test result and age/sex, Known Positives:");
-		reportDefinition
-				.addDataSetDefinition(
-						"Number of contacts tested by test result and age/sex, Known Positives:",
-						EthiOhriUtil.map(htsIndexEllicitedDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
-
+		htsIndexKnownPositivesDataSetDefinitionMamba
+		        .setDescription("Number of contacts tested by test result and age/sex, Known Positives:");
+		reportDefinition.addDataSetDefinition("Number of contacts tested by test result and age/sex, Known Positives:",
+		    EthiOhriUtil.map(htsIndexEllicitedDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		
 		HTSIndexDataSetDefinitionMamba htsIndexNewlyTestedPositivesDataSetDefinitionMamba = new HTSIndexDataSetDefinitionMamba();
 		htsIndexNewlyTestedPositivesDataSetDefinitionMamba.addParameters(getParameters());
-		htsIndexNewlyTestedPositivesDataSetDefinitionMamba.setHtsIndexAggregationTypes(HTSIndexAggregationTypes.NEW_POSITIVE);
-		htsIndexNewlyTestedPositivesDataSetDefinitionMamba		        .setDescription("Number of contacts tested by test result and age/sex, Newly Tested Positives :");
-		reportDefinition
-				.addDataSetDefinition(
-						"Number of contacts tested by test result and age/sex, Newly Tested Positives :",
-						EthiOhriUtil.map(htsIndexNewlyTestedPositivesDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
-
+		htsIndexNewlyTestedPositivesDataSetDefinitionMamba
+		        .setHtsIndexAggregationTypes(HTSIndexAggregationTypes.NEW_POSITIVE);
+		htsIndexNewlyTestedPositivesDataSetDefinitionMamba
+		        .setDescription("Number of contacts tested by test result and age/sex, Newly Tested Positives :");
+		reportDefinition.addDataSetDefinition(
+		    "Number of contacts tested by test result and age/sex, Newly Tested Positives :", EthiOhriUtil.map(
+		        htsIndexNewlyTestedPositivesDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		
 		HTSIndexDataSetDefinitionMamba htsIndexNewlyTestedNegativesDataSetDefinitionMamba = new HTSIndexDataSetDefinitionMamba();
 		htsIndexNewlyTestedNegativesDataSetDefinitionMamba.addParameters(getParameters());
-		htsIndexNewlyTestedNegativesDataSetDefinitionMamba.setHtsIndexAggregationTypes(HTSIndexAggregationTypes.NEW_NEGATIVE);
-		htsIndexNewlyTestedNegativesDataSetDefinitionMamba		        .setDescription("Number of contacts tested by test result and age/sex, New Negatives :");
-		reportDefinition
-				.addDataSetDefinition(
-						"Number of contacts tested by test result and age/sex, New Negatives :",
-						EthiOhriUtil.map(htsIndexNewlyTestedNegativesDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
-
+		htsIndexNewlyTestedNegativesDataSetDefinitionMamba
+		        .setHtsIndexAggregationTypes(HTSIndexAggregationTypes.NEW_NEGATIVE);
+		htsIndexNewlyTestedNegativesDataSetDefinitionMamba
+		        .setDescription("Number of contacts tested by test result and age/sex, New Negatives :");
+		reportDefinition.addDataSetDefinition("Number of contacts tested by test result and age/sex, New Negatives :",
+		    EthiOhriUtil.map(htsIndexNewlyTestedNegativesDataSetDefinitionMamba,
+		        "startDate=${startDateGC},endDate=${endDateGC}"));
+		
 		HTSIndexDataSetDefinitionMamba htsIndexDocumentedNegativesDataSetDefinitionMamba = new HTSIndexDataSetDefinitionMamba();
 		htsIndexDocumentedNegativesDataSetDefinitionMamba.addParameters(getParameters());
 		htsIndexDocumentedNegativesDataSetDefinitionMamba.setHtsIndexAggregationTypes(HTSIndexAggregationTypes.NEW_NEGATIVE);
-		htsIndexDocumentedNegativesDataSetDefinitionMamba		        .setDescription("Number of contacts tested by test result and age/sex, Documented Negatives");
-		reportDefinition
-				.addDataSetDefinition(
-						"Number of contacts tested by test result and age/sex, Documented Negatives",
-						EthiOhriUtil.map(htsIndexDocumentedNegativesDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		htsIndexDocumentedNegativesDataSetDefinitionMamba
+		        .setDescription("Number of contacts tested by test result and age/sex, Documented Negatives");
+		reportDefinition.addDataSetDefinition("Number of contacts tested by test result and age/sex, Documented Negatives",
+		    EthiOhriUtil.map(htsIndexDocumentedNegativesDataSetDefinitionMamba,
+		        "startDate=${startDateGC},endDate=${endDateGC}"));
 		
-
 		return reportDefinition;
 	}
 	
