@@ -73,14 +73,25 @@ public class HTSIndexEvaluatorMamba implements DataSetEvaluator {
 	private List<ProcedureCall> createProcedureCalls(HTSIndexDataSetDefinitionMamba dataSetDefinitionMamba) {
 		java.sql.Date startDate = new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime());
 		java.sql.Date endDate = new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime());
-
-		return Collections.singletonList(
-                new ProcedureCall("{call sp_dim_tx_new_datim_query(?,?,?,?)}", statement -> {
-                    statement.setDate(1, startDate);
-                    statement.setDate(2, endDate);
-                    statement.setInt(3, 0);
-	                    statement.setString(4, dataSetDefinitionMamba.getHtsIndexAggregationTypes().getSqlValue());
-                })
-        );
+		if (dataSetDefinitionMamba.getHtsIndexAggregationTypes().getSqlValue().equalsIgnoreCase("ELICITED")){
+			return Collections.singletonList(
+					new ProcedureCall("{call sp_dim_ict_datim_query(?,?,?,?)}", statement -> {
+						statement.setDate(1, startDate);
+						statement.setDate(2, endDate);
+						statement.setInt(3, 1);
+						statement.setString(4, dataSetDefinitionMamba.getHtsIndexAggregationTypes().getSqlValue());
+					})
+			);
+		}
+		else {
+			return Collections.singletonList(
+					new ProcedureCall("{call sp_dim_ict_datim_query(?,?,?,?)}", statement -> {
+						statement.setDate(1, startDate);
+						statement.setDate(2, endDate);
+						statement.setInt(3, 0);
+						statement.setString(4, dataSetDefinitionMamba.getHtsIndexAggregationTypes().getSqlValue());
+					})
+			);
+		}
 	}
 }
