@@ -118,7 +118,8 @@ public class ICTDATIMReportsMamba implements ReportManager {
 		
 		HTSIndexDataSetDefinitionMamba htsIndexDocumentedNegativesDataSetDefinitionMamba = new HTSIndexDataSetDefinitionMamba();
 		htsIndexDocumentedNegativesDataSetDefinitionMamba.addParameters(getParameters());
-		htsIndexDocumentedNegativesDataSetDefinitionMamba.setHtsIndexAggregationTypes(HTSIndexAggregationTypes.DOCUMENTED_NEGATIVE);
+		htsIndexDocumentedNegativesDataSetDefinitionMamba
+		        .setHtsIndexAggregationTypes(HTSIndexAggregationTypes.DOCUMENTED_NEGATIVE);
 		htsIndexDocumentedNegativesDataSetDefinitionMamba
 		        .setDescription("Number of contacts tested by test result and age/sex, Documented Negatives");
 		reportDefinition.addDataSetDefinition("Number of contacts tested by test result and age/sex, Documented Negatives",
