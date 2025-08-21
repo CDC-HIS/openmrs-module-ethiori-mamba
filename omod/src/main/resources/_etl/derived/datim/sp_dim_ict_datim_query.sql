@@ -26,7 +26,7 @@ BEGIN
     ELSEIF REPORT_TYPE = 'KNOWN_POSITIVE' THEN
         SET filter_condition = ' prior_hiv_test_result = ''Positive'' and elicited_date between ? AND ? ';
     ELSEIF REPORT_TYPE = 'DOCUMENTED_NEGATIVE' THEN
-        SET filter_condition = ' prior_hiv_test_result = ''Negative result'' and hiv_test_result != ''Positive'' and age < 15 and prior_test_date_estimated BETWEEN ? AND ? ';
+        SET filter_condition = ' prior_hiv_test_result = ''Negative result'' and hiv_test_result != ''Positive'' and age < 15 and elicited_date BETWEEN ? AND ? ';
     ELSEIF REPORT_TYPE = 'NEW_POSITIVE' THEN
         SET filter_condition = ' prior_hiv_test_result != ''Positive'' and hiv_test_result = ''Positive'' and coalesce(hiv_test_date,date_of_case_closure,elicited_date) BETWEEN ? AND ? ';
     ELSEIF REPORT_TYPE = 'NEW_NEGATIVE' THEN
