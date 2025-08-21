@@ -25,7 +25,8 @@ BEGIN
                                client.uan,
                                date_of_birth,
                                client.sex,
-                               offer.offered_date,le
+                               offer.offered_date,
+                               number_of_contacts_elicited,
                                offered,
                                offer.yes,
                                offer.no,
@@ -223,9 +224,8 @@ BEGIN
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.2'                                                                        AS S_NO,
            'Number of contacts elicited' as Activity,
-           COUNT(*)                                                                                  AS Value
-    FROM contact_list
-    where hiv_test_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE
+           number_of_contacts_elicited                                                                                  AS Value
+    FROM offer
 -- < 15 years, Male
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.2. 1'                                                                        AS S_NO,
