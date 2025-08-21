@@ -230,34 +230,26 @@ BEGIN
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.2. 1'                                                                        AS S_NO,
            '< 15 years, Male' as Activity,
-           COUNT(*)                                                                                  AS Value
-    FROM contact_list
-    where hiv_test_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE and
-          TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15 and sex = 'Male'
+           0                                                                                  AS Value
+    FROM offer
 -- < 15 years, Female
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.2. 2'                                                                        AS S_NO,
            '< 15 years, Female' as Activity,
-           COUNT(*)                                                                                  AS Value
-    FROM contact_list
-    where hiv_test_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE and
-          TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15 and sex = 'Female'
+           0                                                                                  AS Value
+    FROM offer
 -- >= 15 years, Male
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.2. 3'                                                                        AS S_NO,
            '>= 15 years, Male' as Activity,
-           COUNT(*)                                                                                  AS Value
-    FROM contact_list
-    where hiv_test_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE and
-          TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15 and sex = 'Male'
+           0                                                                                 AS Value
+    FROM offer
 -- >= 15 years, Female
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.2. 4'                                                                        AS S_NO,
            '>= 15 years, Female' as Activity,
-           COUNT(*)                                                                                  AS Value
-    FROM contact_list
-    where hiv_test_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE and
-          TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15 and sex = 'Female'
+           0                                                                                  AS Value
+    FROM offer
 -- Number of contacts tested
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.3'                                                                        AS S_NO,
