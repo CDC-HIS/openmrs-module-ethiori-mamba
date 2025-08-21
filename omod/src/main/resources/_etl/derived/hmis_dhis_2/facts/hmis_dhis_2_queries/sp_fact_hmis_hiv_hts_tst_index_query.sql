@@ -25,7 +25,7 @@ BEGIN
                                client.uan,
                                date_of_birth,
                                client.sex,
-                               offer.offered_date,
+                               offer.offered_date,le
                                offered,
                                offer.yes,
                                offer.no,
