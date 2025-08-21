@@ -8,6 +8,7 @@ BEGIN
                              contact.elicited_date,
                              contact.hiv_test_date,
                              contact.hiv_test_result,
+                             respondent_age,
                              prior_hiv_test_result,
                              prior_test_date_estimated,
                              date_of_case_closure,
@@ -264,7 +265,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where hiv_test_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE and hiv_test_result is not null and
-          TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) <1 and sex = 'Male'
+        respondent_age <1 and sex = 'Male'
 -- < 1 year, Female
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.3. 2'                                                                        AS S_NO,
@@ -272,7 +273,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where hiv_test_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE and hiv_test_result is not null and
-        TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) <1 and sex = 'Female'
+        respondent_age <1 and sex = 'Female'
 -- 1 - 4 years, Male
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.3. 3'                                                                        AS S_NO,
@@ -280,7 +281,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where hiv_test_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE and hiv_test_result is not null and
-        TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 1 AND 4 and sex = 'Male'
+        respondent_age BETWEEN 1 AND 4 and sex = 'Male'
 -- 1 - 4 years, Female
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.3. 4'                                                                        AS S_NO,
@@ -288,7 +289,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where hiv_test_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE and hiv_test_result is not null and
-        TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 1 AND 4 and sex = 'Female'
+        respondent_age BETWEEN 1 AND 4 and sex = 'Female'
 -- 5 - 9 years, Male
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.3. 5'                                                                        AS S_NO,
@@ -296,7 +297,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where hiv_test_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE and hiv_test_result is not null and
-        TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 5 AND 9 and sex = 'Male'
+        respondent_age BETWEEN 5 AND 9 and sex = 'Male'
 -- 5 - 9 years, Female
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.3. 6'                                                                        AS S_NO,
@@ -304,7 +305,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where hiv_test_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE and hiv_test_result is not null and
-        TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 5 AND 9 and sex = 'Female'
+        respondent_age BETWEEN 5 AND 9 and sex = 'Female'
 -- 10 - 14 years, Male
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.3. 7'                                                                        AS S_NO,
@@ -312,7 +313,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where hiv_test_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE and hiv_test_result is not null and
-        TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 10 AND 14 and sex = 'Male'
+        respondent_age BETWEEN 10 AND 14 and sex = 'Male'
 -- 10 - 14 years, Female
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.3. 8'                                                                        AS S_NO,
@@ -320,7 +321,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where hiv_test_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE and hiv_test_result is not null and
-        TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 10 AND 14 and sex = 'Female'
+        respondent_age BETWEEN 10 AND 14 and sex = 'Female'
 -- 15 - 19 years, Male
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.3. 9'                                                                        AS S_NO,
@@ -328,7 +329,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where hiv_test_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE and hiv_test_result is not null and
-        TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19 and sex = 'Male'
+        respondent_age BETWEEN 15 AND 19 and sex = 'Male'
 -- 15 - 19 years, Female
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.3. 10'                                                                        AS S_NO,
@@ -336,7 +337,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where hiv_test_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE and hiv_test_result is not null and
-        TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19 and sex = 'Female'
+        respondent_age BETWEEN 15 AND 19 and sex = 'Female'
 -- 20 - 24 years, Male
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.3. 11'                                                                        AS S_NO,
@@ -344,7 +345,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where hiv_test_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE and hiv_test_result is not null and
-        TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 20 AND 24 and sex = 'Male'
+        respondent_age BETWEEN 20 AND 24 and sex = 'Male'
 -- 20 - 24 years, Female
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.3. 12'                                                                        AS S_NO,
@@ -352,7 +353,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where hiv_test_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE and hiv_test_result is not null and
-        TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 20 AND 24 and sex = 'Female'
+        respondent_age BETWEEN 20 AND 24 and sex = 'Female'
 -- 25 - 29 years, Male
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.3. 13'                                                                        AS S_NO,
@@ -360,7 +361,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where hiv_test_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE and hiv_test_result is not null and
-        TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 25 AND 29 and sex = 'Male'
+        respondent_age BETWEEN 25 AND 29 and sex = 'Male'
 -- 25 - 29 years, Female
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.3. 14'                                                                        AS S_NO,
@@ -368,7 +369,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where hiv_test_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE and hiv_test_result is not null and
-        TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 25 AND 29 and sex = 'Female'
+        respondent_age BETWEEN 25 AND 29 and sex = 'Female'
 -- 30 - 34 years, Male
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.3. 15'                                                                        AS S_NO,
@@ -376,7 +377,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where hiv_test_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE and hiv_test_result is not null and
-        TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 30 AND 34 and sex = 'Male'
+        respondent_age BETWEEN 30 AND 34 and sex = 'Male'
 -- 30 - 34 years, Female
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.3. 16'                                                                        AS S_NO,
@@ -384,7 +385,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where hiv_test_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE and hiv_test_result is not null and
-        TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 30 AND 34 and sex = 'Female'
+        respondent_age BETWEEN 30 AND 34 and sex = 'Female'
 -- 35 - 39 years, Male
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.3. 17'                                                                        AS S_NO,
@@ -392,7 +393,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where hiv_test_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE and hiv_test_result is not null and
-        TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 35 AND 39 and sex = 'Male'
+        respondent_age BETWEEN 35 AND 39 and sex = 'Male'
 -- 35 - 39 years, Female
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.3. 18'                                                                        AS S_NO,
@@ -400,7 +401,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where hiv_test_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE and hiv_test_result is not null and
-        TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 35 AND 39 and sex = 'Female'
+        respondent_age BETWEEN 35 AND 39 and sex = 'Female'
 -- 40 - 44 years, Male
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.3. 19'                                                                        AS S_NO,
@@ -408,7 +409,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where hiv_test_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE and hiv_test_result is not null and
-        TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 40 AND 44 and sex = 'Male'
+        respondent_age BETWEEN 40 AND 44 and sex = 'Male'
 -- 40 - 44 years, Female
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.3. 20'                                                                        AS S_NO,
@@ -416,7 +417,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where hiv_test_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE and hiv_test_result is not null and
-        TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 40 AND 44 and sex = 'Female'
+        respondent_age BETWEEN 40 AND 44 and sex = 'Female'
 -- 45 - 49 years, Male
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.3. 21'                                                                        AS S_NO,
@@ -424,7 +425,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where hiv_test_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE and hiv_test_result is not null and
-        TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 45 AND 49 and sex = 'Male'
+        respondent_age BETWEEN 45 AND 49 and sex = 'Male'
 -- 45 - 49 years, Female
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.3. 22'                                                                        AS S_NO,
@@ -432,7 +433,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where hiv_test_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE and hiv_test_result is not null and
-        TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 45 AND 49 and sex = 'Female'
+        respondent_age BETWEEN 45 AND 49 and sex = 'Female'
 -- >= 50 years, Male
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.3. 23'                                                                        AS S_NO,
@@ -440,7 +441,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where hiv_test_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE and hiv_test_result is not null and
-        TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >=50 and sex = 'Male'
+        respondent_age >=50 and sex = 'Male'
 -- >= 50 years, Female
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.3. 24'                                                                        AS S_NO,
@@ -448,7 +449,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where hiv_test_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE and hiv_test_result is not null and
-        TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >=50 and sex = 'Female'
+        respondent_age >=50 and sex = 'Female'
 -- Number of contacts by test result (Positive)
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4'                                                                        AS S_NO,
@@ -474,7 +475,7 @@ BEGIN
     FROM contact_list
     where prior_hiv_test_result != 'Positive' and hiv_test_result = 'Positive'
       and coalesce(hiv_test_date,date_of_case_closure,elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
-    and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) <1 and sex = 'Male'
+    and respondent_age <1 and sex = 'Male'
 -- < 1 year, Female
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.1. 2'                                                                        AS S_NO,
@@ -483,7 +484,7 @@ BEGIN
     FROM contact_list
     where prior_hiv_test_result != 'Positive' and hiv_test_result = 'Positive'
       and coalesce(hiv_test_date,date_of_case_closure,elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) <1 and sex = 'Female'
+      and respondent_age <1 and sex = 'Female'
 -- 1 - 4 years, Male
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.1. 3'                                                                        AS S_NO,
@@ -492,7 +493,7 @@ BEGIN
     FROM contact_list
     where prior_hiv_test_result != 'Positive' and hiv_test_result = 'Positive'
       and coalesce(hiv_test_date,date_of_case_closure,elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 1 AND 4 and sex = 'Male'
+      and respondent_age BETWEEN 1 AND 4 and sex = 'Male'
 -- 1 - 4 years, Female
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.1. 4'                                                                        AS S_NO,
@@ -501,7 +502,7 @@ BEGIN
     FROM contact_list
     where prior_hiv_test_result != 'Positive' and hiv_test_result = 'Positive'
       and coalesce(hiv_test_date,date_of_case_closure,elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 1 AND 4 and sex = 'Female'
+      and respondent_age BETWEEN 1 AND 4 and sex = 'Female'
 -- 5 - 9 years, Male
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.1. 5'                                                                        AS S_NO,
@@ -510,7 +511,7 @@ BEGIN
     FROM contact_list
     where prior_hiv_test_result != 'Positive' and hiv_test_result = 'Positive'
       and coalesce(hiv_test_date,date_of_case_closure,elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 5 AND 9 and sex = 'Male'
+      and respondent_age BETWEEN 5 AND 9 and sex = 'Male'
 -- 5 - 9 years, Female
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.1. 6'                                                                        AS S_NO,
@@ -519,7 +520,7 @@ BEGIN
     FROM contact_list
     where prior_hiv_test_result != 'Positive' and hiv_test_result = 'Positive'
       and coalesce(hiv_test_date,date_of_case_closure,elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 5 AND 9 and sex = 'Female'
+      and respondent_age BETWEEN 5 AND 9 and sex = 'Female'
 -- 10 - 14 years, Male
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.1. 7'                                                                        AS S_NO,
@@ -528,7 +529,7 @@ BEGIN
     FROM contact_list
     where prior_hiv_test_result != 'Positive' and hiv_test_result = 'Positive'
       and coalesce(hiv_test_date,date_of_case_closure,elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 10 AND 14 and sex = 'Male'
+      and respondent_age BETWEEN 10 AND 14 and sex = 'Male'
 -- 10 - 14 years, Female
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.1. 8'                                                                        AS S_NO,
@@ -537,7 +538,7 @@ BEGIN
     FROM contact_list
     where prior_hiv_test_result != 'Positive' and hiv_test_result = 'Positive'
       and coalesce(hiv_test_date,date_of_case_closure,elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 10 AND 14 and sex = 'Female'
+      and respondent_age BETWEEN 10 AND 14 and sex = 'Female'
 -- 15 - 19 years, Male
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.1. 9'                                                                        AS S_NO,
@@ -546,7 +547,7 @@ BEGIN
     FROM contact_list
     where prior_hiv_test_result != 'Positive' and hiv_test_result = 'Positive'
       and coalesce(hiv_test_date,date_of_case_closure,elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19 and sex = 'Male'
+      and respondent_age BETWEEN 15 AND 19 and sex = 'Male'
 -- 15 - 19 years, Female
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.1. 10'                                                                        AS S_NO,
@@ -555,7 +556,7 @@ BEGIN
     FROM contact_list
     where prior_hiv_test_result != 'Positive' and hiv_test_result = 'Positive'
       and coalesce(hiv_test_date,date_of_case_closure,elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19 and sex = 'Female'
+      and respondent_age BETWEEN 15 AND 19 and sex = 'Female'
 -- 20 - 24 years, Male
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.1. 11'                                                                        AS S_NO,
@@ -564,7 +565,7 @@ BEGIN
     FROM contact_list
     where prior_hiv_test_result != 'Positive' and hiv_test_result = 'Positive'
       and coalesce(hiv_test_date,date_of_case_closure,elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 20 AND 24 and sex = 'Male'
+      and respondent_age BETWEEN 20 AND 24 and sex = 'Male'
 -- 20 - 24 years, Female
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.1. 12'                                                                        AS S_NO,
@@ -573,7 +574,7 @@ BEGIN
     FROM contact_list
     where prior_hiv_test_result != 'Positive' and hiv_test_result = 'Positive'
       and coalesce(hiv_test_date,date_of_case_closure,elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 20 AND 24 and sex = 'Female'
+      and respondent_age BETWEEN 20 AND 24 and sex = 'Female'
 -- 25 - 29 years, Male
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.1. 13'                                                                        AS S_NO,
@@ -582,7 +583,7 @@ BEGIN
     FROM contact_list
     where prior_hiv_test_result != 'Positive' and hiv_test_result = 'Positive'
       and coalesce(hiv_test_date,date_of_case_closure,elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 25 AND 29 and sex = 'Male'
+      and respondent_age BETWEEN 25 AND 29 and sex = 'Male'
 -- 25 - 29 years, Female
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.1. 14'                                                                        AS S_NO,
@@ -591,7 +592,7 @@ BEGIN
     FROM contact_list
     where prior_hiv_test_result != 'Positive' and hiv_test_result = 'Positive'
       and coalesce(hiv_test_date,date_of_case_closure,elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 25 AND 29 and sex = 'Female'
+      and respondent_age BETWEEN 25 AND 29 and sex = 'Female'
 -- 30 - 34 years, Male
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.1. 15'                                                                        AS S_NO,
@@ -600,7 +601,7 @@ BEGIN
     FROM contact_list
     where prior_hiv_test_result != 'Positive' and hiv_test_result = 'Positive'
       and coalesce(hiv_test_date,date_of_case_closure,elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 30 AND 34 and sex = 'Male'
+      and respondent_age BETWEEN 30 AND 34 and sex = 'Male'
 -- 30 - 34 years, Female
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.1. 16'                                                                        AS S_NO,
@@ -609,7 +610,7 @@ BEGIN
     FROM contact_list
     where prior_hiv_test_result != 'Positive' and hiv_test_result = 'Positive'
       and coalesce(hiv_test_date,date_of_case_closure,elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 30 AND 34 and sex = 'Female'
+      and respondent_age BETWEEN 30 AND 34 and sex = 'Female'
 -- 35 - 39 years, Male
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.1. 17'                                                                        AS S_NO,
@@ -618,7 +619,7 @@ BEGIN
     FROM contact_list
     where prior_hiv_test_result != 'Positive' and hiv_test_result = 'Positive'
       and coalesce(hiv_test_date,date_of_case_closure,elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 35 AND 39 and sex = 'Male'
+      and respondent_age BETWEEN 35 AND 39 and sex = 'Male'
 -- 35 - 39 years, Female
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.1. 18'                                                                        AS S_NO,
@@ -627,7 +628,7 @@ BEGIN
     FROM contact_list
     where prior_hiv_test_result != 'Positive' and hiv_test_result = 'Positive'
       and coalesce(hiv_test_date,date_of_case_closure,elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 35 AND 39 and sex = 'Female'
+      and respondent_age BETWEEN 35 AND 39 and sex = 'Female'
 -- 40 - 44 years, Male
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.1. 19'                                                                        AS S_NO,
@@ -636,7 +637,7 @@ BEGIN
     FROM contact_list
     where prior_hiv_test_result != 'Positive' and hiv_test_result = 'Positive'
       and coalesce(hiv_test_date,date_of_case_closure,elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 40 AND 44 and sex = 'Male'
+      and respondent_age BETWEEN 40 AND 44 and sex = 'Male'
 -- 40 - 44 years, Female
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.1. 20'                                                                        AS S_NO,
@@ -645,7 +646,7 @@ BEGIN
     FROM contact_list
     where prior_hiv_test_result != 'Positive' and hiv_test_result = 'Positive'
       and coalesce(hiv_test_date,date_of_case_closure,elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 40 AND 44 and sex = 'Female'
+      and respondent_age BETWEEN 40 AND 44 and sex = 'Female'
 -- 45 - 49 years, Male
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.1. 21'                                                                        AS S_NO,
@@ -654,7 +655,7 @@ BEGIN
     FROM contact_list
     where prior_hiv_test_result != 'Positive' and hiv_test_result = 'Positive'
       and coalesce(hiv_test_date,date_of_case_closure,elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 45 AND 49 and sex = 'Male'
+      and respondent_age BETWEEN 45 AND 49 and sex = 'Male'
 -- 45 - 49 years, Female
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.1. 22'                                                                        AS S_NO,
@@ -663,7 +664,7 @@ BEGIN
     FROM contact_list
     where prior_hiv_test_result != 'Positive' and hiv_test_result = 'Positive'
       and coalesce(hiv_test_date,date_of_case_closure,elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 45 AND 49 and sex = 'Female'
+      and respondent_age BETWEEN 45 AND 49 and sex = 'Female'
 -- >= 50 years, Male
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.1. 23'                                                                        AS S_NO,
@@ -672,7 +673,7 @@ BEGIN
     FROM contact_list
     where prior_hiv_test_result != 'Positive' and hiv_test_result = 'Positive'
       and coalesce(hiv_test_date,date_of_case_closure,elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 50 and sex = 'Male'
+      and respondent_age >= 50 and sex = 'Male'
 -- >= 50 years, Female
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.1. 24'                                                                        AS S_NO,
@@ -681,7 +682,7 @@ BEGIN
     FROM contact_list
     where prior_hiv_test_result != 'Positive' and hiv_test_result = 'Positive'
       and coalesce(hiv_test_date,date_of_case_closure,elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 50 and sex = 'Female'
+      and respondent_age >= 50 and sex = 'Female'
 -- Known positive
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.2'                                                                        AS S_NO,
@@ -696,7 +697,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where prior_hiv_test_result = 'Positive' and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
-    and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 1 and sex = 'Male'
+    and respondent_age < 1 and sex = 'Male'
 -- < 1 year, Female
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.2. 2'                                                                        AS S_NO,
@@ -704,7 +705,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where prior_hiv_test_result = 'Positive' and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 1 and sex = 'Female'
+      and respondent_age < 1 and sex = 'Female'
 -- 1 - 4 years, Male
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.2. 3'                                                                        AS S_NO,
@@ -712,7 +713,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where prior_hiv_test_result = 'Positive' and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 1 AND 4 and sex = 'Male'
+      and respondent_age BETWEEN 1 AND 4 and sex = 'Male'
 -- 1 - 4 years, Female
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.2. 4'                                                                        AS S_NO,
@@ -720,7 +721,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where prior_hiv_test_result = 'Positive' and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 1 AND 4 and sex = 'Female'
+      and respondent_age BETWEEN 1 AND 4 and sex = 'Female'
 -- 5 - 9 years, Male
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.2. 5'                                                                        AS S_NO,
@@ -728,7 +729,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where prior_hiv_test_result = 'Positive' and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 5 AND 9 and sex = 'Male'
+      and respondent_age BETWEEN 5 AND 9 and sex = 'Male'
 -- 5 - 9 years, Female
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.2. 6'                                                                        AS S_NO,
@@ -736,7 +737,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where prior_hiv_test_result = 'Positive' and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 5 AND 9 and sex = 'Female'
+      and respondent_age BETWEEN 5 AND 9 and sex = 'Female'
 -- 10 - 14 years, Male
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.2. 7'                                                                        AS S_NO,
@@ -744,7 +745,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where prior_hiv_test_result = 'Positive' and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 10 AND 14 and sex = 'Male'
+      and respondent_age BETWEEN 10 AND 14 and sex = 'Male'
 -- 10 - 14 years, Female
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.2. 8'                                                                        AS S_NO,
@@ -752,7 +753,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where prior_hiv_test_result = 'Positive' and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 10 AND 14 and sex = 'Female'
+      and respondent_age BETWEEN 10 AND 14 and sex = 'Female'
 -- 15 - 19 years, Male
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.2. 9'                                                                        AS S_NO,
@@ -760,7 +761,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where prior_hiv_test_result = 'Positive' and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19 and sex = 'Male'
+      and respondent_age BETWEEN 15 AND 19 and sex = 'Male'
 -- 15 - 19 years, Female
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.2. 10'                                                                        AS S_NO,
@@ -768,7 +769,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where prior_hiv_test_result = 'Positive' and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19 and sex = 'Female'
+      and respondent_age BETWEEN 15 AND 19 and sex = 'Female'
 -- 20 - 24 years, Male
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.2. 11'                                                                        AS S_NO,
@@ -776,7 +777,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where prior_hiv_test_result = 'Positive' and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 20 AND 24 and sex = 'Male'
+      and respondent_age BETWEEN 20 AND 24 and sex = 'Male'
 -- 20 - 24 years, Female
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.2. 12'                                                                        AS S_NO,
@@ -784,7 +785,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where prior_hiv_test_result = 'Positive' and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 20 AND 24 and sex = 'Female'
+      and respondent_age BETWEEN 20 AND 24 and sex = 'Female'
 -- 25 - 29 years, Male
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.2. 13'                                                                        AS S_NO,
@@ -792,7 +793,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where prior_hiv_test_result = 'Positive' and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 25 AND 29 and sex = 'Male'
+      and respondent_age BETWEEN 25 AND 29 and sex = 'Male'
 -- 25 - 29 years, Female
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.2. 14'                                                                        AS S_NO,
@@ -800,7 +801,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where prior_hiv_test_result = 'Positive' and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 25 AND 29 and sex = 'Female'
+      and respondent_age BETWEEN 25 AND 29 and sex = 'Female'
 -- 30 - 34 years, Male
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.2. 15'                                                                        AS S_NO,
@@ -808,7 +809,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where prior_hiv_test_result = 'Positive' and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 30 AND 34 and sex = 'Male'
+      and respondent_age BETWEEN 30 AND 34 and sex = 'Male'
 -- 30 - 34 years, Female
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.2. 16'                                                                        AS S_NO,
@@ -816,7 +817,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where prior_hiv_test_result = 'Positive' and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 30 AND 34 and sex = 'Female'
+      and respondent_age BETWEEN 30 AND 34 and sex = 'Female'
 -- 35 - 39 years, Male
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.2. 17'                                                                        AS S_NO,
@@ -824,7 +825,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where prior_hiv_test_result = 'Positive' and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 35 AND 39 and sex = 'Male'
+      and respondent_age BETWEEN 35 AND 39 and sex = 'Male'
 -- 35 - 39 years, Female
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.2. 18'                                                                        AS S_NO,
@@ -832,7 +833,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where prior_hiv_test_result = 'Positive' and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 35 AND 39 and sex = 'Female'
+      and respondent_age BETWEEN 35 AND 39 and sex = 'Female'
 -- 40 - 44 years, Male
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.2. 19'                                                                        AS S_NO,
@@ -840,7 +841,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where prior_hiv_test_result = 'Positive' and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 40 AND 44 and sex = 'Male'
+      and respondent_age BETWEEN 40 AND 44 and sex = 'Male'
 -- 40 - 44 years, Female
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.2. 20'                                                                        AS S_NO,
@@ -848,7 +849,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where prior_hiv_test_result = 'Positive' and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 40 AND 44 and sex = 'Female'
+      and respondent_age BETWEEN 40 AND 44 and sex = 'Female'
 -- 45 - 49 years, Male
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.2. 21'                                                                        AS S_NO,
@@ -856,7 +857,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where prior_hiv_test_result = 'Positive' and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 45 AND 49 and sex = 'Male'
+      and respondent_age BETWEEN 45 AND 49 and sex = 'Male'
 -- 45 - 49 years, Female
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.2. 22'                                                                        AS S_NO,
@@ -864,7 +865,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where prior_hiv_test_result = 'Positive' and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 45 AND 49 and sex = 'Female'
+      and respondent_age BETWEEN 45 AND 49 and sex = 'Female'
 -- >= 50 years, Male
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.2. 23'                                                                        AS S_NO,
@@ -872,7 +873,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where prior_hiv_test_result = 'Positive' and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >=50 and sex = 'Male'
+      and respondent_age >=50 and sex = 'Male'
 -- >= 50 years, Female
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.2. 24'                                                                        AS S_NO,
@@ -880,7 +881,7 @@ BEGIN
            COUNT(*)                                                                                  AS Value
     FROM contact_list
     where prior_hiv_test_result = 'Positive' and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
-      and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >=50 and sex = 'Female';
+      and respondent_age >=50 and sex = 'Female';
 END //
 
 DELIMITER ;

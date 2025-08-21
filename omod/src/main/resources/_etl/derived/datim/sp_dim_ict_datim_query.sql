@@ -100,11 +100,11 @@ BEGIN
                              client.uan,
                              (SELECT datim_agegroup
                                       from mamba_dim_agegroup
-                                      where TIMESTAMPDIFF(YEAR, date_of_birth, ?) = age) as fine_age_group,
+                                      where respondent_age = age) as fine_age_group,
                                      (SELECT normal_agegroup
                                       from mamba_dim_agegroup
-                                      where TIMESTAMPDIFF(YEAR, date_of_birth, ?) = age) as coarse_age_group,
-                             TIMESTAMPDIFF(YEAR, date_of_birth, ?) as age,
+                                      where respondent_age = age) as coarse_age_group,
+                             respondent_age as age,
                              client.sex
                       from
                           mamba_flat_encounter_index_contact_followup contact
