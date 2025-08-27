@@ -15,6 +15,9 @@ public class PHRHServiceLineListDataSetDefinitionMamba extends BaseDataSetDefini
 	@ConfigurationProperty
 	private Date endDate;
 	
+	@ConfigurationProperty
+	private String targetGroup;
+	
 	public Date getStartDate() {
 		return startDate;
 	}
@@ -29,5 +32,13 @@ public class PHRHServiceLineListDataSetDefinitionMamba extends BaseDataSetDefini
 	
 	public void setEndDate(Date endDate) {
 		this.endDate = endDate;
+	}
+	
+	public String getTargetGroup() {
+		return targetGroup;
+	}
+	
+	public void setTargetGroup(String targetGroup) {
+		this.targetGroup = targetGroup;
 	}
 }
