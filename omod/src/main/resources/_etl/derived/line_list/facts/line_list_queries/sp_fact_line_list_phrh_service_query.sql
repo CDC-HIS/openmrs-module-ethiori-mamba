@@ -2,7 +2,7 @@ DELIMITER //
 
 DROP PROCEDURE IF EXISTS sp_fact_line_list_phrh_service_query;
 
-CREATE PROCEDURE sp_fact_line_list_phrh_service_query(IN REPORT_START_DATE DATE, IN REPORT_END_DATE DATE)
+CREATE PROCEDURE sp_fact_line_list_phrh_service_query(IN REPORT_START_DATE DATE, IN REPORT_END_DATE DATE, IN TARGET_GROUP VARCHAR(255))
 BEGIN
     WITH enrollment AS (
         SELECT
@@ -24,7 +24,14 @@ BEGIN
             mpf.drug_use,
             mpf.iv_drug_use,
             mpf.declined_to_disclose) AS risk_behaviors,
-        mpf.target_population AS target_population,
+		CASE
+			WHEN mpf.target_population = "Female sex worker" THEN "FSW"
+			WHEN mpf.target_population = "People who inject drug" THEN "PWID"
+			WHEN mpf.target_population = "Late adolescent/young adulthood period" THEN "High Risk AGYW"
+			WHEN mpf.target_population = "Other" THEN "Other KPP"
+			ELSE "General Population"
+		END
+		AS target_population,
         mpf.modality_used_to_reach AS modality,
         mpf.hiv_self_test_performed AS hiv_self_test_kit,
         mpf.hivst_result AS self_test_result,
@@ -114,7 +121,7 @@ BEGIN
         en.last_follow_up_outcome AS 'Last FU Outcome',
         en.final_decision AS 'Final Decision'
 	FROM enrollment en JOIN phrhs p on en.client_id = p.client_id
-    WHERE en.row_num = 1;
+    WHERE  en.row_num = 1 and ((TARGET_GROUP != "ALL" and en.target_population = TARGET_GROUP) or TARGET_GROUP = "ALL");
 END //
 
 DELIMITER ;

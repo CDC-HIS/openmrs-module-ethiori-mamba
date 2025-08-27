@@ -10,7 +10,9 @@ import org.openmrs.module.reporting.report.manager.ReportManager;
 import org.openmrs.module.reporting.report.manager.ReportManagerUtil;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 @Component
@@ -33,7 +35,21 @@ public class PHRHServiceLineListReportMamba implements ReportManager {
 	
 	@Override
 	public List<Parameter> getParameters() {
-		return EthiOhriUtil.getDateRangeParameters(Boolean.FALSE);
+		Parameter startDate = new Parameter("startDate", "Start Date", Date.class);
+		startDate.setRequired(false);
+		Parameter startDateGC = new Parameter("startDateGC", " ", Date.class);
+		startDateGC.setRequired(false);
+		
+		Parameter endDate = new Parameter("endDate", "End Date", Date.class);
+		endDate.setRequired(false);
+		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
+		endDateGC.setRequired(false);
+		
+		Parameter targetGroup = new Parameter("targetGroup", "Target Group", String.class);
+		targetGroup.setRequired(false);
+		targetGroup.addToWidgetConfiguration("codedOptions", "ALL,FSW,PWID,High Risk AGYW,Other KPP,General Population");
+		targetGroup.setDefaultValue("ALL");
+		return Arrays.asList(startDate, startDateGC, endDate, endDateGC, targetGroup);
 		
 	}
 	
@@ -47,8 +63,9 @@ public class PHRHServiceLineListReportMamba implements ReportManager {
 		
 		PHRHServiceLineListDataSetDefinitionMamba phrhServiceLineListDataSetDefinitionMamba = new PHRHServiceLineListDataSetDefinitionMamba();
 		phrhServiceLineListDataSetDefinitionMamba.addParameters(getParameters());
-		reportDefinition.addDataSetDefinition("PHRH Service Report",
-		    EthiOhriUtil.map(phrhServiceLineListDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		reportDefinition.addDataSetDefinition("PHRH Service Report", EthiOhriUtil.map(
+		    phrhServiceLineListDataSetDefinitionMamba,
+		    "startDate=${startDateGC},endDate=${endDateGC},targetGroup=${targetGroup}"));
 		
 		return reportDefinition;
 	}

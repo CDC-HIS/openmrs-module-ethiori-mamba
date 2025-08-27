@@ -69,11 +69,13 @@ public class PHRHServiceLineListDataSetEvaluatorMamba implements DataSetEvaluato
 	private List<ProcedureCall> createProcedureCalls(PHRHServiceLineListDataSetDefinitionMamba phrhServiceLineListDataSetDefinitionMamba) {
 		java.sql.Date startDate = phrhServiceLineListDataSetDefinitionMamba.getStartDate() != null ? new java.sql.Date(phrhServiceLineListDataSetDefinitionMamba.getStartDate().getTime()):null ;
 		java.sql.Date endDate = phrhServiceLineListDataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date( phrhServiceLineListDataSetDefinitionMamba.getEndDate().getTime()):null ;
+		String targetGroup = phrhServiceLineListDataSetDefinitionMamba.getTargetGroup() != null ? phrhServiceLineListDataSetDefinitionMamba.getTargetGroup() : null;
 
 		return Collections.singletonList(
-                new ProcedureCall("{call sp_fact_line_list_phrh_service_query(?,?)}", statement -> {
+                new ProcedureCall("{call sp_fact_line_list_phrh_service_query(?,?,?)}", statement -> {
                     statement.setDate(1, startDate);
 					statement.setDate(2, endDate);
+					statement.setString(3, targetGroup);
                 })
         );
 	}
