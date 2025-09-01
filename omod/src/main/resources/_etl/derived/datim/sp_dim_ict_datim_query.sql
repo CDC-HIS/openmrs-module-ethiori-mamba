@@ -96,21 +96,23 @@ BEGIN
                              prior_hiv_test_result,
                              prior_test_date_estimated,
                              date_of_case_closure,
-                             client.mrn,
-                             client.uan,
                              (SELECT datim_agegroup
-                                      from mamba_dim_agegroup
-                                      where respondent_age = age) as fine_age_group,
-                                     (SELECT normal_agegroup
-                                      from mamba_dim_agegroup
-                                      where respondent_age = age) as coarse_age_group,
-                             respondent_age as age,
-                             client.sex
-                      from
-                          mamba_flat_encounter_index_contact_followup contact
-                              left join mamba_flat_encounter_index_contact_followup_1 contact_1
-                                        on contact.encounter_id = contact_1.encounter_id
-                             join mamba_dim_client client on contact.client_id = client.client_id) ';
+                              from mamba_dim_agegroup
+                              where TIMESTAMPDIFF(YEAR, person.birthdate, ?) = age) as fine_age_group,
+                             (SELECT normal_agegroup
+                              from mamba_dim_agegroup
+                              where TIMESTAMPDIFF(YEAR, person.birthdate, ?) = age) as coarse_age_group,
+                             TIMESTAMPDIFF(YEAR, person.birthdate, ?) as age,
+                             CASE person.gender WHEN ''F'' THEN ''Female'' WHEN ''M'' THEN ''Male'' END AS sex
+                      from mamba_flat_encounter_ict_general g
+                               join mamba_flat_encounter_index_contact_followup contact
+                                    on g.client_id = contact.client_id
+                               left join mamba_flat_encounter_index_contact_followup_1 contact_1
+                                         on contact.encounter_id = contact_1.encounter_id
+                               join mamba_dim_encounter encounter on contact.encounter_id = encounter.encounter_id
+                               join mamba_dim_person_attribute attribute on encounter.uuid = attribute.value
+                               join mamba_dim_relationship relationship on attribute.person_id = person_b
+                               join mamba_dim_person person on relationship.person_b = person.person_id) ';
 
     IF REPORT_TYPE = 'ICT_TOTAL' THEN
         SET group_query = CONCAT('SELECT COUNT(*) as Numerator FROM contact_list WHERE ',filter_condition);
@@ -139,9 +141,9 @@ BEGIN
     SET @start_date = REPORT_START_DATE;
     SET @end_date = REPORT_END_DATE;
     IF REPORT_TYPE = 'TESTING_OFFERED' OR REPORT_TYPE = 'TESTING_ACCEPTED' OR REPORT_TYPE = 'ELICITED' THEN
-        EXECUTE stmt USING @end_date, @end_date, @end_date, @start_date , @end_date;
+        EXECUTE stmt USING @end_date, @end_date, @end_date, @start_date , @end_date, @end_date, @end_date, @end_date;
     ELSE
-        EXECUTE stmt USING @end_date, @end_date, @end_date, @start_date , @end_date, @end_date, @end_date;
+        EXECUTE stmt USING @end_date, @end_date, @end_date, @start_date , @end_date, @end_date, @end_date, @end_date, @end_date, @end_date;
     END IF;
 
 END //
