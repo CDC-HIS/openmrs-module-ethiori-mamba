@@ -252,7 +252,7 @@ BEGIN
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.2'         AS S_NO,
            'Number of contacts elicited' as Activity,
-           number_of_contacts_elicited   AS Value
+           SUM(number_of_contacts_elicited)   AS Value
     FROM offer
 -- < 15 years, Male
     UNION ALL
