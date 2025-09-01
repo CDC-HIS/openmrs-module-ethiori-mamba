@@ -21,7 +21,7 @@ public class TxCurrDATIMReportsMamba implements ReportManager {
 	@Override
 	public String getUuid() {
 		return "d4debfa2-95ea-4c8e-9a89-36ccd201e943";
-	} //4d7b385f-331f-400c-8592-f539f4565d9d
+	}
 	
 	@Override
 	public String getName() {
@@ -86,7 +86,7 @@ public class TxCurrDATIMReportsMamba implements ReportManager {
 	@Override
 	public List<ReportDesign> constructReportDesigns(ReportDefinition reportDefinition) {
 		ReportDesign design = ReportManagerUtil.createExcelDesign("dd86d722-c9c9-4d23-beff-4e76ffbdc0b1", reportDefinition);
-		
+		design.setReportDefinition(reportDefinition);
 		return Collections.singletonList(design);
 	}
 	

@@ -60,6 +60,7 @@ public class AHDLineListReportMamba implements ReportManager {
 	@Override
 	public List<ReportDesign> constructReportDesigns(ReportDefinition reportDefinition) {
 		ReportDesign design = ReportManagerUtil.createExcelDesign("a770d35a-508f-4910-a1dc-8149b7696817", reportDefinition);
+		design.setReportDefinition(reportDefinition);
 		
 		return Collections.singletonList(design);
 	}

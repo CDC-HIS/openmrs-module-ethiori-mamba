@@ -130,7 +130,7 @@ public class TxMLDATIMReportsMamba implements ReportManager {
 	public List<ReportDesign> constructReportDesigns(ReportDefinition reportDefinition) {
 		
 		ReportDesign design = ReportManagerUtil.createExcelDesign("fee9078b-63e7-424d-86a7-5647fab5fb34", reportDefinition);
-		
+		design.setReportDefinition(reportDefinition);
 		return Collections.singletonList(design);
 	}
 	
