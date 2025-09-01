@@ -139,9 +139,9 @@ BEGIN
     SET @start_date = REPORT_START_DATE;
     SET @end_date = REPORT_END_DATE;
     IF REPORT_TYPE = 'TESTING_OFFERED' OR REPORT_TYPE = 'TESTING_ACCEPTED' OR REPORT_TYPE = 'ELICITED' THEN
-        EXECUTE stmt USING @end_date, @end_date, @end_date, @start_date , @end_date, @end_date, @end_date, @end_date;
+        EXECUTE stmt USING @end_date, @end_date, @end_date, @start_date , @end_date;
     ELSE
-        EXECUTE stmt USING @end_date, @end_date, @end_date, @start_date , @end_date, @end_date, @end_date, @end_date, @start_date , @end_date;
+        EXECUTE stmt USING @end_date, @end_date, @end_date, @start_date , @end_date, @end_date, @end_date;
     END IF;
 
 END //
