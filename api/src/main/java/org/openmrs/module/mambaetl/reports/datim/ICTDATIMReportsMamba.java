@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+@Component
 public class ICTDATIMReportsMamba implements ReportManager {
 	
 	@Override
