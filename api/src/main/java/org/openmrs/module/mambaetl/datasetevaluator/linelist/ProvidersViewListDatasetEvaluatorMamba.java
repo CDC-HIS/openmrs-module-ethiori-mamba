@@ -61,7 +61,7 @@ public class ProvidersViewListDatasetEvaluatorMamba implements DataSetEvaluator 
                 return data;
 
             } catch (SQLException e) {
-                rollbackAndThrowException(connection, ERROR_PROCESSING_RESULT_SET + e.getMessage(), e, log); // Use static method from helper and pass logger
+                rollbackAndThrowException(connection, ERROR_PROCESSING_RESULT_SET + e.getMessage(), e, log);
             }
         } catch (SQLException e) {
             throw new EvaluationException(DATABASE_CONNECTION_ERROR + e.getMessage(), e);

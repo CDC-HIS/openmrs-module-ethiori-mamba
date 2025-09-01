@@ -32,7 +32,7 @@ BEGIN
                                          ON follow_up.encounter_id = follow_up_9.encounter_id
                      WHERE follow_up_status IS NOT NULL
                        AND art_antiretroviral_start_date IS NOT NULL
-                       AND transferred_in_check_this_for_all_t IS NOT NULL
+                       AND transferred_in_check_this_for_all_t = 'Yes'
                        AND follow_up.client_id = TI_CLIENT_ID) as a
                where min_follow_up_date BETWEEN START_DATE AND END_DATE) THEN
         SET TI_RESULT = 'TI';

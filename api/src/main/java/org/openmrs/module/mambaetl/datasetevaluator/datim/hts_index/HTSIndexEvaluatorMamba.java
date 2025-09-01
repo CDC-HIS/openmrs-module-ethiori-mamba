@@ -1,9 +1,10 @@
-package org.openmrs.module.mambaetl.datasetevaluator.datim.tx_ml;
+package org.openmrs.module.mambaetl.datasetevaluator.datim.hts_index;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_ml.TxMLDataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.datasetdefinition.datim.hts_index.HTSIndexDataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_new.TxNewAgeSexCd4DataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
 import org.openmrs.module.reporting.dataset.DataSet;
@@ -22,10 +23,10 @@ import java.util.List;
 import static org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper.*;
 import static org.openmrs.module.mambaetl.helpers.ValidationHelper.ValidateDates;
 
-@Handler(supports = { TxMLDataSetDefinitionMamba.class })
-public class TxMLEvaluatorMamba implements DataSetEvaluator {
+@Handler(supports = { HTSIndexDataSetDefinitionMamba.class })
+public class HTSIndexEvaluatorMamba implements DataSetEvaluator {
 	
-	private static final Log log = LogFactory.getLog(TxMLEvaluatorMamba.class);
+	private static final Log log = LogFactory.getLog(HTSIndexEvaluatorMamba.class);
 	
 	private static final String ERROR_PROCESSING_RESULT_SET = "Error processing ResultSet: ";
 	
@@ -35,7 +36,7 @@ public class TxMLEvaluatorMamba implements DataSetEvaluator {
 	public DataSet evaluate(DataSetDefinition dataSetDefinition, EvaluationContext evalContext)
 			throws EvaluationException {
 
-		TxMLDataSetDefinitionMamba dataSetDefinitionMamba = (TxMLDataSetDefinitionMamba) dataSetDefinition;
+		HTSIndexDataSetDefinitionMamba dataSetDefinitionMamba = (HTSIndexDataSetDefinitionMamba) dataSetDefinition;
 		SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
 
 		ResultSetMapper resultSetMapper = new ResultSetMapper();
@@ -69,17 +70,28 @@ public class TxMLEvaluatorMamba implements DataSetEvaluator {
 		return null;
 	}
 	
-	private List<ProcedureCall> createProcedureCalls(TxMLDataSetDefinitionMamba dataSetDefinitionMamba) {
+	private List<ProcedureCall> createProcedureCalls(HTSIndexDataSetDefinitionMamba dataSetDefinitionMamba) {
 		java.sql.Date startDate = new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime());
 		java.sql.Date endDate = new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime());
-
-		return Collections.singletonList(
-                new ProcedureCall("{call sp_dim_tx_ml_datim_query(?,?,?,?)}", statement -> {
-                    statement.setDate(1, startDate);
-                    statement.setDate(2, endDate);
-                    statement.setInt(3, 0);
-					statement.setString(4, dataSetDefinitionMamba.getTxMLAggregationTypes().getSqlValue());
-                })
-        );
+		if (dataSetDefinitionMamba.getHtsIndexAggregationTypes().getSqlValue().equalsIgnoreCase("ELICITED")){
+			return Collections.singletonList(
+					new ProcedureCall("{call sp_dim_ict_datim_query(?,?,?,?)}", statement -> {
+						statement.setDate(1, startDate);
+						statement.setDate(2, endDate);
+						statement.setInt(3, 1);
+						statement.setString(4, dataSetDefinitionMamba.getHtsIndexAggregationTypes().getSqlValue());
+					})
+			);
+		}
+		else {
+			return Collections.singletonList(
+					new ProcedureCall("{call sp_dim_ict_datim_query(?,?,?,?)}", statement -> {
+						statement.setDate(1, startDate);
+						statement.setDate(2, endDate);
+						statement.setInt(3, 0);
+						statement.setString(4, dataSetDefinitionMamba.getHtsIndexAggregationTypes().getSqlValue());
+					})
+			);
+		}
 	}
 }
