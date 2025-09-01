@@ -22,7 +22,7 @@ public class CXCASCRNDATIMReportsMamba implements ReportManager {
 	@Override
 	public String getUuid() {
 		return "be8377b4-cad5-4aea-91c8-8ee72f90cb7b";
-	} //4d7b385f-331f-400c-8592-f539f4565d9d
+	}
 	
 	@Override
 	public String getName() {

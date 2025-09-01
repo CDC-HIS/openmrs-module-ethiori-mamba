@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-@Component
 public class ICTDATIMReportsMamba implements ReportManager {
 	
 	@Override
@@ -132,7 +131,7 @@ public class ICTDATIMReportsMamba implements ReportManager {
 	@Override
 	public List<ReportDesign> constructReportDesigns(ReportDefinition reportDefinition) {
 		ReportDesign design = ReportManagerUtil.createExcelDesign("cd44add3-9c5e-460c-a975-9fa7ac2865c7", reportDefinition);
-		
+		design.setReportDefinition(reportDefinition);
 		return Collections.singletonList(design);
 	}
 	
