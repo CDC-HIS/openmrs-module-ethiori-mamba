@@ -44,24 +44,24 @@ public class PrEPNEWEvaluatorMamba implements DataSetEvaluator {
 		if(!data.getRows().isEmpty()){
 			return data;
 		}
-		try (Connection connection = DataSetEvaluatorHelper.getDataSource().getConnection()) { // Use static method from helper
+		try (Connection connection = DataSetEvaluatorHelper.getDataSource().getConnection()) {
 			connection.setAutoCommit(false); // Ensure consistency across multiple queries
 
 			List<ProcedureCall> procedureCalls = createProcedureCalls(dataSetDefinitionMamba);
 
-			try (CallableStatementContainer statementContainer = prepareStatements(connection, procedureCalls)) { // Use static method from helper
+			try (CallableStatementContainer statementContainer = prepareStatements(connection, procedureCalls)) {
 
-				executeStatements(statementContainer, procedureCalls); // Use static method from helper
+				executeStatements(statementContainer, procedureCalls);
 
 				ResultSet[] allResultSets = statementContainer.getResultSets();
 
 				// Merge results
-				mapResultSet(data, resultSetMapper, allResultSets,Boolean.FALSE); // Use static method from helper
+				mapResultSet(data, resultSetMapper, allResultSets,Boolean.FALSE);
 				connection.commit();
 				return data;
 
 			} catch (SQLException e) {
-				rollbackAndThrowException(connection, ERROR_PROCESSING_RESULT_SET + e.getMessage(), e, log); // Use static method from helper and pass logger
+				rollbackAndThrowException(connection, ERROR_PROCESSING_RESULT_SET + e.getMessage(), e, log);
 			}
 		} catch (SQLException e) {
 			throw new EvaluationException(DATABASE_CONNECTION_ERROR + e.getMessage(), e);

@@ -49,7 +49,7 @@ public class DataSetEvaluatorHelper {
 			ProcedureCall call = procedureCalls.get(i);
 			CallableStatement statement = statements[i];
 			if (statement != null) {
-				call.getParameterSetter().setParameters(statement); // Use the lambda to set parameters
+				call.getParameterSetter().setParameters(statement);
 				resultSets[i] = statement.executeQuery();
 			}
 		}
@@ -58,9 +58,7 @@ public class DataSetEvaluatorHelper {
 	public static void mapResultSet(SimpleDataSet data, ResultSetMapper resultSetMapper, ResultSet[] resultSets,
 	        Boolean addTotal) throws SQLException {
 		
-		// Adding total row at the start of dataset to be updated later
 		DataSetRow totalRow = new DataSetRow();
-		// Using total text and total count columns from restultset first and second indexes
 		DataSetColumn totalCountColumn = new DataSetColumn();
 		DataSetColumn totalCountNameColumn;
 		if (addTotal && resultSets.length > 0 && data.getMetaData().getColumn("Error") == null) {

@@ -3,7 +3,7 @@ package org.openmrs.module.mambaetl.datasetevaluator.linelist;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.mambaetl.datasetdefinition.linelist.OTZLineListDataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.datasetdefinition.linelist.ArtCohortAnalysisLineListDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
 import org.openmrs.module.reporting.dataset.DataSet;
@@ -22,10 +22,10 @@ import java.util.List;
 import static org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper.*;
 import static org.openmrs.module.mambaetl.helpers.ValidationHelper.ValidateDates;
 
-@Handler(supports = { OTZLineListDataSetDefinitionMamba.class })
-public class OTZLineListDatasetEvaluatorMamba implements DataSetEvaluator {
+@Handler(supports = { ArtCohortAnalysisLineListDataSetDefinitionMamba.class })
+public class ArtCohortAnalysisLineListDatasetEvaluatorMamba implements DataSetEvaluator {
 	
-	private static final Log log = LogFactory.getLog(OTZLineListDatasetEvaluatorMamba.class);
+	private static final Log log = LogFactory.getLog(ArtCohortAnalysisLineListDatasetEvaluatorMamba.class);
 	
 	private static final String ERROR_PROCESSING_RESULT_SET = "Error processing ResultSet: ";
 	
@@ -35,7 +35,7 @@ public class OTZLineListDatasetEvaluatorMamba implements DataSetEvaluator {
     public DataSet evaluate(DataSetDefinition dataSetDefinition, EvaluationContext evalContext)
             throws EvaluationException {
 
-        OTZLineListDataSetDefinitionMamba dataSetDefinitionMamba = (OTZLineListDataSetDefinitionMamba) dataSetDefinition;
+        ArtCohortAnalysisLineListDataSetDefinitionMamba dataSetDefinitionMamba = (ArtCohortAnalysisLineListDataSetDefinitionMamba) dataSetDefinition;
         SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
         ResultSetMapper resultSetMapper = new ResultSetMapper();
 
@@ -44,7 +44,7 @@ public class OTZLineListDatasetEvaluatorMamba implements DataSetEvaluator {
             return data;
         }
         try (Connection connection = DataSetEvaluatorHelper.getDataSource().getConnection()) {
-            connection.setAutoCommit(false); // Ensure consistency across multiple queries
+            connection.setAutoCommit(false);
 
             List<ProcedureCall> procedureCalls = createProcedureCalls(dataSetDefinitionMamba);
 
@@ -54,7 +54,7 @@ public class OTZLineListDatasetEvaluatorMamba implements DataSetEvaluator {
 
                 ResultSet[] allResultSets = statementContainer.getResultSets();
 
-                mapResultSet(data, resultSetMapper, allResultSets,Boolean.TRUE);
+                mapResultSet(data, resultSetMapper, allResultSets,Boolean.FALSE);
                 connection.commit();
                 return data;
 
@@ -67,15 +67,23 @@ public class OTZLineListDatasetEvaluatorMamba implements DataSetEvaluator {
         return null;
     }
 	
-	private List<ProcedureCall> createProcedureCalls(OTZLineListDataSetDefinitionMamba dataSetDefinitionMamba) {
-        java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null ? new java.sql.Date( dataSetDefinitionMamba.getStartDate().getTime()):null ;
-        java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date( dataSetDefinitionMamba.getEndDate().getTime()):null ;
-
-        return Collections.singletonList(
-                new ProcedureCall("{call sp_fact_line_list_otz_query(?,?)}", statement -> {
+	private List<ProcedureCall> createProcedureCalls(ArtCohortAnalysisLineListDataSetDefinitionMamba dataSetDefinitionMamba) {
+        java.sql.Date startDate = new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime());
+        java.sql.Date endDate = new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime());
+        if (dataSetDefinitionMamba.getType().equalsIgnoreCase("LineList")){
+            return Collections.singletonList(
+                    new ProcedureCall("{call sp_fact_line_list_art_cohort_analysis_query(?,?)}", statement -> {
                         statement.setDate(1, startDate);
                         statement.setDate(2, endDate);
+                    })
+            );
+        }
+        else return Collections.singletonList(
+                new ProcedureCall("{call sp_fact_line_list_art_cohort_analysis_summary_query(?,?)}", statement -> {
+                    statement.setDate(1, startDate);
+                    statement.setDate(2, endDate);
                 })
         );
+
     }
 }

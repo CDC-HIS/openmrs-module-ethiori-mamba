@@ -9,6 +9,8 @@
 
 ############################ LINE LIST QUERIES #######################
 facts/line_list_queries/sp_fact_line_list_ahd_query.sql
+facts/line_list_queries/sp_fact_line_list_art_cohort_analysis_query.sql
+facts/line_list_queries/sp_fact_line_list_art_cohort_analysis_summary_query.sql
 facts/line_list_queries/sp_fact_line_list_cxca_eligibility_query.sql
 facts/line_list_queries/sp_fact_line_list_cxca_scrn_query.sql
 facts/line_list_queries/sp_fact_line_list_hvl_query.sql
