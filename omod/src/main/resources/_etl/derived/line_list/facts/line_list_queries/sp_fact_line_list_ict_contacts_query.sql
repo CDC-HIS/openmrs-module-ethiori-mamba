@@ -1,8 +1,8 @@
 DELIMITER //
 
-DROP PROCEDURE IF EXISTS sp_fact_line_list_ict_screening_query;
+DROP PROCEDURE IF EXISTS sp_fact_line_list_ict_contacts_query;
 
-CREATE PROCEDURE sp_fact_line_list_ict_screening_query(IN REPORT_START_DATE DATE, IN REPORT_END_DATE DATE)
+CREATE PROCEDURE sp_fact_line_list_ict_contacts_query(IN REPORT_START_DATE DATE, IN REPORT_END_DATE DATE)
 BEGIN
     WITH contact_list as (select contact.client_id,
                                  contact.elicited_date,
