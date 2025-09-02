@@ -76,7 +76,7 @@ public class TBPrevNumeratorDATIMReportsMamba implements ReportManager {
 	@Override
 	public List<ReportDesign> constructReportDesigns(ReportDefinition reportDefinition) {
 		ReportDesign design = ReportManagerUtil.createExcelDesign("1a5cfec5-7f87-4c75-ba7c-2d9c40804d3b", reportDefinition);
-		
+		design.setReportDefinition(reportDefinition);
 		return Collections.singletonList(design);
 	}
 	

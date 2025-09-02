@@ -1,7 +1,6 @@
 package org.openmrs.module.mambaetl.reports.linelist;
 
-import org.openmrs.module.mambaetl.datasetdefinition.linelist.ArtCohortAnalysisLineListDataSetDefinitionMamba;
-import org.openmrs.module.mambaetl.datasetdefinition.linelist.TxCurrLineListDataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.datasetdefinition.linelist.PHRHServiceLineListDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.report.ReportDesign;
@@ -11,45 +10,46 @@ import org.openmrs.module.reporting.report.manager.ReportManager;
 import org.openmrs.module.reporting.report.manager.ReportManagerUtil;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
-
-import static org.openmrs.module.mambaetl.helpers.EthiOhriUtil.map;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 @Component
-public class ArtCohortAnalysisLineListReportMamba implements ReportManager {
+public class PHRHServiceLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getUuid() {
-		return "0eab8da6-0718-4f8f-9242-b173ea4d9c9c";
+		return "00234c6f-79b9-44a4-9628-d4aeaec93850";
 	}
 	
 	@Override
 	public String getName() {
-		return "ART COHORT - ART Cohort Analysis LineList";
+		return "LINELIST- People at High risk for HIV Infection Service";
 	}
 	
 	@Override
 	public String getDescription() {
-		return null;
+		return "People at High risk for HIV Infection Service Report";
 	}
 	
 	@Override
 	public List<Parameter> getParameters() {
 		Parameter startDate = new Parameter("startDate", "Start Date", Date.class);
-		startDate.setRequired(true);
+		startDate.setRequired(false);
 		Parameter startDateGC = new Parameter("startDateGC", " ", Date.class);
 		startDateGC.setRequired(false);
+		
 		Parameter endDate = new Parameter("endDate", "End Date", Date.class);
-		endDate.setRequired(true);
+		endDate.setRequired(false);
 		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
 		endDateGC.setRequired(false);
 		
-		Parameter type = new Parameter("type", "Cohort Report Type", String.class);
-		type.setRequired(true);
-		type.addToWidgetConfiguration("codedOptions", "SUMMARY,LineList");
-		type.setDefaultValue("LineList");
-		
-		return Arrays.asList(startDate, startDateGC, endDate, endDateGC, type);
+		Parameter targetGroup = new Parameter("targetGroup", "Target Group", String.class);
+		targetGroup.setRequired(false);
+		targetGroup.addToWidgetConfiguration("codedOptions", "ALL,FSW,PWID,High Risk AGYW,Other KPP,General Population");
+		targetGroup.setDefaultValue("ALL");
+		return Arrays.asList(startDate, startDateGC, endDate, endDateGC, targetGroup);
 		
 	}
 	
@@ -59,22 +59,21 @@ public class ArtCohortAnalysisLineListReportMamba implements ReportManager {
 		reportDefinition.setUuid(getUuid());
 		reportDefinition.setName(getName());
 		reportDefinition.setDescription(getDescription());
-		
 		reportDefinition.setParameters(getParameters());
 		
-		ArtCohortAnalysisLineListDataSetDefinitionMamba artCohortAnalysisLineListDataSetDefinitionMamba = new ArtCohortAnalysisLineListDataSetDefinitionMamba();
-		artCohortAnalysisLineListDataSetDefinitionMamba.addParameters(getParameters());
+		PHRHServiceLineListDataSetDefinitionMamba phrhServiceLineListDataSetDefinitionMamba = new PHRHServiceLineListDataSetDefinitionMamba();
+		phrhServiceLineListDataSetDefinitionMamba.addParameters(getParameters());
+		reportDefinition.addDataSetDefinition("PHRH Service Report", EthiOhriUtil.map(
+		    phrhServiceLineListDataSetDefinitionMamba,
+		    "startDate=${startDateGC},endDate=${endDateGC},targetGroup=${targetGroup}"));
 		
-		reportDefinition.addDataSetDefinition(
-		    "ART Cohort Analysis LineList",
-		    map(artCohortAnalysisLineListDataSetDefinitionMamba,
-		        "startDate=${startDateGC},endDate=${endDateGC},type=${type}"));
 		return reportDefinition;
 	}
 	
 	@Override
 	public List<ReportDesign> constructReportDesigns(ReportDefinition reportDefinition) {
-		ReportDesign design = ReportManagerUtil.createExcelDesign("d6c499b1-1ba7-42a5-b141-3141952c4942", reportDefinition);
+		
+		ReportDesign design = ReportManagerUtil.createExcelDesign("86ba6d09-e0ee-4d59-a7e1-614793a380f9", reportDefinition);
 		design.setReportDefinition(reportDefinition);
 		
 		return Collections.singletonList(design);
@@ -82,11 +81,12 @@ public class ArtCohortAnalysisLineListReportMamba implements ReportManager {
 	
 	@Override
 	public List<ReportRequest> constructScheduledRequests(ReportDefinition reportDefinition) {
-		return new ArrayList<>();
+		return null;
 	}
 	
 	@Override
 	public String getVersion() {
 		return "1.0.0-SNAPSHOT";
 	}
+	
 }

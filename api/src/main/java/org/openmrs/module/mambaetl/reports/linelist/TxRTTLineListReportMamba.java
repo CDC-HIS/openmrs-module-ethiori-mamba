@@ -19,7 +19,7 @@ public class TxRTTLineListReportMamba implements ReportManager {
 	@Override
 	public String getUuid() {
 		return "5a70cb95-d971-4201-a476-6e4b5790537c";
-	} //4d7b385f-331f-400c-8592-f539f4565d9d
+	}
 	
 	@Override
 	public String getName() {
@@ -57,6 +57,7 @@ public class TxRTTLineListReportMamba implements ReportManager {
 	public List<ReportDesign> constructReportDesigns(ReportDefinition reportDefinition) {
 		
 		ReportDesign design = ReportManagerUtil.createExcelDesign("1343d7c5-7302-4568-b68f-8732e6ed645d", reportDefinition);
+		design.setReportDefinition(reportDefinition);
 		
 		return Collections.singletonList(design);
 	}

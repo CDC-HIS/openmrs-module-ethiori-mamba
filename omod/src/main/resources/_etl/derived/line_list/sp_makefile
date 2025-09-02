@@ -27,6 +27,9 @@ facts/line_list_queries/sp_fact_line_list_vl_eligibility_query.sql
 facts/line_list_queries/sp_fact_line_list_otz_query.sql
 facts/line_list_queries/sp_fact_line_list_vl_received_query.sql
 facts/line_list_queries/sp_fact_line_list_vl_sent_query.sql
+facts/line_list_queries/sp_fact_line_list_phrh_service_query.sql
+facts/line_list_queries/sp_fact_line_list_phrh_sns_query.sql
+facts/line_list_queries/sp_fact_line_list_ncd_screening_and_treatment_query.sql
 #############################################################################
 ##### A single SP that CALLs all SPs inside the derived & base folders ######
 #############################################################################
