@@ -47,7 +47,7 @@ BEGIN
            trial_date_1st                                 as `1st  Trial Date`,
            ict_serial_number                              as `ICT#`,
            person_name_short                              as `Full Name`
-    from contact_list WHERE hiv_test_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE;
+    from contact_list WHERE elicited_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE;
 
 END //
 
