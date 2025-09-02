@@ -44,7 +44,7 @@ BEGIN
                                  join mamba_dim_client client on ict_general.client_id = client.client_id
                         where offered_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE),
          offer as (select * from offer_list where row_num = 1)
-    -- hiv_test_date BETWEEN ? AND ? and hiv_test_result is not null
+
 -- Number of individuals who were identified and tested using Index testing services and received their result
     SELECT 'HIV_HTS_TST_INDEX'                                                                                           AS S_NO,
            'Number of individuals who were identified and tested using Index testing services and received their result' as Activity,
@@ -255,36 +255,32 @@ BEGIN
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.2'            AS S_NO,
            'Number of contacts elicited'    as Activity,
-           SUM(number_of_contacts_elicited) AS Value
+           CAST(COALESCE(SUM(number_of_contacts_elicited),0) AS SIGNED) AS Value
     FROM offer
 -- < 15 years, Male
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.2. 1'         AS S_NO,
            '< 15 years, Male'               as Activity,
-           SUM(number_of_contacts_elicited) AS Value
+           CAST(COALESCE(SUM(number_of_male_contacts_below_the_age_of_15),0) AS SIGNED) AS Value
     FROM offer
-    where number_of_male_contacts_below_the_age_of_15 is not null
 -- < 15 years, Female
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.2. 2'         AS S_NO,
            '< 15 years, Female'             as Activity,
-           SUM(number_of_contacts_elicited) AS Value
+           CAST(COALESCE(SUM(number_of_female_contacts_below_the_age_of_15),0) AS SIGNED) AS Value
     FROM offer
-    where number_of_female_contacts_below_the_age_of_15 is not null
 -- >= 15 years, Male
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.2. 3'         AS S_NO,
            '>= 15 years, Male'              as Activity,
-           SUM(number_of_contacts_elicited) AS Value
+           CAST(COALESCE(SUM(number_of_male_contacts_above_the_age_of_15),0) AS SIGNED) AS Value
     FROM offer
-    where number_of_male_contacts_above_the_age_of_15 is not null
 -- >= 15 years, Female
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.2. 4'         AS S_NO,
            '>= 15 years, Female'            as Activity,
-           SUM(number_of_contacts_elicited) AS Value
+           CAST(COALESCE(SUM(number_of_female_contacts_above_the_age_of_15),0) AS SIGNED) AS Value
     FROM offer
-    where number_of_female_contacts_above_the_age_of_15 is not null
 -- Number of contacts tested
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.3'       AS S_NO,
