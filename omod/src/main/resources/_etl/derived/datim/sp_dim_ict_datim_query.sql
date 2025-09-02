@@ -26,11 +26,14 @@ BEGIN
     ELSEIF REPORT_TYPE = 'KNOWN_POSITIVE' THEN
         SET filter_condition = ' prior_hiv_test_result = ''Positive'' and elicited_date between ? AND ? ';
     ELSEIF REPORT_TYPE = 'DOCUMENTED_NEGATIVE' THEN
-        SET filter_condition = ' prior_hiv_test_result = ''Negative result'' and hiv_test_result != ''Positive'' and age < 15 and elicited_date BETWEEN ? AND ? ';
+        SET filter_condition =
+                ' prior_hiv_test_result = ''Negative result'' and hiv_test_result != ''Positive'' and age < 15 and elicited_date BETWEEN ? AND ? ';
     ELSEIF REPORT_TYPE = 'NEW_POSITIVE' THEN
-        SET filter_condition = ' prior_hiv_test_result != ''Positive'' and hiv_test_result = ''Positive'' and coalesce(hiv_test_date,date_of_case_closure,elicited_date) BETWEEN ? AND ? ';
+        SET filter_condition =
+                ' prior_hiv_test_result != ''Positive'' and hiv_test_result = ''Positive'' and coalesce(hiv_test_date,date_of_case_closure,elicited_date) BETWEEN ? AND ? ';
     ELSEIF REPORT_TYPE = 'NEW_NEGATIVE' THEN
-        SET filter_condition = ' prior_hiv_test_result != ''Positive'' and hiv_test_result = ''Negative result'' and coalesce(hiv_test_date,date_of_case_closure,elicited_date) BETWEEN ? AND ? ';
+        SET filter_condition =
+                ' prior_hiv_test_result != ''Positive'' and hiv_test_result = ''Negative result'' and coalesce(hiv_test_date,date_of_case_closure,elicited_date) BETWEEN ? AND ? ';
     ELSEIF REPORT_TYPE = 'ICT_TOTAL' THEN
         SET filter_condition = ' hiv_test_date BETWEEN ? AND ? and hiv_test_result is not null ';
     ELSE
@@ -51,7 +54,10 @@ BEGIN
                                    '`')
                )
         INTO age_group_cols
-        FROM (select datim_agegroup from mamba_dim_agegroup where datim_age_val between 2 and 4 group by datim_agegroup) as order_query;
+        FROM (select datim_agegroup
+              from mamba_dim_agegroup
+              where datim_age_val between 2 and 4
+              group by datim_agegroup) as order_query;
     ELSE
         SELECT GROUP_CONCAT(CONCAT('SUM(CASE WHEN fine_age_group = ''', datim_agegroup,
                                    ''' THEN count ELSE 0 END) AS `',
@@ -61,7 +67,7 @@ BEGIN
         INTO age_group_cols
         FROM (select datim_agegroup from mamba_dim_agegroup group by datim_agegroup) as order_query;
     END IF;
-    IF REPORT_TYPE = 'TESTING_OFFERED' OR REPORT_TYPE = 'TESTING_ACCEPTED' OR REPORT_TYPE = 'ELICITED' THEN
+    IF REPORT_TYPE = 'TESTING_OFFERED' OR REPORT_TYPE = 'TESTING_ACCEPTED' THEN
         SET source_cte = ' offer ';
     ELSE
         SET source_cte = ' contact_list ';
@@ -83,6 +89,10 @@ BEGIN
                            offer.no,
                            accepted,
                            accepted_date,
+                           number_of_male_contacts_above_the_age_of_15,
+                           number_of_male_contacts_below_the_age_of_15,
+                           number_of_female_contacts_above_the_age_of_15,
+                           number_of_female_contacts_below_the_age_of_15,
                            ROW_NUMBER() over (PARTITION BY client.client_id ORDER BY offered_date DESC ) as row_num
                     from mamba_flat_encounter_ict_general ict_general
                              join mamba_flat_encounter_ict_offer offer on ict_general.client_id = offer.client_id
@@ -115,7 +125,21 @@ BEGIN
                                join mamba_dim_person person on relationship.person_b = person.person_id) ';
 
     IF REPORT_TYPE = 'ICT_TOTAL' THEN
-        SET group_query = CONCAT('SELECT COUNT(*) as Numerator FROM contact_list WHERE ',filter_condition);
+        SET group_query = CONCAT('SELECT COUNT(*) as Numerator FROM contact_list WHERE ', filter_condition);
+    ELSEIF REPORT_TYPE = 'ELICITED' THEN
+        SET group_query = 'SELECT
+                              ''Female'' AS sex,
+                              COALESCE(SUM(number_of_female_contacts_below_the_age_of_15), 0) AS ''<15'',
+                              COALESCE(SUM(number_of_female_contacts_above_the_age_of_15), 0) AS ''15+'',
+                              COALESCE(SUM(number_of_female_contacts_below_the_age_of_15), 0) + COALESCE(SUM(number_of_female_contacts_above_the_age_of_15), 0) AS Subtotal
+                            FROM offer
+                            UNION ALL
+                            SELECT
+                              ''Male'' AS sex,
+                              COALESCE(SUM(number_of_male_contacts_below_the_age_of_15), 0) AS ''<15'',
+                              COALESCE(SUM(number_of_male_contacts_above_the_age_of_15), 0) AS ''15+'',
+                              COALESCE(SUM(number_of_male_contacts_below_the_age_of_15), 0) + COALESCE(SUM(number_of_male_contacts_above_the_age_of_15), 0) AS Subtotal
+                            FROM offer';
     ELSE
         SET group_query = CONCAT('
             SELECT
