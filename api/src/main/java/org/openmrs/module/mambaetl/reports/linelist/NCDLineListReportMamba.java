@@ -1,6 +1,7 @@
 package org.openmrs.module.mambaetl.reports.linelist;
 
-import org.openmrs.module.mambaetl.datasetdefinition.linelist.CXCAScreeningLineListDatasetDefinition;
+import org.openmrs.module.mambaetl.datasetdefinition.linelist.NCDLineListDataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.datasetdefinition.linelist.PHRHServiceLineListDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.report.ReportDesign;
@@ -14,26 +15,26 @@ import java.util.Collections;
 import java.util.List;
 
 @Component
-public class CXCAScreeningLineListReportMamba implements ReportManager {
+public class NCDLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getUuid() {
-		return "f719dae3-73b9-413c-b640-8341beb91812";
+		return "3e066051-38f4-46c9-9036-45ab23b61632";
 	}
 	
 	@Override
 	public String getName() {
-		return "LINELIST- CXCA_Screening and Treatment";
+		return "LINELIST- NCD Screening & Treatment";
 	}
 	
 	@Override
 	public String getDescription() {
-		return null;
+		return "NCD Screening & Treatment Line List Report";
 	}
 	
 	@Override
 	public List<Parameter> getParameters() {
-		return EthiOhriUtil.getDateRangeParameters(Boolean.TRUE);
+		return EthiOhriUtil.getDateRangeParameters(Boolean.FALSE);
 		
 	}
 	
@@ -43,21 +44,20 @@ public class CXCAScreeningLineListReportMamba implements ReportManager {
 		reportDefinition.setUuid(getUuid());
 		reportDefinition.setName(getName());
 		reportDefinition.setDescription(getDescription());
-		
 		reportDefinition.setParameters(getParameters());
 		
-		CXCAScreeningLineListDatasetDefinition cxcaScreeningLineListDatasetDefinition = new CXCAScreeningLineListDatasetDefinition();
-		cxcaScreeningLineListDatasetDefinition.addParameters(getParameters());
+		NCDLineListDataSetDefinitionMamba ncdLineListDataSetDefinitionMamba = new NCDLineListDataSetDefinitionMamba();
+		ncdLineListDataSetDefinitionMamba.addParameters(getParameters());
+		reportDefinition.addDataSetDefinition("NCD Screening & Treatment Line List Report",
+		    EthiOhriUtil.map(ncdLineListDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
 		
-		reportDefinition.addDataSetDefinition("List of Patients for Cervical Screening",
-		    EthiOhriUtil.map(cxcaScreeningLineListDatasetDefinition, "startDate=${startDateGC},endDate=${endDateGC}"));
 		return reportDefinition;
 	}
 	
 	@Override
 	public List<ReportDesign> constructReportDesigns(ReportDefinition reportDefinition) {
 		
-		ReportDesign design = ReportManagerUtil.createExcelDesign("d42f1b4a-7373-4891-85e3-bddc5c90b8e4", reportDefinition);
+		ReportDesign design = ReportManagerUtil.createExcelDesign("e208b318-e8df-4d86-adaa-1349f40e48cf", reportDefinition);
 		design.setReportDefinition(reportDefinition);
 		
 		return Collections.singletonList(design);
@@ -72,4 +72,5 @@ public class CXCAScreeningLineListReportMamba implements ReportManager {
 	public String getVersion() {
 		return "1.0.0-SNAPSHOT";
 	}
+	
 }

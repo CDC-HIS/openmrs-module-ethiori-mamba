@@ -58,26 +58,26 @@ BEGIN
                              AND follow_up_status in ('Alive', 'Restart medication')
                              AND treatment_end_date >= REPORT_START_DATE),
          -- TX curr
-         tmp_lost_follow_up AS (SELECT client_id,
-                                       follow_up_date,
-                                       encounter_id,
-                                       follow_up_status,
-                                       treatment_end_date,
-                                       art_start_date,
-                                       regimen,
-                                       dose_days,
-                                       adherence,
-                                       next_visit_date,
-                                       ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
-                                FROM FollowUp
-                                WHERE follow_up_status IS NOT NULL
-                                  AND art_start_date IS NOT NULL
-                                  AND follow_up_date <= REPORT_END_DATE),
-         lost_follow_up as (select *
-                            from tmp_lost_follow_up
-                            where row_num = 1),
+         tmp_latest_follow_up AS (SELECT client_id,
+                                         follow_up_date,
+                                         encounter_id,
+                                         follow_up_status,
+                                         treatment_end_date,
+                                         art_start_date,
+                                         regimen,
+                                         dose_days,
+                                         adherence,
+                                         next_visit_date,
+                                         ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
+                                  FROM FollowUp
+                                  WHERE follow_up_status IS NOT NULL
+                                    AND art_start_date IS NOT NULL
+                                    AND follow_up_date <= REPORT_END_DATE),
+         latest_follow_up as (select *
+                              from tmp_latest_follow_up
+                              where row_num = 1),
          tx_curr_end AS (select *
-                         from tmp_lost_follow_up
+                         from tmp_latest_follow_up
                          where row_num = 1
                            AND follow_up_status in ('Alive', 'Restart medication')
                            AND treatment_end_date >= REPORT_END_DATE),
@@ -93,13 +93,12 @@ BEGIN
                                  WHERE art_start_date IS NOT NULL),
          first_follow_up as (select * from tmp_first_follow_up where row_num = 1),
 
-         tx_new_tmp as (select tmp_lost_follow_up.*
-                        from tmp_lost_follow_up
-                                 join first_follow_up on tmp_lost_follow_up.client_id = first_follow_up.client_id
+         tx_new_tmp as (select tmp_latest_follow_up.*
+                        from tmp_latest_follow_up
+                                 join first_follow_up on tmp_latest_follow_up.client_id = first_follow_up.client_id
                         where art_start_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE
-                          AND (first_follow_up.transferred_in is null or first_follow_up.transferred_in != 'Yes')
                           AND first_follow_up.follow_up_status in ('Alive', 'Restart medication')
-                          AND tmp_lost_follow_up.row_num = 1),
+                          AND tmp_latest_follow_up.row_num = 1),
          tx_new as (select *
                     from tx_new_tmp),
 
@@ -109,6 +108,10 @@ BEGIN
                     select *
                     from tx_curr_start),
          interrupted_art as (select on_art.*,
+                                    latest_follow_up.regimen as latest_regimen,
+                                    latest_follow_up.dose_days as latest_dose_days,
+                                    latest_follow_up.adherence as latest_adherence,
+                                    latest_follow_up.next_visit_date as latest_next_visit_date,
                                     client.sex,
                                     client.date_of_birth,
                                     TIMESTAMPDIFF(YEAR, client.date_of_birth, REPORT_END_DATE)        as Age,
@@ -126,12 +129,12 @@ BEGIN
                                     (SELECT normal_agegroup
                                      from mamba_dim_agegroup
                                      where TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) = age) as coarse_age_group,
-                                    lost_follow_up.follow_up_status                                   as lost_follow_up_status,
-                                    lost_follow_up.follow_up_date                                     as lost_follow_up_date
+                                    latest_follow_up.follow_up_status                                   as latest_follow_up_status,
+                                    latest_follow_up.follow_up_date                                     as latest_follow_up_date
                              from on_art
                                       join mamba_dim_client client on on_art.client_id = client.client_id
-                                      join lost_follow_up
-                                           on on_art.client_id = lost_follow_up.client_id
+                                      join latest_follow_up
+                                           on on_art.client_id = latest_follow_up.client_id
                              where on_art.client_id not in (select client_id from tx_curr_end))
     select patient_name                                             as `Patient Name`,
            patient_uuid                                             as `UUID`,
@@ -141,14 +144,14 @@ BEGIN
            Sex,
            art_start_date                                           as `ART Start Date`,
            art_start_date                                           as `ART Start Date EC.`,
-           lost_follow_up_date                                      as `Last Follow-up Date`,
-           lost_follow_up_date                                      as `Last Follow-up Date in EC.`,
-           lost_follow_up_status                                    as `Last Follow-up Status`,
-           regimen                                                  as Regimen,
-           dose_days                                                as   `ARV Dose Days`,
-           Adherence,
-           next_visit_date                                          as `Next Visit Date`,
-           next_visit_date                                          as `Next Visit Date EC.`,
+           latest_follow_up_date                                      as `Last Follow-up Date`,
+           latest_follow_up_date                                      as `Last Follow-up Date in EC.`,
+           latest_follow_up_status                                    as `Last Follow-up Status`,
+           latest_regimen                                                  as Regimen,
+           latest_dose_days                                                as   `ARV Dose Days`,
+           latest_Adherence,
+           latest_next_visit_date                                          as `Next Visit Date`,
+           latest_next_visit_date                                          as `Next Visit Date EC.`,
            treatment_end_date                                       as `Last TX_CURR Date`,
            treatment_end_date                                       as `Last TX_CURR Date EC.`,
            TIMESTAMPDIFF(MONTH, art_start_date, treatment_end_date) as `On Treatment For (in months)`,

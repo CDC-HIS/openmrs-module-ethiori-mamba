@@ -21,7 +21,7 @@ public class TxPvlsNumeratorDATIMReportsMamba implements ReportManager {
 	@Override
 	public String getUuid() {
 		return "0fcca403-070b-4012-8397-07067ed0f320";
-	} //4d7b385f-331f-400c-8592-f539f4565d9d
+	}
 	
 	@Override
 	public String getName() {
@@ -91,7 +91,7 @@ public class TxPvlsNumeratorDATIMReportsMamba implements ReportManager {
 	@Override
 	public List<ReportDesign> constructReportDesigns(ReportDefinition reportDefinition) {
 		ReportDesign design = ReportManagerUtil.createExcelDesign("3e308a1b-77e7-4924-8373-656e544e31d8", reportDefinition);
-		
+		design.setReportDefinition(reportDefinition);
 		return Collections.singletonList(design);
 	}
 	

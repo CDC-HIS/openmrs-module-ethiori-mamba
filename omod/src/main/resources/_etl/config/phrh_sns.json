@@ -1,0 +1,14 @@
+{
+  "report_name": "People at High risk for HIV Infection SNS",
+  "flat_table_name": "mamba_flat_encounter_phrh_sns",
+  "encounter_type_uuid": "6c59be46-5857-4d07-8fcb-177b919d80ac",
+  "table_columns": {
+    "coupon_1": "93111125-3e69-4f63-897c-0448bc34e019",
+    "coupon_2": "9fff641f-edb2-4ae2-92cf-b4d89dd8dd82",
+    "coupon_3": "ec88e5b4-a074-486c-85f6-6dee6539aeb8",
+    "coupon_4": "ae15a688-9854-4cec-9092-4402d50a3cd4",
+    "coupon_5": "ab089dce-a605-4195-9c87-60d8e0ed57d6",
+    "number_of_coupon_given": "7b88fad4-2be2-4881-b758-26a5f4da50ee",
+    "followup_date": "b8cd8630-56dd-495e-8c84-e36a636febe7"
+  }
+}

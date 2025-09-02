@@ -105,7 +105,7 @@ public class PREPNEWDATIMReportsMamba implements ReportManager {
 	public List<ReportDesign> constructReportDesigns(ReportDefinition reportDefinition) {
 		
 		ReportDesign design = ReportManagerUtil.createExcelDesign("484c8911-ecc4-4756-a228-4ea46ddebdc7", reportDefinition);
-		
+		design.setReportDefinition(reportDefinition);
 		return Collections.singletonList(design);
 	}
 	
