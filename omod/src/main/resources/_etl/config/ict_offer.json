@@ -44,6 +44,10 @@
     "linked_to_appropriate_care": "f4817ca2-a67f-46e3-8c97-864612ccbb47",
     "accepted": "fdcbadef-40c5-486a-a30b-a88477ab90ae",
     "ae_reported": "ff68acf5-9a2f-44c9-a2a3-fa8807dcb04a",
-    "number_of_contacts_elicited": "cb018c94-17f1-4065-98c0-af892e5f7a36"
+    "number_of_contacts_elicited": "cb018c94-17f1-4065-98c0-af892e5f7a36",
+    "number_of_male_contacts_below_the_age_of_15" :"024787ff-282f-4298-9f40-4e8c0670dff6",
+    "number_of_male_contacts_above_the_age_of_15" : "9f2fa144-3a7b-4ef9-ada9-af81582f06e3",
+    "number_of_female_contacts_below_the_age_of_15" : "333c43aa-2f4c-41d3-81ea-570ef87d4347",
+    "number_of_female_contacts_above_the_age_of_15" : "11b43b49-3102-463a-86fc-7809ea84683d"
   }
 }
