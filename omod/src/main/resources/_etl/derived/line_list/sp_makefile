@@ -8,6 +8,22 @@
 #############################################################################
 
 ############################ LINE LIST QUERIES #######################
+facts/line_list_queries/sp_fact_line_list_ti_query.sql
+facts/line_list_queries/sp_fact_line_list_to_query.sql
+facts/line_list_queries/sp_fact_line_list_post_exposure_query.sql
+facts/line_list_queries/sp_fact_line_list_pre_exposure_query.sql
+facts/line_list_queries/sp_fact_line_list_positive_tracking_query.sql
+facts/line_list_queries/sp_fact_line_list_schedule_visit_query.sql
+facts/line_list_queries/sp_fact_line_list_art_retention_query.sql
+facts/line_list_queries/sp_fact_line_list_tx_tbt_denominator_query.sql
+facts/line_list_queries/sp_fact_line_list_tx_tbt_numerator_query.sql
+facts/line_list_queries/sp_fact_line_list_tx_tb_art_query.sql
+facts/line_list_queries/sp_fact_line_list_tx_tb_denominator_query.sql
+facts/line_list_queries/sp_fact_line_list_tx_tb_numerator_query.sql
+facts/line_list_queries/sp_fact_line_list_dsd_query.sql
+facts/line_list_queries/sp_fact_line_list_missed_appointment_query.sql
+facts/line_list_queries/sp_fact_line_list_monthly_visit_care_query.sql
+facts/line_list_queries/sp_fact_line_list_chronic_care_query.sql
 facts/line_list_queries/sp_fact_line_list_ahd_query.sql
 facts/line_list_queries/sp_fact_line_list_art_cohort_analysis_query.sql
 facts/line_list_queries/sp_fact_line_list_art_cohort_analysis_summary_query.sql

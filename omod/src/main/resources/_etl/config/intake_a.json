@@ -5,6 +5,7 @@
   "table_columns": {
     "catchment_area_residency_status": "160637AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "challenges_with_regular_follow_up": "f93c0a7d-9578-4fb2-afd1-6a7f477a7e1a",
+    "date_hiv_confirmed": "160753AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "date_enrolled_in_care": "1ebc345c-6f09-43e1-a616-d7e52fff4c7d",
     "hiv_test_result": "2e770be1-7397-4684-bea6-6632c23b00d7",
     "other_entry_point_from_outside_the_": "2c30c599-1e4f-46f9-8488-5ab57cdc8ac3",
