@@ -1,0 +1,18 @@
+{
+  "report_name": "PMTCT Enrollment",
+  "flat_table_name": "mamba_flat_encounter_pmtct_enrollment",
+  "encounter_type_uuid": "1914ed4a-86fe-43d2-8338-2be2937ff11e",
+  "table_columns": {
+    "pmtct_referred_from":"ab192dd0-bb1c-4417-b8f9-4c35dc991b55",
+    "art_clinic":"90f138a5-9a94-488a-b5c9-6daf8b2400d1",
+    "antenatal_care_provider":"1726AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "ld_client":"d1e97037-c599-47c3-93cb-c256b9c27fbc",
+    "post_natal_care":"541f72cb-b3e1-43ad-9086-24d32467dfa5",
+    "UUID Not Found":"11e2265c-d312-49f6-9452-b3d099524460",
+    "location_of_birth":"1572AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "home":"1536AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "health_clinicpost":"1588AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "other":"5622AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "operation_triple_zero_enrollment_date":"0fe4faee-0717-4dc0-be3d-1cd52923804a"
+  }
+}
