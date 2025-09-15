@@ -1,0 +1,9 @@
+{
+  "report_name": "HEI Rapid Antibody Test",
+  "flat_table_name": "mamba_flat_encounter_hei_rapid_antibody_test",
+  "encounter_type_uuid": "78d65fd8-96f1-4da9-8937-f8c8493739fb",
+  "table_columns": {
+    "rapid_antibody_result": "aa69908a-989a-4fef-ad65-cbd73ba487b7",
+    "laboratory_evidence_of_hiv_dna_pcr_antibody_tests": "198731de-2a03-418d-a0ba-833accb88f58"
+  }
+}
