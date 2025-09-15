@@ -1,0 +1,8 @@
+{
+  "report_name": "Registration",
+  "flat_table_name": "mamba_flat_encounter_registration",
+  "encounter_type_uuid": "a0fde61e-f493-4f1f-b709-22aa94f72dc3",
+  "table_columns": {
+    "registration_date": "dadc86a8-1e44-4a6d-91c2-e3b54089b54c"
+  }
+}

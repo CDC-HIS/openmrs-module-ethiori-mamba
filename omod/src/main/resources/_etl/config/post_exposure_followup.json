@@ -1,0 +1,14 @@
+{
+  "report_name": "Post Exposure Followup",
+  "flat_table_name": "mamba_flat_encounter_post_exposure_foll",
+  "encounter_type_uuid": "c7f3c349-8771-432b-8e1e-240a53b3bda3",
+  "table_columns": {
+    "visit_period": "957a79b4-e771-4ab8-bcc6-e77f7dbcfd9d",
+    "reporting_date": "4285d9e8-3ab4-4a94-bd4e-4dd92855795c",
+    "free_text_comment": "161011AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "date_of_first_visit": "163260AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "medication_side_effect": "164377AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "final_post_pep_hiv_status": "21ea1d83-acd7-4c99-b4cc-33a90e6dd7d7",
+    "anitiretroviral_adherence_level": "b1a646d3-78ff-4dd5-823a-5bef7d69ff3d"
+  }
+}
