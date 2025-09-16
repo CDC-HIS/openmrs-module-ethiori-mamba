@@ -1,8 +1,8 @@
 DELIMITER //
 
-DROP PROCEDURE IF EXISTS sp_fact_line_list_phrh_sns_query;
+DROP PROCEDURE IF EXISTS sp_fact_line_list_ncd_screening_and_treatment_query;
 
-CREATE PROCEDURE sp_fact_line_list_phrh_sns_query(IN REPORT_START_DATE DATE, IN REPORT_END_DATE DATE, IN PHRH_CODE VARCHAR(255))
+CREATE PROCEDURE sp_fact_line_list_ncd_screening_and_treatment_query(IN REPORT_START_DATE DATE, IN REPORT_END_DATE DATE, IN PHRH_CODE VARCHAR(255))
 BEGIN
 	WITH provided_coupons AS (
         SELECT
