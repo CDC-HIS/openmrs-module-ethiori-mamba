@@ -446,7 +446,7 @@
         <serialization.xstreamVersion>0.2.11</serialization.xstreamVersion>
         <cohortVersion>3.0.0-SNAPSHOT</cohortVersion>
         <javaxAnnotationVersion>1.3.2</javaxAnnotationVersion>
-        <mambaETLCoreVersion>1.0.1-SNAPSHOT</mambaETLCoreVersion>
+        <mambaETLCoreVersion>2.0.1-SNAPSHOT</mambaETLCoreVersion>
     </properties>
 
     <distributionManagement>

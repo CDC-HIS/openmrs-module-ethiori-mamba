@@ -33,17 +33,6 @@ public class EthiOhriUtil {
 		
 	}
 	
-	//
-	//	public List<Parameter> getStartDateParameters() {
-	//
-	//		Parameter endDate = new Parameter("startDate", "On Month", Date.class);
-	//		endDate.setRequired(false);
-	//		Parameter endDateGC = new Parameter("startDateGC", " ", Date.class);
-	//		endDateGC.setRequired(false);
-	//		return Arrays.asList(endDate, endDateGC);
-	//
-	//	}
-	
 	public static <T extends Parameterizable> Mapped<T> map(T parameterizable, String mappings) {
 		if (parameterizable == null) {
 			throw new IllegalArgumentException("Parameterizable cannot be null");

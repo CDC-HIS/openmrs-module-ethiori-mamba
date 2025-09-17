@@ -58,6 +58,7 @@ public class NCDLineListReportMamba implements ReportManager {
 	public List<ReportDesign> constructReportDesigns(ReportDefinition reportDefinition) {
 		
 		ReportDesign design = ReportManagerUtil.createExcelDesign("e208b318-e8df-4d86-adaa-1349f40e48cf", reportDefinition);
+		design.setReportDefinition(reportDefinition);
 		
 		return Collections.singletonList(design);
 	}

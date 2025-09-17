@@ -10,3 +10,6 @@ SELECT COUNT(*) AS 'Stored Procedures' FROM INFORMATION_SCHEMA.ROUTINES WHERE RO
 
 select count(*) from obs;
 cat re-test.json | jq '.. | select(type=="object" and .concept) | .concept'
+
+select * from mamba_flat_encounter_ict_general ict_general
+                  join mamba_dim_relationship relationship on ict_general.client_id = relationship.person_a

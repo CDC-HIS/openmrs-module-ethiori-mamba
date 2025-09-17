@@ -60,6 +60,7 @@ public class HVLLineListReportMamba implements ReportManager {
 	public List<ReportDesign> constructReportDesigns(ReportDefinition reportDefinition) {
 		
 		ReportDesign design = ReportManagerUtil.createExcelDesign("d9445f80-b98c-4a58-8d19-546a960a86fd", reportDefinition);
+		design.setReportDefinition(reportDefinition);
 		
 		return Collections.singletonList(design);
 	}

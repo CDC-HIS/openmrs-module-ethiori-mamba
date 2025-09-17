@@ -80,6 +80,7 @@ public class TxCurrAnalysisLineListReportMamba implements ReportManager {
 	public List<ReportDesign> constructReportDesigns(ReportDefinition reportDefinition) {
 		
 		ReportDesign design = ReportManagerUtil.createExcelDesign("ef7db8b4-aabd-4c57-a3f9-7cfb6aac7e3a", reportDefinition);
+		design.setReportDefinition(reportDefinition);
 		
 		return Collections.singletonList(design);
 	}

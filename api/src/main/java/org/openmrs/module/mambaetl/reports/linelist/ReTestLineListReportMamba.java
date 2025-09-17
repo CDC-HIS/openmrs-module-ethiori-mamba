@@ -22,7 +22,7 @@ public class ReTestLineListReportMamba implements ReportManager {
 	@Override
 	public String getUuid() {
 		return "f8dbf325-41d4-4f25-9ca0-f570f6bf737a";
-	} //4d7b385f-331f-400c-8592-f539f4565d9d
+	}
 	
 	@Override
 	public String getName() {
@@ -60,6 +60,7 @@ public class ReTestLineListReportMamba implements ReportManager {
 	public List<ReportDesign> constructReportDesigns(ReportDefinition reportDefinition) {
 		
 		ReportDesign design = ReportManagerUtil.createExcelDesign("d7691fa8-95e7-454b-8b1f-48a8e68a9634", reportDefinition);
+		design.setReportDefinition(reportDefinition);
 		
 		return Collections.singletonList(design);
 	}

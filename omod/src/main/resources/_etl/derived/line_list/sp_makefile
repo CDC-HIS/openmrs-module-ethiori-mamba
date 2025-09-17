@@ -9,10 +9,18 @@
 
 ############################ LINE LIST QUERIES #######################
 facts/line_list_queries/sp_fact_line_list_ahd_query.sql
+facts/line_list_queries/sp_fact_line_list_art_cohort_analysis_query.sql
+facts/line_list_queries/sp_fact_line_list_art_cohort_analysis_summary_query.sql
 facts/line_list_queries/sp_fact_line_list_cxca_eligibility_query.sql
 facts/line_list_queries/sp_fact_line_list_cxca_scrn_query.sql
 facts/line_list_queries/sp_fact_line_list_hvl_query.sql
+facts/line_list_queries/sp_fact_line_list_ict_contacts_query.sql
+facts/line_list_queries/sp_fact_line_list_ict_screening_query.sql
+facts/line_list_queries/sp_fact_line_list_ncd_screening_and_treatment_query.sql
+facts/line_list_queries/sp_fact_line_list_otz_query.sql
 facts/line_list_queries/sp_fact_line_list_pediatric_age_out_query.sql
+facts/line_list_queries/sp_fact_line_list_phrh_service_query.sql
+facts/line_list_queries/sp_fact_line_list_phrh_sns_query.sql
 facts/line_list_queries/sp_fact_line_list_providers_view_query.sql
 facts/line_list_queries/sp_fact_line_list_re_test_query.sql
 facts/line_list_queries/sp_fact_line_list_rtt_query.sql
@@ -22,12 +30,8 @@ facts/line_list_queries/sp_fact_line_list_tx_curr_query.sql
 facts/line_list_queries/sp_fact_line_list_tx_ml_query.sql
 facts/line_list_queries/sp_fact_line_list_tx_new_query.sql
 facts/line_list_queries/sp_fact_line_list_vl_eligibility_query.sql
-facts/line_list_queries/sp_fact_line_list_otz_query.sql
 facts/line_list_queries/sp_fact_line_list_vl_received_query.sql
 facts/line_list_queries/sp_fact_line_list_vl_sent_query.sql
-facts/line_list_queries/sp_fact_line_list_phrh_service_query.sql
-facts/line_list_queries/sp_fact_line_list_phrh_sns_query.sql
-facts/line_list_queries/sp_fact_line_list_ncd_screening_and_treatment_query.sql
 #############################################################################
 ##### A single SP that CALLs all SPs inside the derived & base folders ######
 #############################################################################

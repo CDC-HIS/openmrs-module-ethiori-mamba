@@ -22,7 +22,7 @@ public class OTZLineListReportMamba implements ReportManager {
 	@Override
 	public String getUuid() {
 		return "483e8f2f-9ecb-48a6-9df0-b4dabd00774d";
-	} //4d7b385f-331f-400c-8592-f539f4565d9d
+	}
 	
 	@Override
 	public String getName() {
@@ -60,6 +60,7 @@ public class OTZLineListReportMamba implements ReportManager {
 	public List<ReportDesign> constructReportDesigns(ReportDefinition reportDefinition) {
 		
 		ReportDesign design = ReportManagerUtil.createExcelDesign("60979d36-2fe1-45cd-a945-1e9c87f16ef6", reportDefinition);
+		design.setReportDefinition(reportDefinition);
 		
 		return Collections.singletonList(design);
 	}
