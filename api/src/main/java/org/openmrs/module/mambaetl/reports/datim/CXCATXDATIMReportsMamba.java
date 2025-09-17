@@ -22,7 +22,7 @@ public class CXCATXDATIMReportsMamba implements ReportManager {
 	@Override
 	public String getUuid() {
 		return "f731add5-86b2-4af1-9a86-960262e1b06d";
-	} //4d7b385f-331f-400c-8592-f539f4565d9d
+	}
 	
 	@Override
 	public String getName() {

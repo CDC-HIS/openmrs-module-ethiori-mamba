@@ -46,23 +46,23 @@ public class TxNewLineListDatasetEvaluatorMamba implements DataSetEvaluator {
         if(!data.getRows().isEmpty()){
             return data;
         }
-        try (Connection connection = DataSetEvaluatorHelper.getDataSource().getConnection()) { // Use static method from helper
-            connection.setAutoCommit(false); // Ensure consistency across multiple queries
+        try (Connection connection = DataSetEvaluatorHelper.getDataSource().getConnection()) {
+            connection.setAutoCommit(false);
 
             List<DataSetEvaluatorHelper.ProcedureCall> procedureCalls = createProcedureCalls(dataSetDefinitionMamba);
 
-            try (DataSetEvaluatorHelper.CallableStatementContainer statementContainer = prepareStatements(connection, procedureCalls)) { // Use static method from helper
+            try (DataSetEvaluatorHelper.CallableStatementContainer statementContainer = prepareStatements(connection, procedureCalls)) {
 
-                executeStatements(statementContainer, procedureCalls); // Use static method from helper
+                executeStatements(statementContainer, procedureCalls);
 
                 ResultSet[] allResultSets = statementContainer.getResultSets();
 
-                mapResultSet(data, resultSetMapper, allResultSets,Boolean.TRUE); // Use static method from helper
+                mapResultSet(data, resultSetMapper, allResultSets,Boolean.TRUE);
                 connection.commit();
                 return data;
 
             } catch (SQLException e) {
-                rollbackAndThrowException(connection, ERROR_PROCESSING_RESULT_SET + e.getMessage(), e, log); // Use static method from helper and pass logger
+                rollbackAndThrowException(connection, ERROR_PROCESSING_RESULT_SET + e.getMessage(), e, log);
             }
         } catch (SQLException e) {
             throw new EvaluationException(DATABASE_CONNECTION_ERROR + e.getMessage(), e);
