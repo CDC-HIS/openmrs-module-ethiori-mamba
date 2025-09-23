@@ -123,6 +123,8 @@
     "referred_for_pediatric_hiv_care_within_facility": "bd5d0757-95f8-4fcb-bd1a-f24953efeca3",
     "referred_pediatric_hiv_care_outside_facility": "5425b021-8539-420b-ad60-4636e98034f2",
     "discharged_negative_form_care_hiv_free": "00c3deda-9bb6-490f-821b-75ba9cc85db5",
-    "next_visit_date": "c596f199-4d76-4eca-b3c4-ffa631c0aee9"
+    "next_visit_date": "c596f199-4d76-4eca-b3c4-ffa631c0aee9",
+    "rapid_antibody_result": "aa69908a-989a-4fef-ad65-cbd73ba487b7",
+    "laboratory_evidence_of_hiv_dna_pcr_antibody_tests": "198731de-2a03-418d-a0ba-833accb88f58"
   }
 }
