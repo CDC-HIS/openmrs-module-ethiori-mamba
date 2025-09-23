@@ -4,40 +4,45 @@ DROP PROCEDURE IF EXISTS sp_fact_hmis_mtct_query;
 
 CREATE PROCEDURE sp_fact_hmis_mtct_query(IN REPORT_START_DATE DATE, IN REPORT_END_DATE DATE)
 BEGIN
-WITH FollowUp as (
-    select client_id from mamba_flat_encounter_follow_up
-    where encounter_datetime = '2055-09-30'
+    #Known positive
+WITH Enrollment as (
+    select client_id,antenatal_care_provider,ld_client,post_natal_care,art_clinic from mamba_flat_encounter_pmtct_enrollment
+    where date_of_enrollment_or_booking BETWEEN REPORT_START_DATE AND REPORT_END_DATE
 )
 
 -- Percentage of HIV-positive pregnant women who received ART to reduce the risk of mother-to child-transmission (MTCT) during pregnancy, L&D and PNC
 SELECT 'MTCT_ART'                                                                                                         AS S_NO,
        'Percentage of HIV-positive pregnant women who received ART to reduce the risk of mother-to child-transmission (MTCT) during pregnancy, L&D and PNC' as Activity,
        COUNT(*)                                                                                                                as Value
-FROM FollowUp
+FROM Enrollment
 -- Number of HIV positive women who received ART to reduce the risk of mother to child transmission during ANC for the first time
 UNION ALL
 SELECT 'MTCT_ART.1.'                                                                                                         AS S_NO,
        'Number of HIV positive women who received ART to reduce the risk of mother to child transmission during ANC for the first time' as Activity,
        COUNT(*)                                                                                                                as Value
-FROM FollowUp
+FROM Enrollment
+where antenatal_care_provider is not null
 -- Number of HIV positive Pregnant women who received ART to reduce the risk of mother to child transmission during L&D for the first time
 UNION ALL
 SELECT 'MTCT_ART.2.'                                                                                                         AS S_NO,
        'Number of HIV positive Pregnant women who received ART to reduce the risk of mother to child transmission during L&D for the first time' as Activity,
        COUNT(*)                                                                                                                as Value
-FROM FollowUp
+FROM Enrollment
+where ld_client is not null
 -- Number of HIV positive lactating women who received ART to reduce the risk of mother to child transmission during PNC for the first time
 UNION ALL
 SELECT 'MTCT_ART.3.'                                                                                                         AS S_NO,
        'Number of HIV positive lactating women who received ART to reduce the risk of mother to child transmission during PNC for the first time' as Activity,
        COUNT(*)                                                                                                                as Value
-FROM FollowUp
+FROM Enrollment
+where post_natal_care is not null
 -- Number of HIV-positive women who get pregnant while on ART and linked to ANC
 UNION ALL
 SELECT 'MTCT_ART.4.'                                                                                                         AS S_NO,
        'Number of HIV-positive women who get pregnant while on ART and linked to ANC' as Activity,
        COUNT(*)                                                                                                                as Value
-FROM FollowUp
+FROM Enrollment
+where art_clinic is not null
 -- Percentage of  HIV exposed infants who received a virologic HIV test (sample collected) within 12 month
 UNION ALL
 SELECT 'MTCT_HEI_EID.'                                                                                                         AS S_NO,
