@@ -11,6 +11,10 @@
 sp_dim_cxca_scrn_datim_query.sql
 sp_dim_cxca_tx_datim_query.sql
 sp_dim_ict_datim_query.sql
+sp_dim_pmtct_art_datim_query.sql
+sp_dim_pmtct_eid_datim_query.sql
+sp_dim_pmtct_fo_datim_query.sql
+sp_dim_pmtct_hei_datim_query.sql
 sp_dim_prep_ct_datim_query.sql
 sp_dim_prep_new_datim_query.sql
 sp_dim_tb_art_datim_query.sql

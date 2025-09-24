@@ -48,115 +48,115 @@ UNION ALL
 SELECT 'MTCT_HEI_EID.'                                                                                                         AS S_NO,
        'Percentage of  HIV exposed infants who received a virologic HIV test (sample collected) within 12 month' as Activity,
        COUNT(*)                                                                                                                as Value
-FROM FollowUp
+FROM Enrollment
 -- Percentage of  HIV exposed infants who received a virologic HIV test (sample collected) within 12 month
 UNION ALL
 SELECT 'MTCT_HEI_EID.1'                                                                                                         AS S_NO,
        'Number of HIV exposed infants who received a virologic HIV test (sample collected) 0- 2 months of birth' as Activity,
        COUNT(*)                                                                                                                as Value
-FROM FollowUp
+FROM Enrollment
 -- Number of HIV exposed infants who received a virologic HIV test (sample collected) 2-12 months of birth
 UNION ALL
 SELECT 'MTCT_HEI_EID.2'                                                                                                         AS S_NO,
        'Number of HIV exposed infants who received a virologic HIV test (sample collected) 2-12 months of birth' as Activity,
        COUNT(*)                                                                                                                as Value
-FROM FollowUp
+FROM Enrollment
 -- Total Number of infants within 12 month received virological test result
 UNION ALL
 SELECT 'MTCT_HEI_EID.1'                                                                                                         AS S_NO,
        'Total Number of infants within 12 month received virological test result' as Activity,
        COUNT(*)                                                                                                                as Value
-FROM FollowUp
+FROM Enrollment
 -- Number of HIV exposed infants who received an HIV test 0- 2 months of birth
 UNION ALL
 SELECT 'MTCT_HEI_EID.1.1'                                                                                                         AS S_NO,
        'Number of HIV exposed infants who received an HIV test 0- 2 months of birth' as Activity,
        COUNT(*)                                                                                                                as Value
-FROM FollowUp
+FROM Enrollment
 -- Positive
 UNION ALL
 SELECT 'MTCT_HEI_EID.1.1. 1'                                                                                                         AS S_NO,
        'Positive' as Activity,
        COUNT(*)                                                                                                                as Value
-FROM FollowUp
+FROM Enrollment
 -- Negative
 UNION ALL
 SELECT 'MTCT_HEI_EID.1.1. 2'                                                                                                         AS S_NO,
        'Negative' as Activity,
        COUNT(*)                                                                                                                as Value
-FROM FollowUp
+FROM Enrollment
 -- Number of HIV exposed infants who received an HIV test 2-12 months of birth
 UNION ALL
 SELECT 'MTCT_HEI_EID.1.2'                                                                                                         AS S_NO,
        'Number of HIV exposed infants who received an HIV test 2-12 months of birth' as Activity,
        COUNT(*)                                                                                                                as Value
-FROM FollowUp
+FROM Enrollment
 -- Positive
 UNION ALL
 SELECT 'MTCT_HEI_EID.1.2. 1'                                                                                                         AS S_NO,
        'Positive' as Activity,
        COUNT(*)                                                                                                                as Value
-FROM FollowUp
+FROM Enrollment
 -- Negative
 UNION ALL
 SELECT 'MTCT_HEI_EID.1.2. 2'                                                                                                         AS S_NO,
        'Negative' as Activity,
        COUNT(*)                                                                                                                as Value
-FROM FollowUp
+FROM Enrollment
 -- Percentage of exposed Infants born to HIV positive women who were started on co-trimoxazole prophylaxis within two months of birth
 UNION ALL
 SELECT 'MTCT_HEI_COTR'                                                                                                         AS S_NO,
        'Percentage of exposed Infants born to HIV positive women who were started on co-trimoxazole prophylaxis within two months of birth' as Activity,
        COUNT(*)                                                                                                                as Value
-FROM FollowUp
+FROM Enrollment
 -- Number of infants born to HIV positive women started on co-trimoxazole prophylaxis within two months of birth
 UNION ALL
 SELECT 'MTCT_HEI_COTR.1.'                                                                                                         AS S_NO,
        'Number of infants born to HIV positive women started on co-trimoxazole prophylaxis within two months of birth' as Activity,
        COUNT(*)                                                                                                                as Value
-FROM FollowUp
+FROM Enrollment
 -- Percentage of Infants born to HIV-infected women receiving antiretroviral (ARV) prophylaxis for prevention of Women-to-child transmission (PMTCT)
 UNION ALL
 SELECT 'RMH_PMTCT_IARV'                                                                                                         AS S_NO,
        'Percentage of Infants born to HIV-infected women receiving antiretroviral (ARV) prophylaxis for prevention of Women-to-child transmission (PMTCT)' as Activity,
        COUNT(*)                                                                                                                as Value
-FROM FollowUp
+FROM Enrollment
 -- Number of HIV exposed infants who received ARV prophylaxis For 12 weeks
 UNION ALL
 SELECT 'MTCT_HEI_ARV.1.'                                                                                                         AS S_NO,
        'Number of HIV exposed infants who received ARV prophylaxis For 12 weeks' as Activity,
        COUNT(*)                                                                                                                as Value
-FROM FollowUp
+FROM Enrollment
 -- Number of HIV positive women who gave birth at health institution
 UNION ALL
 SELECT 'MTCT_HEI_ARV.2.'                                                                                                         AS S_NO,
        'Number of HIV positive women who gave birth at health institution' as Activity,
        COUNT(*)                                                                                                                as Value
-FROM FollowUp
+FROM Enrollment
 -- Percentage of HIV exposed infants receiving HIV confirmatory (antibody test) test by 18 months
 UNION ALL
 SELECT 'MTCT_HEI_ABTST'                                                                                                         AS S_NO,
        'Percentage of HIV exposed infants receiving HIV confirmatory (antibody test) test by 18 months' as Activity,
        COUNT(*)                                                                                                                as Value
-FROM FollowUp
+FROM Enrollment
 -- Number of HIV exposed infants receiving HIV confirmatory (antibody test) by 18 months
 UNION ALL
 SELECT 'MTCT_HEI_ABTST.1'                                                                                                         AS S_NO,
        'Number of HIV exposed infants receiving HIV confirmatory (antibody test) by 18 months' as Activity,
        COUNT(*)                                                                                                                as Value
-FROM FollowUp
+FROM Enrollment
 -- Positive
 UNION ALL
 SELECT 'MTCT_HEI_ABTST.1. 1'                                                                                                         AS S_NO,
        'Positive' as Activity,
        COUNT(*)                                                                                                                as Value
-FROM FollowUp
+FROM Enrollment
 -- Negative
 UNION ALL
 SELECT 'MTCT_HEI_ABTST.1. 2'                                                                                                         AS S_NO,
        'Negative' as Activity,
        COUNT(*)                                                                                                                as Value
-FROM FollowUp;
+FROM Enrollment;
 END //
 
 DELIMITER ;
