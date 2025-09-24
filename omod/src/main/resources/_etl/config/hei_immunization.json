@@ -3,10 +3,9 @@
   "flat_table_name": "mamba_flat_encounter_hei_immunization",
   "encounter_type_uuid": "1a548c84-2170-47d5-9a23-56fcad902f63",
   "table_columns": {
-    "bcg_taken":"3d621104-4f93-4f68-8d59-407cd124cabb",
-    "yes":"1065AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "no":"1066AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "followup_date_followup_1":"5c118396-52dc-4cac-8860-e6d8e4a7f296",
     "bcg_taken_date_bacillus_calmette_guérin":"f056ec09-ef1a-4675-bbaa-4433f05550c1",
+    "bcg_taken":"3d621104-4f93-4f68-8d59-407cd124cabb",
     "ipv_taken":"923b4623-ac8d-4e65-a55a-aa4715752a14",
     "ipv_taken_date":"237ae1a9-5009-44d5-9561-28c7e0ec8f00",
     "opv_0_taken":"14369b36-910a-4996-813c-2312d234f5cf",
