@@ -23,6 +23,16 @@ public class EthiOhriUtil {
 		return Arrays.asList(startDate, startDateGC, endDate, endDateGC);
 	}
 	
+	public static DefaultDateParameter getDefaultDateParameter(java.util.Date startDate, java.util.Date endDate) {
+		java.sql.Date _startDate = startDate != null ? new java.sql.Date(startDate.getTime()) : new java.sql.Date(LocalDate
+		        .of(1900, 1, 1).toEpochDay() * 24 * 60 * 60 * 1000);
+		
+		java.sql.Date _endDate = endDate != null ? new java.sql.Date(endDate.getTime()) : new java.sql.Date(
+		        System.currentTimeMillis());
+		DefaultDateParameter result = new DefaultDateParameter(_startDate, _endDate);
+		return result;
+	}
+	
 	public static List<Parameter> getEndDateParameters(Boolean required) {
 		
 		Parameter endDate = new Parameter("endDate", "On Month", Date.class);
@@ -41,6 +51,22 @@ public class EthiOhriUtil {
 			mappings = ""; // probably not necessary, just to be safe
 		}
 		return new Mapped<>(parameterizable, ParameterizableUtil.createParameterMappings(mappings));
+	}
+	
+	public static EthiopianDate getEthiopiaDate(Date date) {
+		if (date == null) {
+			return null;
+		}
+		LocalDate lDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+		EthiopianDate ethiopianDate = null;
+		try {
+			ethiopianDate = EthiopianDateConverter.ToEthiopianDate(lDate);
+		}
+		catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return ethiopianDate;
 	}
 	
 	public static String getEthiopianDate(Date date) {
