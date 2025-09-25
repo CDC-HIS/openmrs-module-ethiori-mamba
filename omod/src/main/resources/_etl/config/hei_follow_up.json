@@ -75,6 +75,14 @@
     "died": "160034AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "referred_for_pediatric_hiv_care_within_facility": "bd5d0757-95f8-4fcb-bd1a-f24953efeca3",
     "referred_pediatric_hiv_care_outside_facility": "5425b021-8539-420b-ad60-4636e98034f2",
-    "discharged_negative_form_care_hiv_free": "00c3deda-9bb6-490f-821b-75ba9cc85db5"
+    "discharged_negative_form_care_hiv_free": "00c3deda-9bb6-490f-821b-75ba9cc85db5",
+    "weight_text_": "4ab93a3c-4373-4b9b-9268-5ff0641cc242",
+    "height_length_if_child_": "78230f35-d01c-48de-9ce3-8a0065a305bb",
+    "follow_up_date_followup_": "5c118396-52dc-4cac-8860-e6d8e4a7f296",
+    "mother_s_breast_condition": "5efb8e8d-36e1-4eef-9a50-d59ce5d50d7d",
+    "developmental_milestone_for_childre": "d646c980-b04d-46a0-8a49-4800506ad64c",
+    "infant_feeding_practice_older_than_": "db416d1c-d29b-4257-8cd7-76ff835845c5",
+    "reason_sample_rejected_or_test_not_": "38295027-00a8-42a2-9bce-ec12103035bf",
+    "telephone_number_of_referring_order": "167158AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
   }
 }
