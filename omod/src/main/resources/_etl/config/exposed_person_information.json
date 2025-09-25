@@ -1,4 +1,6 @@
 {
+  "encounter_type_uuid": "de4cef7c-0aca-4593-9b5f-64a51c841c9d",
+  "flat_table_name": "mamba_flat_encounter_exposed_person_information",
   "report_name": "Exposed Person Information",
   "table_columns": {
     "case_team": "cdc0f46f-7cc4-490b-a32b-8088c67c884a",
@@ -20,7 +22,5 @@
     "source_of_exposure": "1c92b574-953a-458e-9fa7-82f5538d8aee",
     "source_person": "dc23b554-65b1-479a-aeeb-b47dc9fc2f7e",
     "time_between_exposure_and_pep_in_hours": "0885bb1e-6a2e-47d0-a597-8e8da07e4e59"
-  },
-  "flat_table_name": "mamba_flat_encounter_exposed_person_information",
-  "encounter_type_uuid": "de4cef7c-0aca-4593-9b5f-64a51c841c9d"
+  }
 }
