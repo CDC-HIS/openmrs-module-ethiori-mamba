@@ -116,12 +116,7 @@ public class TxMLDATIMReportsMamba implements ReportManager {
 		txMLRefusedDataSetDefinitionMamba.setDescription("Refused (Stopped) Treatment");
 		reportDefinition.addDataSetDefinition("Refused (Stopped) Treatment",
 		    EthiOhriUtil.map(txMLRefusedDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
-		
-		//		MLKeyPopulationDataSetDefinitionMamba mlKeyPopulationDataSetDefinitionMamba = new MLKeyPopulationDataSetDefinitionMamba();
-		//		mlKeyPopulationDataSetDefinitionMamba.addParameters(getParameters());
-		//		mlKeyPopulationDataSetDefinitionMamba.setDescription("Disaggregated by Status/Key Population Type:");
-		//		reportDefinition.addDataSetDefinition("Disaggregated by Status/Key Population Type:",
-		//		    EthiOhriUtil.map(mlKeyPopulationDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+
 		
 		return reportDefinition;
 	}
