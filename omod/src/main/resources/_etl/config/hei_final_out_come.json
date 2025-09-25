@@ -1,0 +1,10 @@
+{
+  "report_name": "HEI Final Outcome",
+  "flat_table_name": "mamba_flat_encounter_hei_final_outcome",
+  "encounter_type_uuid": "7a35d870-f997-40fe-aef6-1648ccc36aa9",
+  "table_columns": {
+    "hei_pmtct_final_outcome": "2171d944-a027-417f-a0af-f9c4a88a5ffe",
+    "date_when_final_outcome_was_known": "e83fbaa5-073b-4a6d-b8ba-23f41d0c7302"
+  }
+}
+

@@ -1,0 +1,30 @@
+{
+  "report_name": "HEI Enrollment",
+  "flat_table_name": "mamba_flat_encounter_hei_enrollment",
+  "encounter_type_uuid": "ca7108d6-b4f2-4b46-be1c-d0ddd4f0ed97",
+  "table_columns": {
+    "regimen": "6d7d0327-e1f8-4246-bfe5-be1e82d94b14",
+    "hei_code": "2b30a270-be1f-4cce-9949-7d7eaba349be",
+    "if_alive": "8d165f3a-89ae-4a0a-b557-cc2c8ce8f110",
+    "relation": "02196de2-36c2-4920-aa1d-347ae3752ea5",
+    "first_name": "166102AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "hiv_status": "159576AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "if_enrolled": "79538372-3b8f-45b3-bf13-d1c4790b637a",
+    "weight_text_": "4ab93a3c-4373-4b9b-9268-5ff0641cc242",
+    "father_status": "2d5b2754-423e-47d3-9bf5-81ee0c2108f5",
+    "mother_s_name": "1593AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "mother_status": "25b917ca-549d-4e9a-b03e-bc03e5ace41a",
+    "arv_prophylaxis": "b7f50074-b9f2-4b0d-9f20-d18b646d822e",
+    "infant_referred": "a0b16ce2-80a8-4b26-9168-74a6f64adb09",
+    "location_of_birth": "1572AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "method_of_delivery": "5630AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "grand_father_s_name": "1b545ea1-0aed-4632-af99-ea2ceb61b13c",
+    "mother_s_father_name": "f20f09fa-de8a-44ec-9761-47a11d220e1d",
+    "date_enrolled_in_care": "1ebc345c-6f09-43e1-a616-d7e52fff4c7d",
+    "referring_facility_name": "161550AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "mother_s_pmtct_interventions": "6b60a8c6-da45-4f10-9135-e5e5d4b2a1b9",
+    "art_antiretroviral_start_date": "ae329187-6232-4142-aa91-22c85bc8e5b5",
+    "service_delivery_point_number": "162054AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "facility_name_or_name_of_place_wher": "163531AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+  }
+}
