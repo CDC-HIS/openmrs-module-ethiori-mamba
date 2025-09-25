@@ -27,7 +27,7 @@ BEGIN
                         and specimen_collection_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE),
         hei_follow_up as (
             select client_id
-            from hei
+
         )
 
 -- Percentage of HIV-positive pregnant women who received ART to reduce the risk of mother-to child-transmission (MTCT) during pregnancy, L&D and PNC
