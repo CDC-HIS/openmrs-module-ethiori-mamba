@@ -20,14 +20,14 @@
     "telephone_number_of_referringordering_clinician":"167158AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "collected_by":"870d892b-43b1-4718-a910-8d6346c27454",
     "laboratory_name":"164422AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "UUID Not Found":"cd88cbbc-ada9-48c1-8579-55608aeb047f",
+    "dna_pcr_sample_collection_date":"cd88cbbc-ada9-48c1-8579-55608aeb047f",
     "specimen_type":"4c1fed7f-7346-498d-9846-effd0629ecff",
     "test_round":"cc8b10f3-a1ff-4d82-8143-a45af803bd56",
     "hiv_test_performed":"164401AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "maternal_art_status":"70961c32-e9aa-4006-9b12-64d0e71978f5",
-    "UUID Not Found":"06141bb3-e0c5-4fba-a481-4db8a8fed2e0",
-    "UUID Not Found":"3670654c-d963-420c-996b-18a8127bd979",
-    "UUID Not Found":"9a095b8c-66cb-4cbe-b666-bc8f4b21921f",
+    "date_of_nvp_&_azt_started":"06141bb3-e0c5-4fba-a481-4db8a8fed2e0",
+    "hei_arv_prophylaxis":"3670654c-d963-420c-996b-18a8127bd979",
+    "infant_on_breast_feeding":"9a095b8c-66cb-4cbe-b666-bc8f4b21921f",
     "positive":"703AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "negative_result":"5e4fc757-0b14-49ae-b3b7-419666f41e15",
     "inconclusive":"165649AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
@@ -47,6 +47,6 @@
     "new_client":"164144AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "on_antiretroviral_therapy":"1149AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "not_on_art":"78347c84-f08d-4cc0-8347-f745dc3439f1",
-    "unknown":"1067AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "unknown":"1067AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
   }
 }

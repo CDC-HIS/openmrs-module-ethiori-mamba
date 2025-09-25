@@ -25,6 +25,18 @@
     "mother_s_pmtct_interventions": "6b60a8c6-da45-4f10-9135-e5e5d4b2a1b9",
     "art_antiretroviral_start_date": "ae329187-6232-4142-aa91-22c85bc8e5b5",
     "service_delivery_point_number": "162054AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "facility_name_or_name_of_place_wher": "163531AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    "facility_name_or_name_of_place_wher": "163531AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "facility_name_or_name_of_place_where_mother_gave_birth": "163531AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "weight_text": "4ab93a3c-4373-4b9b-9268-5ff0641cc242",
+    "contact_mrn": "9f760fe1-5cde-41ab-99b8-b8e1d77de902",
+    "mothers_name": "1593AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "mothers_father_name": "f20f09fa-de8a-44ec-9761-47a11d220e1d",
+    "grand_fathers_name": "1b545ea1-0aed-4632-af99-ea2ceb61b13c",
+    "mothers_pmtct_interventions": "6b60a8c6-da45-4f10-9135-e5e5d4b2a1b9",
+    "unique_art_number": "c8d98ef1-5e58-417c-a7c3-7f30f76a7155",
+    "if_positive": "e60e9664-15ef-46d8-8ff0-28b1a8e57a21",
+    "other_type_of_relation": "5073143b-eb72-45aa-a4bf-4164aa858f95",
+    "fathers_name": "1594AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "last_name": "166103AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
   }
 }
