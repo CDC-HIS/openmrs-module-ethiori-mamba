@@ -62,7 +62,7 @@ WITH FollowUp as (select follow_up.encounter_id,
                        fn_gregorian_to_ethiopian_calendar(follow_up_date_followup_, 'Y-M-D')                                as follow_up_date,
                        ROW_NUMBER() over (PARTITION BY client_id order by follow_up_date_followup_ DESC ,encounter_id DESC) as row_num
                 from tx_curr
-                where on_family_planning = 'Yes'
+                where method_of_family_planning != 'None'
                   and method_of_family_planning != 'Sexual abstinence'),
     fp as (select tmp_fp.*,
     client.sex,
