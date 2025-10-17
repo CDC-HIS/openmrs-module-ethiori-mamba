@@ -37,7 +37,8 @@ BEGIN
                              date_active_tbrx_completed,
                              date_of_reported_hiv_viral_load     as viral_load_sent_date,
                              date_viral_load_results_received    AS viral_load_perform_date,
-                             viral_load_test_status
+                             viral_load_test_status,
+                             visitect_cd4_result
                       FROM mamba_flat_encounter_follow_up follow_up
                                LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1
                                          ON follow_up.encounter_id = follow_up_1.encounter_id
@@ -127,11 +128,18 @@ BEGIN
                                           ROW_NUMBER() over (PARTITION BY PatientId ORDER BY viral_load_perform_date DESC, encounter_id DESC) AS row_num
                                    FROM FollowUp
                                    WHERE viral_load_perform_date <= COALESCE(REPORT_END_DATE,CURDATE())),
+         tmp_visitect_cd4_result as (SELECT PatientId,
+                                          encounter_id,
+                                          visitect_cd4_result,
+                                          ROW_NUMBER() over (PARTITION BY PatientId ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
+                                   FROM FollowUp
+                                   WHERE visitect_cd4_result is not null ),
          vl_sent_date as (select * from tmp_vl_sent_date where row_num = 1),
          latestDSD AS (select * from latestDSD_tmp where row_num = 1),
          tpt_start as (select * from tmp_tpt_start where row_num = 1),
          tpt_completed as (select * from tmp_tpt_completed where row_num = 1),
-         vl_performed_date as (select * from tmp_vl_performed_date where row_num = 1)
+         vl_performed_date as (select * from tmp_vl_performed_date where row_num = 1),
+         visitect_cd4_result as ( select * from tmp_visitect_cd4_result where row_num=1)
     select client.patient_name                                                        as 'Patient Name',
            patient_uuid                             as `UUID`,
            CAST(mrn AS CHAR(20)) as mrn,
@@ -141,6 +149,7 @@ BEGIN
            Sex,
            Weight,
            cd4_count                                                                  as CD4,
+           visitect_cd4_result                                                        as `Visit ECT CD4 Result`,
            hiv_confirmed_date            as 'HIV Confirmed Date',
            hiv_confirmed_date            as 'HIV Confirmed Date EC.',
            art_start_date                as 'ART Start Date',
@@ -191,6 +200,7 @@ BEGIN
              left join vl_sent_date on tx_curr.PatientId = vl_sent_date.PatientId
              left join vl_performed_date on tx_curr.PatientId = vl_performed_date.PatientId
              left join mamba_dim_client client on tx_curr.PatientId = client.client_id
+             left join visitect_cd4_result on tx_curr.PatientId = visitect_cd4_result.PatientId
     order by client.patient_name;
 END //
 
