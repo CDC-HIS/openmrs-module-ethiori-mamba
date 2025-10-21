@@ -77,7 +77,7 @@ BEGIN
             pc.coupon_id,
             pc.conventional_result,
             mpi.identifier AS phrh_code_returning_coupon,
-            fn_gregorian_to_ethiopian_calendar(mpf.followup_date, 'Y-M-D') AS date_returned_ec,
+            mpf.followup_date AS date_returned_ec,
             mpf.followup_date as date_returned,
             mpf.etb_paid_for_recruiter,
             mpf.final_hiv_test_result AS conventional_result_returning
@@ -92,7 +92,7 @@ BEGIN
         SELECT
             mps.client_id AS client_id,
             mpi.identifier AS phrh,
-            fn_gregorian_to_ethiopian_calendar(mps.followup_date, 'Y-M-D') AS date_provided_ec,
+            mps.followup_date AS date_provided_ec,
             mps.followup_date AS date_provided
         FROM mamba_flat_encounter_phrh_sns mps
         INNER JOIN mamba_dim_patient_identifier mpi
@@ -104,11 +104,11 @@ BEGIN
     SELECT
 		s.phrh AS 'PHRH Code Provided Coupon',
         p.coupon_id AS 'Coupon ID',
-        s.date_provided_ec AS 'Date Provided (EC)',
+        s.date_provided_ec AS 'Date Provided EC.',
         s.date_provided AS 'Date Provided (GC)',
         p.conventional_result AS 'Con Result Provided Coupon',
         p.phrh_code_returning_coupon AS 'PHRH Code Returning Coupon',
-        p.date_returned_ec AS 'Date Returned (EC)',
+        p.date_returned_ec AS 'Date Returned EC.',
         p.date_returned AS 'Date Returned (GC)',
         p.etb_paid_for_recruiter AS 'ETB paid for Recruiter',
         p.conventional_result_returning AS 'Con Test Result Returning Coupon'
