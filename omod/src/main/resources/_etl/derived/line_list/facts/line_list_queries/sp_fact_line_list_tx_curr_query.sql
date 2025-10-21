@@ -38,7 +38,8 @@ BEGIN
                              date_of_reported_hiv_viral_load     as viral_load_sent_date,
                              date_viral_load_results_received    AS viral_load_perform_date,
                              viral_load_test_status,
-                             visitect_cd4_result
+                             visitect_cd4_result,
+                             visitect_cd4_test_date
                       FROM mamba_flat_encounter_follow_up follow_up
                                LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1
                                          ON follow_up.encounter_id = follow_up_1.encounter_id
@@ -131,7 +132,7 @@ BEGIN
          tmp_visitect_cd4_result as (SELECT PatientId,
                                           encounter_id,
                                           visitect_cd4_result,
-                                          ROW_NUMBER() over (PARTITION BY PatientId ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
+                                          ROW_NUMBER() over (PARTITION BY PatientId ORDER BY visitect_cd4_test_date DESC, encounter_id DESC) AS row_num
                                    FROM FollowUp
                                    WHERE visitect_cd4_result is not null ),
          vl_sent_date as (select * from tmp_vl_sent_date where row_num = 1),
@@ -150,6 +151,7 @@ BEGIN
            Weight,
            cd4_count                                                                  as CD4,
            visitect_cd4_result                                                        as `Visit ECT CD4 Result`,
+           visitect_cd4_test_date,
            hiv_confirmed_date            as 'HIV Confirmed Date',
            hiv_confirmed_date            as 'HIV Confirmed Date EC.',
            art_start_date                as 'ART Start Date',
