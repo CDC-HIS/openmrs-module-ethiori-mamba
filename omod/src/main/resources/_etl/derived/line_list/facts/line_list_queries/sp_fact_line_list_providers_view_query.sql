@@ -75,7 +75,11 @@ BEGIN
                                LEFT JOIN mamba_flat_encounter_follow_up_8 follow_up_8
                                          ON follow_up.encounter_id = follow_up_8.encounter_id
                                LEFT JOIN mamba_flat_encounter_follow_up_9 follow_up_9
-                                         ON follow_up.encounter_id = follow_up_9.encounter_id),
+                                         ON follow_up.encounter_id = follow_up_9.encounter_id
+                               LEFT JOIN mamba_flat_encounter_follow_up_10 follow_up_10
+                                         ON follow_up.encounter_id = follow_up_10.encounter_id
+
+                      ),
 
          tmp_address as (select patient_uuid,
                                 client_id,
@@ -375,7 +379,7 @@ BEGIN
          tmp_vl_performed_date_3 as (SELECT tmp_vl_performed_date_2.encounter_id,
                                             tmp_vl_performed_date_2.client_id,
                                             vl_sent_date.VL_Sent_Date,
-                                            FollowUp.viral_load_test_status,
+                                            viral_load_test_status,
                                             case
                                                 when tmp_vl_performed_date_2.viral_load_perform_date <
                                                      vl_sent_date.VL_Sent_Date

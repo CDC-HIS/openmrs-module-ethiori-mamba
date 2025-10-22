@@ -59,7 +59,10 @@ BEGIN
                                LEFT JOIN mamba_flat_encounter_follow_up_8 follow_up_8
                                          ON follow_up.encounter_id = follow_up_8.encounter_id
                                LEFT JOIN mamba_flat_encounter_follow_up_9 follow_up_9
-                                         ON follow_up.encounter_id = follow_up_9.encounter_id),
+                                         ON follow_up.encounter_id = follow_up_9.encounter_id
+                               LEFT JOIN mamba_flat_encounter_follow_up_10 follow_up_10
+                                         ON follow_up.encounter_id = follow_up_10.encounter_id
+                      ),
 
 
          vl_sent_date_tmp AS (SELECT FollowUp.encounter_id,
