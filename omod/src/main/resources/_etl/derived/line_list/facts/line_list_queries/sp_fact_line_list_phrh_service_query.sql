@@ -25,11 +25,11 @@ BEGIN
             mpf.iv_drug_use,
             mpf.declined_to_disclose) AS risk_behaviors,
 		CASE
-			WHEN mpf.target_population = "Female sex worker" THEN "FSW"
-			WHEN mpf.target_population = "People who inject drug" THEN "PWID"
-			WHEN mpf.target_population = "Late adolescent/young adulthood period" THEN "High Risk AGYW"
-			WHEN mpf.target_population = "Other" THEN "Other KPP"
-			ELSE "General Population"
+			WHEN mpf.target_population = 'Female sex worker' THEN 'FSW'
+			WHEN mpf.target_population = 'People who inject drug' THEN 'PWID'
+			WHEN mpf.target_population = 'Late adolescent/young adulthood period' THEN 'High Risk AGYW'
+			WHEN mpf.target_population = 'Other' THEN 'Other KPP'
+			ELSE 'General Population'
 		END
 		AS target_population,
         mpf.modality_used_to_reach AS modality,
@@ -121,7 +121,7 @@ BEGIN
         en.last_follow_up_outcome AS 'Last FU Outcome',
         en.final_decision AS 'Final Decision'
 	FROM enrollment en JOIN phrhs p on en.client_id = p.client_id
-    WHERE  en.row_num = 1 and ((TARGET_GROUP != "ALL" and en.target_population = TARGET_GROUP) or TARGET_GROUP = "ALL");
+    WHERE  en.row_num = 1 and ((TARGET_GROUP != 'ALL' and en.target_population = TARGET_GROUP) or TARGET_GROUP = 'ALL');
 END //
 
 DELIMITER ;
