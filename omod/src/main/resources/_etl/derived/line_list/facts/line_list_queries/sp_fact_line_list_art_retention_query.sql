@@ -72,8 +72,8 @@ WITH FollowUp AS (select follow_up.encounter_id,
             f_7.encounter_id DESC) AS r_n from
                      mamba_flat_encounter_follow_up_7
                   as f_7 inner join latest_followup as f on f.client_id = f_7.client_id
-                 where f_7.art_antiretroviral_start_date >= DATE_ADD(REPORT_START_DATE, INTERVAL -1 YEAR)
-                    AND f_7.art_antiretroviral_start_date <= DATE_ADD(REPORT_END_DATE, INTERVAL -1 YEAR)
+                 where f_7.art_antiretroviral_start_date >= fn_ethiopian_to_gregorian_calendar(date_add(fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'), INTERVAL -12 MONTH))
+                    AND f_7.art_antiretroviral_start_date <= fn_ethiopian_to_gregorian_calendar(date_add(fn_gregorian_to_ethiopian_calendar(REPORT_END_DATE, 'Y-M-D'), INTERVAL -12 MONTH))
     ),
 
      art_retention AS (select *

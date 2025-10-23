@@ -83,7 +83,8 @@ WITH FollowUp AS (select follow_up.encounter_id,
                              left join mamba_dim_client client on tx_curr.client_id = client.client_id
                     where row_num = 1
                       and art_start_date is not null
-                      and  tpt_start_date BETWEEN DATE_ADD(REPORT_START_DATE, INTERVAL -12 MONTH ) AND DATE_ADD(REPORT_END_DATE, INTERVAL -12 MONTH )
+                      and  tpt_start_date BETWEEN fn_ethiopian_to_gregorian_calendar(date_add(fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'), INTERVAL -12 MONTH)) AND
+                        fn_ethiopian_to_gregorian_calendar(date_add(fn_gregorian_to_ethiopian_calendar(REPORT_END_DATE, 'Y-M-D'), INTERVAL -12 MONTH))
      )
 
 -- Number of ART patients who started on a standard course of TB Preventive Treatment (TPT) in the reporting period

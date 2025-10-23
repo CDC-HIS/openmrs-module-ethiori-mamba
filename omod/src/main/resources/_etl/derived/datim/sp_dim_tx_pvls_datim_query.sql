@@ -96,7 +96,7 @@ END IF;
                          ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY viral_load_performed_date DESC, encounter_id DESC) AS row_num
                   from FollowUp
                   where viral_load_performed_date is not null
-                    and viral_load_performed_date >= DATE_ADD( ? , INTERVAL -12 MONTH)
+                    and viral_load_performed_date >= fn_ethiopian_to_gregorian_calendar(date_add(fn_gregorian_to_ethiopian_calendar(?, ''Y-M-D''), INTERVAL -12 MONTH))
                     AND viral_load_performed_date <= ? ),
      tmp_pvls_2 as (select * from tmp_pvls where row_num = 1),
      pvls as (select client.client_id,
