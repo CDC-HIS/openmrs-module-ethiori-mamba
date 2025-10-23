@@ -61,8 +61,8 @@ BEGIN
                                                  FROM FollowUp
                                                  WHERE follow_up_status IS NOT NULL
                                                    AND art_start_date IS NOT NULL
-                                                   AND art_start_date >= DATE_ADD(REPORT_START_DATE, INTERVAL -1 YEAR)
-                                                   AND art_start_date <= DATE_ADD(REPORT_END_DATE, INTERVAL -1 YEAR)
+                                                   AND art_start_date >= fn_ethiopian_to_gregorian_calendar(date_add(fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'), INTERVAL -12 MONTH))
+                                                   AND art_start_date <= fn_ethiopian_to_gregorian_calendar(date_add(fn_gregorian_to_ethiopian_calendar(REPORT_END_DATE, 'Y-M-D'), INTERVAL -12 MONTH))
                                                    AND follow_up_date <= REPORT_END_DATE),
          art_start_date_before_12_months as (select curr.client_id,
                                                     curr.FollowupDate,

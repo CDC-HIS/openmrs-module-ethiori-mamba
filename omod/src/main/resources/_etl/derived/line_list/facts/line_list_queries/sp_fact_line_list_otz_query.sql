@@ -140,7 +140,8 @@ BEGIN
                                        WHERE follow_up_status IS NOT NULL
                                          AND FollowUp.art_start_date IS NOT NULL
                                          AND FollowUp.follow_up_date <= COALESCE(REPORT_END_DATE, CURDATE())
-                                         AND FollowUp.viral_load_perform_date BETWEEN DATE_ADD(otz.otz_date, INTERVAL -3 MONTH) AND DATE_ADD(otz.otz_date, INTERVAL 1 MONTH)),
+                                         AND FollowUp.viral_load_perform_date BETWEEN fn_ethiopian_to_gregorian_calendar(date_add(fn_gregorian_to_ethiopian_calendar(otz.otz_date, 'Y-M-D'), INTERVAL -3 MONTH))
+                                             AND fn_ethiopian_to_gregorian_calendar(date_add(fn_gregorian_to_ethiopian_calendar(otz.otz_date, 'Y-M-D'), INTERVAL 1 MONTH))),
          otz_vl_performed_date as (select *
                                    from tmp_otz_vl_performed_date
                                    where row_num = 1 -- temp9

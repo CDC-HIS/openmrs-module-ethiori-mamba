@@ -89,7 +89,7 @@ BEGIN
                      from tmp_tpt_start
                               join mamba_dim_client client on client.client_id=tmp_tpt_start.client_id
                      where row_num=1
-                       and tpt_start_date BETWEEN DATE_ADD(?, INTERVAL -6 MONTH) AND ?),
+                       and tpt_start_date >= fn_ethiopian_to_gregorian_calendar(date_add(fn_gregorian_to_ethiopian_calendar(?, ''Y-M-D''), INTERVAL -6 MONTH)) AND tpt_start_date < ?),
 
      tmp_tpt_complete as (select client_id,
                                  tpt_completed_date,
@@ -106,10 +106,10 @@ BEGIN
                               join mamba_dim_client client on client.client_id=tmp_tpt_complete.client_id
                               join tpt_started on tpt_started.client_id=tmp_tpt_complete.client_id
                      where tmp_tpt_complete.row_num=1
-                       and tpt_completed_date BETWEEN DATE_ADD(?, INTERVAL -6 MONTH) AND ?),
+                       and tpt_completed_date >= fn_ethiopian_to_gregorian_calendar(date_add(fn_gregorian_to_ethiopian_calendar(?, ''Y-M-D''), INTERVAL -6 MONTH)) AND tpt_completed_date < ?),
 
-     new_art_tpt as ( select * from tpt_completed where art_start_date BETWEEN DATE_ADD(?, INTERVAL -6 MONTH) AND ?),
-     prev_art_tpt as ( select * from tpt_completed where art_start_date < DATE_ADD(?, INTERVAL -6 MONTH)) ';
+     new_art_tpt as ( select * from tpt_completed where art_start_date >= fn_ethiopian_to_gregorian_calendar(date_add(fn_gregorian_to_ethiopian_calendar(?, ''Y-M-D''), INTERVAL -6 MONTH)) AND art_start_date < ?),
+     prev_art_tpt as ( select * from tpt_completed where art_start_date < fn_ethiopian_to_gregorian_calendar(date_add(fn_gregorian_to_ethiopian_calendar(?, ''Y-M-D''), INTERVAL -6 MONTH))) ';
     IF REPORT_TYPE = 'TOTAL' THEN
         SET group_query = 'SELECT COUNT(*) AS NUMERATOR FROM tpt_completed';
     ELSEIF REPORT_TYPE = 'DEBUG' THEN
