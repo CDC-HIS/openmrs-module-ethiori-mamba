@@ -26,9 +26,9 @@ BEGIN
     IF CD4_COUNT_GROUPAGE = 'all' THEN
         SET cd4_count_condition = '1=1';
     ELSEIF CD4_COUNT_GROUPAGE = '>=200' THEN
-        SET cd4_count_condition = 'cd4_count >= 200 AND (age >= 5 or age is null)';
+        SET cd4_count_condition = ' (visitect_cd4_result is null and cd4_count >= 200 AND (age >= 5 or age is null)) or (visitect_cd4_result=''VISITECT <=200 copies/ml'' or visitect_cd4_result=''VISITECT >200 copies/ml'' )';
     ELSEIF CD4_COUNT_GROUPAGE = '<200' THEN
-        SET cd4_count_condition = 'cd4_count < 200 AND (age >= 5 or age is null)';
+        SET cd4_count_condition = ' (visitect_cd4_result is null and cd4_count < 200 AND (age >= 5 or age is null)) or (visitect_cd4_result=''VISITECT <200 copies/ml'') ';
     ELSEIF CD4_COUNT_GROUPAGE = 'unknown' THEN
         SET cd4_count_condition = 'cd4_count IS NULL OR age < 5';
     ELSE
@@ -83,7 +83,8 @@ BEGIN
                              currently_breastfeeding_child          breast_feeding_status,
                              pregnancy_status,
                              transferred_in_check_this_for_all_t as transferred_in,
-                             cd4_count
+                             cd4_count,
+                             visitect_cd4_result
                       FROM mamba_flat_encounter_follow_up follow_up
                                LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1
                                          ON follow_up.encounter_id = follow_up_1.encounter_id
@@ -109,6 +110,7 @@ BEGIN
                                          follow_up_status,
                                          art_start_date,
                                          cd4_count,
+                                         visitect_cd4_result,
                                          breast_feeding_status,
                                          ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
                                   FROM FollowUp
@@ -135,6 +137,7 @@ BEGIN
                                transferred_in,
                                pregnancy_status,
                                cd4_count,
+                               visitect_cd4_result,
                                breast_feeding_status
                         from latest_follow_up
                                  join first_follow_up on latest_follow_up.client_id = first_follow_up.client_id
@@ -149,7 +152,8 @@ BEGIN
                            (SELECT datim_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as fine_age_group,
                            (SELECT normal_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as coarse_age_group,
                            breast_feeding_status,
-                           cd4_count
+                           cd4_count,
+                           visitect_cd4_result
                     from tx_new_tmp
                              join mamba_dim_client client on tx_new_tmp.client_id = client.client_id) ';
     IF CD4_COUNT_GROUPAGE = 'numerator' THEN

@@ -17,10 +17,10 @@ BEGIN
 
     IF REPORT_TYPE = 'CD4_LESS_THAN_200' THEN
         SET outcome_condition =
-                ' restart_cd4_count < 200 ';
+                ' (restart_visitect_cd4_result is null and restart_cd4_count < 200) or (restart_visitect_cd4_result = ''VISITECT <200 copies/ml'') ';
     ELSEIF REPORT_TYPE = 'CD4_GREATER_THAN_200' THEN
         SET outcome_condition =
-                ' restart_cd4_count >= 200 ';
+                ' (restart_visitect_cd4_result is null and restart_cd4_count >= 200) or (restart_visitect_cd4_result = ''VISITECT <=200 copies/ml'' or restart_visitect_cd4_result = ''VISITECT >200 copies/ml'') ';
     ELSEIF REPORT_TYPE = 'CD4_UNKNOWN' THEN
         SET outcome_condition = ' restart_cd4_count is null and interrupted_months >= 6';
     ELSEIF REPORT_TYPE = 'CD4_NOT_ELIGIBLE' THEN
@@ -86,7 +86,8 @@ BEGIN
                          currently_breastfeeding_child          breast_feeding_status,
                          pregnancy_status,
                          transferred_in_check_this_for_all_t AS transferred_in,
-                         cd4_count
+                         cd4_count,
+                         visitect_cd4_result
                   FROM mamba_flat_encounter_follow_up follow_up
                                LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1
                                          ON follow_up.encounter_id = follow_up_1.encounter_id
@@ -114,6 +115,7 @@ BEGIN
                                            treatment_end_date,
                                            art_start_date,
                                            cd4_count,
+                                           visitect_cd4_result,
                                            ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
                                     FROM FollowUp
                                     WHERE follow_up_status IS NOT NULL
@@ -142,6 +144,7 @@ BEGIN
                                          treatment_end_date,
                                          art_start_date,
                                          cd4_count,
+                                         visitect_cd4_result,
                                          ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
                                   FROM FollowUp
                                   WHERE follow_up_status IS NOT NULL
@@ -155,6 +158,7 @@ BEGIN
                                          treatment_end_date,
                                          art_start_date,
                                          cd4_count as restart_cd4_count,
+                                         visitect_cd4_result as restart_visitect_cd4_result,
                                          ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date , encounter_id ) AS row_num
                                   FROM FollowUp
                                   WHERE follow_up_status IS NOT NULL
@@ -175,7 +179,9 @@ BEGIN
                        tx_curr_end.treatment_end_date as latest_follow_up_treatment_end_date,
                        tx_curr_end.art_start_date as latest_follow_up_art_start_date,
                        tx_curr_end.cd4_count as latest_follow_up_cd4_count,
+                       tx_curr_end.visitect_cd4_result as latest_follow_up_visitect_cd4_result,
                        restart_follow_up_end.restart_cd4_count,
+                       restart_follow_up_end.restart_visitect_cd4_result,
                        restart_follow_up_end.restart_status,
                        restart_follow_up_end.restart_follow_up_date,
                        sex,
