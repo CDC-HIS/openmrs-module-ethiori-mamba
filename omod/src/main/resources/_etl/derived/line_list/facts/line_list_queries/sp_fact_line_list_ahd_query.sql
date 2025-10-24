@@ -39,6 +39,8 @@ BEGIN
                              date_of_event                       AS date_hiv_confirmed,
                              current_who_hiv_stage,
                              cd4_count,
+                             visitect_cd4_result,
+                             visitect_cd4_test_date,
                              antiretroviral_art_dispensed_dose_i AS art_dose_days,
                              regimen,
                              anitiretroviral_adherence_level     as adherence,
@@ -307,6 +309,8 @@ BEGIN
            f_case.follow_up_date                                                           as FollowUpDate,
            f_case.current_who_hiv_stage                                                    as WHOStage,
            f_case.cd4_count                                                                as CD4Count,
+           f_case.visitect_cd4_result as `VISITECT CD4 Test Result`,
+           f_case.visitect_cd4_test_date as `VISITECT CD4 Test Date`,
            f_case.art_dose_days                                                            as ARTDoseDays,
            f_case.regimen                                                                  as ARVRegimen,
            CASE f_case.follow_up_status
@@ -399,8 +403,8 @@ BEGIN
            CASE
                WHEN TIMESTAMPDIFF(YEAR, client.date_of_birth, COALESCE(REPORT_END_DATE, CURDATE())) < 5 THEN 'Yes'
                WHEN TIMESTAMPDIFF(YEAR, client.date_of_birth, COALESCE(REPORT_END_DATE, CURDATE())) >= 5 AND
-                    f_case.cd4_count IS NOT NULL AND
-                    f_case.cd4_count < 200 THEN 'Yes'
+                   (( visitect_cd4_result is null and f_case.cd4_count IS NOT NULL AND
+                    f_case.cd4_count < 200) or (visitect_cd4_result = 'VISITECT <200 copies/ml') ) THEN 'Yes'
                WHEN TIMESTAMPDIFF(YEAR, client.date_of_birth, COALESCE(REPORT_END_DATE, CURDATE())) >= 5 AND
                     f_case.current_who_hiv_stage IS NOT NULL AND
                     (f_case.current_who_hiv_stage = 'WHO stage 3 adult' Or
