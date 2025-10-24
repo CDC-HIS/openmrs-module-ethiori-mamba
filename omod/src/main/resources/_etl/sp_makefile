@@ -18,6 +18,7 @@ derived/sp_mamba_drop_all_derived_tables.sql
 
 derived/functions/fn_get_ti_status.sql
 derived/functions/fn_gregorian_to_ethiopian_calendar.sql
+derived/functions/fn_ethiopian_to_gregorian_calendar.sql
 
 #############################################################################
 ##### A single SP that CALLs all SPs inside the derived & base folders ######
