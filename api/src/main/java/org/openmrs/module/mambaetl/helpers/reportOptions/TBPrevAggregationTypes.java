@@ -1,7 +1,7 @@
 package org.openmrs.module.mambaetl.helpers.reportOptions;
 
 public enum TBPrevAggregationTypes {
-	TOTAL("TOTAL"), NEW_ART("NEW_ART"), PREV_ART("PREV_ART");
+	TOTAL("TOTAL"), NEW_ART("NEW_ART"), PREV_ART("PREV_ART"), DEBUG("DEBUG");
 	
 	private final String sqlValue;
 	

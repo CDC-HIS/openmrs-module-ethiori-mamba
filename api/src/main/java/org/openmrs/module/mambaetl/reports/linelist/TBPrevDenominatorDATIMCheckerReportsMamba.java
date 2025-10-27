@@ -1,7 +1,7 @@
-package org.openmrs.module.mambaetl.reports.datim;
+package org.openmrs.module.mambaetl.reports.linelist;
 
 import org.openmrs.module.mambaetl.datasetdefinition.datim.HeaderDataSetDefinitionMamba;
-import org.openmrs.module.mambaetl.datasetdefinition.datim.tb_prev.TBPrevDenominatorDataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.datasetdefinition.linelist.TBPrevDenominatorCheckerDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.mambaetl.helpers.reportOptions.TBPrevAggregationTypes;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
@@ -16,21 +16,21 @@ import java.util.Collections;
 import java.util.List;
 
 @Component
-public class TBPrevDenominatorDATIMReportsMamba implements ReportManager {
+public class TBPrevDenominatorDATIMCheckerReportsMamba implements ReportManager {
 	
 	@Override
 	public String getUuid() {
-		return "ea74201e-df82-4ffa-bb7c-f73e739c0694";
+		return "4fae8360-3aff-426a-9e3f-2fb44cf5e8a6";
 	}
 	
 	@Override
 	public String getName() {
-		return "DATIM PREVENTION- TB_PREV(DENOMINATOR)";
+		return "LINELIST- PREVENTION- TB_PREV(DENOMINATOR) Datim Checker";
 	}
 	
 	@Override
 	public String getDescription() {
-		return "TB_PREV(DENOMINATOR) DATIM mamba report";
+		return "TB_PREV(DENOMINATOR) DATIM Checker mamba report";
 	}
 	
 	@Override
@@ -52,28 +52,22 @@ public class TBPrevDenominatorDATIMReportsMamba implements ReportManager {
 		reportDefinition.addDataSetDefinition("DSD: TB_PREV(DENOMINATOR)",
 		    EthiOhriUtil.map(headerDefinition, "endDate=${endDateGC}"));
 		
-		TBPrevDenominatorDataSetDefinitionMamba tbPrevTotalDenominatorDataSetDefinitionMamba = new TBPrevDenominatorDataSetDefinitionMamba();
-		tbPrevTotalDenominatorDataSetDefinitionMamba.addParameters(getParameters());
-		tbPrevTotalDenominatorDataSetDefinitionMamba.setTbPrevAggregationTypes(TBPrevAggregationTypes.TOTAL);
-		tbPrevTotalDenominatorDataSetDefinitionMamba
+		TBPrevDenominatorCheckerDataSetDefinitionMamba tbPrevDenominatorCheckerDataSetDefinitionMamba = new TBPrevDenominatorCheckerDataSetDefinitionMamba();
+		tbPrevDenominatorCheckerDataSetDefinitionMamba.addParameters(getParameters());
+		tbPrevDenominatorCheckerDataSetDefinitionMamba.setTbPrevAggregationTypes(TBPrevAggregationTypes.DEBUG); // TBPrevAggregationTypes.PREV_ART is set to avoid NPE (actual logic in evaluator)
+		tbPrevDenominatorCheckerDataSetDefinitionMamba
 		        .setDescription("Number of ART patients who were initialized on any course of TPT during the previous reporting period");
 		reportDefinition.addDataSetDefinition(
 		    "Number of ART patients who were initialized on any course of TPT during the previous reporting period",
-		    EthiOhriUtil.map(tbPrevTotalDenominatorDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
-		
-		TBPrevDenominatorDataSetDefinitionMamba tbPrevDenominatorDataSetDefinitionMamba = new TBPrevDenominatorDataSetDefinitionMamba();
-		tbPrevDenominatorDataSetDefinitionMamba.addParameters(getParameters());
-		tbPrevDenominatorDataSetDefinitionMamba.setTbPrevAggregationTypes(TBPrevAggregationTypes.PREV_ART); // TBPrevAggregationTypes.PREV_ART is set to avoid NPE (actual logic in evaluator)
-		tbPrevDenominatorDataSetDefinitionMamba.setDescription("Disaggregated By ART Start by Age/Sex");
-		reportDefinition.addDataSetDefinition("Disaggregated By ART Start by Age/Sex",
-		    EthiOhriUtil.map(tbPrevDenominatorDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil
+		            .map(tbPrevDenominatorCheckerDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
 		
 		return reportDefinition;
 	}
 	
 	@Override
 	public List<ReportDesign> constructReportDesigns(ReportDefinition reportDefinition) {
-		ReportDesign design = ReportManagerUtil.createExcelDesign("73eaa74d-ac8c-4a93-bd18-802a2d1a7def", reportDefinition);
+		ReportDesign design = ReportManagerUtil.createExcelDesign("2cc4fb16-a00f-45ab-b1f6-f9a5bc6a9ff4", reportDefinition);
 		design.setReportDefinition(reportDefinition);
 		return Collections.singletonList(design);
 	}
