@@ -80,7 +80,7 @@ BEGIN
                               art_start_date,
                               ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY tpt_start_date DESC, FollowUp.encounter_id DESC) AS row_num
                        from FollowUp
-                       where tpt_start_date is not null),
+                       where tpt_start_date >= fn_ethiopian_to_gregorian_calendar(date_add(fn_gregorian_to_ethiopian_calendar(?, ''Y-M-D''), INTERVAL -6 MONTH)) AND tpt_start_date < ?),
      tpt_started as (select tmp_tpt_start.*,
                             sex,
                             date_of_birth,
@@ -88,15 +88,14 @@ BEGIN
                             (SELECT normal_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as coarse_age_group
                      from tmp_tpt_start
                               join mamba_dim_client client on client.client_id=tmp_tpt_start.client_id
-                     where row_num=1
-                       and tpt_start_date >= fn_ethiopian_to_gregorian_calendar(date_add(fn_gregorian_to_ethiopian_calendar(?, ''Y-M-D''), INTERVAL -6 MONTH)) AND tpt_start_date < ?),
+                     where row_num=1),
 
      tmp_tpt_complete as (select client_id,
                                  tpt_completed_date,
                               art_start_date,
                               ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY tpt_completed_date DESC, FollowUp.encounter_id DESC) AS row_num
                        from FollowUp
-                       where tpt_completed_date is not null),
+                       where tpt_completed_date >= fn_ethiopian_to_gregorian_calendar(date_add(fn_gregorian_to_ethiopian_calendar(?, ''Y-M-D''), INTERVAL -6 MONTH)) AND tpt_completed_date < ?),
      tpt_completed as (select tmp_tpt_complete.*,
                               client.sex,
                               client.date_of_birth,
@@ -105,8 +104,7 @@ BEGIN
                      from tmp_tpt_complete
                               join mamba_dim_client client on client.client_id=tmp_tpt_complete.client_id
                               join tpt_started on tpt_started.client_id=tmp_tpt_complete.client_id
-                     where tmp_tpt_complete.row_num=1
-                       and tpt_completed_date >= fn_ethiopian_to_gregorian_calendar(date_add(fn_gregorian_to_ethiopian_calendar(?, ''Y-M-D''), INTERVAL -6 MONTH)) AND tpt_completed_date < ?),
+                     where tmp_tpt_complete.row_num=1),
 
      new_art_tpt as ( select * from tpt_completed where art_start_date >= fn_ethiopian_to_gregorian_calendar(date_add(fn_gregorian_to_ethiopian_calendar(?, ''Y-M-D''), INTERVAL -6 MONTH)) AND art_start_date < ?),
      prev_art_tpt as ( select * from tpt_completed where art_start_date < fn_ethiopian_to_gregorian_calendar(date_add(fn_gregorian_to_ethiopian_calendar(?, ''Y-M-D''), INTERVAL -6 MONTH))) ';
@@ -176,7 +174,7 @@ BEGIN
     PREPARE stmt FROM @sql;
     SET @start_date = REPORT_START_DATE;
     SET @end_date = REPORT_END_DATE;
-    EXECUTE stmt USING @end_date, @end_date, @start_date , @start_date, @end_date, @end_date, @start_date , @end_date, @start_date,@start_date,@start_date;
+    EXECUTE stmt USING  @start_date , @start_date, @end_date, @end_date, @start_date, @end_date, @end_date , @end_date, @start_date,@start_date,@start_date;
     DEALLOCATE PREPARE stmt;
 END //
 
