@@ -77,9 +77,7 @@ BEGIN
                                LEFT JOIN mamba_flat_encounter_follow_up_9 follow_up_9
                                          ON follow_up.encounter_id = follow_up_9.encounter_id
                                LEFT JOIN mamba_flat_encounter_follow_up_10 follow_up_10
-                                         ON follow_up.encounter_id = follow_up_10.encounter_id
-
-                      ),
+                                         ON follow_up.encounter_id = follow_up_10.encounter_id),
 
          tmp_address as (select patient_uuid,
                                 client_id,
@@ -463,7 +461,7 @@ BEGIN
                           f_case.art_start_date,
                           f_case.follow_up_date,
                           f_case.pregnancy_status,
-                          regimen               as ARVDispendsedDoseCode,
+                          regimen                                            as ARVDispendsedDoseCode,
                           f_case.arv_dose,
                           f_case.next_visit_date,
                           f_case.follow_up_status,
@@ -622,7 +620,7 @@ BEGIN
                                   (vlperfdate.VL_Sent_Date IS NOT NULL)
                                   THEN 'Annual Viral Load Test'
 
-                              ELSE 'Unassigned' End                                 AS vl_status_final,
+                              ELSE 'Unassigned' End                          AS vl_status_final,
                           CASE
 
                               WHEN
@@ -686,7 +684,7 @@ BEGIN
                                   (vlperfdate.viral_load_perform_date IS NOT NULL)
                                   THEN 'Annual Viral Load Test'
 
-                              ELSE 'Unassigned' End                                 AS VL_STATUS_COVERAGE
+                              ELSE 'Unassigned' End                          AS VL_STATUS_COVERAGE
 
 
                    FROM FollowUp AS f_case
@@ -716,7 +714,7 @@ BEGIN
 
          tmp_dsd_cat as (SELECT client_id,
                                 dsd_category,
-                                follow_up_date                                                                             AS dsd_fdate,
+                                follow_up_date                                                                              AS dsd_fdate,
                                 assessment_status,
                                 ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY assessment_date DESC, encounter_id DESC) AS row_num
                          FROM FollowUp
@@ -909,9 +907,18 @@ BEGIN
            tmp_address.Adrress,
            tpt.tpt_status,
            cervical.Cervical_status,
+
            case
-               when vl_eligibility.vl_status is not null then vl_eligibility.vl_status
-               Else 'undetermined_VL' end                                    as vl_status
+
+               when vl_status_final = 'N/A' THEN 'Not Applicable'
+               when eligiblityDate <= COALESCE(END_DATE, CURDATE())
+                   THEN 'Eligible for Viral Load'
+               when eligiblityDate > COALESCE(END_DATE, CURDATE())
+                   THEN 'Viral Load Done' -- 'Viral Load Done'
+               when art_start_date is NULL and follow_up_status is null THEN 'Not Started ART'
+
+#                when vl_eligibility.vl_status is not null then vl_eligibility.vl_status
+               Else 'undetermined_VL' end                                    as `Viral Load Eligibility Status`
             ,
            case
                when asm.assessment_status is not null then asm.assessment_status
@@ -929,7 +936,7 @@ BEGIN
                WHEN 'Stop all' THEN 'Stop'
                WHEN 'Loss to follow-up (LTFU)' THEN 'Lost'
                WHEN 'Ran away' THEN 'Drop'
-               END as follow_up_status,
+               END                                                           as follow_up_status,
 
            tmp_3.follow_up_date                                              as `Follow Up Date`,
            tmp_3.follow_up_date                                              as `Follow Up Date EC.`,
