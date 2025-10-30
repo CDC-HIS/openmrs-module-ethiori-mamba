@@ -20,7 +20,7 @@ public class PrEPLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getUuid() {
-		return "691327fb-9579-4c18-920a-27ee7655ebef";
+		return "27f6feaa-21a6-4411-8861-57461662e524";
 	}
 	
 	@Override
@@ -67,7 +67,7 @@ public class PrEPLineListReportMamba implements ReportManager {
 	
 	@Override
 	public List<ReportDesign> constructReportDesigns(ReportDefinition reportDefinition) {
-		ReportDesign design = ReportManagerUtil.createExcelDesign("a770d35a-508f-4910-a1dc-8149b7696817", reportDefinition);
+		ReportDesign design = ReportManagerUtil.createExcelDesign("e2ab9f2e-6c4a-4a4f-a907-bfb02c1cc67f", reportDefinition);
 		
 		return Collections.singletonList(design);
 	}
