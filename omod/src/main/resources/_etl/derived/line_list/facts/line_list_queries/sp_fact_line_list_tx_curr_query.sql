@@ -82,6 +82,7 @@ BEGIN
                                 next_visit_date,
                                 TB_SreeningResult,
                                 dsd_category,
+                                visitect_cd4_test_date,
                                 ROW_NUMBER() OVER (PARTITION BY PatientId ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
                          FROM FollowUp
                          WHERE follow_up_status IS NOT NULL
