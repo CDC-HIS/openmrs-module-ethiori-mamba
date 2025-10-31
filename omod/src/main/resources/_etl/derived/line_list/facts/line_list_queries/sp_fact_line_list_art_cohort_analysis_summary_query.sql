@@ -67,9 +67,9 @@ BEGIN
          PatientIntervals AS (SELECT a.PatientId,
                                      a.art_start_date,
                                      i.interval_month,
-                                     DATE_ADD(a.art_start_date, INTERVAL i.interval_month MONTH)   as interval_end_date,
-                                     LAG(DATE_ADD(a.art_start_date, INTERVAL i.interval_month MONTH), 1,
-                                         a.art_start_date)
+                                     DATE_ADD(REPORT_START_DATE, INTERVAL i.interval_month MONTH)  as interval_end_date,
+                                     LAG(DATE_ADD(REPORT_START_DATE, INTERVAL i.interval_month MONTH), 1,
+                                         REPORT_START_DATE)
                                          OVER (PARTITION BY a.PatientId ORDER BY i.interval_month) as interval_start_date
                               FROM ART_Initiation a
                                        CROSS JOIN IntervalsDef i),
@@ -104,8 +104,8 @@ BEGIN
                                                   ROW_NUMBER() OVER (PARTITION BY pi.PatientId, pi.interval_month ORDER BY f.viral_load_sent_date DESC, f.encounter_id DESC) as rn_vl_sent
                                            FROM PatientIntervals pi
                                                     JOIN FollowUpEncounters f ON pi.PatientId = f.PatientId
-                                           WHERE f.follow_up_date <= pi.interval_end_date
-                                             and f.follow_up_date >= pi.art_start_date
+                                           WHERE f.viral_load_sent_date <= pi.interval_end_date
+                                             and f.viral_load_sent_date >= pi.art_start_date
                                              AND f.viral_load_sent_date IS NOT NULL),
          -- Finds the latest Viral Load Performed record for each patient within each interval, independent of the main follow-up.
          LatestViralLoadPerformedInInterval AS (SELECT pi.PatientId,
@@ -117,8 +117,8 @@ BEGIN
                                                        ROW_NUMBER() OVER (PARTITION BY pi.PatientId, pi.interval_month ORDER BY f.viral_load_received_date DESC, f.encounter_id DESC) as rn_vl_performed
                                                 FROM PatientIntervals pi
                                                          JOIN FollowUpEncounters f ON pi.PatientId = f.PatientId
-                                                WHERE f.follow_up_date <= pi.interval_end_date
-                                                  and f.follow_up_date >= pi.art_start_date
+                                                WHERE f.viral_load_received_date <= pi.interval_end_date
+                                                  and f.viral_load_received_date >= pi.art_start_date
                                                   AND f.viral_load_received_date IS NOT NULL),
 
          -- Combines the latest follow-up details with the latest viral load details for each interval.
@@ -161,75 +161,75 @@ BEGIN
                                               ON lfu.PatientId = viral_load_performed.PatientId AND
                                                  lfu.interval_month = viral_load_performed.interval_month
                                     join mamba_dim_client client on lfu.PatientId = client.client_id)
-    SELECT 'Started on ART in this clinic: original cohort' AS Name,
+    SELECT 'Started on ART in this clinic: original cohort'                               AS Name,
            CAST(IFNULL(SUM(CASE WHEN interval_month = 0 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 0',
-        CAST(IFNULL(SUM(CASE WHEN interval_month = 0 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 6',
-        CAST(IFNULL(SUM(CASE WHEN interval_month = 0 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 12',
-        CAST(IFNULL(SUM(CASE WHEN interval_month = 0 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 24',
-        CAST(IFNULL(SUM(CASE WHEN interval_month = 0 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 36'
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 0 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 6',
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 0 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 12',
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 0 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 24',
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 0 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 36'
     FROM CohortDetails
     WHERE follow_up_date IS NOT NULL
     UNION ALL
     SELECT 'Transfer in Add+'        AS Name,
            CAST(IFNULL(SUM(CASE WHEN interval_month = 0 AND ti_status = 'TI' THEN 1 ELSE 0 END),
                        0) AS SIGNED) AS 'Month 0',
-        CAST(IFNULL(SUM(CASE WHEN interval_month = 6 AND ti_status = 'TI' THEN 1 ELSE 0 END),
-                    0) AS SIGNED) AS 'Month 6',
-        CAST(IFNULL(SUM(CASE WHEN interval_month = 12 AND ti_status = 'TI' THEN 1 ELSE 0 END),
-                    0) AS SIGNED) AS 'Month 12',
-        CAST(IFNULL(SUM(CASE WHEN interval_month = 24 AND ti_status = 'TI' THEN 1 ELSE 0 END),
-                    0) AS SIGNED) AS 'Month 24',
-        CAST(IFNULL(SUM(CASE WHEN interval_month = 36 AND ti_status = 'TI' THEN 1 ELSE 0 END),
-                    0) AS SIGNED) AS 'Month 36'
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 6 AND ti_status = 'TI' THEN 1 ELSE 0 END),
+                       0) AS SIGNED) AS 'Month 6',
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 12 AND ti_status = 'TI' THEN 1 ELSE 0 END),
+                       0) AS SIGNED) AS 'Month 12',
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 24 AND ti_status = 'TI' THEN 1 ELSE 0 END),
+                       0) AS SIGNED) AS 'Month 24',
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 36 AND ti_status = 'TI' THEN 1 ELSE 0 END),
+                       0) AS SIGNED) AS 'Month 36'
     FROM CohortDetails
     UNION ALL
     SELECT 'Transfers Out Subtract -'                     AS Name,
            CAST(IFNULL(SUM(CASE
                                WHEN interval_month = 0 AND outcome = 'Transferred out' THEN 1
                                ELSE 0 END), 0) AS SIGNED) AS 'Month 0',
-        CAST(IFNULL(SUM(CASE
-                            WHEN interval_month <= 6 AND outcome = 'Transferred out' THEN 1
-                            ELSE 0 END), 0) AS SIGNED) AS 'Month 6',
-        CAST(IFNULL(SUM(CASE
-                            WHEN interval_month <= 12 AND outcome = 'Transferred out' THEN 1
-                            ELSE 0 END), 0) AS SIGNED) AS 'Month 12',
-        CAST(IFNULL(SUM(CASE
-                            WHEN interval_month <= 24 AND outcome = 'Transferred out' THEN 1
-                            ELSE 0 END), 0) AS SIGNED) AS 'Month 24',
-        CAST(IFNULL(SUM(CASE
-                            WHEN interval_month <= 36 AND outcome = 'Transferred out' THEN 1
-                            ELSE 0 END), 0) AS SIGNED) AS 'Month 36'
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month <= 6 AND outcome = 'Transferred out' THEN 1
+                               ELSE 0 END), 0) AS SIGNED) AS 'Month 6',
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month <= 12 AND outcome = 'Transferred out' THEN 1
+                               ELSE 0 END), 0) AS SIGNED) AS 'Month 12',
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month <= 24 AND outcome = 'Transferred out' THEN 1
+                               ELSE 0 END), 0) AS SIGNED) AS 'Month 24',
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month <= 36 AND outcome = 'Transferred out' THEN 1
+                               ELSE 0 END), 0) AS SIGNED) AS 'Month 36'
     FROM CohortDetails
     UNION ALL
-    SELECT 'Net current cohort' AS Name,
+    SELECT 'Net current cohort'                             AS Name, -- outcome active
            CAST(IFNULL(((SUM(CASE WHEN interval_month = 0 AND follow_up_date IS NOT NULL THEN 1 ELSE 0 END) +
                          SUM(CASE WHEN interval_month = 0 AND ti_status = 'TI' THEN 1 ELSE 0 END)) -
                         SUM(CASE
                                 WHEN interval_month = 0 AND outcome = 'Transferred out' THEN 1
                                 ELSE 0 END)), 0) AS SIGNED) AS 'Month 0',
-        CAST(IFNULL(((SUM(CASE WHEN interval_month = 0 AND follow_up_date IS NOT NULL THEN 1 ELSE 0 END) +
-                      SUM(CASE WHEN interval_month = 6 AND ti_status = 'TI' THEN 1 ELSE 0 END)) -
-                     SUM(CASE
-                             WHEN interval_month <= 6 AND outcome = 'Transferred out' THEN 1
-                             ELSE 0 END)), 0) AS SIGNED) AS 'Month 6',
-        CAST(IFNULL(((SUM(CASE WHEN interval_month = 0 AND follow_up_date IS NOT NULL THEN 1 ELSE 0 END) +
-                      SUM(CASE WHEN interval_month = 12 AND ti_status = 'TI' THEN 1 ELSE 0 END)) -
-                     SUM(CASE
-                             WHEN interval_month <= 12 AND outcome = 'Transferred out' THEN 1
-                             ELSE 0 END)), 0) AS SIGNED) AS 'Month 12',
-        CAST(IFNULL(((SUM(CASE WHEN interval_month = 0 AND follow_up_date IS NOT NULL THEN 1 ELSE 0 END) +
-                      SUM(CASE WHEN interval_month = 24 AND ti_status = 'TI' THEN 1 ELSE 0 END)) -
-                     SUM(CASE
-                             WHEN interval_month <= 24 AND outcome = 'Transferred out' THEN 1
-                             ELSE 0 END)), 0) AS SIGNED) AS 'Month 24',
-        CAST(IFNULL(((SUM(CASE WHEN interval_month = 0 AND follow_up_date IS NOT NULL THEN 1 ELSE 0 END) +
-                      SUM(CASE WHEN interval_month = 36 AND ti_status = 'TI' THEN 1 ELSE 0 END)) -
-                     SUM(CASE
-                             WHEN interval_month <= 36 AND outcome = 'Transferred out' THEN 1
-                             ELSE 0 END)), 0) AS SIGNED) AS 'Month 36'
+           CAST(IFNULL(((SUM(CASE WHEN interval_month = 0 AND follow_up_date IS NOT NULL THEN 1 ELSE 0 END) +
+                         SUM(CASE WHEN interval_month = 6 AND ti_status = 'TI' THEN 1 ELSE 0 END)) -
+                        SUM(CASE
+                                WHEN interval_month <= 6 AND outcome = 'Transferred out' THEN 1
+                                ELSE 0 END)), 0) AS SIGNED) AS 'Month 6',
+           CAST(IFNULL(((SUM(CASE WHEN interval_month = 0 AND follow_up_date IS NOT NULL THEN 1 ELSE 0 END) +
+                         SUM(CASE WHEN interval_month = 12 AND ti_status = 'TI' THEN 1 ELSE 0 END)) -
+                        SUM(CASE
+                                WHEN interval_month <= 12 AND outcome = 'Transferred out' THEN 1
+                                ELSE 0 END)), 0) AS SIGNED) AS 'Month 12',
+           CAST(IFNULL(((SUM(CASE WHEN interval_month = 0 AND follow_up_date IS NOT NULL THEN 1 ELSE 0 END) +
+                         SUM(CASE WHEN interval_month = 24 AND ti_status = 'TI' THEN 1 ELSE 0 END)) -
+                        SUM(CASE
+                                WHEN interval_month <= 24 AND outcome = 'Transferred out' THEN 1
+                                ELSE 0 END)), 0) AS SIGNED) AS 'Month 24',
+           CAST(IFNULL(((SUM(CASE WHEN interval_month = 0 AND follow_up_date IS NOT NULL THEN 1 ELSE 0 END) +
+                         SUM(CASE WHEN interval_month = 36 AND ti_status = 'TI' THEN 1 ELSE 0 END)) -
+                        SUM(CASE
+                                WHEN interval_month <= 36 AND outcome = 'Transferred out' THEN 1
+                                ELSE 0 END)), 0) AS SIGNED) AS 'Month 36'
     FROM CohortDetails
     UNION ALL
-    SELECT 'On Original 1st Line Regimen' AS Name,
+    SELECT 'On Original 1st Line Regimen' AS Name, -- outcome active
            CAST(IFNULL(SUM(CASE
                                WHEN interval_month = 0 AND
                                     (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '4%'
@@ -238,41 +238,41 @@ BEGIN
                                    THEN 1
                                ELSE 0 END
                        ), 0) AS SIGNED)   AS 'Month 0',
-        CAST(IFNULL(SUM(CASE
-                            WHEN interval_month = 6 AND
-                                 (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '4%'
-                                     OR
-                                  TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '1%')
-                                THEN 1
-                            ELSE 0 END
-                    ), 0) AS SIGNED)   AS 'Month 6',
-        CAST(IFNULL(SUM(CASE
-                            WHEN interval_month = 12 AND
-                                 (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '4%'
-                                     OR
-                                  TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '1%')
-                                THEN 1
-                            ELSE 0 END
-                    ), 0) AS SIGNED)   AS 'Month 12',
-        CAST(IFNULL(SUM(CASE
-                            WHEN interval_month = 24 AND
-                                 (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '4%'
-                                     OR
-                                  TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '1%')
-                                THEN 1
-                            ELSE 0 END
-                    ), 0) AS SIGNED)   AS 'Month 24',
-        CAST(IFNULL(SUM(CASE
-                            WHEN interval_month = 36 AND
-                                 (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '4%'
-                                     OR
-                                  TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '1%')
-                                THEN 1
-                            ELSE 0 END
-                    ), 0) AS SIGNED)   AS 'Month 36'
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month = 6 AND
+                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '4%'
+                                        OR
+                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '1%')
+                                   THEN 1
+                               ELSE 0 END
+                       ), 0) AS SIGNED)   AS 'Month 6',
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month = 12 AND
+                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '4%'
+                                        OR
+                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '1%')
+                                   THEN 1
+                               ELSE 0 END
+                       ), 0) AS SIGNED)   AS 'Month 12',
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month = 24 AND
+                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '4%'
+                                        OR
+                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '1%')
+                                   THEN 1
+                               ELSE 0 END
+                       ), 0) AS SIGNED)   AS 'Month 24',
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month = 36 AND
+                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '4%'
+                                        OR
+                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '1%')
+                                   THEN 1
+                               ELSE 0 END
+                       ), 0) AS SIGNED)   AS 'Month 36'
     FROM CohortDetails
     UNION ALL
-    SELECT 'On Alternate 1st Line Regimen (Substituted)' AS Name,
+    SELECT 'On Alternate 1st Line Regimen (Substituted)' AS Name, -- outcome active
            CAST(IFNULL(SUM(CASE
                                WHEN interval_month = 0 AND
                                     (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '1%'
@@ -281,41 +281,41 @@ BEGIN
                                    THEN 1
                                ELSE 0 END
                        ), 0) AS SIGNED)                  AS 'Month 0',
-        CAST(IFNULL(SUM(CASE
-                            WHEN interval_month = 6 AND
-                                 (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '1%'
-                                     OR
-                                  TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '4%')
-                                THEN 1
-                            ELSE 0 END
-                    ), 0) AS SIGNED)                  AS 'Month 6',
-        CAST(IFNULL(SUM(CASE
-                            WHEN interval_month = 12 AND
-                                 (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '1%'
-                                     OR
-                                  TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '4%')
-                                THEN 1
-                            ELSE 0 END
-                    ), 0) AS SIGNED)                  AS 'Month 12',
-        CAST(IFNULL(SUM(CASE
-                            WHEN interval_month = 24 AND
-                                 (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '1%'
-                                     OR
-                                  TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '4%')
-                                THEN 1
-                            ELSE 0 END
-                    ), 0) AS SIGNED)                  AS 'Month 24',
-        CAST(IFNULL(SUM(CASE
-                            WHEN interval_month = 36 AND
-                                 (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '1%'
-                                     OR
-                                  TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '4%')
-                                THEN 1
-                            ELSE 0 END
-                    ), 0) AS SIGNED)                  AS 'Month 36'
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month = 6 AND
+                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '1%'
+                                        OR
+                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '4%')
+                                   THEN 1
+                               ELSE 0 END
+                       ), 0) AS SIGNED)                  AS 'Month 6',
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month = 12 AND
+                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '1%'
+                                        OR
+                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '4%')
+                                   THEN 1
+                               ELSE 0 END
+                       ), 0) AS SIGNED)                  AS 'Month 12',
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month = 24 AND
+                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '1%'
+                                        OR
+                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '4%')
+                                   THEN 1
+                               ELSE 0 END
+                       ), 0) AS SIGNED)                  AS 'Month 24',
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month = 36 AND
+                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '1%'
+                                        OR
+                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '4%')
+                                   THEN 1
+                               ELSE 0 END
+                       ), 0) AS SIGNED)                  AS 'Month 36'
     FROM CohortDetails
     UNION ALL
-    SELECT 'On 2nd Line Regimen (Switched)' AS Name,
+    SELECT 'On 2nd Line Regimen (Switched)' AS Name, -- outcome active
            CAST(IFNULL(SUM(CASE
                                WHEN interval_month = 0 AND
                                     (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '5%'
@@ -324,41 +324,41 @@ BEGIN
                                    THEN 1
                                ELSE 0 END
                        ), 0) AS SIGNED)     AS 'Month 0',
-        CAST(IFNULL(SUM(CASE
-                            WHEN interval_month = 6 AND
-                                 (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '5%'
-                                     OR
-                                  TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '2%')
-                                THEN 1
-                            ELSE 0 END
-                    ), 0) AS SIGNED)     AS 'Month 6',
-        CAST(IFNULL(SUM(CASE
-                            WHEN interval_month = 12 AND
-                                 (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '5%'
-                                     OR
-                                  TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '2%')
-                                THEN 1
-                            ELSE 0 END
-                    ), 0) AS SIGNED)     AS 'Month 12',
-        CAST(IFNULL(SUM(CASE
-                            WHEN interval_month = 24 AND
-                                 (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '5%'
-                                     OR
-                                  TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '2%')
-                                THEN 1
-                            ELSE 0 END
-                    ), 0) AS SIGNED)     AS 'Month 24',
-        CAST(IFNULL(SUM(CASE
-                            WHEN interval_month = 36 AND
-                                 (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '5%'
-                                     OR
-                                  TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '2%')
-                                THEN 1
-                            ELSE 0 END
-                    ), 0) AS SIGNED)     AS 'Month 36'
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month = 6 AND
+                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '5%'
+                                        OR
+                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '2%')
+                                   THEN 1
+                               ELSE 0 END
+                       ), 0) AS SIGNED)     AS 'Month 6',
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month = 12 AND
+                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '5%'
+                                        OR
+                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '2%')
+                                   THEN 1
+                               ELSE 0 END
+                       ), 0) AS SIGNED)     AS 'Month 12',
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month = 24 AND
+                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '5%'
+                                        OR
+                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '2%')
+                                   THEN 1
+                               ELSE 0 END
+                       ), 0) AS SIGNED)     AS 'Month 24',
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month = 36 AND
+                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '5%'
+                                        OR
+                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '2%')
+                                   THEN 1
+                               ELSE 0 END
+                       ), 0) AS SIGNED)     AS 'Month 36'
     FROM CohortDetails
     UNION ALL
-    SELECT 'On 3rd Line Regimen (Switched)' AS Name,
+    SELECT 'On 3rd Line Regimen (Switched)' AS Name,  -- outcome active
            CAST(IFNULL(SUM(CASE
                                WHEN interval_month = 0 AND
                                     (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '6%'
@@ -367,72 +367,72 @@ BEGIN
                                    THEN 1
                                ELSE 0 END
                        ), 0) AS SIGNED)     AS 'Month 0',
-        CAST(IFNULL(SUM(CASE
-                            WHEN interval_month = 6 AND
-                                 (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '6%'
-                                     OR
-                                  TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '3%')
-                                THEN 1
-                            ELSE 0 END
-                    ), 0) AS SIGNED)     AS 'Month 6',
-        CAST(IFNULL(SUM(CASE
-                            WHEN interval_month = 12 AND
-                                 (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '6%'
-                                     OR
-                                  TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '3%')
-                                THEN 1
-                            ELSE 0 END
-                    ), 0) AS SIGNED)     AS 'Month 12',
-        CAST(IFNULL(SUM(CASE
-                            WHEN interval_month = 24 AND
-                                 (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '6%'
-                                     OR
-                                  TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '3%')
-                                THEN 1
-                            ELSE 0 END
-                    ), 0) AS SIGNED)     AS 'Month 24',
-        CAST(IFNULL(SUM(CASE
-                            WHEN interval_month = 36 AND
-                                 (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '6%'
-                                     OR
-                                  TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '3%')
-                                THEN 1
-                            ELSE 0 END
-                    ), 0) AS SIGNED)     AS 'Month 36'
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month = 6 AND
+                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '6%'
+                                        OR
+                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '3%')
+                                   THEN 1
+                               ELSE 0 END
+                       ), 0) AS SIGNED)     AS 'Month 6',
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month = 12 AND
+                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '6%'
+                                        OR
+                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '3%')
+                                   THEN 1
+                               ELSE 0 END
+                       ), 0) AS SIGNED)     AS 'Month 12',
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month = 24 AND
+                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '6%'
+                                        OR
+                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '3%')
+                                   THEN 1
+                               ELSE 0 END
+                       ), 0) AS SIGNED)     AS 'Month 24',
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month = 36 AND
+                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '6%'
+                                        OR
+                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '3%')
+                                   THEN 1
+                               ELSE 0 END
+                       ), 0) AS SIGNED)     AS 'Month 36'
     FROM CohortDetails
     UNION ALL
     SELECT 'Stopped'                                      AS Name,
            CAST(IFNULL(SUM(CASE
                                WHEN interval_month = 0 AND follow_up_status = 'Stop all' THEN 1
                                ELSE 0 END), 0) AS SIGNED) AS 'Month 0',
-        CAST(IFNULL(SUM(CASE
-                            WHEN interval_month = 6 AND follow_up_status = 'Stop all' THEN 1
-                            ELSE 0 END), 0) AS SIGNED) AS 'Month 6',
-        CAST(IFNULL(SUM(CASE
-                            WHEN interval_month = 12 AND follow_up_status = 'Stop all' THEN 1
-                            ELSE 0 END), 0) AS SIGNED) AS 'Month 12',
-        CAST(IFNULL(SUM(CASE
-                            WHEN interval_month = 24 AND follow_up_status = 'Stop all' THEN 1
-                            ELSE 0 END), 0) AS SIGNED) AS 'Month 24',
-        CAST(IFNULL(SUM(CASE
-                            WHEN interval_month = 36 AND follow_up_status = 'Stop all' THEN 1
-                            ELSE 0 END), 0) AS SIGNED) AS 'Month 36'
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month = 6 AND follow_up_status = 'Stop all' THEN 1
+                               ELSE 0 END), 0) AS SIGNED) AS 'Month 6',
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month = 12 AND follow_up_status = 'Stop all' THEN 1
+                               ELSE 0 END), 0) AS SIGNED) AS 'Month 12',
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month = 24 AND follow_up_status = 'Stop all' THEN 1
+                               ELSE 0 END), 0) AS SIGNED) AS 'Month 24',
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month = 36 AND follow_up_status = 'Stop all' THEN 1
+                               ELSE 0 END), 0) AS SIGNED) AS 'Month 36'
     FROM CohortDetails
     UNION ALL
     SELECT 'Died'                    AS Name,
            CAST(IFNULL(SUM(CASE WHEN interval_month = 0 AND follow_up_status = 'Dead' THEN 1 ELSE 0 END),
                        0) AS SIGNED) AS 'Month 0',
-        CAST(IFNULL(SUM(CASE WHEN interval_month = 6 AND follow_up_status = 'Dead' THEN 1 ELSE 0 END),
-                    0) AS SIGNED) AS 'Month 6',
-        CAST(IFNULL(SUM(CASE WHEN interval_month = 12 AND follow_up_status = 'Dead' THEN 1 ELSE 0 END),
-                    0) AS SIGNED) AS
-                                    'Month 12',
-        CAST(IFNULL(SUM(CASE WHEN interval_month = 24 AND follow_up_status = 'Dead' THEN 1 ELSE 0 END),
-                    0) AS SIGNED) AS
-                                    'Month 24',
-        CAST(IFNULL(SUM(CASE WHEN interval_month = 36 AND follow_up_status = 'Dead' THEN 1 ELSE 0 END),
-                    0) AS SIGNED) AS
-                                    'Month 36'
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 6 AND follow_up_status = 'Dead' THEN 1 ELSE 0 END),
+                       0) AS SIGNED) AS 'Month 6',
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 12 AND follow_up_status = 'Dead' THEN 1 ELSE 0 END),
+                       0) AS SIGNED) AS
+                                        'Month 12',
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 24 AND follow_up_status = 'Dead' THEN 1 ELSE 0 END),
+                       0) AS SIGNED) AS
+                                        'Month 24',
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 36 AND follow_up_status = 'Dead' THEN 1 ELSE 0 END),
+                       0) AS SIGNED) AS
+                                        'Month 36'
     FROM CohortDetails
     UNION ALL
     SELECT 'Lost to Follow-up (DROP)'                     AS Name,
@@ -441,209 +441,220 @@ BEGIN
                                     (follow_up_status = 'Ran away' OR
                                      follow_up_status = 'Loss to follow-up (LTFU)') THEN 1
                                ELSE 0 END), 0) AS SIGNED) AS 'Month 0',
-        CAST(IFNULL(SUM(CASE
-                            WHEN interval_month = 6 AND
-                                 (follow_up_status = 'Ran away' OR
-                                  follow_up_status = 'Loss to follow-up (LTFU)') THEN 1
-                            ELSE 0 END), 0) AS SIGNED) AS 'Month 6',
-        CAST(IFNULL(SUM(CASE
-                            WHEN interval_month = 12 AND
-                                 (follow_up_status = 'Ran away' OR
-                                  follow_up_status = 'Loss to follow-up (LTFU)') THEN 1
-                            ELSE 0 END), 0) AS SIGNED) AS 'Month 12',
-        CAST(IFNULL(SUM(CASE
-                            WHEN interval_month = 24 AND
-                                 (follow_up_status = 'Ran away' OR
-                                  follow_up_status = 'Loss to follow-up (LTFU)') THEN 1
-                            ELSE 0 END), 0) AS SIGNED) AS 'Month 24',
-        CAST(IFNULL(SUM(CASE
-                            WHEN interval_month = 36 AND
-                                 (follow_up_status = 'Ran away' OR
-                                  follow_up_status = 'Loss to follow-up (LTFU)') THEN 1
-                            ELSE 0 END), 0) AS SIGNED) AS 'Month 36'
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month = 6 AND
+                                    (follow_up_status = 'Ran away' OR
+                                     follow_up_status = 'Loss to follow-up (LTFU)') THEN 1
+                               ELSE 0 END), 0) AS SIGNED) AS 'Month 6',
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month = 12 AND
+                                    (follow_up_status = 'Ran away' OR
+                                     follow_up_status = 'Loss to follow-up (LTFU)') THEN 1
+                               ELSE 0 END), 0) AS SIGNED) AS 'Month 12',
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month = 24 AND
+                                    (follow_up_status = 'Ran away' OR
+                                     follow_up_status = 'Loss to follow-up (LTFU)') THEN 1
+                               ELSE 0 END), 0) AS SIGNED) AS 'Month 24',
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month = 36 AND
+                                    (follow_up_status = 'Ran away' OR
+                                     follow_up_status = 'Loss to follow-up (LTFU)') THEN 1
+                               ELSE 0 END), 0) AS SIGNED) AS 'Month 36'
     FROM CohortDetails
 
 
     UNION ALL
-SELECT 'Percent of cohort alive and on ART' AS Name,
-       CAST(ROUND(IFNULL(SUM(CASE WHEN interval_month = 0 AND outcome = 'Active' THEN 1 ELSE 0 END) /
-                         NULLIF(SUM(CASE WHEN interval_month = 0 AND follow_up_date IS NOT NULL THEN 1 ELSE 0 END), 0) * 100, 0)) AS SIGNED) AS 'Month 0',
-    CAST(ROUND(IFNULL(SUM(CASE WHEN interval_month = 6 AND outcome = 'Active' THEN 1 ELSE 0 END) /
-                      NULLIF(SUM(CASE WHEN interval_month = 6 AND follow_up_date IS NOT NULL THEN 1 ELSE 0 END), 0) * 100, 0)) AS SIGNED) AS 'Month 6',
-    CAST(ROUND(IFNULL(SUM(CASE WHEN interval_month = 12 AND outcome = 'Active' THEN 1 ELSE 0 END) /
-                      NULLIF(SUM(CASE WHEN interval_month = 12 AND follow_up_date IS NOT NULL THEN 1 ELSE 0 END), 0) * 100, 0)) AS SIGNED) AS 'Month 12',
-    CAST(ROUND(IFNULL(SUM(CASE WHEN interval_month = 24 AND outcome = 'Active' THEN 1 ELSE 0 END) /
-                      NULLIF(SUM(CASE WHEN interval_month = 24 AND follow_up_date IS NOT NULL THEN 1 ELSE 0 END), 0) * 100, 0)) AS SIGNED) AS 'Month 24',
-    CAST(ROUND(IFNULL(SUM(CASE WHEN interval_month = 36 AND outcome = 'Active' THEN 1 ELSE 0 END) /
-                      NULLIF(SUM(CASE WHEN interval_month = 36 AND follow_up_date IS NOT NULL THEN 1 ELSE 0 END), 0) * 100, 0)) AS SIGNED) AS 'Month 36'
-FROM CohortDetails
-UNION ALL
-SELECT 'Mean CD4 % (for children)' AS Name,
-       CAST(ROUND(IFNULL(AVG(CASE
-                                 WHEN interval_month = 0 AND
-                                      TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15
-                                     THEN cd4_percent
-                                 ELSE NULL END), 0)) AS SIGNED) AS 'Month 0',
-    CAST(ROUND(IFNULL(AVG(CASE
-                              WHEN interval_month = 6 AND
-                                   TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15
-                                  THEN cd4_percent
-                              ELSE NULL END), 0)) AS SIGNED) AS 'Month 6',
-    CAST(ROUND(IFNULL(AVG(CASE
-                              WHEN interval_month = 12 AND
-                                   TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15
-                                  THEN cd4_percent
-                              ELSE NULL END), 0)) AS SIGNED) AS 'Month 12',
-    CAST(ROUND(IFNULL(AVG(CASE
-                              WHEN interval_month = 24 AND
-                                   TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15
-                                  THEN cd4_percent
-                              ELSE NULL END), 0)) AS SIGNED) AS 'Month 24',
-    CAST(ROUND(IFNULL(AVG(CASE
-                              WHEN interval_month = 36 AND
-                                   TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15
-                                  THEN cd4_percent
-                              ELSE NULL END), 0)) AS SIGNED) AS 'Month 36'
-FROM CohortDetails
-UNION ALL
-SELECT 'CD4 median or proportion ≥ 200 (optional)' AS Name,
-       CAST(IFNULL(SUM(CASE WHEN interval_month = 0 THEN 1 ELSE 0 END), 0) AS SIGNED)  AS 'Month 0',
-    CAST(IFNULL(SUM(CASE WHEN interval_month = 6 THEN 1 ELSE 0 END), 0) AS SIGNED)  AS 'Month 6',
-    CAST(IFNULL(SUM(CASE WHEN interval_month = 12 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 12',
-    CAST(IFNULL(SUM(CASE WHEN interval_month = 24 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 24',
-    CAST(IFNULL(SUM(CASE WHEN interval_month = 36 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 36'
-FROM CohortDetails
-UNION ALL
-SELECT 'Viral Load tested' AS Name,
-       CAST(IFNULL(SUM(CASE
-                           WHEN interval_month = 0 AND viral_load_received_date IS NOT NULL THEN 1
-                           ELSE 0 END), 0) AS SIGNED) AS 'Month 0',
-    CAST(IFNULL(SUM(CASE
-                        WHEN interval_month = 6 AND viral_load_received_date IS NOT NULL THEN 1
-                        ELSE 0 END), 0) AS SIGNED) AS 'Month 6',
-    CAST(IFNULL(SUM(CASE
-                        WHEN interval_month = 12 AND viral_load_received_date IS NOT NULL THEN 1
-                        ELSE 0 END), 0) AS SIGNED) AS 'Month 12',
-    CAST(IFNULL(SUM(CASE
-                        WHEN interval_month = 24 AND viral_load_received_date IS NOT NULL THEN 1
-                        ELSE 0 END), 0) AS SIGNED) AS 'Month 24',
-    CAST(IFNULL(SUM(CASE
-                        WHEN interval_month = 36 AND viral_load_received_date IS NOT NULL THEN 1
-                        ELSE 0 END), 0) AS SIGNED) AS 'Month 36'
-FROM CohortDetails
-UNION ALL
-SELECT 'Viral load Suppressed ( < 50 copies/ml' AS Name,
-       CAST(IFNULL(SUM(CASE
-                           WHEN interval_month = 0 AND viral_load_count BETWEEN 0 AND 50 THEN 1
-                           ELSE 0 END), 0) AS SIGNED) AS 'Month 0',
-    CAST(IFNULL(SUM(CASE
-                        WHEN interval_month = 6 AND viral_load_count BETWEEN 0 AND 50 THEN 1
-                        ELSE 0 END), 0) AS SIGNED) AS 'Month 6',
-    CAST(IFNULL(SUM(CASE
-                        WHEN interval_month = 12 AND viral_load_count BETWEEN 0 AND 50 THEN 1
-                        ELSE 0 END), 0) AS SIGNED) AS 'Month 12',
-    CAST(IFNULL(SUM(CASE
-                        WHEN interval_month = 24 AND viral_load_count BETWEEN 0 AND 50 THEN 1
-                        ELSE 0 END), 0) AS SIGNED) AS 'Month 24',
-    CAST(IFNULL(SUM(CASE
-                        WHEN interval_month = 36 AND viral_load_count BETWEEN 0 AND 50 THEN 1
-                        ELSE 0 END), 0) AS SIGNED) AS 'Month 36'
-FROM CohortDetails
-UNION ALL
-SELECT 'Functional Status [# W or A or B / D * 100]' AS Name,
-       CAST(ROUND(IFNULL(SUM(CASE WHEN interval_month = 0 AND current_functional_status IS NOT NULL THEN 1 ELSE 0 END) /
-                         NULLIF(SUM(CASE WHEN interval_month = 0 AND follow_up_date IS NOT NULL THEN 1 ELSE 0 END), 0) * 100, 0)) AS SIGNED) AS 'Month 0',
-    CAST(ROUND(IFNULL(SUM(CASE WHEN interval_month = 6 AND current_functional_status IS NOT NULL THEN 1 ELSE 0 END) /
-                      NULLIF(SUM(CASE WHEN interval_month = 6 AND follow_up_date IS NOT NULL THEN 1 ELSE 0 END), 0) * 100, 0)) AS SIGNED) AS 'Month 6',
-    CAST(ROUND(IFNULL(SUM(CASE WHEN interval_month = 12 AND current_functional_status IS NOT NULL THEN 1 ELSE 0 END) /
-                      NULLIF(SUM(CASE WHEN interval_month = 12 AND follow_up_date IS NOT NULL THEN 1 ELSE 0 END), 0) * 100, 0)) AS SIGNED) AS 'Month 12',
-    CAST(ROUND(IFNULL(SUM(CASE WHEN interval_month = 24 AND current_functional_status IS NOT NULL THEN 1 ELSE 0 END) /
-                      NULLIF(SUM(CASE WHEN interval_month = 24 AND follow_up_date IS NOT NULL THEN 1 ELSE 0 END), 0) * 100, 0)) AS SIGNED) AS 'Month 24',
-    CAST(ROUND(IFNULL(SUM(CASE WHEN interval_month = 36 AND current_functional_status IS NOT NULL THEN 1 ELSE 0 END) /
-                      NULLIF(SUM(CASE WHEN interval_month = 36 AND follow_up_date IS NOT NULL THEN 1 ELSE 0 END), 0) * 100, 0)) AS SIGNED) AS 'Month 36'
-FROM CohortDetails
-UNION ALL
-SELECT 'Percentage Working'                           AS Name,
-       CAST(IFNULL(SUM(CASE
-                           WHEN interval_month = 0 AND current_functional_status = 'Physically able to work' THEN 1
-                           ELSE 0 END), 0) AS SIGNED) AS 'Month 0',
-    CAST(IFNULL(SUM(CASE
-                        WHEN interval_month = 6 AND current_functional_status = 'Physically able to work' THEN 1
-                        ELSE 0 END), 0) AS SIGNED) AS 'Month 6',
-    CAST(IFNULL(SUM(CASE
-                        WHEN interval_month = 12 AND current_functional_status = 'Physically able to work' AND
-                             current_functional_status = '' THEN 1
-                        ELSE 0 END), 0) AS SIGNED) AS 'Month 12',
-    CAST(IFNULL(SUM(CASE
-                        WHEN interval_month = 24 AND current_functional_status = 'Physically able to work' THEN 1
-                        ELSE 0 END), 0) AS SIGNED) AS 'Month 24',
-    CAST(IFNULL(SUM(CASE
-                        WHEN interval_month = 36 AND current_functional_status = 'Physically able to work' THEN 1
-                        ELSE 0 END), 0) AS SIGNED) AS 'Month 36'
-FROM CohortDetails
-UNION ALL
-SELECT 'Percentage Ambulatory'                        AS Name,
-       CAST(IFNULL(SUM(CASE
-                           WHEN interval_month = 0 AND current_functional_status = 'Patient ambulatory' THEN 1
-                           ELSE 0 END), 0) AS SIGNED) AS 'Month 0',
-    CAST(IFNULL(SUM(CASE
-                        WHEN interval_month = 6 AND current_functional_status = 'Patient ambulatory' THEN 1
-                        ELSE 0 END), 0) AS SIGNED) AS 'Month 6',
-    CAST(IFNULL(SUM(CASE
-                        WHEN interval_month = 12 AND current_functional_status = 'Patient ambulatory' THEN 1
-                        ELSE 0 END), 0) AS SIGNED) AS 'Month 12',
-    CAST(IFNULL(SUM(CASE
-                        WHEN interval_month = 24 AND current_functional_status = 'Patient ambulatory' THEN 1
-                        ELSE 0 END), 0) AS SIGNED) AS 'Month 24',
-    CAST(IFNULL(SUM(CASE
-                        WHEN interval_month = 36 AND current_functional_status = 'Patient ambulatory' THEN 1
-                        ELSE 0 END), 0) AS SIGNED) AS 'Month 36'
-FROM CohortDetails
-UNION ALL
-SELECT 'Percentage Bedridden'    AS Name,
-       CAST(IFNULL(SUM(CASE WHEN interval_month = 0 AND current_functional_status = 'Bedridden' THEN 1 ELSE 0 END),
-                   0) AS SIGNED) AS 'Month 0',
-    CAST(IFNULL(SUM(CASE WHEN interval_month = 6 AND current_functional_status = 'Bedridden' THEN 1 ELSE 0 END),
-                0) AS SIGNED) AS 'Month 6',
-    CAST(IFNULL(SUM(CASE WHEN interval_month = 12 AND current_functional_status = 'Bedridden' THEN 1 ELSE 0 END),
-                0) AS SIGNED) AS 'Month 12',
-    CAST(IFNULL(SUM(CASE WHEN interval_month = 24 AND current_functional_status = 'Bedridden' THEN 1 ELSE 0 END),
-                0) AS SIGNED) AS 'Month 24',
-    CAST(IFNULL(SUM(CASE WHEN interval_month = 36 AND current_functional_status = 'Bedridden' THEN 1 ELSE 0 END),
-                0) AS SIGNED) AS 'Month 36'
-FROM CohortDetails
-UNION ALL
-SELECT 'Number of persons who picked up ARVs each month for 6 months' AS Name,
-       CAST(IFNULL(SUM(CASE WHEN interval_month = 0 THEN 1 ELSE 0 END), 0) AS SIGNED)  AS 'Month 0',
-    CAST(IFNULL(SUM(CASE WHEN interval_month = 6 THEN 1 ELSE 0 END), 0) AS SIGNED)  AS 'Month 6',
-    CAST(IFNULL(SUM(CASE WHEN interval_month = 12 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 12',
-    CAST(IFNULL(SUM(CASE WHEN interval_month = 24 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 24',
-    CAST(IFNULL(SUM(CASE WHEN interval_month = 36 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 36'
-FROM CohortDetails
-UNION ALL
-SELECT 'Number of persons who picked up ARVs each month for 12 months' AS Name,
-       CAST(IFNULL(SUM(CASE WHEN interval_month = 0 THEN 1 ELSE 0 END), 0) AS SIGNED)  AS 'Month 0',
-    CAST(IFNULL(SUM(CASE WHEN interval_month = 6 THEN 1 ELSE 0 END), 0) AS SIGNED)  AS 'Month 6',
-    CAST(IFNULL(SUM(CASE WHEN interval_month = 12 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 12',
-    CAST(IFNULL(SUM(CASE WHEN interval_month = 24 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 24',
-    CAST(IFNULL(SUM(CASE WHEN interval_month = 36 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 36'
-FROM CohortDetails
-UNION ALL
-SELECT 'Number of persons who picked up ARVs each month for 24 months' AS Name,
-       CAST(IFNULL(SUM(CASE WHEN interval_month = 0 THEN 1 ELSE 0 END), 0) AS SIGNED)  AS 'Month 0',
-    CAST(IFNULL(SUM(CASE WHEN interval_month = 6 THEN 1 ELSE 0 END), 0) AS SIGNED)  AS 'Month 6',
-    CAST(IFNULL(SUM(CASE WHEN interval_month = 12 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 12',
-    CAST(IFNULL(SUM(CASE WHEN interval_month = 24 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 24',
-    CAST(IFNULL(SUM(CASE WHEN interval_month = 36 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 36'
-FROM CohortDetails
-UNION ALL
-SELECT 'Number of persons who picked up ARVs each month for 36 months ' AS Name,
-       CAST(IFNULL(SUM(CASE WHEN interval_month = 0 THEN 1 ELSE 0 END), 0) AS SIGNED)  AS 'Month 0',
-    CAST(IFNULL(SUM(CASE WHEN interval_month = 6 THEN 1 ELSE 0 END), 0) AS SIGNED)  AS 'Month 6',
-    CAST(IFNULL(SUM(CASE WHEN interval_month = 12 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 12',
-    CAST(IFNULL(SUM(CASE WHEN interval_month = 24 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 24',
-    CAST(IFNULL(SUM(CASE WHEN interval_month = 36 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 36'
-FROM CohortDetails;
+    SELECT 'Percent of cohort alive and on ART'              AS Name,
+           CAST(ROUND(IFNULL(SUM(CASE WHEN interval_month = 0 AND outcome = 'Active' THEN 1 ELSE 0 END) /
+                             NULLIF(SUM(CASE WHEN interval_month = 0 AND follow_up_date IS NOT NULL THEN 1 ELSE 0 END),
+                                    0) * 100, 0)) AS SIGNED) AS 'Month 0',
+           CAST(ROUND(IFNULL(SUM(CASE WHEN interval_month = 6 AND outcome = 'Active' THEN 1 ELSE 0 END) /
+                             NULLIF(SUM(CASE WHEN interval_month = 6 AND follow_up_date IS NOT NULL THEN 1 ELSE 0 END),
+                                    0) * 100, 0)) AS SIGNED) AS 'Month 6',
+           CAST(ROUND(IFNULL(SUM(CASE WHEN interval_month = 12 AND outcome = 'Active' THEN 1 ELSE 0 END) /
+                             NULLIF(SUM(CASE WHEN interval_month = 12 AND follow_up_date IS NOT NULL THEN 1 ELSE 0 END),
+                                    0) * 100, 0)) AS SIGNED) AS 'Month 12',
+           CAST(ROUND(IFNULL(SUM(CASE WHEN interval_month = 24 AND outcome = 'Active' THEN 1 ELSE 0 END) /
+                             NULLIF(SUM(CASE WHEN interval_month = 24 AND follow_up_date IS NOT NULL THEN 1 ELSE 0 END),
+                                    0) * 100, 0)) AS SIGNED) AS 'Month 24',
+           CAST(ROUND(IFNULL(SUM(CASE WHEN interval_month = 36 AND outcome = 'Active' THEN 1 ELSE 0 END) /
+                             NULLIF(SUM(CASE WHEN interval_month = 36 AND follow_up_date IS NOT NULL THEN 1 ELSE 0 END),
+                                    0) * 100, 0)) AS SIGNED) AS 'Month 36'
+    FROM CohortDetails
+    UNION ALL
+    SELECT 'Mean CD4 % (for children)'                              AS Name, -- outcome active
+           CAST(ROUND(IFNULL(AVG(CASE
+                                     WHEN interval_month = 0 AND
+                                          TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15
+                                         THEN cd4_percent
+                                     ELSE NULL END), 0)) AS SIGNED) AS 'Month 0',
+           CAST(ROUND(IFNULL(AVG(CASE
+                                     WHEN interval_month = 6 AND
+                                          TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15
+                                         THEN cd4_percent
+                                     ELSE NULL END), 0)) AS SIGNED) AS 'Month 6',
+           CAST(ROUND(IFNULL(AVG(CASE
+                                     WHEN interval_month = 12 AND
+                                          TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15
+                                         THEN cd4_percent
+                                     ELSE NULL END), 0)) AS SIGNED) AS 'Month 12',
+           CAST(ROUND(IFNULL(AVG(CASE
+                                     WHEN interval_month = 24 AND
+                                          TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15
+                                         THEN cd4_percent
+                                     ELSE NULL END), 0)) AS SIGNED) AS 'Month 24',
+           CAST(ROUND(IFNULL(AVG(CASE
+                                     WHEN interval_month = 36 AND
+                                          TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15
+                                         THEN cd4_percent
+                                     ELSE NULL END), 0)) AS SIGNED) AS 'Month 36'
+    FROM CohortDetails
+    UNION ALL
+    SELECT 'CD4 median or proportion ≥ 200 (optional)'                                     AS Name,  -- finish here
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month = 0 and outcome = 'Active' and cd4_count is not null and
+                                    cd4_count > 200 THEN 1
+                               ELSE 0 END), 0) AS SIGNED)
+               / CAST(IFNULL(
+                   SUM(CASE WHEN interval_month = 0 and outcome = 'Active' and cd4_count is not null THEN 1 ELSE 0 END),
+                   0) AS SIGNED)                                                           AS 'Month 0',
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 6 THEN 1 ELSE 0 END), 0) AS SIGNED)  AS 'Month 6',
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 12 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 12',
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 24 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 24',
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 36 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 36'
+    FROM CohortDetails
+    UNION ALL
+    SELECT 'Viral Load tested'                            AS Name,   -- outcome active
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month = 0 AND viral_load_received_date IS NOT NULL THEN 1
+                               ELSE 0 END), 0) AS SIGNED) AS 'Month 0',
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month = 6 AND viral_load_received_date IS NOT NULL THEN 1
+                               ELSE 0 END), 0) AS SIGNED) AS 'Month 6',
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month = 12 AND viral_load_received_date IS NOT NULL THEN 1
+                               ELSE 0 END), 0) AS SIGNED) AS 'Month 12',
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month = 24 AND viral_load_received_date IS NOT NULL THEN 1
+                               ELSE 0 END), 0) AS SIGNED) AS 'Month 24',
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month = 36 AND viral_load_received_date IS NOT NULL THEN 1
+                               ELSE 0 END), 0) AS SIGNED) AS 'Month 36'
+    FROM CohortDetails
+    UNION ALL
+    SELECT 'Viral load Suppressed ( < 50 copies/ml)'      AS Name, -- outcome active
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month = 0 AND viral_load_received_date IS NOT NULL AND
+                                    viral_load_count BETWEEN 0 AND 50 THEN 1
+                               ELSE 0 END), 0) AS SIGNED) AS 'Month 0',
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month = 6 AND viral_load_received_date IS NOT NULL AND
+                                    viral_load_count BETWEEN 0 AND 50 THEN 1
+                               ELSE 0 END), 0) AS SIGNED) AS 'Month 6',
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month = 12 AND viral_load_received_date IS NOT NULL AND
+                                    viral_load_count BETWEEN 0 AND 50 THEN 1
+                               ELSE 0 END), 0) AS SIGNED) AS 'Month 12',
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month = 24 AND viral_load_received_date IS NOT NULL AND
+                                    viral_load_count BETWEEN 0 AND 50 THEN 1
+                               ELSE 0 END), 0) AS SIGNED) AS 'Month 24',
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month = 36 AND viral_load_received_date IS NOT NULL AND
+                                    viral_load_count BETWEEN 0 AND 50 THEN 1
+                               ELSE 0 END), 0) AS SIGNED) AS 'Month 36'
+    FROM CohortDetails
+    UNION ALL
+    SELECT 'Functional Status [# W or A or B / D * 100]' AS Name,
+           0                                             AS 'Month 0',
+           0                                             AS 'Month 6',
+           0                                             AS 'Month 12',
+           0                                             AS 'Month 24',
+           0                                             AS 'Month 36'
+    FROM CohortDetails
+    UNION ALL
+    SELECT 'Percentage Working'                           AS Name,
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month = 0 AND current_functional_status = 'Physically able to work' and outcome = 'Active' THEN 1
+                               ELSE 0 END), 0) AS SIGNED) AS 'Month 0',
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month = 6 AND current_functional_status = 'Physically able to work' and outcome = 'Active' THEN 1
+                               ELSE 0 END), 0) AS SIGNED) AS 'Month 6',
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month = 12 AND current_functional_status = 'Physically able to work' and outcome = 'Active' AND
+                                    current_functional_status = '' THEN 1
+                               ELSE 0 END), 0) AS SIGNED) AS 'Month 12',
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month = 24 AND current_functional_status = 'Physically able to work' and outcome = 'Active' THEN 1
+                               ELSE 0 END), 0) AS SIGNED) AS 'Month 24',
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month = 36 AND current_functional_status = 'Physically able to work' and outcome = 'Active' THEN 1
+                               ELSE 0 END), 0) AS SIGNED) AS 'Month 36'
+    FROM CohortDetails
+    UNION ALL
+    SELECT 'Percentage Ambulatory'                        AS Name,
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month = 0 AND current_functional_status = 'Patient ambulatory' and outcome = 'Active' THEN 1  -- Add percentage denominator that current_functional_status is not null and outcome active
+                               ELSE 0 END), 0) AS SIGNED) AS 'Month 0',
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month = 6 AND current_functional_status = 'Patient ambulatory' and outcome = 'Active' THEN 1
+                               ELSE 0 END), 0) AS SIGNED) AS 'Month 6',
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month = 12 AND current_functional_status = 'Patient ambulatory' and outcome = 'Active' THEN 1
+                               ELSE 0 END), 0) AS SIGNED) AS 'Month 12',
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month = 24 AND current_functional_status = 'Patient ambulatory' and outcome = 'Active' THEN 1
+                               ELSE 0 END), 0) AS SIGNED) AS 'Month 24',
+           CAST(IFNULL(SUM(CASE
+                               WHEN interval_month = 36 AND current_functional_status = 'Patient ambulatory' and outcome = 'Active' THEN 1
+                               ELSE 0 END), 0) AS SIGNED) AS 'Month 36'
+    FROM CohortDetails
+    UNION ALL
+    SELECT 'Percentage Bedridden'    AS Name,
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 0 AND current_functional_status = 'Bedridden' and outcome = 'Active' THEN 1 ELSE 0 END),
+                       0) AS SIGNED) AS 'Month 0',
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 6 AND current_functional_status = 'Bedridden' and outcome = 'Active' THEN 1 ELSE 0 END),
+                       0) AS SIGNED) AS 'Month 6',
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 12 AND current_functional_status = 'Bedridden' and outcome = 'Active' THEN 1 ELSE 0 END),
+                       0) AS SIGNED) AS 'Month 12',
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 24 AND current_functional_status = 'Bedridden' and outcome = 'Active' THEN 1 ELSE 0 END),
+                       0) AS SIGNED) AS 'Month 24',
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 36 AND current_functional_status = 'Bedridden' and outcome = 'Active' THEN 1 ELSE 0 END),
+                       0) AS SIGNED) AS 'Month 36'
+    FROM CohortDetails
+    UNION ALL
+    SELECT 'Number of persons who picked up ARVs each month for 6 months'                  AS Name,
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 0 and follow_up_date is not null THEN 1 ELSE 0 END), 0) AS SIGNED)  AS 'Month 0',
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 6 THEN 1 ELSE 0 END), 0) AS SIGNED)  AS 'Month 6',
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 12 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 12',
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 24 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 24',
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 36 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 36'
+    FROM CohortDetails
+    UNION ALL
+    SELECT 'Number of persons who picked up ARVs each month for 12 months'                 AS Name,
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 0 THEN 1 ELSE 0 END), 0) AS SIGNED)  AS 'Month 0',
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 6 THEN 1 ELSE 0 END), 0) AS SIGNED)  AS 'Month 6',
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 12 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 12',
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 24 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 24',
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 36 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 36'
+    FROM CohortDetails
+    UNION ALL
+    SELECT 'Number of persons who picked up ARVs each month for 24 months'                 AS Name,
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 0 THEN 1 ELSE 0 END), 0) AS SIGNED)  AS 'Month 0',
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 6 THEN 1 ELSE 0 END), 0) AS SIGNED)  AS 'Month 6',
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 12 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 12',
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 24 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 24',
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 36 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 36'
+    FROM CohortDetails
+    UNION ALL
+    SELECT 'Number of persons who picked up ARVs each month for 36 months '                AS Name,   -- Active and no ti or deduct ti
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 0 THEN 1 ELSE 0 END), 0) AS SIGNED)  AS 'Month 0',
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 6 THEN 1 ELSE 0 END), 0) AS SIGNED)  AS 'Month 6',
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 12 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 12',
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 24 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 24',
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 36 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 36'
+    FROM CohortDetails;
 
 END //
 

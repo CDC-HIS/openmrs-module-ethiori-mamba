@@ -67,8 +67,8 @@ BEGIN
                  a.PatientId,
                  a.art_start_date,
                  i.interval_month,
-                 DATE_ADD(a.art_start_date, INTERVAL i.interval_month MONTH) as interval_end_date,
-                 LAG(DATE_ADD(a.art_start_date, INTERVAL i.interval_month MONTH), 1, a.art_start_date) OVER (PARTITION BY a.PatientId ORDER BY i.interval_month) as interval_start_date
+                 DATE_ADD(REPORT_START_DATE, INTERVAL i.interval_month MONTH) as interval_end_date,
+                 LAG(DATE_ADD(REPORT_START_DATE, INTERVAL i.interval_month MONTH), 1, REPORT_START_DATE) OVER (PARTITION BY a.PatientId ORDER BY i.interval_month) as interval_start_date
              FROM ART_Initiation a
                       CROSS JOIN IntervalsDef i
          ),
@@ -106,7 +106,7 @@ BEGIN
                  ROW_NUMBER() OVER(PARTITION BY pi.PatientId, pi.interval_month ORDER BY f.viral_load_sent_date DESC, f.encounter_id DESC) as rn_vl_sent
              FROM PatientIntervals pi
                       JOIN FollowUpEncounters f ON pi.PatientId = f.PatientId
-             WHERE f.follow_up_date <= pi.interval_end_date and f.follow_up_date>=pi.art_start_date AND f.viral_load_sent_date IS NOT NULL
+             WHERE f.viral_load_sent_date <= pi.interval_end_date and f.viral_load_sent_date>=pi.art_start_date AND f.viral_load_sent_date IS NOT NULL
          ),
          -- Finds the latest Viral Load Performed record for each patient within each interval, independent of the main follow-up.
          LatestViralLoadPerformedInInterval AS (
@@ -118,7 +118,7 @@ BEGIN
                  ROW_NUMBER() OVER(PARTITION BY pi.PatientId, pi.interval_month ORDER BY f.viral_load_received_date DESC, f.encounter_id DESC) as rn_vl_performed
              FROM PatientIntervals pi
                       JOIN FollowUpEncounters f ON pi.PatientId = f.PatientId
-             WHERE f.follow_up_date <= pi.interval_end_date and f.follow_up_date>=pi.art_start_date AND f.viral_load_received_date IS NOT NULL
+             WHERE f.viral_load_received_date <= pi.interval_end_date and f.viral_load_received_date>=pi.art_start_date AND f.viral_load_received_date IS NOT NULL
          ),
 
          -- Combines the latest follow-up details with the latest viral load details for each interval.
