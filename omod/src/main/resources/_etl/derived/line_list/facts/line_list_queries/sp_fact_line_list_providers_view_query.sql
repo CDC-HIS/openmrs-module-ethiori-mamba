@@ -922,7 +922,7 @@ BEGIN
             ,
            case
                when asm.assessment_status is not null then asm.assessment_status
-               Else '' end                                                   as asm_status
+               Else '' end                                                   as `DSD Assesment Status`
             ,
            case
                when tmp_3.dsd_category is not null then tmp_3.dsd_category
