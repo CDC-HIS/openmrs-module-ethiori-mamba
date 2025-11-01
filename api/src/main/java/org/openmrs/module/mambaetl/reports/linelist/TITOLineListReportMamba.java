@@ -24,7 +24,7 @@ public class TITOLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "LINELIST- Mamba Transferred In/Out";
+		return "LINELIST- Transferred In/Out";
 	}
 	
 	@Override

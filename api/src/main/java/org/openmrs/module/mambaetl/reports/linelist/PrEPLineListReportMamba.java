@@ -25,7 +25,7 @@ public class PrEPLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "LINELIST- Mamba PreExposure Prophylaxis";
+		return "LINELIST- PreExposure Prophylaxis";
 	}
 	
 	@Override

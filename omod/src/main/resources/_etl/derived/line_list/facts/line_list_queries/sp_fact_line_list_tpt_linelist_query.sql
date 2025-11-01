@@ -89,7 +89,7 @@ BEGIN
                                       tpt_completed_date,
                                       ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY FollowUp.tpt_completed_date DESC , FollowUp.encounter_id DESC ) AS row_num
                                from FollowUp
-                               where tpt_completed_date between ? and ?
+                               where tpt_completed_date is not null
                             ),
          -- CPT
          tmp_cpt_start as (select encounter_id,
@@ -104,7 +104,7 @@ BEGIN
                                       cpt_stop_date,
                                       ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY FollowUp.cpt_stop_date DESC , FollowUp.encounter_id DESC ) AS row_num
                                from FollowUp
-                               where cpt_stop_date between ? and ?
+                               where cpt_stop_date is not null
                              ),
 
          -- FPT
@@ -120,7 +120,7 @@ BEGIN
                                       fpt_stop_date,
                                       ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY FollowUp.fpt_stop_date DESC , FollowUp.encounter_id DESC ) AS row_num
                                from FollowUp
-                               where fpt_stop_date between ? and ?
+                               where fpt_stop_date is not null
                                ),
 
 
@@ -237,7 +237,7 @@ BEGIN
     PREPARE stmt FROM @sql;
     SET @start_date = REPORT_START_DATE;
     SET @end_date = REPORT_END_DATE;
-    EXECUTE stmt USING @start_date, @end_date, @start_date, @end_date, @start_date, @end_date, @start_date, @end_date, @start_date, @end_date, @start_date, @end_date, @end_date, @end_date;
+    EXECUTE stmt USING  @start_date, @end_date, @start_date, @end_date, @start_date, @end_date, @start_date, @end_date, @start_date, @end_date, @end_date, @end_date;
     DEALLOCATE PREPARE stmt;
 END //
 

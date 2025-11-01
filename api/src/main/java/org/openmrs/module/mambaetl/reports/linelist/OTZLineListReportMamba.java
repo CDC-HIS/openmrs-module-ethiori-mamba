@@ -31,7 +31,7 @@ public class OTZLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getDescription() {
-		return "OTZ mamba implementation";
+		return "OTZ Line List";
 	}
 	
 	@Override

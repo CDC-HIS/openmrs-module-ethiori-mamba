@@ -25,7 +25,7 @@ public class PEPLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "LINELIST- Mamba Post Exposure Prophylaxis";
+		return "LINELIST- Post Exposure Prophylaxis";
 	}
 	
 	@Override

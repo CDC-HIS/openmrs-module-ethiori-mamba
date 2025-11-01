@@ -23,7 +23,7 @@ public class TBPrevLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "LINELIST- Mamba TB_PREV(DATIM)";
+		return "LINELIST- TB_PREV(DATIM)";
 	}
 	
 	@Override

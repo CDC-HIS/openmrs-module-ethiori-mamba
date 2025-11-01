@@ -53,8 +53,13 @@ public class ArtCohortAnalysisLineListDatasetEvaluatorMamba implements DataSetEv
                 executeStatements(statementContainer, procedureCalls);
 
                 ResultSet[] allResultSets = statementContainer.getResultSets();
+                if(dataSetDefinitionMamba.getType().equalsIgnoreCase("LineList")){
+                    mapResultSet(data, resultSetMapper, allResultSets,Boolean.TRUE);
+                }
+                else {
+                    mapResultSet(data, resultSetMapper, allResultSets,Boolean.FALSE);
+                }
 
-                mapResultSet(data, resultSetMapper, allResultSets,Boolean.FALSE);
                 connection.commit();
                 return data;
 
