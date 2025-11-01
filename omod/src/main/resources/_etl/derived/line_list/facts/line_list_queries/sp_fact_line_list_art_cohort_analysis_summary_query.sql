@@ -229,12 +229,12 @@ BEGIN
                                 ELSE 0 END)), 0) AS SIGNED) AS 'Month 36'
     FROM CohortDetails
     UNION ALL
-    SELECT 'On Original 1st Line Regimen' AS Name, -- outcome active
+    SELECT 'On Original 1st Line Regimen' AS Name,
            CAST(IFNULL(SUM(CASE
                                WHEN interval_month = 0 AND
                                     (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '4%'
                                         OR
-                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '1%')
+                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '1%') AND outcome = 'Active'
                                    THEN 1
                                ELSE 0 END
                        ), 0) AS SIGNED)   AS 'Month 0',
@@ -242,7 +242,7 @@ BEGIN
                                WHEN interval_month = 6 AND
                                     (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '4%'
                                         OR
-                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '1%')
+                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '1%') AND outcome = 'Active'
                                    THEN 1
                                ELSE 0 END
                        ), 0) AS SIGNED)   AS 'Month 6',
@@ -250,7 +250,7 @@ BEGIN
                                WHEN interval_month = 12 AND
                                     (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '4%'
                                         OR
-                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '1%')
+                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '1%') AND outcome = 'Active'
                                    THEN 1
                                ELSE 0 END
                        ), 0) AS SIGNED)   AS 'Month 12',
@@ -258,7 +258,7 @@ BEGIN
                                WHEN interval_month = 24 AND
                                     (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '4%'
                                         OR
-                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '1%')
+                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '1%') AND outcome = 'Active'
                                    THEN 1
                                ELSE 0 END
                        ), 0) AS SIGNED)   AS 'Month 24',
@@ -266,7 +266,7 @@ BEGIN
                                WHEN interval_month = 36 AND
                                     (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '4%'
                                         OR
-                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '1%')
+                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '1%') AND outcome = 'Active'
                                    THEN 1
                                ELSE 0 END
                        ), 0) AS SIGNED)   AS 'Month 36'
@@ -277,7 +277,7 @@ BEGIN
                                WHEN interval_month = 0 AND
                                     (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '1%'
                                         OR
-                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '4%')
+                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '4%') AND outcome = 'Active'
                                    THEN 1
                                ELSE 0 END
                        ), 0) AS SIGNED)                  AS 'Month 0',
@@ -285,7 +285,7 @@ BEGIN
                                WHEN interval_month = 6 AND
                                     (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '1%'
                                         OR
-                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '4%')
+                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '4%') AND outcome = 'Active'
                                    THEN 1
                                ELSE 0 END
                        ), 0) AS SIGNED)                  AS 'Month 6',
@@ -293,7 +293,7 @@ BEGIN
                                WHEN interval_month = 12 AND
                                     (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '1%'
                                         OR
-                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '4%')
+                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '4%') AND outcome = 'Active'
                                    THEN 1
                                ELSE 0 END
                        ), 0) AS SIGNED)                  AS 'Month 12',
@@ -301,7 +301,7 @@ BEGIN
                                WHEN interval_month = 24 AND
                                     (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '1%'
                                         OR
-                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '4%')
+                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '4%') AND outcome = 'Active'
                                    THEN 1
                                ELSE 0 END
                        ), 0) AS SIGNED)                  AS 'Month 24',
@@ -309,7 +309,7 @@ BEGIN
                                WHEN interval_month = 36 AND
                                     (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '1%'
                                         OR
-                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '4%')
+                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '4%') AND outcome = 'Active'
                                    THEN 1
                                ELSE 0 END
                        ), 0) AS SIGNED)                  AS 'Month 36'
@@ -320,7 +320,7 @@ BEGIN
                                WHEN interval_month = 0 AND
                                     (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '5%'
                                         OR
-                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '2%')
+                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '2%') AND outcome = 'Active'
                                    THEN 1
                                ELSE 0 END
                        ), 0) AS SIGNED)     AS 'Month 0',
@@ -328,7 +328,7 @@ BEGIN
                                WHEN interval_month = 6 AND
                                     (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '5%'
                                         OR
-                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '2%')
+                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '2%') AND outcome = 'Active'
                                    THEN 1
                                ELSE 0 END
                        ), 0) AS SIGNED)     AS 'Month 6',
@@ -336,7 +336,7 @@ BEGIN
                                WHEN interval_month = 12 AND
                                     (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '5%'
                                         OR
-                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '2%')
+                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '2%') AND outcome = 'Active'
                                    THEN 1
                                ELSE 0 END
                        ), 0) AS SIGNED)     AS 'Month 12',
@@ -344,7 +344,7 @@ BEGIN
                                WHEN interval_month = 24 AND
                                     (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '5%'
                                         OR
-                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '2%')
+                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '2%') AND outcome = 'Active'
                                    THEN 1
                                ELSE 0 END
                        ), 0) AS SIGNED)     AS 'Month 24',
@@ -352,18 +352,18 @@ BEGIN
                                WHEN interval_month = 36 AND
                                     (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '5%'
                                         OR
-                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '2%')
+                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '2%') AND outcome = 'Active'
                                    THEN 1
                                ELSE 0 END
                        ), 0) AS SIGNED)     AS 'Month 36'
     FROM CohortDetails
     UNION ALL
-    SELECT 'On 3rd Line Regimen (Switched)' AS Name,  -- outcome active
+    SELECT 'On 3rd Line Regimen (Switched)' AS Name,
            CAST(IFNULL(SUM(CASE
                                WHEN interval_month = 0 AND
                                     (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '6%'
                                         OR
-                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '3%')
+                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '3%') AND outcome = 'Active'
                                    THEN 1
                                ELSE 0 END
                        ), 0) AS SIGNED)     AS 'Month 0',
@@ -371,7 +371,7 @@ BEGIN
                                WHEN interval_month = 6 AND
                                     (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '6%'
                                         OR
-                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '3%')
+                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '3%') AND outcome = 'Active'
                                    THEN 1
                                ELSE 0 END
                        ), 0) AS SIGNED)     AS 'Month 6',
@@ -379,7 +379,7 @@ BEGIN
                                WHEN interval_month = 12 AND
                                     (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '6%'
                                         OR
-                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '3%')
+                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '3%') AND outcome = 'Active'
                                    THEN 1
                                ELSE 0 END
                        ), 0) AS SIGNED)     AS 'Month 12',
@@ -387,7 +387,7 @@ BEGIN
                                WHEN interval_month = 24 AND
                                     (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '6%'
                                         OR
-                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '3%')
+                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '3%') AND outcome = 'Active'
                                    THEN 1
                                ELSE 0 END
                        ), 0) AS SIGNED)     AS 'Month 24',
@@ -395,7 +395,7 @@ BEGIN
                                WHEN interval_month = 36 AND
                                     (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND regimen LIKE '6%'
                                         OR
-                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '3%')
+                                     TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND regimen LIKE '3%') AND outcome = 'Active'
                                    THEN 1
                                ELSE 0 END
                        ), 0) AS SIGNED)     AS 'Month 36'

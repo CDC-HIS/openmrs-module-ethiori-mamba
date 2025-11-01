@@ -50,7 +50,7 @@ public class TBPrevLineListReportMamba implements ReportManager {
 	public ReportDefinition constructReportDefinition() {
 		ReportDefinition reportDefinition = new ReportDefinition();
 		reportDefinition.setUuid(getUuid());
-		reportDefinition.setName(getName() + " - ${tptStatus}");
+		reportDefinition.setName(getName());
 		reportDefinition.setDescription(getDescription());
 		
 		reportDefinition.setParameters(getParameters());

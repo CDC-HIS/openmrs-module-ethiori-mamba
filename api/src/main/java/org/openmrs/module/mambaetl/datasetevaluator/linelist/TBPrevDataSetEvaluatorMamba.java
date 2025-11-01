@@ -8,6 +8,7 @@ import org.openmrs.module.mambaetl.datasetdefinition.linelist.TBPrevDataSetDefin
 import org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper;
 import org.openmrs.module.mambaetl.helpers.FollowUpConstant;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
+import org.openmrs.module.mambaetl.helpers.reportOptions.TBPrevAggregationTypes;
 import org.openmrs.module.reporting.dataset.DataSet;
 import org.openmrs.module.reporting.dataset.SimpleDataSet;
 import org.openmrs.module.reporting.dataset.definition.DataSetDefinition;
@@ -37,58 +38,53 @@ public class TBPrevDataSetEvaluatorMamba implements DataSetEvaluator {
 	private static final String DATABASE_CONNECTION_ERROR = "Database connection error: ";
 	
 	@Override
-	public DataSet evaluate(DataSetDefinition dataSetDefinition, EvaluationContext evalContext)
-			throws EvaluationException {
+    public DataSet evaluate(DataSetDefinition dataSetDefinition, EvaluationContext evalContext)
+            throws EvaluationException {
 
-		TBPrevDataSetDefinitionMamba definition = (TBPrevDataSetDefinitionMamba) dataSetDefinition;
-		SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
-		ResultSetMapper resultSetMapper = new ResultSetMapper();
+        TBPrevDataSetDefinitionMamba definition = (TBPrevDataSetDefinitionMamba) dataSetDefinition;
+        SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
+        ResultSetMapper resultSetMapper = new ResultSetMapper();
 
-		try (Connection connection = DataSetEvaluatorHelper.getDataSource().getConnection()) {
-			connection.setAutoCommit(false);
+        try (Connection connection = DataSetEvaluatorHelper.getDataSource().getConnection()) {
+            connection.setAutoCommit(false);
 
-			List<ProcedureCall> procedureCalls = createProcedureCalls(definition);
+            List<ProcedureCall> procedureCalls = createProcedureCalls(definition);
 
-			try (CallableStatementContainer statementContainer = prepareStatements(connection, procedureCalls)) {
+            try (CallableStatementContainer statementContainer = prepareStatements(connection, procedureCalls)) {
 
-				executeStatements(statementContainer, procedureCalls);
+                executeStatements(statementContainer, procedureCalls);
 
-				ResultSet[] allResultSets = statementContainer.getResultSets();
-				mapResultSet(data, resultSetMapper, allResultSets,Boolean.TRUE);
-				connection.commit();
-				return data;
+                ResultSet[] allResultSets = statementContainer.getResultSets();
+                mapResultSet(data, resultSetMapper, allResultSets, Boolean.TRUE);
+                connection.commit();
+                return data;
 
-			} catch (SQLException e) {
-				rollbackAndThrowException(connection, ERROR_PROCESSING_RESULT_SET + e.getMessage(), e, log);
-			}
-		} catch (SQLException e) {
-			throw new EvaluationException(DATABASE_CONNECTION_ERROR + e.getMessage(), e);
-		}
-		return null;
-	}
+            } catch (SQLException e) {
+                rollbackAndThrowException(connection, ERROR_PROCESSING_RESULT_SET + e.getMessage(), e, log);
+            }
+        } catch (SQLException e) {
+            throw new EvaluationException(DATABASE_CONNECTION_ERROR + e.getMessage(), e);
+        }
+        return null;
+    }
 	
 	private List<ProcedureCall> createProcedureCalls(TBPrevDataSetDefinitionMamba dataSetDefinitionMamba) {
-		Date startDate = dataSetDefinitionMamba.getStartDate() != null ?
-				new Date(getPrevSixMonth(dataSetDefinitionMamba.getStartDate())) :
-				new Date(LocalDate.of(1900, 1, 1).toEpochDay() * 24 * 60 * 60 * 1000);
-		Date endDate = dataSetDefinitionMamba.getEndDate() != null ?
-				new Date( dataSetDefinitionMamba.getEndDate().getTime()): new Date(System.currentTimeMillis());
-				String storeProc = dataSetDefinitionMamba.getTptStatus().equalsIgnoreCase("Numerator")?
-						"{call sp_fact_line_list_tx_tbt_numerator_query(?,?)}":
-						"{call sp_fact_line_list_tx_tbt_denominator_query(?,?)}";
-		return Collections.singletonList(
-                new ProcedureCall(storeProc, statement -> {
-                    statement.setDate(1, startDate);
-					statement.setDate(2, endDate);
+        java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null ? new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime()) : null;
+        java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime()) : null;
 
-                })
-        );
-	}
-	
-	private long getPrevSixMonth(java.util.Date date) {
-		Calendar subSixMonth = Calendar.getInstance();
-		subSixMonth.setTime(date);
-		subSixMonth.add(Calendar.MONTH, -6);
-		return subSixMonth.getTime().getTime();
-	}
+        if (dataSetDefinitionMamba.getTptStatus().equalsIgnoreCase("Numerator")) {
+            return Collections.singletonList(
+                    new ProcedureCall("{call sp_fact_line_list_tx_tbt_numerator_query(?,?)}", statement -> {
+                        statement.setDate(1, startDate);
+                        statement.setDate(2, endDate);
+                    }));
+        } else {
+            return Collections.singletonList(
+                    new ProcedureCall("{call sp_fact_line_list_tx_tbt_denominator_query(?,?)}", statement -> {
+                        statement.setDate(1, startDate);
+                        statement.setDate(2, endDate);
+                    }));
+        }
+
+    }
 }
