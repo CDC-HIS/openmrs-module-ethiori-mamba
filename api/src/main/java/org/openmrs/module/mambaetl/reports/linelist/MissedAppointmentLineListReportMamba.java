@@ -28,7 +28,7 @@ public class MissedAppointmentLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "LINELIST- Mamba Missed Appointment Tracing";
+		return "LINELIST- Missed Appointment Tracing";
 	}
 	
 	@Override
@@ -61,7 +61,7 @@ public class MissedAppointmentLineListReportMamba implements ReportManager {
 		MissedAppointmentDataSetDefinitionMamba dataSetDefinitionMamba = new MissedAppointmentDataSetDefinitionMamba();
 		dataSetDefinitionMamba.addParameters(getParameters());
 		
-		reportDefinition.addDataSetDefinition("Missed Appointment mamba line list",
+		reportDefinition.addDataSetDefinition("Missed Appointment line list",
 		    map(dataSetDefinitionMamba, "endDate=${endDateGC}"));
 		return reportDefinition;
 	}

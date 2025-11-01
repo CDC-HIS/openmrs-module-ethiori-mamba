@@ -29,7 +29,7 @@ public class TxNewLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getDescription() {
-		return "TX new mamba implementation";
+		return "TX new line list report";
 	}
 	
 	@Override

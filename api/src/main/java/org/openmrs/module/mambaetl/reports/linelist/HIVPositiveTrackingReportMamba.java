@@ -23,7 +23,7 @@ public class HIVPositiveTrackingReportMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "LINELIST- Mamba HIV +ve Tracking";
+		return "LINELIST- HIV +ve Tracking";
 	}
 	
 	@Override

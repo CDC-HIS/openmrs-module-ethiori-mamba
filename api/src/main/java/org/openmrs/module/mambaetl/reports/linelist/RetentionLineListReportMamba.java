@@ -27,7 +27,7 @@ public class RetentionLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "LINELIST- Mamba ART Retention";
+		return "LINELIST- ART Retention";
 	}
 	
 	@Override

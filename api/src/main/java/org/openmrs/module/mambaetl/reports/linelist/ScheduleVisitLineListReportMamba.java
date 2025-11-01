@@ -27,7 +27,7 @@ public class ScheduleVisitLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "LINELIST- Mamba Scheduled Visit";
+		return "LINELIST- Scheduled Visit";
 	}
 	
 	@Override

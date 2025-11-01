@@ -26,7 +26,7 @@ public class MonthlyVisitLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "LINELIST- Mamba Monthly Visit List";
+		return "LINELIST- Monthly Visit List";
 	}
 	
 	@Override

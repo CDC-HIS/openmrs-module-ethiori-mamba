@@ -29,7 +29,7 @@ public class TXTBReportMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "LINELIST- Mamba TB";
+		return "LINELIST- TB Art";
 	}
 	
 	@Override

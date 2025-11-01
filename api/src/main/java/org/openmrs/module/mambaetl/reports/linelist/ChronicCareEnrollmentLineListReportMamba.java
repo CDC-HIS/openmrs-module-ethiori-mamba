@@ -24,7 +24,7 @@ public class ChronicCareEnrollmentLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "LINELIST- Mamba Chronic Care Enrollment Line List";
+		return "LINELIST- Chronic Care Enrollment Line List";
 	}
 	
 	@Override

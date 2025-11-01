@@ -27,7 +27,7 @@ public class DSDLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "LINELIST- Mamba DSD";
+		return "LINELIST- DSD";
 	}
 	
 	@Override
