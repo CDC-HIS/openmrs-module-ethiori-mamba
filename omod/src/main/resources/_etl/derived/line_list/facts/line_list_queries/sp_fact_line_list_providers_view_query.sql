@@ -926,7 +926,7 @@ BEGIN
             ,
            case
                when tmp_3.dsd_category is not null then tmp_3.dsd_category
-               Else 'Not enrolled to any DSD' end                            as dsd_category
+               Else 'Not enrolled to any DSD' end                            as `DSD Category`
             ,
 
            CASE tmp_3.follow_up_status
