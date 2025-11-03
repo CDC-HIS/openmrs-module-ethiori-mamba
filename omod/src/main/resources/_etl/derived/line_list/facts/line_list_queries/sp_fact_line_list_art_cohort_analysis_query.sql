@@ -170,32 +170,37 @@ BEGIN
         MAX(CASE WHEN co.interval_month = 0 THEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) ELSE NULL END) AS 'Age at 0 Months',
         MAX(CASE WHEN co.interval_month = 0 THEN
                      CASE
-                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND co.regimen LIKE '4%' THEN 'On Original 1st Line Regimen'
-                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND co.regimen LIKE '1%' THEN 'On Original 1st Line Regimen'
+                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND co.regimen LIKE '4%' AND outcome = 'Active' THEN 'On Original 1st Line Regimen'
+                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND co.regimen LIKE '1%' AND outcome = 'Active' THEN 'On Original 1st Line Regimen'
 
-                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND co.regimen LIKE '1%' THEN 'On Alternate 1st Line Regimen (Substituted)'
-                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND co.regimen LIKE '4%' THEN 'On Alternate 1st Line Regimen (Substituted)'
+                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND co.regimen LIKE '1%' AND outcome = 'Active' THEN 'On Alternate 1st Line Regimen (Substituted)'
+                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND co.regimen LIKE '4%' AND outcome = 'Active' THEN 'On Alternate 1st Line Regimen (Substituted)'
 
-                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND co.regimen LIKE '5%' THEN 'On 2nd Line Regimen (Switched)'
-                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND co.regimen LIKE '2%' THEN 'On 2nd Line Regimen (Switched)'
+                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND co.regimen LIKE '5%' AND outcome = 'Active' THEN 'On 2nd Line Regimen (Switched)'
+                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND co.regimen LIKE '2%' AND outcome = 'Active' THEN 'On 2nd Line Regimen (Switched)'
 
-                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND co.regimen LIKE '6%' THEN 'On 3rd Line Regimen (Switched)'
-                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND co.regimen LIKE '3%' THEN 'On 3rd Line Regimen (Switched)'
+                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND co.regimen LIKE '6%' AND outcome = 'Active' THEN 'On 3rd Line Regimen (Switched)'
+                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND co.regimen LIKE '3%' AND outcome = 'Active' THEN 'On 3rd Line Regimen (Switched)'
 
                          ELSE NULL
                          END
                  ELSE NULL END) AS 'Regimen Line at Zero Months',
         MAX(CASE WHEN co.interval_month = 0 THEN co.outcome ELSE NULL END) AS 'Outcome at Zero Months',
         MAX(CASE WHEN co.interval_month = 0 THEN co.follow_up_date ELSE NULL END) AS 'Latest Follow-Up Date at Zero Months',
+        MAX(CASE WHEN co.interval_month = 0 THEN co.follow_up_date ELSE NULL END) AS 'Latest Follow-Up Date at Zero Months EC.',
         MAX(CASE WHEN co.interval_month = 0 THEN co.regimen ELSE NULL END) AS 'Latest Regimen at Zero Months',
         MAX(CASE WHEN co.interval_month = 0 THEN co.ARTDoseDays ELSE NULL END) AS 'Latest Regimen Dose Days at Zero Months',
         MAX(CASE WHEN co.interval_month = 0 THEN co.follow_up_status ELSE NULL END) AS 'Latest Follow-up Status at Zero Months',
         MAX(CASE WHEN co.interval_month = 0 THEN co.AdherenceLevel ELSE NULL END) AS 'Latest Adherence at Zero Months',
         MAX(CASE WHEN co.interval_month = 0 THEN co.pregnancy_status ELSE NULL END) AS 'Pregnant at Zero Months',
         MAX(CASE WHEN co.interval_month = 0 THEN co.treatment_end_date ELSE NULL END) AS 'Treatment End Date at Zero Months',
+        MAX(CASE WHEN co.interval_month = 0 THEN co.treatment_end_date ELSE NULL END) AS 'Treatment End Date at Zero Months EC.',
         MAX(CASE WHEN co.interval_month = 0 THEN co.next_visit_date ELSE NULL END) AS 'Next Visit date at Zero Months',
+        MAX(CASE WHEN co.interval_month = 0 THEN co.next_visit_date ELSE NULL END) AS 'Next Visit date at Zero Months EC.',
         MAX(CASE WHEN co.interval_month = 0 THEN co.viral_load_sent_date ELSE NULL END) AS 'Latest Viral Load Sent Date at Zero Months',
+        MAX(CASE WHEN co.interval_month = 0 THEN co.viral_load_sent_date ELSE NULL END) AS 'Latest Viral Load Sent Date at Zero Months EC.',
         MAX(CASE WHEN co.interval_month = 0 THEN co.viral_load_received_date ELSE NULL END) AS 'Latest Viral Load Received Date at Zero Months',
+        MAX(CASE WHEN co.interval_month = 0 THEN co.viral_load_received_date ELSE NULL END) AS 'Latest Viral Load Received Date at Zero Months EC.',
         MAX(CASE WHEN co.interval_month = 0 THEN co.viral_load_count ELSE NULL END) AS `Latest Viral Load Count at Zero Months`,
         MAX(CASE WHEN co.interval_month = 0 THEN co.viral_load_result ELSE NULL END) AS 'Latest Viral Load Status at Zero Months',
         MAX(CASE WHEN co.interval_month = 0 THEN co.cd4_count ELSE NULL END) AS 'Latest CD4 Count at Zero Months',
@@ -206,32 +211,37 @@ BEGIN
         MAX(CASE WHEN co.interval_month = 6 THEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) ELSE NULL END) AS 'Age at 6 Months',
         MAX(CASE WHEN co.interval_month = 6 THEN
             CASE
-                WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND co.regimen LIKE '4%' THEN 'On Original 1st Line Regimen'
-                WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND co.regimen LIKE '1%' THEN 'On Original 1st Line Regimen'
+                WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND co.regimen LIKE '4%' AND outcome = 'Active' THEN 'On Original 1st Line Regimen'
+                WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND co.regimen LIKE '1%' AND outcome = 'Active' THEN 'On Original 1st Line Regimen'
 
-                WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND co.regimen LIKE '1%' THEN 'On Alternate 1st Line Regimen (Substituted)'
-                WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND co.regimen LIKE '4%' THEN 'On Alternate 1st Line Regimen (Substituted)'
+                WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND co.regimen LIKE '1%' AND outcome = 'Active' THEN 'On Alternate 1st Line Regimen (Substituted)'
+                WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND co.regimen LIKE '4%' AND outcome = 'Active' THEN 'On Alternate 1st Line Regimen (Substituted)'
 
-                WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND co.regimen LIKE '5%' THEN 'On 2nd Line Regimen (Switched)'
-                WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND co.regimen LIKE '2%' THEN 'On 2nd Line Regimen (Switched)'
+                WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND co.regimen LIKE '5%' AND outcome = 'Active' THEN 'On 2nd Line Regimen (Switched)'
+                WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND co.regimen LIKE '2%' AND outcome = 'Active' THEN 'On 2nd Line Regimen (Switched)'
 
-                WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND co.regimen LIKE '6%' THEN 'On 3rd Line Regimen (Switched)'
-                WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND co.regimen LIKE '3%' THEN 'On 3rd Line Regimen (Switched)'
+                WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND co.regimen LIKE '6%' AND outcome = 'Active' THEN 'On 3rd Line Regimen (Switched)'
+                WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND co.regimen LIKE '3%' AND outcome = 'Active' THEN 'On 3rd Line Regimen (Switched)'
 
                 ELSE NULL
             END
         ELSE NULL END) AS 'Regimen Line at 6 Months',
         MAX(CASE WHEN co.interval_month = 6 THEN co.outcome ELSE NULL END) AS 'Outcome at 6 Months',
         MAX(CASE WHEN co.interval_month = 6 THEN co.follow_up_date ELSE NULL END) AS 'Latest Follow-Up Date at 6 Months',
+        MAX(CASE WHEN co.interval_month = 6 THEN co.follow_up_date ELSE NULL END) AS 'Latest Follow-Up Date at 6 Months EC.',
         MAX(CASE WHEN co.interval_month = 6 THEN co.regimen ELSE NULL END) AS 'Latest Regimen at 6 Months',
         MAX(CASE WHEN co.interval_month = 6 THEN co.ARTDoseDays ELSE NULL END) AS 'Latest Regimen Dose Days at 6 Months',
         MAX(CASE WHEN co.interval_month = 6 THEN co.follow_up_status ELSE NULL END) AS 'Latest Follow-up Status at 6 Months',
         MAX(CASE WHEN co.interval_month = 6 THEN co.AdherenceLevel ELSE NULL END) AS 'Latest Adherence at 6 Months',
         MAX(CASE WHEN co.interval_month = 6 THEN co.pregnancy_status ELSE NULL END) AS 'Pregnant at 6 Months',
         MAX(CASE WHEN co.interval_month = 6 THEN co.treatment_end_date ELSE NULL END) AS 'Treatment End Date at 6 Months',
+        MAX(CASE WHEN co.interval_month = 6 THEN co.treatment_end_date ELSE NULL END) AS 'Treatment End Date at 6 Months EC.',
         MAX(CASE WHEN co.interval_month = 6 THEN co.next_visit_date ELSE NULL END) AS 'Next Visit date at 6 Months',
+        MAX(CASE WHEN co.interval_month = 6 THEN co.next_visit_date ELSE NULL END) AS 'Next Visit date at 6 Months EC.',
         MAX(CASE WHEN co.interval_month = 6 THEN co.viral_load_sent_date ELSE NULL END) AS 'Latest Viral Load Sent Date at 6 Months',
+        MAX(CASE WHEN co.interval_month = 6 THEN co.viral_load_sent_date ELSE NULL END) AS 'Latest Viral Load Sent Date at 6 Months EC.',
         MAX(CASE WHEN co.interval_month = 6 THEN co.viral_load_received_date ELSE NULL END) AS 'Latest Viral Load Received Date at 6 Months',
+        MAX(CASE WHEN co.interval_month = 6 THEN co.viral_load_received_date ELSE NULL END) AS 'Latest Viral Load Received Date at 6 Months EC.',
         MAX(CASE WHEN co.interval_month = 6 THEN co.viral_load_count ELSE NULL END) AS `Latest Viral Load Count at 6 Months`,
         MAX(CASE WHEN co.interval_month = 6 THEN co.viral_load_result ELSE NULL END) AS 'Latest Viral Load Status at 6 Months',
         MAX(CASE WHEN co.interval_month = 6 THEN co.cd4_count ELSE NULL END) AS 'Latest CD4 Count at 6 Months',
@@ -242,32 +252,37 @@ BEGIN
         MAX(CASE WHEN co.interval_month = 12 THEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) ELSE NULL END) AS 'Age at 12 Months',
         MAX(CASE WHEN co.interval_month = 12 THEN
                      CASE
-                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND co.regimen LIKE '4%' THEN 'On Original 1st Line Regimen'
-                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND co.regimen LIKE '1%' THEN 'On Original 1st Line Regimen'
+                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND co.regimen LIKE '4%' AND outcome = 'Active' THEN 'On Original 1st Line Regimen'
+                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND co.regimen LIKE '1%' AND outcome = 'Active' THEN 'On Original 1st Line Regimen'
 
-                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND co.regimen LIKE '1%' THEN 'On Alternate 1st Line Regimen (Substituted)'
-                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND co.regimen LIKE '4%' THEN 'On Alternate 1st Line Regimen (Substituted)'
+                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND co.regimen LIKE '1%' AND outcome = 'Active' THEN 'On Alternate 1st Line Regimen (Substituted)'
+                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND co.regimen LIKE '4%' AND outcome = 'Active' THEN 'On Alternate 1st Line Regimen (Substituted)'
 
-                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND co.regimen LIKE '5%' THEN 'On 2nd Line Regimen (Switched)'
-                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND co.regimen LIKE '2%' THEN 'On 2nd Line Regimen (Switched)'
+                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND co.regimen LIKE '5%' AND outcome = 'Active' THEN 'On 2nd Line Regimen (Switched)'
+                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND co.regimen LIKE '2%' AND outcome = 'Active' THEN 'On 2nd Line Regimen (Switched)'
 
-                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND co.regimen LIKE '6%' THEN 'On 3rd Line Regimen (Switched)'
-                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND co.regimen LIKE '3%' THEN 'On 3rd Line Regimen (Switched)'
+                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND co.regimen LIKE '6%' AND outcome = 'Active' THEN 'On 3rd Line Regimen (Switched)'
+                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND co.regimen LIKE '3%' AND outcome = 'Active' THEN 'On 3rd Line Regimen (Switched)'
 
                          ELSE NULL
                          END
                  ELSE NULL END) AS 'Regimen Line at 12 Months',
         MAX(CASE WHEN co.interval_month = 12 THEN co.outcome ELSE NULL END) AS 'Outcome at 12 Months',
         MAX(CASE WHEN co.interval_month = 12 THEN co.follow_up_date ELSE NULL END) AS 'Latest Follow-Up Date at 12 Months',
+        MAX(CASE WHEN co.interval_month = 12 THEN co.follow_up_date ELSE NULL END) AS 'Latest Follow-Up Date at 12 Months EC.',
         MAX(CASE WHEN co.interval_month = 12 THEN co.regimen ELSE NULL END) AS 'Latest Regimen at 12 Months',
         MAX(CASE WHEN co.interval_month = 12 THEN co.ARTDoseDays ELSE NULL END) AS 'Latest Regimen Dose Days at 12 Months',
         MAX(CASE WHEN co.interval_month = 12 THEN co.follow_up_status ELSE NULL END) AS 'Latest Follow-up Status at 12 Months',
         MAX(CASE WHEN co.interval_month = 12 THEN co.AdherenceLevel ELSE NULL END) AS 'Latest Adherence at 12 Months',
         MAX(CASE WHEN co.interval_month = 12 THEN co.pregnancy_status ELSE NULL END) AS 'Pregnant at 12 Months',
         MAX(CASE WHEN co.interval_month = 12 THEN co.treatment_end_date ELSE NULL END) AS 'Treatment End Date at 12 Months',
+        MAX(CASE WHEN co.interval_month = 12 THEN co.treatment_end_date ELSE NULL END) AS 'Treatment End Date at 12 Months EC.',
         MAX(CASE WHEN co.interval_month = 12 THEN co.next_visit_date ELSE NULL END) AS 'Next Visit date at 12 Months',
+        MAX(CASE WHEN co.interval_month = 12 THEN co.next_visit_date ELSE NULL END) AS 'Next Visit date at 12 Months EC.',
         MAX(CASE WHEN co.interval_month = 12 THEN co.viral_load_sent_date ELSE NULL END) AS 'Latest Viral Load Sent Date at 12 Months',
+        MAX(CASE WHEN co.interval_month = 12 THEN co.viral_load_sent_date ELSE NULL END) AS 'Latest Viral Load Sent Date at 12 Months EC.',
         MAX(CASE WHEN co.interval_month = 12 THEN co.viral_load_received_date ELSE NULL END) AS 'Latest Viral Load Received Date at 12 Months',
+        MAX(CASE WHEN co.interval_month = 12 THEN co.viral_load_received_date ELSE NULL END) AS 'Latest Viral Load Received Date at 12 Months EC.',
         MAX(CASE WHEN co.interval_month = 12 THEN co.viral_load_count ELSE NULL END) AS `Latest Viral Load Count at 12 Months`,
         MAX(CASE WHEN co.interval_month = 12 THEN co.viral_load_result ELSE NULL END) AS 'Latest Viral Load Status at 12 Months',
         MAX(CASE WHEN co.interval_month = 12 THEN co.cd4_count ELSE NULL END) AS 'Latest CD4 Count at 12 Months',
@@ -278,32 +293,37 @@ BEGIN
         MAX(CASE WHEN co.interval_month = 24 THEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) ELSE NULL END) AS 'Age at 24 Months',
         MAX(CASE WHEN co.interval_month = 24 THEN
                      CASE
-                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND co.regimen LIKE '4%' THEN 'On Original 1st Line Regimen'
-                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND co.regimen LIKE '1%' THEN 'On Original 1st Line Regimen'
+                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND co.regimen LIKE '4%' AND outcome = 'Active' THEN 'On Original 1st Line Regimen'
+                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND co.regimen LIKE '1%' AND outcome = 'Active' THEN 'On Original 1st Line Regimen'
 
-                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND co.regimen LIKE '1%' THEN 'On Alternate 1st Line Regimen (Substituted)'
-                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND co.regimen LIKE '4%' THEN 'On Alternate 1st Line Regimen (Substituted)'
+                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND co.regimen LIKE '1%' AND outcome = 'Active' THEN 'On Alternate 1st Line Regimen (Substituted)'
+                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND co.regimen LIKE '4%' AND outcome = 'Active' THEN 'On Alternate 1st Line Regimen (Substituted)'
 
-                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND co.regimen LIKE '5%' THEN 'On 2nd Line Regimen (Switched)'
-                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND co.regimen LIKE '2%' THEN 'On 2nd Line Regimen (Switched)'
+                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND co.regimen LIKE '5%'AND outcome = 'Active'  THEN 'On 2nd Line Regimen (Switched)'
+                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND co.regimen LIKE '2%' AND outcome = 'Active' THEN 'On 2nd Line Regimen (Switched)'
 
-                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND co.regimen LIKE '6%' THEN 'On 3rd Line Regimen (Switched)'
-                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND co.regimen LIKE '3%' THEN 'On 3rd Line Regimen (Switched)'
+                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND co.regimen LIKE '6%' AND outcome = 'Active' THEN 'On 3rd Line Regimen (Switched)'
+                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND co.regimen LIKE '3%' AND outcome = 'Active' THEN 'On 3rd Line Regimen (Switched)'
 
                          ELSE NULL
                          END
                  ELSE NULL END) AS 'Regimen Line at 24 Months',
         MAX(CASE WHEN co.interval_month = 24 THEN co.outcome ELSE NULL END) AS 'Outcome at 24 Months',
         MAX(CASE WHEN co.interval_month = 24 THEN co.follow_up_date ELSE NULL END) AS 'Latest Follow-Up Date at 24 Months',
+        MAX(CASE WHEN co.interval_month = 24 THEN co.follow_up_date ELSE NULL END) AS 'Latest Follow-Up Date at 24 Months EC.',
         MAX(CASE WHEN co.interval_month = 24 THEN co.regimen ELSE NULL END) AS 'Latest Regimen at 24 Months',
         MAX(CASE WHEN co.interval_month = 24 THEN co.ARTDoseDays ELSE NULL END) AS 'Latest Regimen Dose Days at 24 Months',
         MAX(CASE WHEN co.interval_month = 24 THEN co.follow_up_status ELSE NULL END) AS 'Latest Follow-up Status at 24 Months',
         MAX(CASE WHEN co.interval_month = 24 THEN co.AdherenceLevel ELSE NULL END) AS 'Latest Adherence at 24 Months',
         MAX(CASE WHEN co.interval_month = 24 THEN co.pregnancy_status ELSE NULL END) AS 'Pregnant at 24 Months',
         MAX(CASE WHEN co.interval_month = 24 THEN co.treatment_end_date ELSE NULL END) AS 'Treatment End Date at 24 Months',
+        MAX(CASE WHEN co.interval_month = 24 THEN co.treatment_end_date ELSE NULL END) AS 'Treatment End Date at 24 Months EC.',
         MAX(CASE WHEN co.interval_month = 24 THEN co.next_visit_date ELSE NULL END) AS 'Next Visit date at 24 Months',
+        MAX(CASE WHEN co.interval_month = 24 THEN co.next_visit_date ELSE NULL END) AS 'Next Visit date at 24 Months EC.',
         MAX(CASE WHEN co.interval_month = 24 THEN co.viral_load_sent_date ELSE NULL END) AS 'Latest Viral Load Sent Date at 24 Months',
+        MAX(CASE WHEN co.interval_month = 24 THEN co.viral_load_sent_date ELSE NULL END) AS 'Latest Viral Load Sent Date at 24 Months EC.',
         MAX(CASE WHEN co.interval_month = 24 THEN co.viral_load_received_date ELSE NULL END) AS 'Latest Viral Load Received Date at 24 Months',
+        MAX(CASE WHEN co.interval_month = 24 THEN co.viral_load_received_date ELSE NULL END) AS 'Latest Viral Load Received Date at 24 Months EC.',
         MAX(CASE WHEN co.interval_month = 24 THEN co.viral_load_count ELSE NULL END) AS `Latest Viral Load Count at 24 Months`,
         MAX(CASE WHEN co.interval_month = 24 THEN co.viral_load_result ELSE NULL END) AS 'Latest Viral Load Status at 24 Months',
         MAX(CASE WHEN co.interval_month = 24 THEN co.cd4_count ELSE NULL END) AS 'Latest CD4 Count at 24 Months',
@@ -315,32 +335,37 @@ BEGIN
         MAX(CASE WHEN co.interval_month = 36 THEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) ELSE NULL END) AS 'Age at 36 Months',
         MAX(CASE WHEN co.interval_month = 36 THEN
                      CASE
-                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND co.regimen LIKE '4%' THEN 'On Original 1st Line Regimen'
-                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND co.regimen LIKE '1%' THEN 'On Original 1st Line Regimen'
+                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND co.regimen LIKE '4%' AND outcome = 'Active' THEN 'On Original 1st Line Regimen'
+                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND co.regimen LIKE '1%' AND outcome = 'Active' THEN 'On Original 1st Line Regimen'
 
-                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND co.regimen LIKE '1%' THEN 'On Alternate 1st Line Regimen (Substituted)'
-                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND co.regimen LIKE '4%' THEN 'On Alternate 1st Line Regimen (Substituted)'
+                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND co.regimen LIKE '1%' AND outcome = 'Active' THEN 'On Alternate 1st Line Regimen (Substituted)'
+                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND co.regimen LIKE '4%' AND outcome = 'Active' THEN 'On Alternate 1st Line Regimen (Substituted)'
 
-                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND co.regimen LIKE '5%' THEN 'On 2nd Line Regimen (Switched)'
-                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND co.regimen LIKE '2%' THEN 'On 2nd Line Regimen (Switched)'
+                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND co.regimen LIKE '5%' AND outcome = 'Active' THEN 'On 2nd Line Regimen (Switched)'
+                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND co.regimen LIKE '2%' AND outcome = 'Active' THEN 'On 2nd Line Regimen (Switched)'
 
-                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND co.regimen LIKE '6%' THEN 'On 3rd Line Regimen (Switched)'
-                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND co.regimen LIKE '3%' THEN 'On 3rd Line Regimen (Switched)'
+                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND co.regimen LIKE '6%' AND outcome = 'Active' THEN 'On 3rd Line Regimen (Switched)'
+                         WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND co.regimen LIKE '3%' AND outcome = 'Active' THEN 'On 3rd Line Regimen (Switched)'
 
                          ELSE NULL
                          END
                  ELSE NULL END) AS 'Regimen Line at 36 Months',
         MAX(CASE WHEN co.interval_month = 36 THEN co.outcome ELSE NULL END) AS 'Outcome at 36 Months',
         MAX(CASE WHEN co.interval_month = 36 THEN co.follow_up_date ELSE NULL END) AS 'Latest Follow-Up Date at 36 Months',
+        MAX(CASE WHEN co.interval_month = 36 THEN co.follow_up_date ELSE NULL END) AS 'Latest Follow-Up Date at 36 Months EC.',
         MAX(CASE WHEN co.interval_month = 36 THEN co.regimen ELSE NULL END) AS 'Latest Regimen at 36 Months',
         MAX(CASE WHEN co.interval_month = 36 THEN co.ARTDoseDays ELSE NULL END) AS 'Latest Regimen Dose Days at 36 Months',
         MAX(CASE WHEN co.interval_month = 36 THEN co.follow_up_status ELSE NULL END) AS 'Latest Follow-up Status at 36 Months',
         MAX(CASE WHEN co.interval_month = 36 THEN co.AdherenceLevel ELSE NULL END) AS 'Latest Adherence at 36 Months',
         MAX(CASE WHEN co.interval_month = 36 THEN co.pregnancy_status ELSE NULL END) AS 'Pregnant at 36 Months',
         MAX(CASE WHEN co.interval_month = 36 THEN co.treatment_end_date ELSE NULL END) AS 'Treatment End Date at 36 Months',
+        MAX(CASE WHEN co.interval_month = 36 THEN co.treatment_end_date ELSE NULL END) AS 'Treatment End Date at 36 Months EC.',
         MAX(CASE WHEN co.interval_month = 36 THEN co.next_visit_date ELSE NULL END) AS 'Next Visit date at 36 Months',
+        MAX(CASE WHEN co.interval_month = 36 THEN co.next_visit_date ELSE NULL END) AS 'Next Visit date at 36 Months EC.',
         MAX(CASE WHEN co.interval_month = 36 THEN co.viral_load_sent_date ELSE NULL END) AS 'Latest Viral Load Sent Date at 36 Months',
+        MAX(CASE WHEN co.interval_month = 36 THEN co.viral_load_sent_date ELSE NULL END) AS 'Latest Viral Load Sent Date at 36 Months EC.',
         MAX(CASE WHEN co.interval_month = 36 THEN co.viral_load_received_date ELSE NULL END) AS 'Latest Viral Load Received Date at 36 Months',
+        MAX(CASE WHEN co.interval_month = 36 THEN co.viral_load_received_date ELSE NULL END) AS 'Latest Viral Load Received Date at 36 Months EC.',
         MAX(CASE WHEN co.interval_month = 36 THEN co.viral_load_count ELSE NULL END) AS `Latest Viral Load Count at 36 Months`,
         MAX(CASE WHEN co.interval_month = 36 THEN co.viral_load_result ELSE NULL END) AS 'Latest Viral Load Status at 36 Months',
         MAX(CASE WHEN co.interval_month = 36 THEN co.cd4_count ELSE NULL END) AS 'Latest CD4 Count at 36 Months',
