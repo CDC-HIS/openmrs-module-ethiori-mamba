@@ -92,6 +92,8 @@ BEGIN
                  f.viral_load_count,
                  f.cd4_percent,
                  f.current_functional_status,
+                 fn_get_ti_status(pi.PatientId, f.art_start_date,
+                                  pi.interval_end_date)                                                                               as ti_status,
                  ROW_NUMBER() OVER(PARTITION BY pi.PatientId, pi.interval_month ORDER BY f.follow_up_date DESC, f.encounter_id DESC) as rn
              FROM PatientIntervals pi
                       LEFT JOIN  FollowUpEncounters f ON pi.PatientId = f.PatientId WHERE f.follow_up_date BETWEEN pi.interval_start_date AND pi.interval_end_date
@@ -146,7 +148,8 @@ BEGIN
                  viral_load_performed.viral_load_result,
                  lfu.cd4_count,
                  lfu.cd4_percent,
-                 lfu.current_functional_status
+                 lfu.current_functional_status,
+                 lfu.ti_status
              FROM (SELECT * FROM LatestFollowUpInInterval WHERE rn = 1) lfu
                       LEFT JOIN (SELECT * FROM LatestViralLoadSentInInterval WHERE rn_vl_sent = 1) viral_load_sent
                                 ON lfu.PatientId = viral_load_sent.PatientId AND lfu.interval_month = viral_load_sent.interval_month
@@ -206,6 +209,7 @@ BEGIN
         MAX(CASE WHEN co.interval_month = 0 THEN co.cd4_count ELSE NULL END) AS 'Latest CD4 Count at Zero Months',
         MAX(CASE WHEN co.interval_month = 0 THEN co.cd4_percent ELSE NULL END) AS 'Latest CD4 % at Zero Months',
         MAX(CASE WHEN co.interval_month = 0 THEN co.current_functional_status ELSE NULL END) AS 'Latest Function Status at Zero Months',
+        MAX(CASE WHEN co.interval_month = 0 THEN co.ti_status ELSE NULL END ) AS `Latest TI Status at Zero Months`,
 
         -- 6 Months
         MAX(CASE WHEN co.interval_month = 6 THEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) ELSE NULL END) AS 'Age at 6 Months',
@@ -247,6 +251,7 @@ BEGIN
         MAX(CASE WHEN co.interval_month = 6 THEN co.cd4_count ELSE NULL END) AS 'Latest CD4 Count at 6 Months',
         MAX(CASE WHEN co.interval_month = 6 THEN co.cd4_percent ELSE NULL END) AS 'Latest CD4 % at 6 Months',
         MAX(CASE WHEN co.interval_month = 6 THEN co.current_functional_status ELSE NULL END) AS 'Latest Function Status at 6 Months',
+        MAX(CASE WHEN co.interval_month = 6 THEN co.ti_status ELSE NULL END ) AS `Latest TI Status at 6 Months`,
 
         -- 12 Months
         MAX(CASE WHEN co.interval_month = 12 THEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) ELSE NULL END) AS 'Age at 12 Months',
@@ -288,6 +293,7 @@ BEGIN
         MAX(CASE WHEN co.interval_month = 12 THEN co.cd4_count ELSE NULL END) AS 'Latest CD4 Count at 12 Months',
         MAX(CASE WHEN co.interval_month = 12 THEN co.cd4_percent ELSE NULL END) AS 'Latest CD4 % at 12 Months',
         MAX(CASE WHEN co.interval_month = 12 THEN co.current_functional_status ELSE NULL END) AS 'Latest Function Status at 12 Months',
+        MAX(CASE WHEN co.interval_month = 12 THEN co.ti_status ELSE NULL END ) AS `Latest TI Status at 12 Months`,
 
         -- 24 Months
         MAX(CASE WHEN co.interval_month = 24 THEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) ELSE NULL END) AS 'Age at 24 Months',
@@ -329,6 +335,7 @@ BEGIN
         MAX(CASE WHEN co.interval_month = 24 THEN co.cd4_count ELSE NULL END) AS 'Latest CD4 Count at 24 Months',
         MAX(CASE WHEN co.interval_month = 24 THEN co.cd4_percent ELSE NULL END) AS 'Latest CD4 % at 24 Months',
         MAX(CASE WHEN co.interval_month = 24 THEN co.current_functional_status ELSE NULL END) AS 'Latest Function Status at 24 Months',
+        MAX(CASE WHEN co.interval_month = 24 THEN co.ti_status ELSE NULL END ) AS `Latest TI Status at 24 Months`,
 
 
         -- 36 Months
@@ -370,7 +377,8 @@ BEGIN
         MAX(CASE WHEN co.interval_month = 36 THEN co.viral_load_result ELSE NULL END) AS 'Latest Viral Load Status at 36 Months',
         MAX(CASE WHEN co.interval_month = 36 THEN co.cd4_count ELSE NULL END) AS 'Latest CD4 Count at 36 Months',
         MAX(CASE WHEN co.interval_month = 36 THEN co.cd4_percent ELSE NULL END) AS 'Latest CD4 % at 36 Months',
-        MAX(CASE WHEN co.interval_month = 36 THEN co.current_functional_status ELSE NULL END) AS 'Latest Function Status at 36 Months'
+        MAX(CASE WHEN co.interval_month = 36 THEN co.current_functional_status ELSE NULL END) AS 'Latest Function Status at 36 Months',
+        MAX(CASE WHEN co.interval_month = 36 THEN co.ti_status ELSE NULL END ) AS `Latest TI Status at 36 Months`
 
     FROM
         ART_Initiation ai
