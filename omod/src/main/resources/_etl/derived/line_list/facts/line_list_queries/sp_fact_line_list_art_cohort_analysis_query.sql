@@ -25,7 +25,9 @@ BEGIN
             cd4_count,
             cd4_ as cd4_percent,
             current_functional_status,
-            transferred_in_check_this_for_all_t
+            transferred_in_check_this_for_all_t,
+            visitect_cd4_result,
+            visitect_cd4_test_date
         FROM mamba_flat_encounter_follow_up follow_up
         LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1 ON follow_up.encounter_id = follow_up_1.encounter_id
         LEFT JOIN mamba_flat_encounter_follow_up_2 follow_up_2 ON follow_up.encounter_id = follow_up_2.encounter_id
@@ -108,7 +110,7 @@ BEGIN
                  ROW_NUMBER() OVER(PARTITION BY pi.PatientId, pi.interval_month ORDER BY f.viral_load_sent_date DESC, f.encounter_id DESC) as rn_vl_sent
              FROM PatientIntervals pi
                       JOIN FollowUpEncounters f ON pi.PatientId = f.PatientId
-             WHERE f.viral_load_sent_date <= pi.interval_end_date and f.viral_load_sent_date>=pi.art_start_date AND f.viral_load_sent_date IS NOT NULL
+             WHERE f.viral_load_sent_date BETWEEN pi.interval_start_date AND pi.interval_end_date AND f.viral_load_sent_date IS NOT NULL
          ),
          -- Finds the latest Viral Load Performed record for each patient within each interval, independent of the main follow-up.
          LatestViralLoadPerformedInInterval AS (
@@ -117,12 +119,26 @@ BEGIN
                  pi.interval_month,
                  f.viral_load_received_date,
                  f.viral_load_result,
+                 f.cd4_count,
+                 f.cd4_percent,
                  ROW_NUMBER() OVER(PARTITION BY pi.PatientId, pi.interval_month ORDER BY f.viral_load_received_date DESC, f.encounter_id DESC) as rn_vl_performed
              FROM PatientIntervals pi
                       JOIN FollowUpEncounters f ON pi.PatientId = f.PatientId
-             WHERE f.viral_load_received_date <= pi.interval_end_date and f.viral_load_received_date>=pi.art_start_date AND f.viral_load_received_date IS NOT NULL
+             WHERE f.viral_load_received_date BETWEEN pi.interval_start_date AND pi.interval_end_date AND f.viral_load_received_date IS NOT NULL
          ),
 
+        -- Finds the latest visitect record for each patient within each interval, independent of the main follow-up.
+         LatestVisitectDateInInterval AS (
+             SELECT
+                 pi.PatientId,
+                 pi.interval_month,
+                 f.visitect_cd4_test_date,
+                 f.visitect_cd4_result,
+                 ROW_NUMBER() OVER(PARTITION BY pi.PatientId, pi.interval_month ORDER BY f.visitect_cd4_test_date DESC, f.encounter_id DESC) as rn_visitect_performed
+             FROM PatientIntervals pi
+                      JOIN FollowUpEncounters f ON pi.PatientId = f.PatientId
+             WHERE f.visitect_cd4_test_date between pi.interval_start_date and pi.interval_end_date AND f.visitect_cd4_test_date IS NOT NULL
+         ),
          -- Combines the latest follow-up details with the latest viral load details for each interval.
          CohortDetails AS (
              SELECT
@@ -146,8 +162,10 @@ BEGIN
                  viral_load_sent.viral_load_sent_date,
                  viral_load_performed.viral_load_received_date,
                  viral_load_performed.viral_load_result,
-                 lfu.cd4_count,
-                 lfu.cd4_percent,
+                 visitect_performed.visitect_cd4_result,
+                 visitect_performed.visitect_cd4_test_date,
+                 viral_load_performed.cd4_count,
+                 viral_load_performed.cd4_percent,
                  lfu.current_functional_status,
                  lfu.ti_status
              FROM (SELECT * FROM LatestFollowUpInInterval WHERE rn = 1) lfu
@@ -155,6 +173,8 @@ BEGIN
                                 ON lfu.PatientId = viral_load_sent.PatientId AND lfu.interval_month = viral_load_sent.interval_month
                       LEFT JOIN (SELECT * FROM LatestViralLoadPerformedInInterval WHERE rn_vl_performed = 1) viral_load_performed
                                 ON lfu.PatientId = viral_load_performed.PatientId AND lfu.interval_month = viral_load_performed.interval_month
+                      LEFT JOIN (SELECT * FROM LatestVisitectDateInInterval WHERE rn_visitect_performed = 1) visitect_performed
+                                ON lfu.PatientId = visitect_performed.PatientId AND lfu.interval_month = visitect_performed.interval_month
          )
     -- Final SELECT statement to generate the line list, pivoting all details into columns for each interval.
     SELECT
@@ -208,6 +228,8 @@ BEGIN
         MAX(CASE WHEN co.interval_month = 0 THEN co.viral_load_result ELSE NULL END) AS 'Latest Viral Load Status at Zero Months',
         MAX(CASE WHEN co.interval_month = 0 THEN co.cd4_count ELSE NULL END) AS 'Latest CD4 Count at Zero Months',
         MAX(CASE WHEN co.interval_month = 0 THEN co.cd4_percent ELSE NULL END) AS 'Latest CD4 % at Zero Months',
+        MAX(CASE WHEN co.interval_month = 0 THEN co.visitect_cd4_test_date ELSE NULL END) AS 'Latest Visitect Test Date at Zero Months',
+        MAX(CASE WHEN co.interval_month = 0 THEN co.visitect_cd4_result ELSE NULL END) AS 'Latest Visitect Test Result at Zero Months',
         MAX(CASE WHEN co.interval_month = 0 THEN co.current_functional_status ELSE NULL END) AS 'Latest Function Status at Zero Months',
         MAX(CASE WHEN co.interval_month = 0 THEN co.ti_status ELSE NULL END ) AS `Latest TI Status at Zero Months`,
 
@@ -250,6 +272,8 @@ BEGIN
         MAX(CASE WHEN co.interval_month = 6 THEN co.viral_load_result ELSE NULL END) AS 'Latest Viral Load Status at 6 Months',
         MAX(CASE WHEN co.interval_month = 6 THEN co.cd4_count ELSE NULL END) AS 'Latest CD4 Count at 6 Months',
         MAX(CASE WHEN co.interval_month = 6 THEN co.cd4_percent ELSE NULL END) AS 'Latest CD4 % at 6 Months',
+        MAX(CASE WHEN co.interval_month = 6 THEN co.visitect_cd4_test_date ELSE NULL END) AS 'Latest Visitect Test Date at 6 Months',
+        MAX(CASE WHEN co.interval_month = 6 THEN co.visitect_cd4_result ELSE NULL END) AS 'Latest Visitect Test Result at 6 Months',
         MAX(CASE WHEN co.interval_month = 6 THEN co.current_functional_status ELSE NULL END) AS 'Latest Function Status at 6 Months',
         MAX(CASE WHEN co.interval_month = 6 THEN co.ti_status ELSE NULL END ) AS `Latest TI Status at 6 Months`,
 
@@ -292,6 +316,8 @@ BEGIN
         MAX(CASE WHEN co.interval_month = 12 THEN co.viral_load_result ELSE NULL END) AS 'Latest Viral Load Status at 12 Months',
         MAX(CASE WHEN co.interval_month = 12 THEN co.cd4_count ELSE NULL END) AS 'Latest CD4 Count at 12 Months',
         MAX(CASE WHEN co.interval_month = 12 THEN co.cd4_percent ELSE NULL END) AS 'Latest CD4 % at 12 Months',
+        MAX(CASE WHEN co.interval_month = 12 THEN co.visitect_cd4_test_date ELSE NULL END) AS 'Latest Visitect Test Date at 12 Months',
+        MAX(CASE WHEN co.interval_month = 12 THEN co.visitect_cd4_result ELSE NULL END) AS 'Latest Visitect Test Result at 12 Months',
         MAX(CASE WHEN co.interval_month = 12 THEN co.current_functional_status ELSE NULL END) AS 'Latest Function Status at 12 Months',
         MAX(CASE WHEN co.interval_month = 12 THEN co.ti_status ELSE NULL END ) AS `Latest TI Status at 12 Months`,
 
@@ -334,6 +360,8 @@ BEGIN
         MAX(CASE WHEN co.interval_month = 24 THEN co.viral_load_result ELSE NULL END) AS 'Latest Viral Load Status at 24 Months',
         MAX(CASE WHEN co.interval_month = 24 THEN co.cd4_count ELSE NULL END) AS 'Latest CD4 Count at 24 Months',
         MAX(CASE WHEN co.interval_month = 24 THEN co.cd4_percent ELSE NULL END) AS 'Latest CD4 % at 24 Months',
+        MAX(CASE WHEN co.interval_month = 24 THEN co.visitect_cd4_test_date ELSE NULL END) AS 'Latest Visitect Test Date at 24 Months',
+        MAX(CASE WHEN co.interval_month = 24 THEN co.visitect_cd4_result ELSE NULL END) AS 'Latest Visitect Test Result at 24 Months',
         MAX(CASE WHEN co.interval_month = 24 THEN co.current_functional_status ELSE NULL END) AS 'Latest Function Status at 24 Months',
         MAX(CASE WHEN co.interval_month = 24 THEN co.ti_status ELSE NULL END ) AS `Latest TI Status at 24 Months`,
 
@@ -377,6 +405,8 @@ BEGIN
         MAX(CASE WHEN co.interval_month = 36 THEN co.viral_load_result ELSE NULL END) AS 'Latest Viral Load Status at 36 Months',
         MAX(CASE WHEN co.interval_month = 36 THEN co.cd4_count ELSE NULL END) AS 'Latest CD4 Count at 36 Months',
         MAX(CASE WHEN co.interval_month = 36 THEN co.cd4_percent ELSE NULL END) AS 'Latest CD4 % at 36 Months',
+        MAX(CASE WHEN co.interval_month = 36 THEN co.visitect_cd4_test_date ELSE NULL END) AS 'Latest Visitect Test Date at 36 Months',
+        MAX(CASE WHEN co.interval_month = 36 THEN co.visitect_cd4_result ELSE NULL END) AS 'Latest Visitect Test Result at 36 Months',
         MAX(CASE WHEN co.interval_month = 36 THEN co.current_functional_status ELSE NULL END) AS 'Latest Function Status at 36 Months',
         MAX(CASE WHEN co.interval_month = 36 THEN co.ti_status ELSE NULL END ) AS `Latest TI Status at 36 Months`
 
