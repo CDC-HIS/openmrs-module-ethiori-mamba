@@ -27,7 +27,8 @@ BEGIN
                                  contact.middle_name,
                                  contact.last_name,
                                  person.gender,
-                                 person.uuid
+                                 person.uuid,
+                                 person.person_name_long
                           from mamba_flat_encounter_ict_general g
                                    join mamba_flat_encounter_index_contact_followup contact
                                         on g.client_id = contact.client_id
@@ -38,6 +39,7 @@ BEGIN
                                    left join mamba_dim_relationship relationship on attribute.person_id = person_b
                                    left join mamba_dim_person person on relationship.person_b = person.person_id)
     select uuid                                           as `GUID`,
+           person_name_long `Index Full Name`,
            CONCAT_WS(' ',first_name,middle_name,last_name)                               as `Contact’s Full Name`,
            elicited_date                                  as `Elicited date`,
            contact_category                               as `Contact Category (1-5)`,
