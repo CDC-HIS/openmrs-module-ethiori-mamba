@@ -64,11 +64,8 @@ public class RetentionLineListDataSetEvaluatorMamba implements DataSetEvaluator 
 	}
 	
 	private List<ProcedureCall> createProcedureCalls(ARTRetentionDataSetDefinitionMamba dataSetDefinitionMamba) {
-		java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null ?
-				new java.sql.Date( dataSetDefinitionMamba.getStartDate().getTime()): new java.sql.Date(LocalDate.of(1900, 1, 1).toEpochDay() * 24 * 60 * 60 * 1000);
-		java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null ?
-				new java.sql.Date( dataSetDefinitionMamba.getEndDate().getTime()): new java.sql.Date(System.currentTimeMillis());
-
+		java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null ? new java.sql.Date( dataSetDefinitionMamba.getStartDate().getTime()):null ;
+		java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date( dataSetDefinitionMamba.getEndDate().getTime()):null ;
 		return Collections.singletonList(
                 new ProcedureCall("{call sp_fact_line_list_art_retention_query(?,?)}", statement -> {
 					statement.setDate(1, startDate);
