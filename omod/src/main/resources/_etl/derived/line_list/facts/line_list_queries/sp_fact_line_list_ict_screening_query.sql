@@ -23,6 +23,7 @@ BEGIN
                                accepted_date,
                                linked_to_appropriate_care,
                                specify_other_adverse_event_type,
+                               reason_ict_service_not_accepted,
                                adverse_event_type,
                                ROW_NUMBER() over (PARTITION BY client.client_id ORDER BY offered_date DESC ) as row_num
                         from mamba_flat_encounter_ict_general ict_general
@@ -40,6 +41,7 @@ BEGIN
     priority_criteria as `Prioritization for ICT`,
     offered as `Offered`,
     accepted as `Accepted (Yes)`,
+    reason_ict_service_not_accepted as `Accepted (No): Reason`,
     elicited as  `Elicited`,
     high_risk_for_ipv as `High risk for IPV`,
     adverse_event_type as `Adverse Event Type`,
