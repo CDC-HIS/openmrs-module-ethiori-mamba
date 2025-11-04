@@ -70,7 +70,7 @@ BEGIN
                  a.art_start_date,
                  i.interval_month,
                  DATE_ADD(REPORT_START_DATE, INTERVAL i.interval_month MONTH) as interval_end_date,
-                 LAG(DATE_ADD(REPORT_START_DATE, INTERVAL i.interval_month MONTH), 1, REPORT_START_DATE) OVER (PARTITION BY a.PatientId ORDER BY i.interval_month) as interval_start_date
+                 LAG(DATE_ADD(REPORT_START_DATE, INTERVAL i.interval_month + 1 MONTH), 1, REPORT_START_DATE) OVER (PARTITION BY a.PatientId ORDER BY i.interval_month) as interval_start_date
              FROM ART_Initiation a
                       CROSS JOIN IntervalsDef i
          ),
@@ -272,7 +272,8 @@ BEGIN
         MAX(CASE WHEN co.interval_month = 6 THEN co.viral_load_result ELSE NULL END) AS 'Latest Viral Load Status at 6 Months',
         MAX(CASE WHEN co.interval_month = 6 THEN co.cd4_count ELSE NULL END) AS 'Latest CD4 Count at 6 Months',
         MAX(CASE WHEN co.interval_month = 6 THEN co.cd4_percent ELSE NULL END) AS 'Latest CD4 % at 6 Months',
-        MAX(CASE WHEN co.interval_month = 6 THEN co.visitect_cd4_test_date ELSE NULL END) AS 'Latest Visitect Test Date at 6 Months',
+        MAX(CASE WHEN co.interval_month = 6 THEN co.visitect_cd4_test_date ELSE NULL END) AS 'Latest Visitect Test Date at 6 Months GC.',
+        MAX(CASE WHEN co.interval_month = 6 THEN co.visitect_cd4_test_date ELSE NULL END) AS 'Latest Visitect Test Date at 6 Months EC.',
         MAX(CASE WHEN co.interval_month = 6 THEN co.visitect_cd4_result ELSE NULL END) AS 'Latest Visitect Test Result at 6 Months',
         MAX(CASE WHEN co.interval_month = 6 THEN co.current_functional_status ELSE NULL END) AS 'Latest Function Status at 6 Months',
         MAX(CASE WHEN co.interval_month = 6 THEN co.ti_status ELSE NULL END ) AS `Latest TI Status at 6 Months`,
@@ -316,7 +317,8 @@ BEGIN
         MAX(CASE WHEN co.interval_month = 12 THEN co.viral_load_result ELSE NULL END) AS 'Latest Viral Load Status at 12 Months',
         MAX(CASE WHEN co.interval_month = 12 THEN co.cd4_count ELSE NULL END) AS 'Latest CD4 Count at 12 Months',
         MAX(CASE WHEN co.interval_month = 12 THEN co.cd4_percent ELSE NULL END) AS 'Latest CD4 % at 12 Months',
-        MAX(CASE WHEN co.interval_month = 12 THEN co.visitect_cd4_test_date ELSE NULL END) AS 'Latest Visitect Test Date at 12 Months',
+        MAX(CASE WHEN co.interval_month = 12 THEN co.visitect_cd4_test_date ELSE NULL END) AS 'Latest Visitect Test Date at 12 Months GC.',
+        MAX(CASE WHEN co.interval_month = 12 THEN co.visitect_cd4_test_date ELSE NULL END) AS 'Latest Visitect Test Date at 12 Months EC.',
         MAX(CASE WHEN co.interval_month = 12 THEN co.visitect_cd4_result ELSE NULL END) AS 'Latest Visitect Test Result at 12 Months',
         MAX(CASE WHEN co.interval_month = 12 THEN co.current_functional_status ELSE NULL END) AS 'Latest Function Status at 12 Months',
         MAX(CASE WHEN co.interval_month = 12 THEN co.ti_status ELSE NULL END ) AS `Latest TI Status at 12 Months`,
@@ -360,7 +362,8 @@ BEGIN
         MAX(CASE WHEN co.interval_month = 24 THEN co.viral_load_result ELSE NULL END) AS 'Latest Viral Load Status at 24 Months',
         MAX(CASE WHEN co.interval_month = 24 THEN co.cd4_count ELSE NULL END) AS 'Latest CD4 Count at 24 Months',
         MAX(CASE WHEN co.interval_month = 24 THEN co.cd4_percent ELSE NULL END) AS 'Latest CD4 % at 24 Months',
-        MAX(CASE WHEN co.interval_month = 24 THEN co.visitect_cd4_test_date ELSE NULL END) AS 'Latest Visitect Test Date at 24 Months',
+        MAX(CASE WHEN co.interval_month = 24 THEN co.visitect_cd4_test_date ELSE NULL END) AS 'Latest Visitect Test Date at 24 Months GC.',
+        MAX(CASE WHEN co.interval_month = 24 THEN co.visitect_cd4_test_date ELSE NULL END) AS 'Latest Visitect Test Date at 24 Months EC.',
         MAX(CASE WHEN co.interval_month = 24 THEN co.visitect_cd4_result ELSE NULL END) AS 'Latest Visitect Test Result at 24 Months',
         MAX(CASE WHEN co.interval_month = 24 THEN co.current_functional_status ELSE NULL END) AS 'Latest Function Status at 24 Months',
         MAX(CASE WHEN co.interval_month = 24 THEN co.ti_status ELSE NULL END ) AS `Latest TI Status at 24 Months`,
@@ -405,7 +408,8 @@ BEGIN
         MAX(CASE WHEN co.interval_month = 36 THEN co.viral_load_result ELSE NULL END) AS 'Latest Viral Load Status at 36 Months',
         MAX(CASE WHEN co.interval_month = 36 THEN co.cd4_count ELSE NULL END) AS 'Latest CD4 Count at 36 Months',
         MAX(CASE WHEN co.interval_month = 36 THEN co.cd4_percent ELSE NULL END) AS 'Latest CD4 % at 36 Months',
-        MAX(CASE WHEN co.interval_month = 36 THEN co.visitect_cd4_test_date ELSE NULL END) AS 'Latest Visitect Test Date at 36 Months',
+        MAX(CASE WHEN co.interval_month = 36 THEN co.visitect_cd4_test_date ELSE NULL END) AS 'Latest Visitect Test Date at 36 Months GC.',
+        MAX(CASE WHEN co.interval_month = 36 THEN co.visitect_cd4_test_date ELSE NULL END) AS 'Latest Visitect Test Date at 36 Months EC.',
         MAX(CASE WHEN co.interval_month = 36 THEN co.visitect_cd4_result ELSE NULL END) AS 'Latest Visitect Test Result at 36 Months',
         MAX(CASE WHEN co.interval_month = 36 THEN co.current_functional_status ELSE NULL END) AS 'Latest Function Status at 36 Months',
         MAX(CASE WHEN co.interval_month = 36 THEN co.ti_status ELSE NULL END ) AS `Latest TI Status at 36 Months`

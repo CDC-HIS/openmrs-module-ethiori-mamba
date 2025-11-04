@@ -69,7 +69,7 @@ BEGIN
          PatientIntervals AS (SELECT a.PatientId,
                                      a.art_start_date,
                                      i.interval_month,
-                                     DATE_ADD(REPORT_START_DATE, INTERVAL i.interval_month MONTH)  as interval_end_date,
+                                     DATE_ADD(REPORT_START_DATE, INTERVAL i.interval_month +1 MONTH)  as interval_end_date,
                                      LAG(DATE_ADD(REPORT_START_DATE, INTERVAL i.interval_month MONTH), 1,
                                          REPORT_START_DATE)
                                          OVER (PARTITION BY a.PatientId ORDER BY i.interval_month) as interval_start_date
@@ -192,13 +192,13 @@ BEGIN
     UNION ALL
     SELECT 'B. Transfer in Add+'     AS Name,
            0                         AS 'Month 0',
-           CAST(IFNULL(SUM(CASE WHEN interval_month = 6 AND ti_status = 'TI' THEN 1 ELSE 0 END),
+           CAST(IFNULL(SUM(CASE WHEN interval_month <= 6 AND ti_status = 'TI' THEN 1 ELSE 0 END),
                        0) AS SIGNED) AS 'Month 6',
-           CAST(IFNULL(SUM(CASE WHEN interval_month = 12 AND ti_status = 'TI' THEN 1 ELSE 0 END),
+           CAST(IFNULL(SUM(CASE WHEN interval_month <= 12 AND ti_status = 'TI' THEN 1 ELSE 0 END),
                        0) AS SIGNED) AS 'Month 12',
-           CAST(IFNULL(SUM(CASE WHEN interval_month = 24 AND ti_status = 'TI' THEN 1 ELSE 0 END),
+           CAST(IFNULL(SUM(CASE WHEN interval_month <= 24 AND ti_status = 'TI' THEN 1 ELSE 0 END),
                        0) AS SIGNED) AS 'Month 24',
-           CAST(IFNULL(SUM(CASE WHEN interval_month = 36 AND ti_status = 'TI' THEN 1 ELSE 0 END),
+           CAST(IFNULL(SUM(CASE WHEN interval_month <= 36 AND ti_status = 'TI' THEN 1 ELSE 0 END),
                        0) AS SIGNED) AS 'Month 36'
     FROM CohortDetails
     UNION ALL
@@ -220,22 +220,22 @@ BEGIN
     UNION ALL
     SELECT 'D. Net current cohort'                          AS Name,
            0                                                AS 'Month 0',
-           CAST(GREATEST(0,IFNULL(((SUM(CASE WHEN interval_month = 6 AND follow_up_date IS NOT NULL THEN 1 ELSE 0 END) +
+           CAST(GREATEST(0,IFNULL(((SUM(CASE WHEN interval_month = 0  THEN 1 ELSE 0 END) +
                          SUM(CASE WHEN interval_month = 6 AND ti_status = 'TI' THEN 1 ELSE 0 END)) -
                         SUM(CASE
                                 WHEN interval_month <= 6 AND outcome = 'Transferred out' THEN 1
                                 ELSE 0 END)), 0)) AS SIGNED) AS 'Month 6',
-           CAST(GREATEST(0,IFNULL(((SUM(CASE WHEN interval_month = 12 AND follow_up_date IS NOT NULL THEN 1 ELSE 0 END) +
+           CAST(GREATEST(0,IFNULL(((SUM(CASE WHEN interval_month = 0  THEN 1 ELSE 0 END) +
                          SUM(CASE WHEN interval_month = 12 AND ti_status = 'TI' THEN 1 ELSE 0 END)) -
                         SUM(CASE
                                 WHEN interval_month <= 12 AND outcome = 'Transferred out' THEN 1
                                 ELSE 0 END)), 0)) AS SIGNED) AS 'Month 12',
-           CAST(GREATEST(0,IFNULL(((SUM(CASE WHEN interval_month = 24 AND follow_up_date IS NOT NULL THEN 1 ELSE 0 END) +
+           CAST(GREATEST(0,IFNULL(((SUM(CASE WHEN interval_month = 0  THEN 1 ELSE 0 END) +
                          SUM(CASE WHEN interval_month = 24 AND ti_status = 'TI' THEN 1 ELSE 0 END)) -
                         SUM(CASE
                                 WHEN interval_month <= 24 AND outcome = 'Transferred out' THEN 1
                                 ELSE 0 END)), 0)) AS SIGNED) AS 'Month 24',
-           CAST(GREATEST(0,IFNULL(((SUM(CASE WHEN interval_month = 36 AND follow_up_date IS NOT NULL THEN 1 ELSE 0 END) +
+           CAST(GREATEST(0,IFNULL(((SUM(CASE WHEN interval_month = 0  THEN 1 ELSE 0 END) +
                          SUM(CASE WHEN interval_month = 36 AND ti_status = 'TI' THEN 1 ELSE 0 END)) -
                         SUM(CASE
                                 WHEN interval_month <= 36 AND outcome = 'Transferred out' THEN 1
