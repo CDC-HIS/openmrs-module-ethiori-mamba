@@ -38,7 +38,7 @@ BEGIN
                              date_of_reported_hiv_viral_load     as viral_load_sent_date,
                              date_viral_load_results_received    AS viral_load_perform_date,
                              viral_load_test_status,
-                             visitect_cd4_result,
+                             CASE visitect_cd4_result WHEN 'VISITECT <=200 copies/ml' THEN 'VISITECT >200 copies/ml' ELSE visitect_cd4_result END AS visitect_cd4_result,
                              visitect_cd4_test_date
                       FROM mamba_flat_encounter_follow_up follow_up
                                LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1
