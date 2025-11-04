@@ -162,7 +162,7 @@ BEGIN
                  viral_load_sent.viral_load_sent_date,
                  viral_load_performed.viral_load_received_date,
                  viral_load_performed.viral_load_result,
-                 visitect_performed.visitect_cd4_result,
+                 CASE visitect_performed.visitect_cd4_result WHEN 'VISITECT <=200 copies/ml' THEN 'VISITECT >200 copies/ml' ELSE visitect_performed.visitect_cd4_result END AS visitect_cd4_result,
                  visitect_performed.visitect_cd4_test_date,
                  viral_load_performed.cd4_count,
                  viral_load_performed.cd4_percent,
