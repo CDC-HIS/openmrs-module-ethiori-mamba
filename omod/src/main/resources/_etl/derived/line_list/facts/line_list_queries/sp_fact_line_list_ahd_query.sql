@@ -116,8 +116,7 @@ BEGIN
                                LEFT JOIN mamba_flat_encounter_follow_up_9 follow_up_9
                                          ON follow_up.encounter_id = follow_up_9.encounter_id
                                LEFT JOIN mamba_flat_encounter_follow_up_10 follow_up_10
-                                         ON follow_up.encounter_id = follow_up_10.encounter_id
-                      ),
+                                         ON follow_up.encounter_id = follow_up_10.encounter_id),
          tmp_latest_follow_up AS (SELECT client_id,
                                          follow_up_date,
                                          follow_up_status,
@@ -131,6 +130,14 @@ BEGIN
                               from tmp_latest_follow_up
                               where row_num = 1
                                 and follow_up_status not in ('Dead', 'Transferred out')),
+         tmp_visitect as (select client_id,
+                                 visitect_cd4_test_date,
+                                 visitect_cd4_result,
+                                 ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY visitect_cd4_test_date DESC, encounter_id DESC) AS row_num
+                          from FollowUp
+                          where visitect_cd4_test_date is not null
+                            and visitect_cd4_test_date <= COALESCE(REPORT_END_DATE, CURDATE())),
+         visitect as ( select * from tmp_visitect where row_num=1),
          tmp_vl_performed_date as (select encounter_id,
                                           client_id,
                                           viral_load_perform_date,
@@ -309,8 +316,8 @@ BEGIN
            f_case.follow_up_date                                                           as FollowUpDate,
            f_case.current_who_hiv_stage                                                    as WHOStage,
            f_case.cd4_count                                                                as CD4Count,
-           f_case.visitect_cd4_result as `VISITECT CD4 Test Result`,
-           f_case.visitect_cd4_test_date as `VISITECT CD4 Test Date`,
+           visitect.visitect_cd4_result                                                      as `VISITECT CD4 Test Result`,
+           visitect.visitect_cd4_test_date                                                   as `VISITECT CD4 Test Date`,
            f_case.art_dose_days                                                            as ARTDoseDays,
            f_case.regimen                                                                  as ARVRegimen,
            CASE f_case.follow_up_status
@@ -403,8 +410,8 @@ BEGIN
            CASE
                WHEN TIMESTAMPDIFF(YEAR, client.date_of_birth, COALESCE(REPORT_END_DATE, CURDATE())) < 5 THEN 'Yes'
                WHEN TIMESTAMPDIFF(YEAR, client.date_of_birth, COALESCE(REPORT_END_DATE, CURDATE())) >= 5 AND
-                   (( visitect_cd4_result is null and f_case.cd4_count IS NOT NULL AND
-                    f_case.cd4_count < 200) or (visitect_cd4_result = 'VISITECT <200 copies/ml') ) THEN 'Yes'
+                    ((visitect.visitect_cd4_result is null and f_case.cd4_count IS NOT NULL AND
+                      f_case.cd4_count < 200) or (visitect.visitect_cd4_result = 'VISITECT <200 copies/ml')) THEN 'Yes'
                WHEN TIMESTAMPDIFF(YEAR, client.date_of_birth, COALESCE(REPORT_END_DATE, CURDATE())) >= 5 AND
                     f_case.current_who_hiv_stage IS NOT NULL AND
                     (f_case.current_who_hiv_stage = 'WHO stage 3 adult' Or
@@ -419,6 +426,7 @@ BEGIN
              INNER JOIN latest_follow_up ON f_case.encounter_id = latest_follow_up.encounter_id
              LEFT JOIN mamba_dim_client client on latest_follow_up.client_id = client.client_id
              LEFT JOIN vl_performed_date AS vlperfdate ON vlperfdate.client_id = f_case.client_id
+             LEFT JOIN visitect ON visitect.client_id = f_case.client_id
              LEFT JOIN tpt_start ON tpt_start.client_id = f_case.client_id
              LEFT JOIN tpt_completed ON tpt_completed.client_id = f_case.client_id
              LEFT JOIN tpt_type ON tpt_type.client_id = f_case.client_id

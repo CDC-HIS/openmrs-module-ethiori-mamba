@@ -10,7 +10,7 @@ CREATE PROCEDURE sp_dim_tx_rtt_datim_query(
 )
 BEGIN
     DECLARE age_group_cols VARCHAR(5000);
-    DECLARE tx_rtt_query VARCHAR(9658);
+    DECLARE tx_rtt_query VARCHAR(10242);
     DECLARE group_query TEXT;
     DECLARE outcome_condition VARCHAR(227);
     SET session group_concat_max_len = 20000;
@@ -87,26 +87,27 @@ BEGIN
                          pregnancy_status,
                          transferred_in_check_this_for_all_t AS transferred_in,
                          cd4_count,
-                         visitect_cd4_result
+                         visitect_cd4_result,
+                         visitect_cd4_test_date
                   FROM mamba_flat_encounter_follow_up follow_up
-                               LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1
-                                         ON follow_up.encounter_id = follow_up_1.encounter_id
-                               LEFT JOIN mamba_flat_encounter_follow_up_2 follow_up_2
-                                         ON follow_up.encounter_id = follow_up_2.encounter_id
-                               LEFT JOIN mamba_flat_encounter_follow_up_3 follow_up_3
-                                         ON follow_up.encounter_id = follow_up_3.encounter_id
-                               LEFT JOIN mamba_flat_encounter_follow_up_4 follow_up_4
-                                         ON follow_up.encounter_id = follow_up_4.encounter_id
-                               LEFT JOIN mamba_flat_encounter_follow_up_5 follow_up_5
-                                         ON follow_up.encounter_id = follow_up_5.encounter_id
-                               LEFT JOIN mamba_flat_encounter_follow_up_6 follow_up_6
-                                         ON follow_up.encounter_id = follow_up_6.encounter_id
-                               LEFT JOIN mamba_flat_encounter_follow_up_7 follow_up_7
-                                         ON follow_up.encounter_id = follow_up_7.encounter_id
-                               LEFT JOIN mamba_flat_encounter_follow_up_8 follow_up_8
-                                         ON follow_up.encounter_id = follow_up_8.encounter_id
-                               LEFT JOIN mamba_flat_encounter_follow_up_9 follow_up_9
-                                         ON follow_up.encounter_id = follow_up_9.encounter_id),
+                           LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1
+                                     ON follow_up.encounter_id = follow_up_1.encounter_id
+                           LEFT JOIN mamba_flat_encounter_follow_up_2 follow_up_2
+                                     ON follow_up.encounter_id = follow_up_2.encounter_id
+                           LEFT JOIN mamba_flat_encounter_follow_up_3 follow_up_3
+                                     ON follow_up.encounter_id = follow_up_3.encounter_id
+                           LEFT JOIN mamba_flat_encounter_follow_up_4 follow_up_4
+                                     ON follow_up.encounter_id = follow_up_4.encounter_id
+                           LEFT JOIN mamba_flat_encounter_follow_up_5 follow_up_5
+                                     ON follow_up.encounter_id = follow_up_5.encounter_id
+                           LEFT JOIN mamba_flat_encounter_follow_up_6 follow_up_6
+                                     ON follow_up.encounter_id = follow_up_6.encounter_id
+                           LEFT JOIN mamba_flat_encounter_follow_up_7 follow_up_7
+                                     ON follow_up.encounter_id = follow_up_7.encounter_id
+                           LEFT JOIN mamba_flat_encounter_follow_up_8 follow_up_8
+                                     ON follow_up.encounter_id = follow_up_8.encounter_id
+                           LEFT JOIN mamba_flat_encounter_follow_up_9 follow_up_9
+                                     ON follow_up.encounter_id = follow_up_9.encounter_id),
      -- TX curr start
      tmp_latest_follow_up_start AS (SELECT client_id,
                                            follow_up_date,
@@ -121,9 +122,16 @@ BEGIN
                                     WHERE follow_up_status IS NOT NULL
                                       AND art_start_date IS NOT NULL
                                       AND follow_up_date <= ?),  -- Param 1 @start_date
+     tmp_visitect_cd4_result as (SELECT client_id,
+                                        encounter_id,
+                                        visitect_cd4_result,
+                                        ROW_NUMBER() over (PARTITION BY client_id ORDER BY visitect_cd4_test_date DESC, encounter_id DESC) AS row_num
+                                 FROM FollowUp
+                                 WHERE visitect_cd4_test_date is not null and visitect_cd4_test_date <= ?),
      latest_follow_up_start as (select *
                                 from tmp_latest_follow_up_start
                                 where row_num = 1),
+     visitect_cd4_result as ( select * from tmp_visitect_cd4_result where row_num=1),
      tx_curr_start AS (select *
                        from tmp_latest_follow_up_start
                        where row_num = 1
@@ -137,41 +145,43 @@ BEGIN
                                 and latest_follow_up_start.follow_up_status != ''Transferred out''),
 
      -- TX curr
-     tmp_latest_follow_up_end AS (SELECT client_id,
+     tmp_latest_follow_up_end AS (SELECT FollowUp.client_id,
                                          follow_up_date,
-                                         encounter_id,
+                                         FollowUp.encounter_id,
                                          follow_up_status,
                                          treatment_end_date,
                                          art_start_date,
                                          cd4_count,
-                                         visitect_cd4_result,
-                                         ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
+                                         visitect_cd4_result.visitect_cd4_result,
+                                         ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY follow_up_date DESC, FollowUp.encounter_id DESC) AS row_num
                                   FROM FollowUp
+                                           LEFT JOIN visitect_cd4_result on FollowUp.client_id = visitect_cd4_result.client_id
                                   WHERE follow_up_status IS NOT NULL
                                     AND art_start_date IS NOT NULL
                                     AND follow_up_date <= ?), -- Param 3 @end_date
      -- TX curr
-     tmp_restart_follow_up_end AS (SELECT client_id,
-                                         follow_up_date as restart_follow_up_date,
-                                         encounter_id,
-                                         follow_up_status as restart_status,
-                                         treatment_end_date,
-                                         art_start_date,
-                                         cd4_count as restart_cd4_count,
-                                         visitect_cd4_result as restart_visitect_cd4_result,
-                                         ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date , encounter_id ) AS row_num
-                                  FROM FollowUp
-                                  WHERE follow_up_status IS NOT NULL
-                                    AND art_start_date IS NOT NULL
-                                    AND follow_up_date BETWEEN ? AND ?), -- Param 4 and 5 @start_date, @end_date
+     tmp_restart_follow_up_end AS (SELECT FollowUp.client_id,
+                                          follow_up_date as restart_follow_up_date,
+                                          FollowUp.encounter_id,
+                                          follow_up_status as restart_status,
+                                          treatment_end_date,
+                                          art_start_date,
+                                          cd4_count as restart_cd4_count,
+                                          visitect_cd4_result.visitect_cd4_result as restart_visitect_cd4_result,
+                                          ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY follow_up_date , FollowUp.encounter_id ) AS row_num
+                                   FROM FollowUp
+                                   LEFT JOIN visitect_cd4_result on FollowUp.client_id = visitect_cd4_result.client_id
+                                   WHERE follow_up_status IS NOT NULL
+                                     AND art_start_date IS NOT NULL
+                                     AND follow_up_date BETWEEN ? AND ?), -- Param 4 and 5 @start_date, @end_date
      tx_curr_end AS (select *
                      from tmp_latest_follow_up_end
                      where row_num = 1
                        AND follow_up_status in (''Alive'', ''Restart medication'')
                        AND treatment_end_date >= ?), -- Param 6 @end_date
      restart_follow_up_end as (select tmp_restart_follow_up_end.* from tmp_restart_follow_up_end
-                                        join tx_curr_end on tmp_restart_follow_up_end.client_id = tx_curr_end.client_id
-                                        where tmp_restart_follow_up_end.row_num=1),
+                                                                           join tx_curr_end on tmp_restart_follow_up_end.client_id = tx_curr_end.client_id
+                               where tmp_restart_follow_up_end.row_num=1),
 
      tx_rtt as (select tx_curr_end.follow_up_date as latest_follow_up_date,
                        tx_curr_end.encounter_id,
@@ -206,9 +216,9 @@ BEGIN
                 from interrupted_at_start
                          join tx_curr_end
                               on interrupted_at_start.client_id = tx_curr_end.client_id
-                        join mamba_dim_client client on interrupted_at_start.client_id= client.client_id
-                        join restart_follow_up_end  on tx_curr_end.client_id=restart_follow_up_end.client_id
-                ) ';
+                         join mamba_dim_client client on interrupted_at_start.client_id= client.client_id
+                         join restart_follow_up_end  on tx_curr_end.client_id=restart_follow_up_end.client_id
+     ) ';
     IF REPORT_TYPE = 'IIT' THEN
         SET group_query = 'select ''Experienced treatment interruption of <3 months before returning to treatment'' as `IIT`,COUNT(*) as `Value` from tx_rtt where interrupted_months <3
         UNION ALL
@@ -243,7 +253,7 @@ BEGIN
     PREPARE stmt FROM @sql;
     SET @start_date = REPORT_START_DATE;
     SET @end_date = REPORT_END_DATE;
-    EXECUTE stmt USING @start_date, @start_date , @end_date, @start_date , @end_date, @end_date , @end_date, @end_date, @start_date;
+    EXECUTE stmt USING @start_date, @end_date, @start_date , @end_date, @start_date , @end_date, @end_date , @end_date, @end_date, @start_date;
     DEALLOCATE PREPARE stmt;
 END //
 
