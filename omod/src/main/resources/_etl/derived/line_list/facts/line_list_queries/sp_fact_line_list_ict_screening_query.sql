@@ -52,6 +52,7 @@ BEGIN
                              transferred_in_check_this_for_all_t,
                              visitect_cd4_result,
                              visitect_cd4_test_date,
+                             date_of_event,
                              ROW_NUMBER() OVER (PARTITION BY follow_up.client_id ORDER BY follow_up_date_followup_ DESC, follow_up.encounter_id DESC) as rn
                       FROM mamba_flat_encounter_follow_up follow_up
                                LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1
@@ -77,14 +78,19 @@ BEGIN
                             FROM FollowUp
                             where rn = 1)
     select patient_uuid                    as `GUID`,
-           mrn,
-           uan,
+           mrn                             as `MRN`,
+           uan                             as `UAN`,
            ict_serial_number               as `ICT#`,
            patient_name                    as `Full Name`,
+           date_of_event                   as `Date Confirmed HIV+ve`,
+           art_start_date                  as `ART Start Date`,
+           follow_up_date                  as `Last ART Follow-Up Date`,
            visit_date_ict_offer            as `ICT Visit Date (ICT Screening Date)`,
            priority_criteria               as `Prioritization for ICT`,
            offered                         as `Offered`,
+           offered_date as `Offered Date`,
            accepted                        as `Accepted (Yes)`,
+           accepted_date as `Accepted Date`,
            reason_ict_service_not_accepted as `Accepted (No): Reason`,
            elicited                        as `Elicited`
     from offer
