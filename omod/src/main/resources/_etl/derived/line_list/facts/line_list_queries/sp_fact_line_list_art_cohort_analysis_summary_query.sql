@@ -494,30 +494,30 @@ BEGIN
     SELECT 'I. Stopped'                                   AS Name,
            0                                              AS 'Month 0',
            CAST(IFNULL(SUM(CASE
-                               WHEN interval_month = 6 AND final_outcome = 'Stop all' THEN 1
+                               WHEN interval_month <= 6 AND final_outcome = 'Stop all' THEN 1
                                ELSE 0 END), 0) AS SIGNED) AS 'Month 6',
            CAST(IFNULL(SUM(CASE
-                               WHEN interval_month = 12 AND final_outcome = 'Stop all' THEN 1
+                               WHEN interval_month <= 12 AND final_outcome = 'Stop all' THEN 1
                                ELSE 0 END), 0) AS SIGNED) AS 'Month 12',
            CAST(IFNULL(SUM(CASE
-                               WHEN interval_month = 24 AND final_outcome = 'Stop all' THEN 1
+                               WHEN interval_month <= 24 AND final_outcome = 'Stop all' THEN 1
                                ELSE 0 END), 0) AS SIGNED) AS 'Month 24',
            CAST(IFNULL(SUM(CASE
-                               WHEN interval_month = 36 AND final_outcome = 'Stop all' THEN 1
+                               WHEN interval_month <= 36 AND final_outcome = 'Stop all' THEN 1
                                ELSE 0 END), 0) AS SIGNED) AS 'Month 36'
     FROM CohortDetails
     UNION ALL
     SELECT 'J. Died'                 AS Name,
            0                         AS 'Month 0',
-           CAST(IFNULL(SUM(CASE WHEN interval_month = 6 AND final_outcome = 'Dead' THEN 1 ELSE 0 END),
+           CAST(IFNULL(SUM(CASE WHEN interval_month <= 6 AND final_outcome = 'Dead' THEN 1 ELSE 0 END),
                        0) AS SIGNED) AS 'Month 6',
-           CAST(IFNULL(SUM(CASE WHEN interval_month = 12 AND final_outcome = 'Dead' THEN 1 ELSE 0 END),
+           CAST(IFNULL(SUM(CASE WHEN interval_month <= 12 AND final_outcome = 'Dead' THEN 1 ELSE 0 END),
                        0) AS SIGNED) AS
                                         'Month 12',
-           CAST(IFNULL(SUM(CASE WHEN interval_month = 24 AND final_outcome = 'Dead' THEN 1 ELSE 0 END),
+           CAST(IFNULL(SUM(CASE WHEN interval_month <= 24 AND final_outcome = 'Dead' THEN 1 ELSE 0 END),
                        0) AS SIGNED) AS
                                         'Month 24',
-           CAST(IFNULL(SUM(CASE WHEN interval_month = 36 AND final_outcome = 'Dead' THEN 1 ELSE 0 END),
+           CAST(IFNULL(SUM(CASE WHEN interval_month <= 36 AND final_outcome = 'Dead' THEN 1 ELSE 0 END),
                        0) AS SIGNED) AS
                                         'Month 36'
     FROM CohortDetails
