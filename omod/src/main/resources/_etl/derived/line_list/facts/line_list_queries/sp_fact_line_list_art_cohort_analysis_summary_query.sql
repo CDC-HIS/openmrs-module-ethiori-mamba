@@ -90,44 +90,63 @@ BEGIN
                                              f.pregnancy_status,
                                              f.treatment_end_date,
                                              f.next_visit_date,
-                                             f.cd4_count,
                                              f.viral_load_count,
-                                             f.cd4_percent,
                                              f.current_functional_status,
                                              fn_get_ti_status(pi.PatientId, f.art_start_date,
-                                                              pi.interval_end_date)                                                                               as ti_status,
-                                             ROW_NUMBER() OVER (PARTITION BY pi.PatientId, pi.interval_month ORDER BY f.follow_up_date DESC, f.encounter_id DESC) as rn
+                                                              pi.interval_end_date) AS ti_status,
+                                             ROW_NUMBER() OVER (
+                                                 PARTITION BY pi.PatientId, pi.interval_month
+                                                 ORDER BY f.follow_up_date DESC, f.encounter_id DESC
+                                                 )                                  AS rn
                                       FROM PatientIntervals pi
-                                               LEFT JOIN FollowUpEncounters f ON pi.PatientId = f.PatientId AND
-                                                                                 f.follow_up_date >
-                                                                                 pi.interval_start_date AND
-                                                                                 f.follow_up_date <=
-                                                                                 pi.interval_end_date),
-         -- Figure out follow up with VL PERFORMED within period independent of latest follow up collected above
+                                               LEFT JOIN FollowUpEncounters f
+                                                         ON pi.PatientId = f.PatientId
+                                                             AND
+                                                            f.follow_up_date BETWEEN pi.interval_start_date AND pi.interval_end_date),
+
+         LatestCd4InInterval AS (SELECT pi.PatientId,
+                                        pi.interval_month,
+                                        f.cd4_count,
+                                        f.cd4_percent,
+                                        f.follow_up_date,
+                                        ROW_NUMBER() OVER (
+                                            PARTITION BY pi.PatientId, pi.interval_month
+                                            ORDER BY f.follow_up_date DESC, f.encounter_id DESC
+                                            ) AS rn_cd4
+                                 FROM PatientIntervals pi
+                                          JOIN FollowUpEncounters f ON pi.PatientId = f.PatientId
+                                 WHERE f.follow_up_date BETWEEN pi.interval_start_date AND pi.interval_end_date
+                                     AND f.cd4_count IS NOT NULL OR f.cd4_percent IS NOT NULL ),
+
          LatestViralLoadPerformedInInterval AS (SELECT pi.PatientId,
                                                        pi.interval_month,
                                                        f.viral_load_received_date,
                                                        f.viral_load_result,
-                                                       f.viral_load_sent_date,
-                                                       f.cd4_count,
                                                        f.viral_load_count,
-                                                       f.cd4_percent,
-                                                       ROW_NUMBER() OVER (PARTITION BY pi.PatientId, pi.interval_month ORDER BY f.viral_load_received_date DESC, f.encounter_id DESC) as rn_vl_performed
+                                                       f.viral_load_sent_date,
+                                                       ROW_NUMBER() OVER (
+                                                           PARTITION BY pi.PatientId, pi.interval_month
+                                                           ORDER BY f.viral_load_received_date DESC, f.encounter_id DESC
+                                                           ) AS rn_vl_performed
                                                 FROM PatientIntervals pi
                                                          JOIN FollowUpEncounters f ON pi.PatientId = f.PatientId
                                                 WHERE f.viral_load_received_date BETWEEN pi.interval_start_date AND pi.interval_end_date
                                                   AND f.viral_load_received_date IS NOT NULL
-                                                  AND viral_load_count > 0),
-         -- Figure out follow up with VISITECT within period independent of latest follow up collected above
+                                                  AND f.viral_load_count > 0),
+
          LatestVisitectDateInInterval AS (SELECT pi.PatientId,
                                                  pi.interval_month,
                                                  f.visitect_cd4_test_date,
                                                  f.visitect_cd4_result,
-                                                 ROW_NUMBER() OVER (PARTITION BY pi.PatientId, pi.interval_month ORDER BY f.visitect_cd4_test_date DESC, f.encounter_id DESC) as rn_visitect_performed
+                                                 ROW_NUMBER() OVER (
+                                                     PARTITION BY pi.PatientId, pi.interval_month
+                                                     ORDER BY f.visitect_cd4_test_date DESC, f.encounter_id DESC
+                                                     ) AS rn_visitect_performed
                                           FROM PatientIntervals pi
                                                    JOIN FollowUpEncounters f ON pi.PatientId = f.PatientId
-                                          WHERE f.visitect_cd4_test_date between pi.interval_start_date and pi.interval_end_date
+                                          WHERE f.visitect_cd4_test_date BETWEEN pi.interval_start_date AND pi.interval_end_date
                                             AND f.visitect_cd4_test_date IS NOT NULL),
+
          -- Collect latest Follow up for each interval and also join vl performed and visitect tests
          CohortDetails_TMP AS (SELECT lfu.PatientId,
                                       lfu.interval_start_date,
@@ -158,6 +177,8 @@ BEGIN
                                       lfu.AdherenceLevel,
                                       lfu.pregnancy_status,
                                       lfu.next_visit_date,
+                                      cd4_performed.cd4_count,
+                                      cd4_performed.cd4_percent,
                                       viral_load_performed.viral_load_sent_date,
                                       viral_load_performed.viral_load_received_date,
                                       viral_load_performed.viral_load_result,
@@ -166,8 +187,6 @@ BEGIN
                                           ELSE visitect_performed.visitect_cd4_result
                                           END AS visitect_cd4_result,
                                       visitect_performed.visitect_cd4_test_date,
-                                      lfu.cd4_count,
-                                      lfu.cd4_percent,
                                       lfu.current_functional_status
                                FROM (SELECT * FROM LatestFollowUpInInterval WHERE rn = 1) lfu
                                         LEFT JOIN (SELECT *
@@ -175,6 +194,11 @@ BEGIN
                                                    WHERE rn_vl_performed = 1) viral_load_performed
                                                   ON lfu.PatientId = viral_load_performed.PatientId AND
                                                      lfu.interval_month = viral_load_performed.interval_month
+                                        LEFT JOIN (SELECT *
+                                                   FROM LatestCd4InInterval
+                                                   WHERE rn_cd4 = 1) cd4_performed
+                                                  ON lfu.PatientId = cd4_performed.PatientId AND
+                                                     lfu.interval_month = cd4_performed.interval_month
                                         LEFT JOIN (SELECT *
                                                    FROM LatestVisitectDateInInterval
                                                    WHERE rn_visitect_performed = 1) visitect_performed
@@ -626,13 +650,13 @@ BEGIN
            CAST(ROUND(IFNULL(SUM(CASE
                                      WHEN interval_month = 6 AND
                                           final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') and
-                                          cd4_count is not null and
-                                          cd4_count > 200 THEN 1
+                                          ((cd4_count is not null and
+                                            cd4_count > 200) OR (visitect_cd4_test_date IS NOT NULL AND visitect_cd4_result IN ('VISITECT <=200 copies/ml','VISITECT >200 copies/ml'))) THEN 1
                                      ELSE 0 END) /
                              NULLIF(SUM(CASE
                                             WHEN interval_month = 6 AND
                                                  final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') and
-                                                 cd4_count is not null
+                                                 (cd4_count is not null OR visitect_cd4_test_date IS NOT NULL)
                                                 THEN 1
                                             ELSE 0 END),
                                     0), 0)) AS SIGNED)    AS 'Month 6',
@@ -640,39 +664,39 @@ BEGIN
            CAST(ROUND(IFNULL(SUM(CASE
                                      WHEN interval_month = 12 AND
                                           final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') and
-                                          cd4_count is not null and
-                                          cd4_count > 200 THEN 1
+                                          ((cd4_count is not null and
+                                            cd4_count > 200) OR (visitect_cd4_test_date IS NOT NULL AND visitect_cd4_result IN ('VISITECT <=200 copies/ml','VISITECT >200 copies/ml'))) THEN 1
                                      ELSE 0 END) /
                              NULLIF(SUM(CASE
                                             WHEN interval_month = 12 AND
                                                  final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') and
-                                                 cd4_count is not null
+                                                 (cd4_count is not null OR visitect_cd4_test_date IS NOT NULL)
                                                 THEN 1
                                             ELSE 0 END),
                                     0), 0)) AS SIGNED)    AS 'Month 12',
            CAST(ROUND(IFNULL(SUM(CASE
                                      WHEN interval_month = 24 AND
                                           final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') and
-                                          cd4_count is not null and
-                                          cd4_count > 200 THEN 1
+                                          ((cd4_count is not null and
+                                            cd4_count > 200) OR (visitect_cd4_test_date IS NOT NULL AND visitect_cd4_result IN ('VISITECT <=200 copies/ml','VISITECT >200 copies/ml'))) THEN 1
                                      ELSE 0 END) /
                              NULLIF(SUM(CASE
                                             WHEN interval_month = 24 AND
                                                  final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') and
-                                                 cd4_count is not null
+                                                 (cd4_count is not null OR visitect_cd4_test_date IS NOT NULL)
                                                 THEN 1
                                             ELSE 0 END),
                                     0), 0)) AS SIGNED)    AS 'Month 24',
            CAST(ROUND(IFNULL(SUM(CASE
                                      WHEN interval_month = 36 AND
                                           final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') and
-                                          cd4_count is not null and
-                                          cd4_count > 200 THEN 1
+                                          ((cd4_count is not null and
+                                          cd4_count > 200) OR (visitect_cd4_test_date IS NOT NULL AND visitect_cd4_result IN ('VISITECT <=200 copies/ml','VISITECT >200 copies/ml'))) THEN 1
                                      ELSE 0 END) /
                              NULLIF(SUM(CASE
                                             WHEN interval_month = 36 AND
                                                  final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') and
-                                                 cd4_count is not null
+                                                 (cd4_count is not null OR visitect_cd4_test_date IS NOT NULL)
                                                 THEN 1
                                             ELSE 0 END),
                                     0), 0)) AS SIGNED)    AS 'Month 36'
@@ -682,25 +706,25 @@ BEGIN
            0                                              AS 'Month 0',
            CAST(IFNULL(SUM(CASE
                                WHEN interval_month = 6 AND
-                                    (viral_load_received_date IS NOT NULL OR visitect_cd4_test_date IS NULL) AND
+                                    viral_load_received_date IS NOT NULL  AND
                                     final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx')
                                    THEN 1
                                ELSE 0 END), 0) AS SIGNED) AS 'Month 6',
            CAST(IFNULL(SUM(CASE
                                WHEN interval_month = 12 AND
-                                    (viral_load_received_date IS NOT NULL OR visitect_cd4_test_date IS NULL) AND
+                                    viral_load_received_date IS NOT NULL  AND
                                     final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx')
                                    THEN 1
                                ELSE 0 END), 0) AS SIGNED) AS 'Month 12',
            CAST(IFNULL(SUM(CASE
                                WHEN interval_month = 24 AND
-                                    (viral_load_received_date IS NOT NULL OR visitect_cd4_test_date IS NULL) AND
+                                    viral_load_received_date IS NOT NULL  AND
                                     final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx')
                                    THEN 1
                                ELSE 0 END), 0) AS SIGNED) AS 'Month 24',
            CAST(IFNULL(SUM(CASE
                                WHEN interval_month = 36 AND
-                                    (viral_load_received_date IS NOT NULL OR visitect_cd4_test_date IS NULL) AND
+                                    viral_load_received_date IS NOT NULL  AND
                                     final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx')
                                    THEN 1
                                ELSE 0 END), 0) AS SIGNED) AS 'Month 36'
@@ -709,47 +733,27 @@ BEGIN
     SELECT 'O. Viral load Suppressed ( < 50 copies/ml)'   AS Name,
            0                                              AS 'Month 0',
            CAST(IFNULL(SUM(CASE
-                               WHEN ((interval_month = 6 AND visitect_cd4_test_date IS NULL AND
-                                      viral_load_received_date IS NOT NULL AND
+                               WHEN interval_month = 6 AND viral_load_received_date IS NOT NULL AND
                                       viral_load_count < 50 AND
-                                      final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx'))
-                                   OR
-                                     (interval_month = 6 AND visitect_cd4_test_date IS NOT NULL AND
-                                      visitect_cd4_result = 'VISITECT <200 copies/ml' AND
-                                      final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx')))
+                                      final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx')
                                    THEN 1
                                ELSE 0 END), 0) AS SIGNED) AS 'Month 6',
            CAST(IFNULL(SUM(CASE
-                               WHEN ((interval_month = 12 AND visitect_cd4_test_date IS NULL AND
-                                      viral_load_received_date IS NOT NULL AND
-                                      viral_load_count < 50 AND
-                                      final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx'))
-                                   OR
-                                     (interval_month = 12 AND visitect_cd4_test_date IS NOT NULL AND
-                                      visitect_cd4_result = 'VISITECT <200 copies/ml' AND
-                                      final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx')))
+                               WHEN interval_month = 12 AND viral_load_received_date IS NOT NULL AND
+                                    viral_load_count < 50 AND
+                                    final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx')
                                    THEN 1
                                ELSE 0 END), 0) AS SIGNED) AS 'Month 12',
            CAST(IFNULL(SUM(CASE
-                               WHEN ((interval_month = 24 AND visitect_cd4_test_date IS NULL AND
-                                      viral_load_received_date IS NOT NULL AND
-                                      viral_load_count < 50 AND
-                                      final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx'))
-                                   OR
-                                     (interval_month = 24 AND visitect_cd4_test_date IS NOT NULL AND
-                                      visitect_cd4_result = 'VISITECT <200 copies/ml' AND
-                                      final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx')))
+                               WHEN interval_month = 24 AND viral_load_received_date IS NOT NULL AND
+                                    viral_load_count < 50 AND
+                                    final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx')
                                    THEN 1
                                ELSE 0 END), 0) AS SIGNED) AS 'Month 24',
            CAST(IFNULL(SUM(CASE
-                               WHEN ((interval_month = 36 AND visitect_cd4_test_date IS NULL AND
-                                      viral_load_received_date IS NOT NULL AND
-                                      viral_load_count < 50 AND
-                                      final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx'))
-                                   OR
-                                     (interval_month = 36 AND visitect_cd4_test_date IS NOT NULL AND
-                                      visitect_cd4_result = 'VISITECT <200 copies/ml' AND
-                                      final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx')))
+                               WHEN interval_month = 36 AND viral_load_received_date IS NOT NULL AND
+                                    viral_load_count < 50 AND
+                                    final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx')
                                    THEN 1
                                ELSE 0 END), 0) AS SIGNED) AS 'Month 36'
     FROM CohortDetails
