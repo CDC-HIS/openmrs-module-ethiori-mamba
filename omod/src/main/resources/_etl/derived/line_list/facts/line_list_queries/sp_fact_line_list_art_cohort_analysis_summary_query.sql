@@ -166,8 +166,8 @@ BEGIN
                                           ELSE visitect_performed.visitect_cd4_result
                                           END AS visitect_cd4_result,
                                       visitect_performed.visitect_cd4_test_date,
-                                      LatestFollowUpInInterval.cd4_count,
-                                      LatestFollowUpInInterval.cd4_percent,
+                                      lfu.cd4_count,
+                                      lfu.cd4_percent,
                                       lfu.current_functional_status
                                FROM (SELECT * FROM LatestFollowUpInInterval WHERE rn = 1) lfu
                                         LEFT JOIN (SELECT *
