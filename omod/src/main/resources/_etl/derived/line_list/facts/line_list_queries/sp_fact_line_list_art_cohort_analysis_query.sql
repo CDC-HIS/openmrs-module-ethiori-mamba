@@ -135,7 +135,9 @@ BEGIN
                  f.viral_load_received_date,
                  f.viral_load_result,
                  f.cd4_count,
+                 f.viral_load_count,
                  f.cd4_percent,
+                 f.viral_load_sent_date,
                  ROW_NUMBER() OVER (
                      PARTITION BY pi.PatientId, pi.interval_month
                      ORDER BY f.viral_load_received_date DESC, f.encounter_id DESC
@@ -143,7 +145,7 @@ BEGIN
              FROM PatientIntervals pi
                       JOIN FollowUpEncounters f ON pi.PatientId = f.PatientId
              WHERE f.viral_load_received_date BETWEEN pi.interval_start_date AND pi.interval_end_date
-               AND f.viral_load_received_date IS NOT NULL
+               AND f.viral_load_received_date IS NOT NULL AND f.viral_load_count > 0
          ),
 
          LatestVisitectDateInInterval AS (
@@ -162,6 +164,7 @@ BEGIN
                AND f.visitect_cd4_test_date IS NOT NULL
          ),
 
+         -- Collect latest Follow up for each interval and also join vl performed and visitect tests
          CohortDetails_TMP AS (
              SELECT
                  lfu.PatientId,
@@ -176,7 +179,7 @@ BEGIN
                          THEN 'Active'
                      WHEN lfu.follow_up_status IN ('Alive', 'Restart medication')
                          AND lfu.treatment_end_date < lfu.interval_end_date
-                         THEN 'Lost to follow-up'
+                         THEN 'Loss to follow-up (LTFU)'
                      WHEN lfu.follow_up_date IS NULL
                          THEN 'No Follow-up in Interval'
                      ELSE 'Unknown Status'
@@ -184,116 +187,86 @@ BEGIN
                  lfu.follow_up_date,
                  lfu.regimen,
                  lfu.treatment_end_date,
-                 lfu.ti_status,
-                 -- Viral Load and Visitect columns
-                 lfu.viral_load_count,
-                 lfu.ARTDoseDays,
-                 lfu.follow_up_status,
-                 lfu.AdherenceLevel,
-                 lfu.pregnancy_status,
-                 lfu.next_visit_date,
-                 viral_load_sent.viral_load_sent_date,
-                 viral_load_performed.viral_load_received_date,
-                 viral_load_performed.viral_load_result,
+                 lfu.ti_status, viral_load_performed.viral_load_count, lfu.ARTDoseDays, lfu.follow_up_status, lfu.AdherenceLevel,
+                 lfu.pregnancy_status, lfu.next_visit_date, viral_load_performed.viral_load_sent_date,
+                 viral_load_performed.viral_load_received_date, viral_load_performed.viral_load_result,
                  CASE visitect_performed.visitect_cd4_result
                      WHEN 'VISITECT <=200 copies/ml' THEN 'VISITECT >200 copies/ml'
                      ELSE visitect_performed.visitect_cd4_result
                      END AS visitect_cd4_result,
-                 visitect_performed.visitect_cd4_test_date,
-                 viral_load_performed.cd4_count,
-                 viral_load_performed.cd4_percent,
-                 lfu.current_functional_status
+                 visitect_performed.visitect_cd4_test_date, viral_load_performed.cd4_count,
+                 viral_load_performed.cd4_percent, lfu.current_functional_status
              FROM (SELECT * FROM LatestFollowUpInInterval WHERE rn = 1) lfu
-                      LEFT JOIN (SELECT * FROM LatestViralLoadSentInInterval WHERE rn_vl_sent = 1) viral_load_sent
-                                ON lfu.PatientId = viral_load_sent.PatientId
-                                    AND lfu.interval_month = viral_load_sent.interval_month
                       LEFT JOIN (SELECT * FROM LatestViralLoadPerformedInInterval WHERE rn_vl_performed = 1) viral_load_performed
-                                ON lfu.PatientId = viral_load_performed.PatientId
-                                    AND lfu.interval_month = viral_load_performed.interval_month
+                                ON lfu.PatientId = viral_load_performed.PatientId AND lfu.interval_month = viral_load_performed.interval_month
                       LEFT JOIN (SELECT * FROM LatestVisitectDateInInterval WHERE rn_visitect_performed = 1) visitect_performed
-                                ON lfu.PatientId = visitect_performed.PatientId
-                                    AND lfu.interval_month = visitect_performed.interval_month
+                                ON lfu.PatientId = visitect_performed.PatientId AND lfu.interval_month = visitect_performed.interval_month
          ),
 
-         CohortDetails_With_History AS (
-             SELECT
-                 cd.*,
-                 client.date_of_birth,
-
-                 -- Track previous FINAL status (not initial) for proper persistence
-                 LAG(cd.initial_outcome) OVER (PARTITION BY cd.PatientId ORDER BY cd.interval_month) AS previous_initial_status,
-                 LAG(cd.treatment_end_date) OVER (PARTITION BY cd.PatientId ORDER BY cd.interval_month) AS previous_treatment_end_date,
-                 LAG(cd.regimen) OVER (PARTITION BY cd.PatientId ORDER BY cd.interval_month) AS previous_regimen,
-
-                 -- Calculate current interval outcome
-                 CASE
-                     -- 1. Current interval has actual follow-up data - use it directly
-                     WHEN cd.initial_outcome != 'No Follow-up in Interval' THEN
-                         CASE
-                             WHEN cd.initial_outcome = 'Loss to follow-up (LTFU)' THEN 'Lost to follow-up'
-                             ELSE cd.initial_outcome
-                             END
-
-                     -- 2. No follow-up in current interval - determine status based on previous
-                     ELSE
-                         CASE
-                             -- First interval edge case
-                             WHEN LAG(cd.initial_outcome) OVER (PARTITION BY cd.PatientId ORDER BY cd.interval_month) IS NULL
-                                 THEN 'No Follow-up in Interval'
-
-                             -- Active carry-over: treatment covers current interval
-                             WHEN LAG(cd.initial_outcome) OVER (PARTITION BY cd.PatientId ORDER BY cd.interval_month) = 'Active'
-                                 AND LAG(cd.treatment_end_date) OVER (PARTITION BY cd.PatientId ORDER BY cd.interval_month) >= cd.interval_end_date
-                                 THEN 'Active'
-
-                             -- Lost to follow-up: was active but treatment ended
-                             WHEN LAG(cd.initial_outcome) OVER (PARTITION BY cd.PatientId ORDER BY cd.interval_month) = 'Active'
-                                 AND (LAG(cd.treatment_end_date) OVER (PARTITION BY cd.PatientId ORDER BY cd.interval_month) < cd.interval_end_date
-                                     OR LAG(cd.treatment_end_date) OVER (PARTITION BY cd.PatientId ORDER BY cd.interval_month) IS NULL)
-                                 THEN 'Lost to follow-up'
-
-                             -- Convert definitive outcomes to Previous% status (FIRST TIME)
-                             WHEN LAG(cd.initial_outcome) OVER (PARTITION BY cd.PatientId ORDER BY cd.interval_month) IN
-                                  ('Dead', 'Transferred out', 'Stop all', 'Ran away', 'Lost to follow-up', 'Loss to follow-up (LTFU)')
-                                 THEN CONCAT('Previously ',
-                                             CASE
-                                                 WHEN LAG(cd.initial_outcome) OVER (PARTITION BY cd.PatientId ORDER BY cd.interval_month) IN ('Loss to follow-up (LTFU)', 'Lost to follow-up')
-                                                     THEN 'Lost'
-                                                 ELSE LAG(cd.initial_outcome) OVER (PARTITION BY cd.PatientId ORDER BY cd.interval_month)
-                                                 END)
-
-                             -- Default: keep as no follow-up
-                             ELSE cd.initial_outcome
-                             END
-                     END AS current_interval_outcome
-             FROM CohortDetails_TMP cd
-                      JOIN mamba_dim_client client ON cd.PatientId = client.client_id
-         ),
-
-         CohortDetails_With_Persistence AS (
+         CohortDetails_With_LAGS AS (
              SELECT
                  *,
-                 -- Apply outcome persistence logic - THIS IS WHERE WE HANDLE PREVIOUS% COPYING
+                 LAG(initial_outcome, 1) OVER (PARTITION BY PatientId ORDER BY interval_month) AS previous_initial_outcome,
+                 LAG(treatment_end_date, 1) OVER (PARTITION BY PatientId ORDER BY interval_month) AS previous_treatment_end_date,
+                 LAG(regimen, 1) OVER (PARTITION BY PatientId ORDER BY interval_month) AS previous_regimen
+             FROM CohortDetails_TMP
+         ),
+
+         CohortDetails_With_Terminal_Flag AS (
+             SELECT
+                 *,
                  CASE
-                     -- Current definitive outcomes or active status take priority
-                     WHEN current_interval_outcome IN ('Dead', 'Transferred out', 'Stop all', 'Ran away', 'Active', 'Lost to follow-up')
-                         THEN current_interval_outcome
+                     WHEN initial_outcome IN ('Dead', 'Transferred out', 'Stop all', 'Ran away')
+                         THEN 1
+                     ELSE 0
+                     END AS is_terminal_event
+             FROM CohortDetails_With_LAGS
+         ),
 
-                     -- If current is "No Follow-up" AND previous was any Previous% status, copy it forward
-                     WHEN cd.initial_outcome = 'No Follow-up in Interval'
-                         AND LAG(current_interval_outcome) OVER (PARTITION BY PatientId ORDER BY interval_month) LIKE 'Previous%'
-                         THEN LAG(current_interval_outcome) OVER (PARTITION BY PatientId ORDER BY interval_month)
+         CohortDetails_With_Terminal_Group AS (
+             SELECT
+                 *,
+                 SUM(is_terminal_event) OVER (PARTITION BY PatientId ORDER BY interval_month ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS terminal_group_id
+             FROM CohortDetails_With_Terminal_Flag
+         ),
 
-                     -- If current is "No Follow-up" AND previous was already a Previous% status, keep current
-                     WHEN current_interval_outcome LIKE 'Previous%'
-                         THEN current_interval_outcome
+         CohortDetails_With_Last_Terminal_Status AS (
+             SELECT
+                 *,
+                 FIRST_VALUE(initial_outcome) OVER (PARTITION BY PatientId, terminal_group_id ORDER BY interval_month) AS last_terminal_status
+             FROM CohortDetails_With_Terminal_Group
+         ),
 
-                     -- Default: use current outcome
-                     ELSE current_interval_outcome
-                     END AS final_outcome,
+         CohortDetails AS (
+             SELECT
+                 *,
+                 CASE
+                     WHEN last_terminal_status IN ('Dead', 'Transferred out', 'Stop all', 'Ran away')
+                         THEN last_terminal_status
 
-                     COALESCE(cd.regimen,previous_regimen) AS final_regimen
-             FROM CohortDetails_With_History cd
+                     WHEN initial_outcome <> 'No Follow-up in Interval'
+                         THEN initial_outcome
+
+                     WHEN initial_outcome = 'No Follow-up in Interval' THEN
+                         CASE
+                             WHEN previous_treatment_end_date IS NOT NULL AND previous_treatment_end_date >= interval_end_date
+                                 THEN 'Active - Carry Forward Rx'
+                             ELSE 'Loss to follow-up (LTFU)'
+                             END
+
+                     ELSE 'Unknown Status - Final Check'
+                     END AS final_cohort_outcome,
+
+                 CASE
+                     WHEN initial_outcome = 'No Follow-up in Interval' AND
+                          previous_treatment_end_date IS NOT NULL AND
+                          previous_treatment_end_date >= interval_end_date
+                         THEN previous_regimen
+                     ELSE regimen
+                     END AS final_regimen
+
+             FROM CohortDetails_With_Last_Terminal_Status
+                      JOIN mamba_dim_client client on client.client_id = CohortDetails_With_Last_Terminal_Status.PatientId
          )
 
     SELECT dc.patient_name                                                                       AS 'Patient Name',
@@ -315,26 +288,26 @@ BEGIN
                    WHEN co.interval_month = 0 THEN
                        CASE
                            WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND
-                                co.final_regimen LIKE '4%' AND final_outcome = 'Active' THEN 'On Original 1st Line Regimen'
+                                co.final_regimen LIKE '4%' AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx') THEN 'On Original 1st Line Regimen'
                            WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND
-                                co.final_regimen LIKE '1%' AND final_outcome = 'Active' THEN 'On Original 1st Line Regimen'
+                                co.final_regimen LIKE '1%' AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx') THEN 'On Original 1st Line Regimen'
 
                            WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND
-                                co.final_regimen LIKE '1%' AND final_outcome = 'Active'
+                                co.final_regimen LIKE '1%' AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx')
                                THEN 'On Alternate 1st Line Regimen (Substituted)'
                            WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND
-                                co.final_regimen LIKE '4%' AND final_outcome = 'Active'
+                                co.final_regimen LIKE '4%' AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx')
                                THEN 'On Alternate 1st Line Regimen (Substituted)'
 
                            WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND
-                                co.final_regimen LIKE '5%' AND final_outcome = 'Active' THEN 'On 2nd Line Regimen (Switched)'
+                                co.final_regimen LIKE '5%' AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx') THEN 'On 2nd Line Regimen (Switched)'
                            WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND
-                                co.final_regimen LIKE '2%' AND final_outcome = 'Active' THEN 'On 2nd Line Regimen (Switched)'
+                                co.final_regimen LIKE '2%' AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx') THEN 'On 2nd Line Regimen (Switched)'
 
                            WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND
-                                co.final_regimen LIKE '6%' AND final_outcome = 'Active' THEN 'On 3rd Line Regimen (Switched)'
+                                co.final_regimen LIKE '6%' AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx') THEN 'On 3rd Line Regimen (Switched)'
                            WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND
-                                co.final_regimen LIKE '3%' AND final_outcome = 'Active' THEN 'On 3rd Line Regimen (Switched)'
+                                co.final_regimen LIKE '3%' AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx') THEN 'On 3rd Line Regimen (Switched)'
 
                            ELSE NULL
                            END
@@ -384,31 +357,31 @@ BEGIN
                    WHEN co.interval_month = 6 THEN
                        CASE
                            WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND
-                                co.final_regimen LIKE '4%' AND final_outcome = 'Active' THEN 'On Original 1st Line Regimen'
+                                co.final_regimen LIKE '4%' AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx') THEN 'On Original 1st Line Regimen'
                            WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND
-                                co.final_regimen LIKE '1%' AND final_outcome = 'Active' THEN 'On Original 1st Line Regimen'
+                                co.final_regimen LIKE '1%' AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx') THEN 'On Original 1st Line Regimen'
 
                            WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND
-                                co.final_regimen LIKE '1%' AND final_outcome = 'Active'
+                                co.final_regimen LIKE '1%' AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx')
                                THEN 'On Alternate 1st Line Regimen (Substituted)'
                            WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND
-                                co.final_regimen LIKE '4%' AND final_outcome = 'Active'
+                                co.final_regimen LIKE '4%' AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx')
                                THEN 'On Alternate 1st Line Regimen (Substituted)'
 
                            WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND
-                                co.final_regimen LIKE '5%' AND final_outcome = 'Active' THEN 'On 2nd Line Regimen (Switched)'
+                                co.final_regimen LIKE '5%' AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx') THEN 'On 2nd Line Regimen (Switched)'
                            WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND
-                                co.final_regimen LIKE '2%' AND final_outcome = 'Active' THEN 'On 2nd Line Regimen (Switched)'
+                                co.final_regimen LIKE '2%' AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx') THEN 'On 2nd Line Regimen (Switched)'
 
                            WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND
-                                co.final_regimen LIKE '6%' AND final_outcome = 'Active' THEN 'On 3rd Line Regimen (Switched)'
+                                co.final_regimen LIKE '6%' AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx') THEN 'On 3rd Line Regimen (Switched)'
                            WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND
-                                co.final_regimen LIKE '3%' AND final_outcome = 'Active' THEN 'On 3rd Line Regimen (Switched)'
+                                co.final_regimen LIKE '3%' AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx') THEN 'On 3rd Line Regimen (Switched)'
 
                            ELSE NULL
                            END
                    ELSE NULL END)                                                                AS 'Regimen Line at 6 Months',
-           MAX(CASE WHEN co.interval_month = 6 THEN co.final_outcome ELSE NULL END)                    AS 'Outcome at 6 Months',
+           MAX(CASE WHEN co.interval_month = 6 THEN co.final_cohort_outcome ELSE NULL END)                    AS 'Outcome at 6 Months',
            MAX(CASE WHEN co.interval_month = 6 THEN co.follow_up_date ELSE NULL END)             AS 'Latest Follow-Up Date at 6 Months',
            MAX(CASE WHEN co.interval_month = 6 THEN co.follow_up_date ELSE NULL END)             AS 'Latest Follow-Up Date at 6 Months EC.',
            MAX(CASE WHEN co.interval_month = 6 THEN co.final_regimen ELSE NULL END)                    AS 'Latest Regimen at 6 Months',
@@ -456,31 +429,31 @@ BEGIN
                    WHEN co.interval_month = 12 THEN
                        CASE
                            WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND
-                                co.final_regimen LIKE '4%' AND final_outcome = 'Active' THEN 'On Original 1st Line Regimen'
+                                co.final_regimen LIKE '4%' AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx') THEN 'On Original 1st Line Regimen'
                            WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND
-                                co.final_regimen LIKE '1%' AND final_outcome = 'Active' THEN 'On Original 1st Line Regimen'
+                                co.final_regimen LIKE '1%' AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx') THEN 'On Original 1st Line Regimen'
 
                            WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND
-                                co.final_regimen LIKE '1%' AND final_outcome = 'Active'
+                                co.final_regimen LIKE '1%' AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx')
                                THEN 'On Alternate 1st Line Regimen (Substituted)'
                            WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND
-                                co.final_regimen LIKE '4%' AND final_outcome = 'Active'
+                                co.final_regimen LIKE '4%' AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx')
                                THEN 'On Alternate 1st Line Regimen (Substituted)'
 
                            WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND
-                                co.final_regimen LIKE '5%' AND final_outcome = 'Active' THEN 'On 2nd Line Regimen (Switched)'
+                                co.final_regimen LIKE '5%' AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx') THEN 'On 2nd Line Regimen (Switched)'
                            WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND
-                                co.final_regimen LIKE '2%' AND final_outcome = 'Active' THEN 'On 2nd Line Regimen (Switched)'
+                                co.final_regimen LIKE '2%' AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx') THEN 'On 2nd Line Regimen (Switched)'
 
                            WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND
-                                co.final_regimen LIKE '6%' AND final_outcome = 'Active' THEN 'On 3rd Line Regimen (Switched)'
+                                co.final_regimen LIKE '6%' AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx') THEN 'On 3rd Line Regimen (Switched)'
                            WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND
-                                co.final_regimen LIKE '3%' AND final_outcome = 'Active' THEN 'On 3rd Line Regimen (Switched)'
+                                co.final_regimen LIKE '3%' AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx') THEN 'On 3rd Line Regimen (Switched)'
 
                            ELSE NULL
                            END
                    ELSE NULL END)                                                                AS 'Regimen Line at 12 Months',
-           MAX(CASE WHEN co.interval_month = 12 THEN co.final_outcome ELSE NULL END)                   AS 'Outcome at 12 Months',
+           MAX(CASE WHEN co.interval_month = 12 THEN co.final_cohort_outcome ELSE NULL END)                   AS 'Outcome at 12 Months',
            MAX(CASE WHEN co.interval_month = 12 THEN co.follow_up_date ELSE NULL END)            AS 'Latest Follow-Up Date at 12 Months',
            MAX(CASE WHEN co.interval_month = 12 THEN co.follow_up_date ELSE NULL END)            AS 'Latest Follow-Up Date at 12 Months EC.',
            MAX(CASE WHEN co.interval_month = 12 THEN co.final_regimen ELSE NULL END)                   AS 'Latest Regimen at 12 Months',
@@ -530,31 +503,31 @@ BEGIN
                    WHEN co.interval_month = 24 THEN
                        CASE
                            WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND
-                                co.final_regimen LIKE '4%' AND final_outcome = 'Active' THEN 'On Original 1st Line Regimen'
+                                co.final_regimen LIKE '4%' AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx') THEN 'On Original 1st Line Regimen'
                            WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND
-                                co.final_regimen LIKE '1%' AND final_outcome = 'Active' THEN 'On Original 1st Line Regimen'
+                                co.final_regimen LIKE '1%' AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx') THEN 'On Original 1st Line Regimen'
 
                            WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND
-                                co.final_regimen LIKE '1%' AND final_outcome = 'Active'
+                                co.final_regimen LIKE '1%' AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx')
                                THEN 'On Alternate 1st Line Regimen (Substituted)'
                            WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND
-                                co.final_regimen LIKE '4%' AND final_outcome = 'Active'
+                                co.final_regimen LIKE '4%' AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx')
                                THEN 'On Alternate 1st Line Regimen (Substituted)'
 
                            WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND
-                                co.final_regimen LIKE '5%' AND final_outcome = 'Active' THEN 'On 2nd Line Regimen (Switched)'
+                                co.final_regimen LIKE '5%' AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx') THEN 'On 2nd Line Regimen (Switched)'
                            WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND
-                                co.final_regimen LIKE '2%' AND final_outcome = 'Active' THEN 'On 2nd Line Regimen (Switched)'
+                                co.final_regimen LIKE '2%' AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx') THEN 'On 2nd Line Regimen (Switched)'
 
                            WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND
-                                co.final_regimen LIKE '6%' AND final_outcome = 'Active' THEN 'On 3rd Line Regimen (Switched)'
+                                co.final_regimen LIKE '6%' AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx') THEN 'On 3rd Line Regimen (Switched)'
                            WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND
-                                co.final_regimen LIKE '3%' AND final_outcome = 'Active' THEN 'On 3rd Line Regimen (Switched)'
+                                co.final_regimen LIKE '3%' AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx') THEN 'On 3rd Line Regimen (Switched)'
 
                            ELSE NULL
                            END
                    ELSE NULL END)                                                                AS 'Regimen Line at 24 Months',
-           MAX(CASE WHEN co.interval_month = 24 THEN co.final_outcome ELSE NULL END)                   AS 'Outcome at 24 Months',
+           MAX(CASE WHEN co.interval_month = 24 THEN co.final_cohort_outcome ELSE NULL END)                   AS 'Outcome at 24 Months',
            MAX(CASE WHEN co.interval_month = 24 THEN co.follow_up_date ELSE NULL END)            AS 'Latest Follow-Up Date at 24 Months',
            MAX(CASE WHEN co.interval_month = 24 THEN co.follow_up_date ELSE NULL END)            AS 'Latest Follow-Up Date at 24 Months EC.',
            MAX(CASE WHEN co.interval_month = 24 THEN co.final_regimen ELSE NULL END)                   AS 'Latest Regimen at 24 Months',
@@ -605,31 +578,31 @@ BEGIN
                    WHEN co.interval_month = 36 THEN
                        CASE
                            WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND
-                                co.final_regimen LIKE '4%' AND final_outcome = 'Active' THEN 'On Original 1st Line Regimen'
+                                co.final_regimen LIKE '4%' AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx') THEN 'On Original 1st Line Regimen'
                            WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND
-                                co.regimen LIKE '1%' AND final_outcome = 'Active' THEN 'On Original 1st Line Regimen'
+                                co.regimen LIKE '1%' AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx') THEN 'On Original 1st Line Regimen'
 
                            WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND
-                                co.final_regimen LIKE '1%' AND final_outcome = 'Active'
+                                co.final_regimen LIKE '1%' AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx')
                                THEN 'On Alternate 1st Line Regimen (Substituted)'
                            WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND
-                                co.final_regimen LIKE '4%' AND final_outcome = 'Active'
+                                co.final_regimen LIKE '4%' AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx')
                                THEN 'On Alternate 1st Line Regimen (Substituted)'
 
                            WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND
-                                co.final_regimen LIKE '5%' AND final_outcome = 'Active' THEN 'On 2nd Line Regimen (Switched)'
+                                co.final_regimen LIKE '5%' AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx') THEN 'On 2nd Line Regimen (Switched)'
                            WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND
-                                co.final_regimen LIKE '2%' AND final_outcome = 'Active' THEN 'On 2nd Line Regimen (Switched)'
+                                co.final_regimen LIKE '2%' AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx') THEN 'On 2nd Line Regimen (Switched)'
 
                            WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) < 15 AND
-                                co.final_regimen LIKE '6%' AND final_outcome = 'Active' THEN 'On 3rd Line Regimen (Switched)'
+                                co.final_regimen LIKE '6%' AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx') THEN 'On 3rd Line Regimen (Switched)'
                            WHEN TIMESTAMPDIFF(YEAR, dc.date_of_birth, co.interval_end_date) >= 15 AND
-                                co.final_regimen LIKE '3%' AND final_outcome = 'Active' THEN 'On 3rd Line Regimen (Switched)'
+                                co.final_regimen LIKE '3%' AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx') THEN 'On 3rd Line Regimen (Switched)'
 
                            ELSE NULL
                            END
                    ELSE NULL END)                                                                AS 'Regimen Line at 36 Months',
-           MAX(CASE WHEN co.interval_month = 36 THEN co.final_outcome ELSE NULL END)                   AS 'Outcome at 36 Months',
+           MAX(CASE WHEN co.interval_month = 36 THEN co.final_cohort_outcome ELSE NULL END)                   AS 'Outcome at 36 Months',
            MAX(CASE WHEN co.interval_month = 36 THEN co.follow_up_date ELSE NULL END)            AS 'Latest Follow-Up Date at 36 Months',
            MAX(CASE WHEN co.interval_month = 36 THEN co.follow_up_date ELSE NULL END)            AS 'Latest Follow-Up Date at 36 Months EC.',
            MAX(CASE WHEN co.interval_month = 36 THEN co.final_regimen ELSE NULL END)                   AS 'Latest Regimen at 36 Months',
@@ -675,7 +648,7 @@ BEGIN
              JOIN
          mamba_dim_client dc ON ai.PatientId = dc.client_id
              LEFT JOIN
-         CohortDetails_With_Persistence co ON ai.PatientId = co.PatientId
+         CohortDetails co ON ai.PatientId = co.PatientId
     WHERE ai.art_start_date <= COALESCE(REPORT_END_DATE, CURDATE())
     GROUP BY ai.PatientId, dc.patient_name, dc.patient_uuid, dc.mrn, dc.UAN, dc.Sex, dc.date_of_birth, ai.art_start_date
     ORDER BY ai.art_start_date, dc.patient_name;
