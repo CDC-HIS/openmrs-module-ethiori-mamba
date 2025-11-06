@@ -194,7 +194,7 @@ BEGIN
                      WHEN 'VISITECT <=200 copies/ml' THEN 'VISITECT >200 copies/ml'
                      ELSE visitect_performed.visitect_cd4_result
                      END AS visitect_cd4_result,
-                 visitect_performed.visitect_cd4_test_date, viral_load_performed.cd4_count,
+                 visitect_performed.visitect_cd4_test_date, LatestFollowUpInInterval.cd4_count,
                  viral_load_performed.cd4_percent, lfu.current_functional_status
              FROM (SELECT * FROM LatestFollowUpInInterval WHERE rn = 1) lfu
                       LEFT JOIN (SELECT * FROM LatestViralLoadPerformedInInterval WHERE rn_vl_performed = 1) viral_load_performed

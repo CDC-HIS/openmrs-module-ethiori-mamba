@@ -101,7 +101,8 @@ BEGIN
                                                LEFT JOIN FollowUpEncounters f ON pi.PatientId = f.PatientId AND
                                                                                  f.follow_up_date >
                                                                                  pi.interval_start_date AND
-                                                                                 f.follow_up_date <= pi.interval_end_date),
+                                                                                 f.follow_up_date <=
+                                                                                 pi.interval_end_date),
          -- Figure out follow up with VL PERFORMED within period independent of latest follow up collected above
          LatestViralLoadPerformedInInterval AS (SELECT pi.PatientId,
                                                        pi.interval_month,
@@ -115,7 +116,8 @@ BEGIN
                                                 FROM PatientIntervals pi
                                                          JOIN FollowUpEncounters f ON pi.PatientId = f.PatientId
                                                 WHERE f.viral_load_received_date BETWEEN pi.interval_start_date AND pi.interval_end_date
-                                                  AND f.viral_load_received_date IS NOT NULL AND viral_load_count > 0),
+                                                  AND f.viral_load_received_date IS NOT NULL
+                                                  AND viral_load_count > 0),
          -- Figure out follow up with VISITECT within period independent of latest follow up collected above
          LatestVisitectDateInInterval AS (SELECT pi.PatientId,
                                                  pi.interval_month,
@@ -127,109 +129,114 @@ BEGIN
                                           WHERE f.visitect_cd4_test_date between pi.interval_start_date and pi.interval_end_date
                                             AND f.visitect_cd4_test_date IS NOT NULL),
          -- Collect latest Follow up for each interval and also join vl performed and visitect tests
-         CohortDetails_TMP AS (
-             SELECT
-                 lfu.PatientId,
-                 lfu.interval_start_date,
-                 lfu.interval_end_date,
-                 lfu.interval_month,
-                 CASE
-                     WHEN lfu.follow_up_status IN ('Dead', 'Transferred out', 'Stop all', 'Loss to follow-up (LTFU)', 'Ran away')
-                         THEN lfu.follow_up_status
-                     WHEN lfu.follow_up_status IN ('Alive', 'Restart medication')
-                         AND lfu.treatment_end_date >= lfu.interval_end_date
-                         THEN 'Active'
-                     WHEN lfu.follow_up_status IN ('Alive', 'Restart medication')
-                         AND lfu.treatment_end_date < lfu.interval_end_date
-                         THEN 'Loss to follow-up (LTFU)'
-                     WHEN lfu.follow_up_date IS NULL
-                         THEN 'No Follow-up in Interval'
-                     ELSE 'Unknown Status'
-                     END AS initial_outcome,
-                 lfu.follow_up_date,
-                 lfu.regimen,
-                 lfu.treatment_end_date,
-                 lfu.ti_status, viral_load_performed.viral_load_count, lfu.ARTDoseDays, lfu.follow_up_status, lfu.AdherenceLevel,
-                 lfu.pregnancy_status, lfu.next_visit_date, viral_load_performed.viral_load_sent_date,
-                 viral_load_performed.viral_load_received_date, viral_load_performed.viral_load_result,
-                 CASE visitect_performed.visitect_cd4_result
-                     WHEN 'VISITECT <=200 copies/ml' THEN 'VISITECT >200 copies/ml'
-                     ELSE visitect_performed.visitect_cd4_result
-                     END AS visitect_cd4_result,
-                 visitect_performed.visitect_cd4_test_date, viral_load_performed.cd4_count,
-                 viral_load_performed.cd4_percent, lfu.current_functional_status
-             FROM (SELECT * FROM LatestFollowUpInInterval WHERE rn = 1) lfu
-                      LEFT JOIN (SELECT * FROM LatestViralLoadPerformedInInterval WHERE rn_vl_performed = 1) viral_load_performed
-                                ON lfu.PatientId = viral_load_performed.PatientId AND lfu.interval_month = viral_load_performed.interval_month
-                      LEFT JOIN (SELECT * FROM LatestVisitectDateInInterval WHERE rn_visitect_performed = 1) visitect_performed
-                                ON lfu.PatientId = visitect_performed.PatientId AND lfu.interval_month = visitect_performed.interval_month
-         ),
+         CohortDetails_TMP AS (SELECT lfu.PatientId,
+                                      lfu.interval_start_date,
+                                      lfu.interval_end_date,
+                                      lfu.interval_month,
+                                      CASE
+                                          WHEN lfu.follow_up_status IN
+                                               ('Dead', 'Transferred out', 'Stop all', 'Loss to follow-up (LTFU)',
+                                                'Ran away')
+                                              THEN lfu.follow_up_status
+                                          WHEN lfu.follow_up_status IN ('Alive', 'Restart medication')
+                                              AND lfu.treatment_end_date >= lfu.interval_end_date
+                                              THEN 'Active'
+                                          WHEN lfu.follow_up_status IN ('Alive', 'Restart medication')
+                                              AND lfu.treatment_end_date < lfu.interval_end_date
+                                              THEN 'Loss to follow-up (LTFU)'
+                                          WHEN lfu.follow_up_date IS NULL
+                                              THEN 'No Follow-up in Interval'
+                                          ELSE 'Unknown Status'
+                                          END AS initial_outcome,
+                                      lfu.follow_up_date,
+                                      lfu.regimen,
+                                      lfu.treatment_end_date,
+                                      lfu.ti_status,
+                                      viral_load_performed.viral_load_count,
+                                      lfu.ARTDoseDays,
+                                      lfu.follow_up_status,
+                                      lfu.AdherenceLevel,
+                                      lfu.pregnancy_status,
+                                      lfu.next_visit_date,
+                                      viral_load_performed.viral_load_sent_date,
+                                      viral_load_performed.viral_load_received_date,
+                                      viral_load_performed.viral_load_result,
+                                      CASE visitect_performed.visitect_cd4_result
+                                          WHEN 'VISITECT <=200 copies/ml' THEN 'VISITECT >200 copies/ml'
+                                          ELSE visitect_performed.visitect_cd4_result
+                                          END AS visitect_cd4_result,
+                                      visitect_performed.visitect_cd4_test_date,
+                                      LatestFollowUpInInterval.cd4_count,
+                                      LatestFollowUpInInterval.cd4_percent,
+                                      lfu.current_functional_status
+                               FROM (SELECT * FROM LatestFollowUpInInterval WHERE rn = 1) lfu
+                                        LEFT JOIN (SELECT *
+                                                   FROM LatestViralLoadPerformedInInterval
+                                                   WHERE rn_vl_performed = 1) viral_load_performed
+                                                  ON lfu.PatientId = viral_load_performed.PatientId AND
+                                                     lfu.interval_month = viral_load_performed.interval_month
+                                        LEFT JOIN (SELECT *
+                                                   FROM LatestVisitectDateInInterval
+                                                   WHERE rn_visitect_performed = 1) visitect_performed
+                                                  ON lfu.PatientId = visitect_performed.PatientId AND
+                                                     lfu.interval_month = visitect_performed.interval_month),
 
-         CohortDetails_With_LAGS AS (
-             SELECT
-                 *,
-                 LAG(initial_outcome, 1) OVER (PARTITION BY PatientId ORDER BY interval_month) AS previous_initial_outcome,
-                 LAG(treatment_end_date, 1) OVER (PARTITION BY PatientId ORDER BY interval_month) AS previous_treatment_end_date,
-                 LAG(regimen, 1) OVER (PARTITION BY PatientId ORDER BY interval_month) AS previous_regimen
-             FROM CohortDetails_TMP
-         ),
+         CohortDetails_With_LAGS AS (SELECT *,
+                                            LAG(initial_outcome, 1)
+                                                OVER (PARTITION BY PatientId ORDER BY interval_month)             AS previous_initial_outcome,
+                                            LAG(treatment_end_date, 1)
+                                                OVER (PARTITION BY PatientId ORDER BY interval_month)             AS previous_treatment_end_date,
+                                            LAG(regimen, 1) OVER (PARTITION BY PatientId ORDER BY interval_month) AS previous_regimen
+                                     FROM CohortDetails_TMP),
 
-         CohortDetails_With_Terminal_Flag AS (
-             SELECT
-                 *,
-                 CASE
-                     WHEN initial_outcome IN ('Dead', 'Transferred out', 'Stop all', 'Ran away')
-                         THEN 1
-                     ELSE 0
-                     END AS is_terminal_event
-             FROM CohortDetails_With_LAGS
-         ),
+         CohortDetails_With_Terminal_Flag AS (SELECT *,
+                                                     CASE
+                                                         WHEN initial_outcome IN ('Dead', 'Transferred out', 'Stop all', 'Ran away')
+                                                             THEN 1
+                                                         ELSE 0
+                                                         END AS is_terminal_event
+                                              FROM CohortDetails_With_LAGS),
 
-         CohortDetails_With_Terminal_Group AS (
-             SELECT
-                 *,
-                 SUM(is_terminal_event) OVER (PARTITION BY PatientId ORDER BY interval_month ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS terminal_group_id
-             FROM CohortDetails_With_Terminal_Flag
-         ),
+         CohortDetails_With_Terminal_Group AS (SELECT *,
+                                                      SUM(is_terminal_event)
+                                                          OVER (PARTITION BY PatientId ORDER BY interval_month ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS terminal_group_id
+                                               FROM CohortDetails_With_Terminal_Flag),
 
-         CohortDetails_With_Last_Terminal_Status AS (
-             SELECT
-                 *,
-                 FIRST_VALUE(initial_outcome) OVER (PARTITION BY PatientId, terminal_group_id ORDER BY interval_month) AS last_terminal_status
-             FROM CohortDetails_With_Terminal_Group
-         ),
+         CohortDetails_With_Last_Terminal_Status AS (SELECT *,
+                                                            FIRST_VALUE(initial_outcome)
+                                                                        OVER (PARTITION BY PatientId, terminal_group_id ORDER BY interval_month) AS last_terminal_status
+                                                     FROM CohortDetails_With_Terminal_Group),
 
-         CohortDetails AS (
-             SELECT
-                 *,
-                 CASE
-                     WHEN last_terminal_status IN ('Dead', 'Transferred out', 'Stop all', 'Ran away')
-                         THEN last_terminal_status
+         CohortDetails AS (SELECT *,
+                                  CASE
+                                      WHEN last_terminal_status IN ('Dead', 'Transferred out', 'Stop all', 'Ran away')
+                                          THEN last_terminal_status
 
-                     WHEN initial_outcome <> 'No Follow-up in Interval'
-                         THEN initial_outcome
+                                      WHEN initial_outcome <> 'No Follow-up in Interval'
+                                          THEN initial_outcome
 
-                     WHEN initial_outcome = 'No Follow-up in Interval' THEN
-                         CASE
-                             WHEN previous_treatment_end_date IS NOT NULL AND previous_treatment_end_date >= interval_end_date
-                                 THEN 'Active - Carry Forward Rx'
-                             ELSE 'Loss to follow-up (LTFU)'
-                             END
+                                      WHEN initial_outcome = 'No Follow-up in Interval' THEN
+                                          CASE
+                                              WHEN previous_treatment_end_date IS NOT NULL AND
+                                                   previous_treatment_end_date >= interval_end_date
+                                                  THEN 'Active - Carry Forward Rx'
+                                              ELSE 'Loss to follow-up (LTFU)'
+                                              END
 
-                     ELSE 'Unknown Status - Final Check'
-                     END AS final_cohort_outcome,
+                                      ELSE 'Unknown Status - Final Check'
+                                      END AS final_cohort_outcome,
 
-                 CASE
-                     WHEN initial_outcome = 'No Follow-up in Interval' AND
-                          previous_treatment_end_date IS NOT NULL AND
-                          previous_treatment_end_date >= interval_end_date
-                         THEN previous_regimen
-                     ELSE regimen
-                     END AS final_regimen
+                                  CASE
+                                      WHEN initial_outcome = 'No Follow-up in Interval' AND
+                                           previous_treatment_end_date IS NOT NULL AND
+                                           previous_treatment_end_date >= interval_end_date
+                                          THEN previous_regimen
+                                      ELSE regimen
+                                      END AS final_regimen
 
-             FROM CohortDetails_With_Last_Terminal_Status
-             JOIN mamba_dim_client client on client.client_id = CohortDetails_With_Last_Terminal_Status.PatientId
-         )
+                           FROM CohortDetails_With_Last_Terminal_Status
+                                    JOIN mamba_dim_client client
+                                         on client.client_id = CohortDetails_With_Last_Terminal_Status.PatientId)
 
     SELECT 'A. Started on ART in this clinic: original cohort'                            AS Name,
            CAST(IFNULL(SUM(CASE WHEN interval_month = 0 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 0',
@@ -295,37 +302,45 @@ BEGIN
            0                                 AS 'Month 0',
            CAST(IFNULL(SUM(CASE
                                WHEN interval_month = 6 AND
-                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND final_regimen LIKE '4%'
+                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND
+                                     final_regimen LIKE '4%'
                                         OR
                                      TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND
-                                     final_regimen LIKE '1%') AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx')
+                                     final_regimen LIKE '1%') AND
+                                    final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx')
                                    THEN 1
                                ELSE 0 END
                        ), 0) AS SIGNED)      AS 'Month 6',
            CAST(IFNULL(SUM(CASE
                                WHEN interval_month = 12 AND
-                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND final_regimen LIKE '4%'
+                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND
+                                     final_regimen LIKE '4%'
                                         OR
                                      TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND
-                                     final_regimen LIKE '1%') AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx')
+                                     final_regimen LIKE '1%') AND
+                                    final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx')
                                    THEN 1
                                ELSE 0 END
                        ), 0) AS SIGNED)      AS 'Month 12',
            CAST(IFNULL(SUM(CASE
                                WHEN interval_month = 24 AND
-                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND final_regimen LIKE '4%'
+                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND
+                                     final_regimen LIKE '4%'
                                         OR
                                      TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND
-                                     final_regimen LIKE '1%') AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx')
+                                     final_regimen LIKE '1%') AND
+                                    final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx')
                                    THEN 1
                                ELSE 0 END
                        ), 0) AS SIGNED)      AS 'Month 24',
            CAST(IFNULL(SUM(CASE
                                WHEN interval_month = 36 AND
-                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND final_regimen LIKE '4%'
+                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND
+                                     final_regimen LIKE '4%'
                                         OR
                                      TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND
-                                     final_regimen LIKE '1%') AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx')
+                                     final_regimen LIKE '1%') AND
+                                    final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx')
                                    THEN 1
                                ELSE 0 END
                        ), 0) AS SIGNED)      AS 'Month 36'
@@ -335,37 +350,45 @@ BEGIN
            0                                                AS 'Month 0',
            CAST(IFNULL(SUM(CASE
                                WHEN interval_month = 6 AND
-                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND final_regimen LIKE '1%'
+                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND
+                                     final_regimen LIKE '1%'
                                         OR
                                      TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND
-                                     final_regimen LIKE '4%') AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx')
+                                     final_regimen LIKE '4%') AND
+                                    final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx')
                                    THEN 1
                                ELSE 0 END
                        ), 0) AS SIGNED)                     AS 'Month 6',
            CAST(IFNULL(SUM(CASE
                                WHEN interval_month = 12 AND
-                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND final_regimen LIKE '1%'
+                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND
+                                     final_regimen LIKE '1%'
                                         OR
                                      TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND
-                                     final_regimen LIKE '4%') AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx')
+                                     final_regimen LIKE '4%') AND
+                                    final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx')
                                    THEN 1
                                ELSE 0 END
                        ), 0) AS SIGNED)                     AS 'Month 12',
            CAST(IFNULL(SUM(CASE
                                WHEN interval_month = 24 AND
-                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND final_regimen LIKE '1%'
+                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND
+                                     final_regimen LIKE '1%'
                                         OR
                                      TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND
-                                     final_regimen LIKE '4%') AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx')
+                                     final_regimen LIKE '4%') AND
+                                    final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx')
                                    THEN 1
                                ELSE 0 END
                        ), 0) AS SIGNED)                     AS 'Month 24',
            CAST(IFNULL(SUM(CASE
                                WHEN interval_month = 36 AND
-                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND final_regimen LIKE '1%'
+                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND
+                                     final_regimen LIKE '1%'
                                         OR
                                      TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND
-                                     final_regimen LIKE '4%') AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx')
+                                     final_regimen LIKE '4%') AND
+                                    final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx')
                                    THEN 1
                                ELSE 0 END
                        ), 0) AS SIGNED)                     AS 'Month 36'
@@ -375,37 +398,45 @@ BEGIN
            0                                   AS 'Month 0',
            CAST(IFNULL(SUM(CASE
                                WHEN interval_month = 6 AND
-                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND final_regimen LIKE '5%'
+                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND
+                                     final_regimen LIKE '5%'
                                         OR
                                      TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND
-                                     final_regimen LIKE '2%') AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx')
+                                     final_regimen LIKE '2%') AND
+                                    final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx')
                                    THEN 1
                                ELSE 0 END
                        ), 0) AS SIGNED)        AS 'Month 6',
            CAST(IFNULL(SUM(CASE
                                WHEN interval_month = 12 AND
-                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND final_regimen LIKE '5%'
+                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND
+                                     final_regimen LIKE '5%'
                                         OR
                                      TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND
-                                     final_regimen LIKE '2%') AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx')
+                                     final_regimen LIKE '2%') AND
+                                    final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx')
                                    THEN 1
                                ELSE 0 END
                        ), 0) AS SIGNED)        AS 'Month 12',
            CAST(IFNULL(SUM(CASE
                                WHEN interval_month = 24 AND
-                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND final_regimen LIKE '5%'
+                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND
+                                     final_regimen LIKE '5%'
                                         OR
                                      TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND
-                                     final_regimen LIKE '2%') AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx')
+                                     final_regimen LIKE '2%') AND
+                                    final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx')
                                    THEN 1
                                ELSE 0 END
                        ), 0) AS SIGNED)        AS 'Month 24',
            CAST(IFNULL(SUM(CASE
                                WHEN interval_month = 36 AND
-                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND final_regimen LIKE '6%'
+                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND
+                                     final_regimen LIKE '6%'
                                         OR
                                      TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND
-                                     final_regimen LIKE '2%') AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx')
+                                     final_regimen LIKE '2%') AND
+                                    final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx')
                                    THEN 1
                                ELSE 0 END
                        ), 0) AS SIGNED)        AS 'Month 36'
@@ -415,37 +446,45 @@ BEGIN
            0                                   AS 'Month 0',
            CAST(IFNULL(SUM(CASE
                                WHEN interval_month = 6 AND
-                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND final_regimen LIKE '6%'
+                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND
+                                     final_regimen LIKE '6%'
                                         OR
                                      TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND
-                                     final_regimen LIKE '3%') AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx')
+                                     final_regimen LIKE '3%') AND
+                                    final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx')
                                    THEN 1
                                ELSE 0 END
                        ), 0) AS SIGNED)        AS 'Month 6',
            CAST(IFNULL(SUM(CASE
                                WHEN interval_month = 12 AND
-                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND final_regimen LIKE '6%'
+                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND
+                                     final_regimen LIKE '6%'
                                         OR
                                      TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND
-                                     final_regimen LIKE '3%') AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx')
+                                     final_regimen LIKE '3%') AND
+                                    final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx')
                                    THEN 1
                                ELSE 0 END
                        ), 0) AS SIGNED)        AS 'Month 12',
            CAST(IFNULL(SUM(CASE
                                WHEN interval_month = 24 AND
-                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND final_regimen LIKE '6%'
+                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND
+                                     final_regimen LIKE '6%'
                                         OR
                                      TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND
-                                     final_regimen LIKE '3%') AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx')
+                                     final_regimen LIKE '3%') AND
+                                    final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx')
                                    THEN 1
                                ELSE 0 END
                        ), 0) AS SIGNED)        AS 'Month 24',
            CAST(IFNULL(SUM(CASE
                                WHEN interval_month = 36 AND
-                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND final_regimen LIKE '6%'
+                                    (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND
+                                     final_regimen LIKE '6%'
                                         OR
                                      TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND
-                                     final_regimen LIKE '3%') AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx')
+                                     final_regimen LIKE '3%') AND
+                                    final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx')
                                    THEN 1
                                ELSE 0 END
                        ), 0) AS SIGNED)        AS 'Month 36'
@@ -497,7 +536,7 @@ BEGIN
            CAST(IFNULL(SUM(CASE
                                WHEN interval_month = 24 AND
                                     (final_cohort_outcome = 'Ran away' OR
-                                     final_cohort_outcome = 'Loss to follow-up (LTFU)' ) THEN 1
+                                     final_cohort_outcome = 'Loss to follow-up (LTFU)') THEN 1
                                ELSE 0 END), 0) AS SIGNED) AS 'Month 24',
            CAST(IFNULL(SUM(CASE
                                WHEN interval_month = 36 AND
@@ -510,7 +549,10 @@ BEGIN
     UNION ALL
     SELECT 'Percent of cohort alive and on ART'          AS Name,
            0                                             AS 'Month 0',
-           CONCAT(CAST(ROUND(IFNULL(SUM(CASE WHEN interval_month = 6 AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx') THEN 1 ELSE 0 END) * 100 /
+           CONCAT(CAST(ROUND(IFNULL(SUM(CASE
+                                            WHEN interval_month = 6 AND
+                                                 final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') THEN 1
+                                            ELSE 0 END) * 100 /
                                     NULLIF(GREATEST(0, IFNULL(((SUM(CASE WHEN interval_month = 0 THEN 1 ELSE 0 END) +
                                                                 SUM(CASE WHEN interval_month = 6 AND ti_status = 'TI' THEN 1 ELSE 0 END)) -
                                                                SUM(CASE
@@ -518,7 +560,10 @@ BEGIN
                                                                            THEN 1
                                                                        ELSE 0 END)), 0)), 0),
                                     0)) AS SIGNED), '%') AS 'Month 6',
-           CONCAT(CAST(ROUND(IFNULL(SUM(CASE WHEN interval_month = 12 AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx') THEN 1 ELSE 0 END) * 100 /
+           CONCAT(CAST(ROUND(IFNULL(SUM(CASE
+                                            WHEN interval_month = 12 AND
+                                                 final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') THEN 1
+                                            ELSE 0 END) * 100 /
                                     NULLIF(GREATEST(0, IFNULL(((SUM(CASE WHEN interval_month = 0 THEN 1 ELSE 0 END) +
                                                                 SUM(CASE WHEN interval_month = 12 AND ti_status = 'TI' THEN 1 ELSE 0 END)) -
                                                                SUM(CASE
@@ -526,7 +571,10 @@ BEGIN
                                                                            THEN 1
                                                                        ELSE 0 END)), 0)), 0),
                                     0)) AS SIGNED), '%') AS 'Month 12',
-           CONCAT(CAST(ROUND(IFNULL(SUM(CASE WHEN interval_month = 24 AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx') THEN 1 ELSE 0 END) * 100 /
+           CONCAT(CAST(ROUND(IFNULL(SUM(CASE
+                                            WHEN interval_month = 24 AND
+                                                 final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') THEN 1
+                                            ELSE 0 END) * 100 /
                                     NULLIF(GREATEST(0, IFNULL(((SUM(CASE WHEN interval_month = 0 THEN 1 ELSE 0 END) +
                                                                 SUM(CASE WHEN interval_month = 24 AND ti_status = 'TI' THEN 1 ELSE 0 END)) -
                                                                SUM(CASE
@@ -534,7 +582,10 @@ BEGIN
                                                                            THEN 1
                                                                        ELSE 0 END)), 0)), 0),
                                     0)) AS SIGNED), '%') AS 'Month 24',
-           CONCAT(CAST(ROUND(IFNULL(SUM(CASE WHEN interval_month = 36 AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx') THEN 1 ELSE 0 END) * 100 /
+           CONCAT(CAST(ROUND(IFNULL(SUM(CASE
+                                            WHEN interval_month = 36 AND
+                                                 final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') THEN 1
+                                            ELSE 0 END) * 100 /
                                     NULLIF(GREATEST(0, IFNULL(((SUM(CASE WHEN interval_month = 0 THEN 1 ELSE 0 END) +
                                                                 SUM(CASE WHEN interval_month = 36 AND ti_status = 'TI' THEN 1 ELSE 0 END)) -
                                                                SUM(CASE
@@ -573,39 +624,55 @@ BEGIN
     SELECT 'M. CD4 median or proportion ≥ 200 (optional)' AS Name,
            0                                              AS 'Month 0',
            CAST(ROUND(IFNULL(SUM(CASE
-                                     WHEN interval_month = 6 AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx') and cd4_count is not null and
+                                     WHEN interval_month = 6 AND
+                                          final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') and
+                                          cd4_count is not null and
                                           cd4_count > 200 THEN 1
                                      ELSE 0 END) /
                              NULLIF(SUM(CASE
-                                            WHEN interval_month = 6 AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx') and cd4_count is not null
+                                            WHEN interval_month = 6 AND
+                                                 final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') and
+                                                 cd4_count is not null
                                                 THEN 1
                                             ELSE 0 END),
                                     0), 0)) AS SIGNED)    AS 'Month 6',
 
            CAST(ROUND(IFNULL(SUM(CASE
-                                     WHEN interval_month = 12 AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx') and cd4_count is not null and
+                                     WHEN interval_month = 12 AND
+                                          final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') and
+                                          cd4_count is not null and
                                           cd4_count > 200 THEN 1
                                      ELSE 0 END) /
                              NULLIF(SUM(CASE
-                                            WHEN interval_month = 12 AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx') and cd4_count is not null
+                                            WHEN interval_month = 12 AND
+                                                 final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') and
+                                                 cd4_count is not null
                                                 THEN 1
                                             ELSE 0 END),
                                     0), 0)) AS SIGNED)    AS 'Month 12',
            CAST(ROUND(IFNULL(SUM(CASE
-                                     WHEN interval_month = 24 AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx') and cd4_count is not null and
+                                     WHEN interval_month = 24 AND
+                                          final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') and
+                                          cd4_count is not null and
                                           cd4_count > 200 THEN 1
                                      ELSE 0 END) /
                              NULLIF(SUM(CASE
-                                            WHEN interval_month = 24 AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx') and cd4_count is not null
+                                            WHEN interval_month = 24 AND
+                                                 final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') and
+                                                 cd4_count is not null
                                                 THEN 1
                                             ELSE 0 END),
                                     0), 0)) AS SIGNED)    AS 'Month 24',
            CAST(ROUND(IFNULL(SUM(CASE
-                                     WHEN interval_month = 36 AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx') and cd4_count is not null and
+                                     WHEN interval_month = 36 AND
+                                          final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') and
+                                          cd4_count is not null and
                                           cd4_count > 200 THEN 1
                                      ELSE 0 END) /
                              NULLIF(SUM(CASE
-                                            WHEN interval_month = 36 AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx') and cd4_count is not null
+                                            WHEN interval_month = 36 AND
+                                                 final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') and
+                                                 cd4_count is not null
                                                 THEN 1
                                             ELSE 0 END),
                                     0), 0)) AS SIGNED)    AS 'Month 36'
@@ -615,95 +682,76 @@ BEGIN
            0                                              AS 'Month 0',
            CAST(IFNULL(SUM(CASE
                                WHEN interval_month = 6 AND
-                                    (viral_load_received_date IS NOT NULL OR visitect_cd4_test_date IS NULL) AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx')
+                                    (viral_load_received_date IS NOT NULL OR visitect_cd4_test_date IS NULL) AND
+                                    final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx')
                                    THEN 1
                                ELSE 0 END), 0) AS SIGNED) AS 'Month 6',
            CAST(IFNULL(SUM(CASE
                                WHEN interval_month = 12 AND
-                                    (viral_load_received_date IS NOT NULL OR visitect_cd4_test_date IS NULL) AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx')
+                                    (viral_load_received_date IS NOT NULL OR visitect_cd4_test_date IS NULL) AND
+                                    final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx')
                                    THEN 1
                                ELSE 0 END), 0) AS SIGNED) AS 'Month 12',
            CAST(IFNULL(SUM(CASE
                                WHEN interval_month = 24 AND
-                                    (viral_load_received_date IS NOT NULL OR visitect_cd4_test_date IS NULL) AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx')
+                                    (viral_load_received_date IS NOT NULL OR visitect_cd4_test_date IS NULL) AND
+                                    final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx')
                                    THEN 1
                                ELSE 0 END), 0) AS SIGNED) AS 'Month 24',
            CAST(IFNULL(SUM(CASE
                                WHEN interval_month = 36 AND
-                                    (viral_load_received_date IS NOT NULL OR visitect_cd4_test_date IS NULL) AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx')
+                                    (viral_load_received_date IS NOT NULL OR visitect_cd4_test_date IS NULL) AND
+                                    final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx')
                                    THEN 1
                                ELSE 0 END), 0) AS SIGNED) AS 'Month 36'
     FROM CohortDetails
     UNION ALL
-    SELECT 'O. Viral load Suppressed ( < 50 copies/ml)'             AS Name,
-           0                                                        AS 'Month 0',
-           CONCAT(CAST(ROUND(IFNULL(SUM(CASE
-                                            WHEN ((interval_month = 6 AND visitect_cd4_test_date IS NULL AND
-                                                   viral_load_received_date IS NOT NULL AND
-                                                   viral_load_count < 50 AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx'))
-                                                OR
-                                                  (interval_month = 6 AND visitect_cd4_test_date IS NOT NULL AND
-                                                   visitect_cd4_result = 'VISITECT <200 copies/ml' AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx')))
-                                                THEN 1
-                                            ELSE 0 END) * 100 /
-                                    NULLIF(CAST(SUM(CASE
-                                                        WHEN interval_month = 6 AND
-                                                             ((visitect_cd4_test_date IS NULL AND viral_load_received_date IS NOT NULL) OR
-                                                              (visitect_cd4_test_date IS NOT NULL))
-                                                            AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx') THEN 1
-                                                        ELSE 0 END) AS DECIMAL),
-                                           0), 0)) AS SIGNED), '%') AS 'Month 6',
-           CONCAT(CAST(ROUND(IFNULL(SUM(CASE
-                                            WHEN ((interval_month = 12 AND visitect_cd4_test_date IS NULL AND
-                                                   viral_load_received_date IS NOT NULL AND
-                                                   viral_load_count < 50 AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx'))
-                                                OR
-                                                  (interval_month = 12 AND visitect_cd4_test_date IS NOT NULL AND
-                                                   visitect_cd4_result = 'VISITECT <200 copies/ml' AND
-                                                   final_cohort_outcome = 'Active'))
-                                                THEN 1
-                                            ELSE 0 END) * 100 /
-                                    NULLIF(CAST(SUM(CASE
-                                                        WHEN interval_month = 12 AND
-                                                             ((visitect_cd4_test_date IS NULL AND viral_load_received_date IS NOT NULL) OR
-                                                              (visitect_cd4_test_date IS NOT NULL)) AND
-                                                             final_cohort_outcome = 'Active' THEN 1
-                                                        ELSE 0 END) AS DECIMAL),
-                                           0), 0)) AS SIGNED), '%') AS 'Month 12',
-           CONCAT(CAST(ROUND(IFNULL(SUM(CASE
-                                            WHEN ((interval_month = 24 AND visitect_cd4_test_date IS NULL AND
-                                                   viral_load_received_date IS NOT NULL AND
-                                                   viral_load_count < 50 AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx'))
-                                                OR
-                                                  (interval_month = 24 AND visitect_cd4_test_date IS NOT NULL AND
-                                                   visitect_cd4_result = 'VISITECT <200 copies/ml' AND
-                                                   final_cohort_outcome = 'Active'))
-                                                THEN 1
-                                            ELSE 0 END) * 100 /
-                                    NULLIF(CAST(SUM(CASE
-                                                        WHEN interval_month = 24 AND
-                                                             ((visitect_cd4_test_date IS NULL AND viral_load_received_date IS NOT NULL) OR
-                                                              (visitect_cd4_test_date IS NOT NULL)) AND
-                                                             final_cohort_outcome = 'Active' THEN 1
-                                                        ELSE 0 END) AS DECIMAL),
-                                           0), 0)) AS SIGNED), '%') AS 'Month 24',
-           CONCAT(CAST(ROUND(IFNULL(SUM(CASE
-                                            WHEN ((interval_month = 36 AND visitect_cd4_test_date IS NULL AND
-                                                   viral_load_received_date IS NOT NULL AND
-                                                   viral_load_count < 50 AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx'))
-                                                OR
-                                                  (interval_month = 36 AND visitect_cd4_test_date IS NOT NULL AND
-                                                   visitect_cd4_result = 'VISITECT <200 copies/ml' AND
-                                                   final_cohort_outcome = 'Active'))
-                                                THEN 1
-                                            ELSE 0 END) * 100 /
-                                    NULLIF(CAST(SUM(CASE
-                                                        WHEN interval_month = 36 AND
-                                                             ((visitect_cd4_test_date IS NULL AND viral_load_received_date IS NOT NULL) OR
-                                                              (visitect_cd4_test_date IS NOT NULL)) AND
-                                                             final_cohort_outcome = 'Active' THEN 1
-                                                        ELSE 0 END) AS DECIMAL),
-                                           0), 0)) AS SIGNED), '%') AS 'Month 36'
+    SELECT 'O. Viral load Suppressed ( < 50 copies/ml)'   AS Name,
+           0                                              AS 'Month 0',
+           CAST(IFNULL(SUM(CASE
+                               WHEN ((interval_month = 6 AND visitect_cd4_test_date IS NULL AND
+                                      viral_load_received_date IS NOT NULL AND
+                                      viral_load_count < 50 AND
+                                      final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx'))
+                                   OR
+                                     (interval_month = 6 AND visitect_cd4_test_date IS NOT NULL AND
+                                      visitect_cd4_result = 'VISITECT <200 copies/ml' AND
+                                      final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx')))
+                                   THEN 1
+                               ELSE 0 END), 0) AS SIGNED) AS 'Month 6',
+           CAST(IFNULL(SUM(CASE
+                               WHEN ((interval_month = 12 AND visitect_cd4_test_date IS NULL AND
+                                      viral_load_received_date IS NOT NULL AND
+                                      viral_load_count < 50 AND
+                                      final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx'))
+                                   OR
+                                     (interval_month = 12 AND visitect_cd4_test_date IS NOT NULL AND
+                                      visitect_cd4_result = 'VISITECT <200 copies/ml' AND
+                                      final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx')))
+                                   THEN 1
+                               ELSE 0 END), 0) AS SIGNED) AS 'Month 12',
+           CAST(IFNULL(SUM(CASE
+                               WHEN ((interval_month = 24 AND visitect_cd4_test_date IS NULL AND
+                                      viral_load_received_date IS NOT NULL AND
+                                      viral_load_count < 50 AND
+                                      final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx'))
+                                   OR
+                                     (interval_month = 24 AND visitect_cd4_test_date IS NOT NULL AND
+                                      visitect_cd4_result = 'VISITECT <200 copies/ml' AND
+                                      final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx')))
+                                   THEN 1
+                               ELSE 0 END), 0) AS SIGNED) AS 'Month 24',
+           CAST(IFNULL(SUM(CASE
+                               WHEN ((interval_month = 36 AND visitect_cd4_test_date IS NULL AND
+                                      viral_load_received_date IS NOT NULL AND
+                                      viral_load_count < 50 AND
+                                      final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx'))
+                                   OR
+                                     (interval_month = 36 AND visitect_cd4_test_date IS NOT NULL AND
+                                      visitect_cd4_result = 'VISITECT <200 copies/ml' AND
+                                      final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx')))
+                                   THEN 1
+                               ELSE 0 END), 0) AS SIGNED) AS 'Month 36'
     FROM CohortDetails
     UNION ALL
     SELECT 'Functional Status [# W or A or B / D * 100]' AS Name,
@@ -860,7 +908,8 @@ BEGIN
     SELECT 'Number of persons who picked up ARVs each month for 6 months' AS Name,
            0                                                              AS 'Month 0',
            CAST(IFNULL(SUM(CASE
-                               WHEN interval_month = 6 AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx') THEN 1
+                               WHEN interval_month = 6 AND
+                                    final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') THEN 1
                                ELSE 0 END), 0) -
                 IFNULL(SUM(CASE WHEN interval_month = 6 AND ti_status = 'TI' THEN 1 ELSE 0 END),
                        0) AS SIGNED)                                      AS 'Month 6',
@@ -873,7 +922,8 @@ BEGIN
            0                                                               AS 'Month 0',
            0                                                               AS 'Month 6',
            CAST(IFNULL(SUM(CASE
-                               WHEN interval_month = 12 AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx')  THEN 1
+                               WHEN interval_month = 12 AND
+                                    final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') THEN 1
                                ELSE 0 END), 0) -
                 IFNULL(SUM(CASE WHEN interval_month = 12 AND ti_status = 'TI' THEN 1 ELSE 0 END),
                        0) AS SIGNED)                                       AS 'Month 12',
@@ -886,7 +936,8 @@ BEGIN
            0                                                               AS 'Month 6',
            0                                                               AS 'Month 12',
            CAST(IFNULL(SUM(CASE
-                               WHEN interval_month = 24 AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx') THEN 1
+                               WHEN interval_month = 24 AND
+                                    final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') THEN 1
                                ELSE 0 END), 0) -
                 IFNULL(SUM(CASE WHEN interval_month = 24 AND ti_status = 'TI' THEN 1 ELSE 0 END),
                        0) AS SIGNED)                                       AS 'Month 24',
@@ -899,7 +950,8 @@ BEGIN
            0                                                                AS 'Month 12',
            0                                                                AS 'Month 24',
            CAST(IFNULL(SUM(CASE
-                               WHEN interval_month = 36 AND final_cohort_outcome IN ('Active','Active - Carry Forward Rx')  THEN 1
+                               WHEN interval_month = 36 AND
+                                    final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') THEN 1
                                ELSE 0 END), 0) -
                 IFNULL(SUM(CASE WHEN interval_month = 36 AND ti_status = 'TI' THEN 1 ELSE 0 END),
                        0) AS SIGNED)                                        AS 'Month 36'
