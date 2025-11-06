@@ -1476,43 +1476,47 @@ BEGIN
                         where all_art_not_started_status.client_id not in (select cervical_1.client_id from cervical_1)
                           and
                             all_art_not_started_status.client_id not in (select cervical_2.client_id from cervical_2)),
-         cervical_4 as (select FollowUp.client_id
-                             , 'Red' as Cervical_status
-                        from FollowUp
-                        where (councelling_given is not null or
-                               cervical_cancer_screening_status is not null) -- OR councelling/screeening
-                          and FollowUp.BIOPSY_RESULT in ('Invasive cervical cancer',
-                                                         'Carcinoma in situ',
-                                                         'Other'
-                            )
-                          and FollowUp.follow_up_date <= END_DATE
-                          and FollowUp.client_id not in (select cervical_1.client_id from cervical_1)
-                          and FollowUp.client_id not in (select cervical_2.client_id
-                                                         from cervical_2)
-                          and FollowUp.client_id not in (select cervical_3.client_id
-                                                         from cervical_3)),
-         tmp_cervical_5 as (SELECT encounter_id,
-                                   client_id                                                                                  as ca_id,
-                                   follow_up_date                                                                             AS ca_fdate,
-                                   ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
-                            FROM FollowUp
-                            where (councelling_given is not null or cervical_cancer_screening_status is not null)
-                              and follow_up_date <= END_DATE
-                              and cervical_cancer_screening_status = 'Cervical cancer screening performed'),
-         tmp_2_cervical_5 as (select * from tmp_cervical_5 where row_num = 1),
-         cervical_5 as (select FollowUp.client_id
-                             , 'Green' as Cervical_status
-                        from FollowUp
-                                 inner join tmp_2_cervical_5 on FollowUp.encounter_id = tmp_2_cervical_5.encounter_id
-                        where FollowUp.ccs_next_date
-                            > END_DATE
-                          and FollowUp.client_id not in (select cervical_1.client_id from cervical_1)
-                          and FollowUp.client_id not in (select cervical_2.client_id
-                                                         from cervical_2)
-                          and FollowUp.client_id not in (select cervical_3.client_id
-                                                         from cervical_3)
-                          and FollowUp.client_id not in (select cervical_4.client_id
-                                                         from cervical_4)),
+
+
+#          cervical_4 as (select FollowUp.client_id
+#                              , 'Red' as Cervical_status
+#                         from FollowUp
+#                         where (councelling_given is not null or
+#                                cervical_cancer_screening_status is not null) -- OR councelling/screeening
+#                           and FollowUp.BIOPSY_RESULT in ('Invasive cervical cancer',
+#                                                          'Carcinoma in situ',
+#                                                          'Other'
+#                             )
+#                           and FollowUp.follow_up_date <= END_DATE
+#                           and FollowUp.client_id not in (select cervical_1.client_id from cervical_1)
+#                           and FollowUp.client_id not in (select cervical_2.client_id
+#                                                          from cervical_2)
+#                           and FollowUp.client_id not in (select cervical_3.client_id
+#                                                          from cervical_3)),
+#          tmp_cervical_5 as (SELECT encounter_id,
+#                                    client_id                                                                                  as ca_id,
+#                                    follow_up_date                                                                             AS ca_fdate,
+#                                    ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
+#                             FROM FollowUp
+#                             where (councelling_given is not null or cervical_cancer_screening_status is not null)
+#                               and follow_up_date <= END_DATE
+#                               and cervical_cancer_screening_status = 'Cervical cancer screening performed'),
+
+
+#          tmp_2_cervical_5 as (select * from tmp_cervical_5 where row_num = 1),
+#          cervical_5 as (select FollowUp.client_id
+#                              , 'Green' as Cervical_status
+#                         from FollowUp
+#                                  inner join tmp_2_cervical_5 on FollowUp.encounter_id = tmp_2_cervical_5.encounter_id
+#                         where FollowUp.ccs_next_date
+#                             > END_DATE
+#                           and FollowUp.client_id not in (select cervical_1.client_id from cervical_1)
+#                           and FollowUp.client_id not in (select cervical_2.client_id
+#                                                          from cervical_2)
+#                           and FollowUp.client_id not in (select cervical_3.client_id
+#                                                          from cervical_3)
+#                           and FollowUp.client_id not in (select cervical_4.client_id
+#                                                          from cervical_4)),
          cervical_55 as (select FollowUp.client_id
                               , 'Yellow' as Cervical_status
                               , CCS_Next_Date
