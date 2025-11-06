@@ -89,9 +89,7 @@ BEGIN
                                              f.pregnancy_status,
                                              f.treatment_end_date,
                                              f.next_visit_date,
-                                             f.cd4_count,
                                              f.viral_load_count,
-                                             f.cd4_percent,
                                              f.current_functional_status,
                                              fn_get_ti_status(pi.PatientId, f.art_start_date,
                                                               pi.interval_end_date) AS ti_status,
@@ -105,25 +103,25 @@ BEGIN
                                                              AND
                                                             f.follow_up_date BETWEEN pi.interval_start_date AND pi.interval_end_date),
 
-         LatestViralLoadSentInInterval AS (SELECT pi.PatientId,
+         LatestCd4InInterval AS (SELECT pi.PatientId,
                                                   pi.interval_month,
-                                                  f.viral_load_sent_date,
+                                                  f.cd4_count,
+                                                  f.cd4_percent,
+                                                  f.follow_up_date,
                                                   ROW_NUMBER() OVER (
                                                       PARTITION BY pi.PatientId, pi.interval_month
-                                                      ORDER BY f.viral_load_sent_date DESC, f.encounter_id DESC
-                                                      ) AS rn_vl_sent
+                                                      ORDER BY f.follow_up_date DESC, f.encounter_id DESC
+                                                      ) AS rn_cd4
                                            FROM PatientIntervals pi
                                                     JOIN FollowUpEncounters f ON pi.PatientId = f.PatientId
-                                           WHERE f.viral_load_sent_date BETWEEN pi.interval_start_date AND pi.interval_end_date
-                                             AND f.viral_load_sent_date IS NOT NULL),
+                                           WHERE f.follow_up_date BETWEEN pi.interval_start_date AND pi.interval_end_date
+                                             AND f.cd4_count IS NOT NULL OR f.cd4_percent IS NOT NULL ),
 
          LatestViralLoadPerformedInInterval AS (SELECT pi.PatientId,
                                                        pi.interval_month,
                                                        f.viral_load_received_date,
                                                        f.viral_load_result,
-                                                       f.cd4_count,
                                                        f.viral_load_count,
-                                                       f.cd4_percent,
                                                        f.viral_load_sent_date,
                                                        ROW_NUMBER() OVER (
                                                            PARTITION BY pi.PatientId, pi.interval_month
@@ -178,6 +176,8 @@ BEGIN
                                       lfu.AdherenceLevel,
                                       lfu.pregnancy_status,
                                       lfu.next_visit_date,
+                                      cd4_performed.cd4_count,
+                                      cd4_performed.cd4_percent,
                                       viral_load_performed.viral_load_sent_date,
                                       viral_load_performed.viral_load_received_date,
                                       viral_load_performed.viral_load_result,
@@ -186,8 +186,6 @@ BEGIN
                                           ELSE visitect_performed.visitect_cd4_result
                                           END AS visitect_cd4_result,
                                       visitect_performed.visitect_cd4_test_date,
-                                      lfu.cd4_count,
-                                      viral_load_performed.cd4_percent,
                                       lfu.current_functional_status
                                FROM (SELECT * FROM LatestFollowUpInInterval WHERE rn = 1) lfu
                                         LEFT JOIN (SELECT *
@@ -195,6 +193,11 @@ BEGIN
                                                    WHERE rn_vl_performed = 1) viral_load_performed
                                                   ON lfu.PatientId = viral_load_performed.PatientId AND
                                                      lfu.interval_month = viral_load_performed.interval_month
+                                        LEFT JOIN (SELECT *
+                                                   FROM LatestCd4InInterval
+                                                   WHERE rn_cd4 = 1) cd4_performed
+                                                  ON lfu.PatientId = cd4_performed.PatientId AND
+                                                     lfu.interval_month = cd4_performed.interval_month
                                         LEFT JOIN (SELECT *
                                                    FROM LatestVisitectDateInInterval
                                                    WHERE rn_visitect_performed = 1) visitect_performed
