@@ -26,6 +26,9 @@ BEGIN
                                  contact_1.date_of_case_closure,
                                  contact_1.notification_plan,
                                  contact.contact_category,
+                                 COALESCE(ae_type_3rd_report, ae_type_2nd_report, ae_type_1st_report) as adverse_event_type,
+                                 COALESCE(ae_for_ipv_report_date_3rd, ae_for_ipv_report_date_2nd,
+                                          ae_for_ipv_report_date_1st)                                 as adverse_event_reported,
                                  hiv_selftest_performed,
                                  date_linked_to_care,
                                  ict_indexclient_testing,
@@ -41,7 +44,9 @@ BEGIN
                                  person.uuid,
                                  person.person_name_long,
                                  client.uan,
-                                 client.phone_no
+                                 client.phone_no,
+                                 city_village,
+                                 mrn
                           from mamba_flat_encounter_ict_general g
                                    join mamba_flat_encounter_index_contact_followup contact
                                         on g.client_id = contact.client_id
@@ -53,42 +58,43 @@ BEGIN
                                    left join mamba_dim_relationship relationship on attribute.person_id = person_b
                                    left join mamba_dim_person person on relationship.person_b = person.person_id
                                    left join mamba_dim_client client on person.person_id = client.client_id)
-    select CONCAT_WS(' ', first_name, middle_name, last_name) as `Contact’s Full Name`,
-           elicited_date                                      as `Elicited date`,
+    select CONCAT_WS(' ', first_name, middle_name, last_name)                    as `Contact’s Full Name`,
+           elicited_date                                                         as `Elicited date`,
 
-#            Region
-#         Zone
-# Woreda
-           phone_no                                           as `Phone`,
-           contact_category                                   as `Contact Category (1-5)`,
-           is_ipv_intimate_partner_violence_risk_assessed     as `IPV Risk Assessed`,
-           ipv_intimate_partner_violence_risk_outcome         as `IPV outcome [1-5]`,
-           hiv_status_disclosed_by_index_client               as `HIV status disclosed by Index Client?`,
-           notification_plan                                  as `Notification plan`,
-           trial_date_1st                                     as `1st  Trial Date`,
-           trial_outcome_1st                                  as `1stTrial Outcome`,
-           trial_date_2nd                                     as `2nd Trial Date`,
-           trial_outcome_2nd                                  as `2nd Trial Outcome`,
-           trial_date_3rd                                     as `3rd Trial Date`,
-           trial_outcome_3rd                                  as `3rd Trial Outcome`,
+           state_province                                                        as Region,
+           ''                                                                    as Zone,
+           city_village                                                          as Woreda,
+           phone_no                                                              as `Phone`,
+           contact_category                                                      as `Contact Category (1-5)`,
+           is_ipv_intimate_partner_violence_risk_assessed                        as `IPV Risk Assessed`,
+           ipv_intimate_partner_violence_risk_outcome                            as `IPV outcome [1-5]`,
+           hiv_status_disclosed_by_index_client                                  as `HIV status disclosed by Index Client?`,
+           notification_plan                                                     as `Notification plan`,
+           trial_date_1st                                                        as `1st  Trial Date`,
+           trial_outcome_1st                                                     as `1stTrial Outcome`,
+           trial_date_2nd                                                        as `2nd Trial Date`,
+           trial_outcome_2nd                                                     as `2nd Trial Outcome`,
+           trial_date_3rd                                                        as `3rd Trial Date`,
+           trial_outcome_3rd                                                     as `3rd Trial Outcome`,
 
-           hivst_kit_distributed_date                         as `Date Self-Test Kit distributed`,
-           hivst_report_date                                  as `HIV Self-Test Report Date`,
-           hivst_result                                       as `HIV Self-Test Result`,
-            CASE WHEN hiv_test_date IS NOT NULL THEN 'YES' ELSE 'NO' END AS `HIV Test Done by National Algorithm`,
-           hiv_test_date                                      as `Date HIV Test Done by National Algorithm`,
-           hiv_test_result                                    as `HIV Test Result by National Algorithm`,
-           date_linked_to_care                                   `Date linked to care`,
-           art_antiretroviral_start_date                         `Date ART started`,
-           uan                                                as `UAN of newly identified HIV +ve`,
-           ict_indexclient_testing                               `Client Linked to ICT Service`,
-           reason_if_not_linked_to_ict                           `Reason if not linked to ICT`,
-           date_linked_to_ict_service                            `Date linked to ICT Service`,
-#             Adverse Event Reported
-#             Adverse Event Type
-           uuid                                               as `GUID of Index Case`,
-           CONCAT_WS(' ', first_name, middle_name, last_name) as `Full Name of Index Case`,
-           ict_serial_number                                  as `ICT#`
+           hivst_kit_distributed_date                                            as `Date Self-Test Kit distributed`,
+           hivst_report_date                                                     as `HIV Self-Test Report Date`,
+           hivst_result                                                          as `HIV Self-Test Result`,
+           CASE WHEN hiv_test_date IS NOT NULL THEN 'YES' ELSE 'NO' END          AS `HIV Test Done by National Algorithm`,
+           hiv_test_date                                                         as `Date HIV Test Done by National Algorithm`,
+           hiv_test_result                                                       as `HIV Test Result by National Algorithm`,
+           date_linked_to_care                                                      `Date linked to care`,
+           art_antiretroviral_start_date                                            `Date ART started`,
+           uan                                                                   as `UAN of newly identified HIV +ve`,
+           mrn                                                                   as `MRN of newly identified HIV +ve`,
+           ict_indexclient_testing                                                  `Client Linked to ICT Service`,
+           reason_if_not_linked_to_ict                                              `Reason if not linked to ICT`,
+           date_linked_to_ict_service                                               `Date linked to ICT Service`,
+           CASE WHEN adverse_event_reported is not null THEN 'Yes' ELSE 'No' END as `Adverse Event Reported`,
+           adverse_event_type                                                    as `Adverse Event Type`,
+           uuid                                                                  as `GUID of Index Case`,
+           person_name_long                                                      as `Full Name of Index Case`,
+           ict_serial_number                                                     as `ICT#`
     from contact_list
     WHERE elicited_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE;
 
