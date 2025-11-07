@@ -66,13 +66,13 @@ BEGIN
                                                      INTERVAL i.interval_month MONTH
                                              )
                                      )                                                           AS interval_end_date,
-                                     LAG(
-                                             fn_ethiopian_to_gregorian_calendar(
-                                                     DATE_ADD(
-                                                             fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'),
-                                                             INTERVAL i.interval_month MONTH
-                                                     )
-                                             ), 1, REPORT_START_DATE
+                                     LAG(fn_ethiopian_to_gregorian_calendar(DATE_ADD(
+                                             fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'), INTERVAL
+                                             i.interval_month MONTH)), 1,
+                                         fn_ethiopian_to_gregorian_calendar(DATE_ADD(
+                                                 fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'), INTERVAL
+                                                 0 MONTH)) -- Use 0 MONTH for the default
+
                                      ) OVER (PARTITION BY a.PatientId ORDER BY i.interval_month) AS interval_start_date
                               FROM ART_Initiation a
                                        CROSS JOIN IntervalsDef i),
