@@ -22,15 +22,15 @@ BEGIN
     ELSEIF REPORT_TYPE = 'TESTING_ACCEPTED' THEN
         SET filter_condition = ' accepted = ''Yes'' ';
     ELSEIF REPORT_TYPE = 'ELICITED' THEN
-        SET filter_condition = ' 1=1 ';
+        SET filter_condition = ' elicited_date BETWEEN ? AND ? ';
     ELSEIF REPORT_TYPE = 'KNOWN_POSITIVE' THEN
-        SET filter_condition = ' prior_hiv_test_result = ''Positive'' and elicited_date between ? AND ? ';
+        SET filter_condition = ' prior_hiv_test_result = ''Positive'' and elicited_date between ? AND ? AND hiv_test_result IS NULL ';
     ELSEIF REPORT_TYPE = 'DOCUMENTED_NEGATIVE' THEN
         SET filter_condition =
                 ' prior_hiv_test_result = ''Negative result'' and hiv_test_result != ''Positive'' and age < 15 and elicited_date BETWEEN ? AND ? ';
     ELSEIF REPORT_TYPE = 'NEW_POSITIVE' THEN
         SET filter_condition =
-                ' prior_hiv_test_result != ''Positive'' and hiv_test_result = ''Positive'' and coalesce(hiv_test_date,date_of_case_closure,elicited_date) BETWEEN ? AND ? ';
+                ' hiv_test_result = ''Positive'' and coalesce(hiv_test_date,date_of_case_closure,elicited_date) BETWEEN ? AND ? ';
     ELSEIF REPORT_TYPE = 'NEW_NEGATIVE' THEN
         SET filter_condition =
                 ' prior_hiv_test_result != ''Positive'' and hiv_test_result = ''Negative result'' and coalesce(hiv_test_date,date_of_case_closure,elicited_date) BETWEEN ? AND ? ';
@@ -127,19 +127,25 @@ BEGIN
     IF REPORT_TYPE = 'ICT_TOTAL' THEN
         SET group_query = CONCAT('SELECT COUNT(*) as Numerator FROM contact_list WHERE ', filter_condition);
     ELSEIF REPORT_TYPE = 'ELICITED' THEN
-        SET group_query = 'SELECT
-                              ''Female'' AS sex,
-                              COALESCE(SUM(number_of_female_contacts_below_the_age_of_15), 0) AS ''<15'',
-                              COALESCE(SUM(number_of_female_contacts_above_the_age_of_15), 0) AS ''15+'',
-                              COALESCE(SUM(number_of_female_contacts_below_the_age_of_15), 0) + COALESCE(SUM(number_of_female_contacts_above_the_age_of_15), 0) AS Subtotal
-                            FROM offer
-                            UNION ALL
-                            SELECT
-                              ''Male'' AS sex,
-                              COALESCE(SUM(number_of_male_contacts_below_the_age_of_15), 0) AS ''<15'',
-                              COALESCE(SUM(number_of_male_contacts_above_the_age_of_15), 0) AS ''15+'',
-                              COALESCE(SUM(number_of_male_contacts_below_the_age_of_15), 0) + COALESCE(SUM(number_of_male_contacts_above_the_age_of_15), 0) AS Subtotal
-                            FROM offer';
+        SET IS_COURSE_AGE_GROUP = 1;
+        SET group_query = CONCAT('
+            SELECT
+              sex,
+              SUM(CASE WHEN ', IF(IS_COURSE_AGE_GROUP, 'coarse_age_group', 'fine_age_group'), ' is null AND count is not null THEN count ELSE 0 END) AS ''Unknown Age'',
+              ', age_group_cols, ' ,
+              SUM(CASE WHEN count is not null THEN count ELSE 0 END) as Subtotal
+            FROM (
+              SELECT
+                sex,
+                ', IF(IS_COURSE_AGE_GROUP, 'coarse_age_group', 'fine_age_group'), ',
+                COUNT(*) AS count
+              FROM ', source_cte, ' WHERE ', filter_condition, ' GROUP BY sex, ',
+                                 IF(IS_COURSE_AGE_GROUP, 'coarse_age_group', 'fine_age_group'), '
+            ) AS subquery
+            RIGHT JOIN (SELECT ''Female'' AS sex UNION SELECT ''Male'') AS genders
+            USING (sex)
+            GROUP BY sex
+            ');
     ELSE
         SET group_query = CONCAT('
             SELECT
@@ -164,8 +170,10 @@ BEGIN
     PREPARE stmt FROM @sql;
     SET @start_date = REPORT_START_DATE;
     SET @end_date = REPORT_END_DATE;
-    IF REPORT_TYPE = 'TESTING_OFFERED' OR REPORT_TYPE = 'TESTING_ACCEPTED' OR REPORT_TYPE = 'ELICITED' THEN
-        EXECUTE stmt USING @end_date, @end_date, @end_date, @start_date , @end_date, @end_date, @end_date, @end_date;
+    IF REPORT_TYPE = 'TESTING_OFFERED' OR REPORT_TYPE = 'TESTING_ACCEPTED' THEN
+        EXECUTE stmt USING  @end_date, @end_date, @end_date, @start_date , @end_date, @end_date, @end_date, @end_date;
+    ELSEIF REPORT_TYPE = 'ELICITED' THEN
+        EXECUTE stmt USING  @end_date, @end_date, @end_date, @start_date , @end_date, @end_date, @end_date, @end_date, @start_date , @end_date;
     ELSE
         EXECUTE stmt USING @end_date, @end_date, @end_date, @start_date , @end_date, @end_date, @end_date, @end_date, @start_date, @end_date;
     END IF;
