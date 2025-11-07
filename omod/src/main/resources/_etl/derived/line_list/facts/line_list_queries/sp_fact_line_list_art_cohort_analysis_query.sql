@@ -91,7 +91,7 @@ BEGIN
                                              f.next_visit_date,
                                              f.viral_load_count,
                                              f.current_functional_status,
-                                             fn_get_ti_status(pi.PatientId, f.art_start_date,
+                                             fn_get_ti_status(pi.PatientId, pi.interval_start_date,
                                                               pi.interval_end_date) AS ti_status,
                                              ROW_NUMBER() OVER (
                                                  PARTITION BY pi.PatientId, pi.interval_month
