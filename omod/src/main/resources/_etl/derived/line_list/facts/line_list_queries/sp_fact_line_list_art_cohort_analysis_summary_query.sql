@@ -210,7 +210,8 @@ BEGIN
                                                 OVER (PARTITION BY PatientId ORDER BY interval_month)             AS previous_initial_outcome,
                                             LAG(treatment_end_date, 1)
                                                 OVER (PARTITION BY PatientId ORDER BY interval_month)             AS previous_treatment_end_date,
-                                            LAG(regimen, 1) OVER (PARTITION BY PatientId ORDER BY interval_month) AS previous_regimen
+                                            LAG(regimen, 1) OVER (PARTITION BY PatientId ORDER BY interval_month) AS previous_regimen,
+                                            FIRST_VALUE(ti_status) OVER (PARTITION BY PatientId ORDER BY interval_month) AS initial_ti_status
                                      FROM CohortDetails_TMP),
 
          CohortDetails_With_Terminal_Flag AS (SELECT *,
@@ -269,6 +270,7 @@ BEGIN
            CAST(IFNULL(SUM(CASE WHEN interval_month = 0 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 24',
            CAST(IFNULL(SUM(CASE WHEN interval_month = 0 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 36'
     FROM CohortDetails
+    WHERE initial_ti_status IS NULL OR initial_ti_status NOT IN ('TI', 'Transferred In')
     UNION ALL
     SELECT 'B. Transfer in Add+'     AS Name,
            0                         AS 'Month 0',
