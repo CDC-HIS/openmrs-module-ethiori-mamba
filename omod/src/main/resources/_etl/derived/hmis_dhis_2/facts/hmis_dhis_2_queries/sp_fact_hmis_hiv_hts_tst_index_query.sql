@@ -261,26 +261,34 @@ BEGIN
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.2. 1'         AS S_NO,
            '< 15 years, Male'               as Activity,
-           CAST(COALESCE(SUM(number_of_male_contacts_below_the_age_of_15),0) AS SIGNED) AS Value
-    FROM offer
+           COUNT(*)                  AS Value
+    FROM contact_list
+    WHERE elicited_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE AND
+        TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) < 15 AND sex = 'Male'
 -- < 15 years, Female
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.2. 2'         AS S_NO,
            '< 15 years, Female'             as Activity,
-           CAST(COALESCE(SUM(number_of_female_contacts_below_the_age_of_15),0) AS SIGNED) AS Value
-    FROM offer
+           COUNT(*)                  AS Value
+    FROM contact_list
+    WHERE elicited_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE AND
+        TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) < 15 AND sex = 'Female'
 -- >= 15 years, Male
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.2. 3'         AS S_NO,
            '>= 15 years, Male'              as Activity,
-           CAST(COALESCE(SUM(number_of_male_contacts_above_the_age_of_15),0) AS SIGNED) AS Value
-    FROM offer
+           COUNT(*)                  AS Value
+    FROM contact_list
+    WHERE elicited_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE AND
+        TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) >= 15 AND sex = 'Male'
 -- >= 15 years, Female
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.2. 4'         AS S_NO,
            '>= 15 years, Female'            as Activity,
-           CAST(COALESCE(SUM(number_of_female_contacts_above_the_age_of_15),0) AS SIGNED) AS Value
-    FROM offer
+           COUNT(*)                  AS Value
+    FROM contact_list
+    WHERE elicited_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE AND
+        TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) >= 15 AND sex = 'Female'
 -- Number of contacts tested
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.3'       AS S_NO,
@@ -535,17 +543,16 @@ BEGIN
            'Number of contacts by test result (Positive)' as Activity,
            COUNT(*)                                       AS Value
     FROM contact_list
-    where (prior_hiv_test_result != 'Positive' and hiv_test_result = 'Positive'
+    where (hiv_test_result = 'Positive'
         and coalesce(hiv_test_date, date_of_case_closure, elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE)
-       OR (prior_hiv_test_result = 'Positive' and elicited_date between REPORT_START_DATE AND REPORT_END_DATE)
+       OR (prior_hiv_test_result = 'Positive' and elicited_date between REPORT_START_DATE AND REPORT_END_DATE and hiv_test_result is null)
 -- Number of contacts by test result (Positive)
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4.1' AS S_NO,
            'New positive'          as Activity,
            COUNT(*)                AS Value
     FROM contact_list
-    where prior_hiv_test_result != 'Positive'
-      and hiv_test_result = 'Positive'
+    where hiv_test_result = 'Positive'
       and coalesce(hiv_test_date, date_of_case_closure, elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
 -- < 1 year, Male
     UNION ALL
@@ -553,8 +560,7 @@ BEGIN
            '< 1 year, Male'           as Activity,
            COUNT(*)                   AS Value
     FROM contact_list
-    where prior_hiv_test_result != 'Positive'
-      and hiv_test_result = 'Positive'
+    where hiv_test_result = 'Positive'
       and coalesce(hiv_test_date, date_of_case_closure, elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) < 1
       and sex = 'Male'
@@ -564,8 +570,7 @@ BEGIN
            '< 1 year, Female'         as Activity,
            COUNT(*)                   AS Value
     FROM contact_list
-    where prior_hiv_test_result != 'Positive'
-      and hiv_test_result = 'Positive'
+    where hiv_test_result = 'Positive'
       and coalesce(hiv_test_date, date_of_case_closure, elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) < 1
       and sex = 'Female'
@@ -575,8 +580,7 @@ BEGIN
            '1 - 4 years, Male'        as Activity,
            COUNT(*)                   AS Value
     FROM contact_list
-    where prior_hiv_test_result != 'Positive'
-      and hiv_test_result = 'Positive'
+    where hiv_test_result = 'Positive'
       and coalesce(hiv_test_date, date_of_case_closure, elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) BETWEEN 1 AND 4
       and sex = 'Male'
@@ -586,8 +590,7 @@ BEGIN
            '1 - 4 years, Female'      as Activity,
            COUNT(*)                   AS Value
     FROM contact_list
-    where prior_hiv_test_result != 'Positive'
-      and hiv_test_result = 'Positive'
+    where hiv_test_result = 'Positive'
       and coalesce(hiv_test_date, date_of_case_closure, elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) BETWEEN 1 AND 4
       and sex = 'Female'
@@ -597,8 +600,7 @@ BEGIN
            '5 - 9 years, Male'        as Activity,
            COUNT(*)                   AS Value
     FROM contact_list
-    where prior_hiv_test_result != 'Positive'
-      and hiv_test_result = 'Positive'
+    where hiv_test_result = 'Positive'
       and coalesce(hiv_test_date, date_of_case_closure, elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) BETWEEN 5 AND 9
       and sex = 'Male'
@@ -608,8 +610,7 @@ BEGIN
            '5 - 9 years, Female'      as Activity,
            COUNT(*)                   AS Value
     FROM contact_list
-    where prior_hiv_test_result != 'Positive'
-      and hiv_test_result = 'Positive'
+    where hiv_test_result = 'Positive'
       and coalesce(hiv_test_date, date_of_case_closure, elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) BETWEEN 5 AND 9
       and sex = 'Female'
@@ -619,8 +620,7 @@ BEGIN
            '10 - 14 years, Male'      as Activity,
            COUNT(*)                   AS Value
     FROM contact_list
-    where prior_hiv_test_result != 'Positive'
-      and hiv_test_result = 'Positive'
+    where hiv_test_result = 'Positive'
       and coalesce(hiv_test_date, date_of_case_closure, elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) BETWEEN 10 AND 14
       and sex = 'Male'
@@ -630,8 +630,7 @@ BEGIN
            '10 - 14 years, Female'    as Activity,
            COUNT(*)                   AS Value
     FROM contact_list
-    where prior_hiv_test_result != 'Positive'
-      and hiv_test_result = 'Positive'
+    where hiv_test_result = 'Positive'
       and coalesce(hiv_test_date, date_of_case_closure, elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) BETWEEN 10 AND 14
       and sex = 'Female'
@@ -641,8 +640,7 @@ BEGIN
            '15 - 19 years, Male'      as Activity,
            COUNT(*)                   AS Value
     FROM contact_list
-    where prior_hiv_test_result != 'Positive'
-      and hiv_test_result = 'Positive'
+    where hiv_test_result = 'Positive'
       and coalesce(hiv_test_date, date_of_case_closure, elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) BETWEEN 15 AND 19
       and sex = 'Male'
@@ -652,8 +650,7 @@ BEGIN
            '15 - 19 years, Female'     as Activity,
            COUNT(*)                    AS Value
     FROM contact_list
-    where prior_hiv_test_result != 'Positive'
-      and hiv_test_result = 'Positive'
+    where hiv_test_result = 'Positive'
       and coalesce(hiv_test_date, date_of_case_closure, elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) BETWEEN 15 AND 19
       and sex = 'Female'
@@ -663,8 +660,7 @@ BEGIN
            '20 - 24 years, Male'       as Activity,
            COUNT(*)                    AS Value
     FROM contact_list
-    where prior_hiv_test_result != 'Positive'
-      and hiv_test_result = 'Positive'
+    where hiv_test_result = 'Positive'
       and coalesce(hiv_test_date, date_of_case_closure, elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) BETWEEN 20 AND 24
       and sex = 'Male'
@@ -674,8 +670,7 @@ BEGIN
            '20 - 24 years, Female'     as Activity,
            COUNT(*)                    AS Value
     FROM contact_list
-    where prior_hiv_test_result != 'Positive'
-      and hiv_test_result = 'Positive'
+    where hiv_test_result = 'Positive'
       and coalesce(hiv_test_date, date_of_case_closure, elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) BETWEEN 20 AND 24
       and sex = 'Female'
@@ -685,8 +680,7 @@ BEGIN
            '25 - 29 years, Male'       as Activity,
            COUNT(*)                    AS Value
     FROM contact_list
-    where prior_hiv_test_result != 'Positive'
-      and hiv_test_result = 'Positive'
+    where hiv_test_result = 'Positive'
       and coalesce(hiv_test_date, date_of_case_closure, elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) BETWEEN 25 AND 29
       and sex = 'Male'
@@ -696,8 +690,7 @@ BEGIN
            '25 - 29 years, Female'     as Activity,
            COUNT(*)                    AS Value
     FROM contact_list
-    where prior_hiv_test_result != 'Positive'
-      and hiv_test_result = 'Positive'
+    where hiv_test_result = 'Positive'
       and coalesce(hiv_test_date, date_of_case_closure, elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) BETWEEN 25 AND 29
       and sex = 'Female'
@@ -707,8 +700,7 @@ BEGIN
            '30 - 34 years, Male'       as Activity,
            COUNT(*)                    AS Value
     FROM contact_list
-    where prior_hiv_test_result != 'Positive'
-      and hiv_test_result = 'Positive'
+    where hiv_test_result = 'Positive'
       and coalesce(hiv_test_date, date_of_case_closure, elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) BETWEEN 30 AND 34
       and sex = 'Male'
@@ -718,8 +710,7 @@ BEGIN
            '30 - 34 years, Female'     as Activity,
            COUNT(*)                    AS Value
     FROM contact_list
-    where prior_hiv_test_result != 'Positive'
-      and hiv_test_result = 'Positive'
+    where hiv_test_result = 'Positive'
       and coalesce(hiv_test_date, date_of_case_closure, elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) BETWEEN 30 AND 34
       and sex = 'Female'
@@ -729,8 +720,7 @@ BEGIN
            '35 - 39 years, Male'       as Activity,
            COUNT(*)                    AS Value
     FROM contact_list
-    where prior_hiv_test_result != 'Positive'
-      and hiv_test_result = 'Positive'
+    where hiv_test_result = 'Positive'
       and coalesce(hiv_test_date, date_of_case_closure, elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) BETWEEN 35 AND 39
       and sex = 'Male'
@@ -740,8 +730,7 @@ BEGIN
            '35 - 39 years, Female'     as Activity,
            COUNT(*)                    AS Value
     FROM contact_list
-    where prior_hiv_test_result != 'Positive'
-      and hiv_test_result = 'Positive'
+    where hiv_test_result = 'Positive'
       and coalesce(hiv_test_date, date_of_case_closure, elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) BETWEEN 35 AND 39
       and sex = 'Female'
@@ -751,8 +740,7 @@ BEGIN
            '40 - 44 years, Male'       as Activity,
            COUNT(*)                    AS Value
     FROM contact_list
-    where prior_hiv_test_result != 'Positive'
-      and hiv_test_result = 'Positive'
+    where hiv_test_result = 'Positive'
       and coalesce(hiv_test_date, date_of_case_closure, elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) BETWEEN 40 AND 44
       and sex = 'Male'
@@ -762,8 +750,7 @@ BEGIN
            '40 - 44 years, Female'     as Activity,
            COUNT(*)                    AS Value
     FROM contact_list
-    where prior_hiv_test_result != 'Positive'
-      and hiv_test_result = 'Positive'
+    where hiv_test_result = 'Positive'
       and coalesce(hiv_test_date, date_of_case_closure, elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) BETWEEN 40 AND 44
       and sex = 'Female'
@@ -773,8 +760,7 @@ BEGIN
            '45 - 49 years, Male'       as Activity,
            COUNT(*)                    AS Value
     FROM contact_list
-    where prior_hiv_test_result != 'Positive'
-      and hiv_test_result = 'Positive'
+    where hiv_test_result = 'Positive'
       and coalesce(hiv_test_date, date_of_case_closure, elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) BETWEEN 45 AND 49
       and sex = 'Male'
@@ -784,8 +770,7 @@ BEGIN
            '45 - 49 years, Female'     as Activity,
            COUNT(*)                    AS Value
     FROM contact_list
-    where prior_hiv_test_result != 'Positive'
-      and hiv_test_result = 'Positive'
+    where hiv_test_result = 'Positive'
       and coalesce(hiv_test_date, date_of_case_closure, elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) BETWEEN 45 AND 49
       and sex = 'Female'
@@ -795,8 +780,7 @@ BEGIN
            '>= 50 years, Male'         as Activity,
            COUNT(*)                    AS Value
     FROM contact_list
-    where prior_hiv_test_result != 'Positive'
-      and hiv_test_result = 'Positive'
+    where hiv_test_result = 'Positive'
       and coalesce(hiv_test_date, date_of_case_closure, elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) >= 50
       and sex = 'Male'
@@ -806,8 +790,7 @@ BEGIN
            '>= 50 years, Female'       as Activity,
            COUNT(*)                    AS Value
     FROM contact_list
-    where prior_hiv_test_result != 'Positive'
-      and hiv_test_result = 'Positive'
+    where hiv_test_result = 'Positive'
       and coalesce(hiv_test_date, date_of_case_closure, elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) >= 50
       and sex = 'Female'
@@ -817,7 +800,7 @@ BEGIN
            'Known positive'        as Activity,
            COUNT(*)                AS Value
     FROM contact_list
-    where prior_hiv_test_result = 'Positive'
+    where prior_hiv_test_result = 'Positive' and hiv_test_result is null
       and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
 -- < 1 year, Male
     UNION ALL
@@ -825,7 +808,7 @@ BEGIN
            '< 1 year, Male'           as Activity,
            COUNT(*)                   AS Value
     FROM contact_list
-    where prior_hiv_test_result = 'Positive'
+    where prior_hiv_test_result = 'Positive' and hiv_test_result is null
       and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) < 1
       and sex = 'Male'
@@ -835,7 +818,7 @@ BEGIN
            '< 1 year, Female'         as Activity,
            COUNT(*)                   AS Value
     FROM contact_list
-    where prior_hiv_test_result = 'Positive'
+    where prior_hiv_test_result = 'Positive' and hiv_test_result is null
       and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) < 1
       and sex = 'Female'
@@ -845,7 +828,7 @@ BEGIN
            '1 - 4 years, Male'        as Activity,
            COUNT(*)                   AS Value
     FROM contact_list
-    where prior_hiv_test_result = 'Positive'
+    where prior_hiv_test_result = 'Positive' and hiv_test_result is null
       and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) BETWEEN 1 AND 4
       and sex = 'Male'
@@ -855,7 +838,7 @@ BEGIN
            '1 - 4 years, Female'      as Activity,
            COUNT(*)                   AS Value
     FROM contact_list
-    where prior_hiv_test_result = 'Positive'
+    where prior_hiv_test_result = 'Positive' and hiv_test_result is null
       and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) BETWEEN 1 AND 4
       and sex = 'Female'
@@ -865,7 +848,7 @@ BEGIN
            '5 - 9 years, Male'        as Activity,
            COUNT(*)                   AS Value
     FROM contact_list
-    where prior_hiv_test_result = 'Positive'
+    where prior_hiv_test_result = 'Positive' and hiv_test_result is null
       and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) BETWEEN 5 AND 9
       and sex = 'Male'
@@ -875,7 +858,7 @@ BEGIN
            '5 - 9 years, Female'      as Activity,
            COUNT(*)                   AS Value
     FROM contact_list
-    where prior_hiv_test_result = 'Positive'
+    where prior_hiv_test_result = 'Positive' and hiv_test_result is null
       and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) BETWEEN 5 AND 9
       and sex = 'Female'
@@ -885,7 +868,7 @@ BEGIN
            '10 - 14 years, Male'      as Activity,
            COUNT(*)                   AS Value
     FROM contact_list
-    where prior_hiv_test_result = 'Positive'
+    where prior_hiv_test_result = 'Positive' and hiv_test_result is null
       and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) BETWEEN 10 AND 14
       and sex = 'Male'
@@ -895,7 +878,7 @@ BEGIN
            '10 - 14 years, Female'    as Activity,
            COUNT(*)                   AS Value
     FROM contact_list
-    where prior_hiv_test_result = 'Positive'
+    where prior_hiv_test_result = 'Positive' and hiv_test_result is null
       and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) BETWEEN 10 AND 14
       and sex = 'Female'
@@ -905,7 +888,7 @@ BEGIN
            '15 - 19 years, Male'      as Activity,
            COUNT(*)                   AS Value
     FROM contact_list
-    where prior_hiv_test_result = 'Positive'
+    where prior_hiv_test_result = 'Positive' and hiv_test_result is null
       and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) BETWEEN 15 AND 19
       and sex = 'Male'
@@ -915,7 +898,7 @@ BEGIN
            '15 - 19 years, Female'     as Activity,
            COUNT(*)                    AS Value
     FROM contact_list
-    where prior_hiv_test_result = 'Positive'
+    where prior_hiv_test_result = 'Positive' and hiv_test_result is null
       and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) BETWEEN 15 AND 19
       and sex = 'Female'
@@ -925,7 +908,7 @@ BEGIN
            '20 - 24 years, Male'       as Activity,
            COUNT(*)                    AS Value
     FROM contact_list
-    where prior_hiv_test_result = 'Positive'
+    where prior_hiv_test_result = 'Positive' and hiv_test_result is null
       and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) BETWEEN 20 AND 24
       and sex = 'Male'
@@ -935,7 +918,7 @@ BEGIN
            '20 - 24 years, Female'     as Activity,
            COUNT(*)                    AS Value
     FROM contact_list
-    where prior_hiv_test_result = 'Positive'
+    where prior_hiv_test_result = 'Positive' and hiv_test_result is null
       and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) BETWEEN 20 AND 24
       and sex = 'Female'
@@ -945,7 +928,7 @@ BEGIN
            '25 - 29 years, Male'       as Activity,
            COUNT(*)                    AS Value
     FROM contact_list
-    where prior_hiv_test_result = 'Positive'
+    where prior_hiv_test_result = 'Positive' and hiv_test_result is null
       and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) BETWEEN 25 AND 29
       and sex = 'Male'
@@ -955,7 +938,7 @@ BEGIN
            '25 - 29 years, Female'     as Activity,
            COUNT(*)                    AS Value
     FROM contact_list
-    where prior_hiv_test_result = 'Positive'
+    where prior_hiv_test_result = 'Positive' and hiv_test_result is null
       and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) BETWEEN 25 AND 29
       and sex = 'Female'
@@ -965,7 +948,7 @@ BEGIN
            '30 - 34 years, Male'       as Activity,
            COUNT(*)                    AS Value
     FROM contact_list
-    where prior_hiv_test_result = 'Positive'
+    where prior_hiv_test_result = 'Positive' and hiv_test_result is null
       and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) BETWEEN 30 AND 34
       and sex = 'Male'
@@ -975,7 +958,7 @@ BEGIN
            '30 - 34 years, Female'     as Activity,
            COUNT(*)                    AS Value
     FROM contact_list
-    where prior_hiv_test_result = 'Positive'
+    where prior_hiv_test_result = 'Positive' and hiv_test_result is null
       and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) BETWEEN 30 AND 34
       and sex = 'Female'
@@ -985,7 +968,7 @@ BEGIN
            '35 - 39 years, Male'       as Activity,
            COUNT(*)                    AS Value
     FROM contact_list
-    where prior_hiv_test_result = 'Positive'
+    where prior_hiv_test_result = 'Positive' and hiv_test_result is null
       and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) BETWEEN 35 AND 39
       and sex = 'Male'
@@ -995,7 +978,7 @@ BEGIN
            '35 - 39 years, Female'     as Activity,
            COUNT(*)                    AS Value
     FROM contact_list
-    where prior_hiv_test_result = 'Positive'
+    where prior_hiv_test_result = 'Positive' and hiv_test_result is null
       and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) BETWEEN 35 AND 39
       and sex = 'Female'
@@ -1005,7 +988,7 @@ BEGIN
            '40 - 44 years, Male'       as Activity,
            COUNT(*)                    AS Value
     FROM contact_list
-    where prior_hiv_test_result = 'Positive'
+    where prior_hiv_test_result = 'Positive' and hiv_test_result is null
       and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) BETWEEN 40 AND 44
       and sex = 'Male'
@@ -1015,7 +998,7 @@ BEGIN
            '40 - 44 years, Female'     as Activity,
            COUNT(*)                    AS Value
     FROM contact_list
-    where prior_hiv_test_result = 'Positive'
+    where prior_hiv_test_result = 'Positive' and hiv_test_result is null
       and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) BETWEEN 40 AND 44
       and sex = 'Female'
@@ -1025,7 +1008,7 @@ BEGIN
            '45 - 49 years, Male'       as Activity,
            COUNT(*)                    AS Value
     FROM contact_list
-    where prior_hiv_test_result = 'Positive'
+    where prior_hiv_test_result = 'Positive' and hiv_test_result is null
       and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) BETWEEN 45 AND 49
       and sex = 'Male'
@@ -1035,7 +1018,7 @@ BEGIN
            '45 - 49 years, Female'     as Activity,
            COUNT(*)                    AS Value
     FROM contact_list
-    where prior_hiv_test_result = 'Positive'
+    where prior_hiv_test_result = 'Positive' and hiv_test_result is null
       and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) BETWEEN 45 AND 49
       and sex = 'Female'
@@ -1045,7 +1028,7 @@ BEGIN
            '>= 50 years, Male'         as Activity,
            COUNT(*)                    AS Value
     FROM contact_list
-    where prior_hiv_test_result = 'Positive'
+    where prior_hiv_test_result = 'Positive' and hiv_test_result is null
       and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) >= 50
       and sex = 'Male'
@@ -1055,7 +1038,7 @@ BEGIN
            '>= 50 years, Female'       as Activity,
            COUNT(*)                    AS Value
     FROM contact_list
-    where prior_hiv_test_result = 'Positive'
+    where prior_hiv_test_result = 'Positive' and hiv_test_result is null
       and elicited_date between REPORT_START_DATE AND REPORT_END_DATE
       and TIMESTAMPDIFF(YEAR, birthdate, REPORT_END_DATE) >= 50
       and sex = 'Female';
