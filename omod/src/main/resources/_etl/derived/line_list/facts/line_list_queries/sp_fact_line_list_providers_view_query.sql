@@ -1478,21 +1478,15 @@ BEGIN
                             all_art_not_started_status.client_id not in (select cervical_2.client_id from cervical_2)),
 
 
-#          cervical_4 as (select FollowUp.client_id
-#                              , 'Red' as Cervical_status
-#                         from FollowUp
-#                         where (councelling_given is not null or
-#                                cervical_cancer_screening_status is not null) -- OR councelling/screeening
-#                           and FollowUp.BIOPSY_RESULT in ('Invasive cervical cancer',
-#                                                          'Carcinoma in situ',
-#                                                          'Other'
-#                             )
-#                           and FollowUp.follow_up_date <= END_DATE
-#                           and FollowUp.client_id not in (select cervical_1.client_id from cervical_1)
-#                           and FollowUp.client_id not in (select cervical_2.client_id
-#                                                          from cervical_2)
-#                           and FollowUp.client_id not in (select cervical_3.client_id
-#                                                          from cervical_3)),
+         cervical_4 as (select client_id
+                             , 'Red' as Cervical_status
+                        from cx_base_clients where EligibilityStatus = 'Not Eligible Confirmed Cirvical Cancer'
+                          and cx_base_clients.follow_up_date <= END_DATE
+                          and cx_base_clients.client_id not in (select cervical_1.client_id from cervical_1)
+                          and cx_base_clients.client_id not in (select cervical_2.client_id
+                                                         from cervical_2)
+                          and cx_base_clients.client_id not in (select cervical_3.client_id
+                                                         from cervical_3)),
 #          tmp_cervical_5 as (SELECT encounter_id,
 #                                    client_id                                                                                  as ca_id,
 #                                    follow_up_date                                                                             AS ca_fdate,
