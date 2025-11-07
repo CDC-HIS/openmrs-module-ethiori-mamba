@@ -13,7 +13,7 @@ import java.util.*;
 
 import static org.openmrs.module.mambaetl.helpers.EthiOhriUtil.map;
 
-@Component
+//@Component
 public class MotherCohortAnalysisLineListReportMamba implements ReportManager {
 	
 	@Override
