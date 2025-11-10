@@ -24,7 +24,8 @@ BEGIN
     ELSEIF REPORT_TYPE = 'ELICITED' THEN
         SET filter_condition = ' elicited_date BETWEEN ? AND ? ';
     ELSEIF REPORT_TYPE = 'KNOWN_POSITIVE' THEN
-        SET filter_condition = ' prior_hiv_test_result = ''Positive'' and elicited_date between ? AND ? AND hiv_test_result IS NULL ';
+        SET filter_condition =
+                ' prior_hiv_test_result = ''Positive'' and elicited_date between ? AND ? AND hiv_test_result IS NULL ';
     ELSEIF REPORT_TYPE = 'DOCUMENTED_NEGATIVE' THEN
         SET filter_condition =
                 ' prior_hiv_test_result = ''Negative result'' and hiv_test_result != ''Positive'' and age < 15 and elicited_date BETWEEN ? AND ? ';
@@ -100,29 +101,50 @@ BEGIN
                     where offered_date BETWEEN ? AND ?),
      offer as (select * from offer_list where row_num = 1),
           contact_list as (select contact.client_id,
-                             contact.elicited_date,
-                             contact.hiv_test_date,
-                             contact.hiv_test_result,
-                             prior_hiv_test_result,
-                             prior_test_date_estimated,
-                             date_of_case_closure,
-                             (SELECT datim_agegroup
-                              from mamba_dim_agegroup
-                              where TIMESTAMPDIFF(YEAR, person.birthdate, ?) = age) as fine_age_group,
-                             (SELECT normal_agegroup
-                              from mamba_dim_agegroup
-                              where TIMESTAMPDIFF(YEAR, person.birthdate, ?) = age) as coarse_age_group,
-                             TIMESTAMPDIFF(YEAR, person.birthdate, ?) as age,
-                             CASE person.gender WHEN ''F'' THEN ''Female'' WHEN ''M'' THEN ''Male'' END AS sex
-                      from mamba_flat_encounter_ict_general g
-                               join mamba_flat_encounter_index_contact_followup contact
-                                    on g.client_id = contact.client_id
-                               left join mamba_flat_encounter_index_contact_followup_1 contact_1
-                                         on contact.encounter_id = contact_1.encounter_id
-                               left join mamba_dim_encounter encounter on contact.encounter_id = encounter.encounter_id
-                               left join mamba_dim_person_attribute attribute on encounter.uuid = attribute.value
-                               left join mamba_dim_relationship relationship on attribute.person_id = person_b
-                               left join mamba_dim_person person on relationship.person_b = person.person_id) ';
+       contact.elicited_date,
+       contact.hiv_test_date,
+       contact.hiv_test_result,
+       prior_hiv_test_result,
+       prior_test_date_estimated,
+       date_of_case_closure,
+       encounter.encounter_id,
+       encounter.uuid,
+       contact_birthdate,
+       relationship_b.birthdate,
+       relationship_b.person_id,
+       CASE
+           WHEN COALESCE(relationship_b.gender, contact_1.respondent_gender) IN
+                (''F'', ''Female gender'') THEN ''Female''
+           WHEN COALESCE(relationship_b.gender, contact_1.respondent_gender) IN
+                (''M'', ''Male gender'') THEN ''Male''
+           ELSE COALESCE(relationship_b.gender, contact_1.respondent_gender)
+           END AS sex,
+
+    (SELECT datim_agegroup
+        from mamba_dim_agegroup
+        where TIMESTAMPDIFF(YEAR, relationship_b.birthdate, ?) = age) as fine_age_group,
+    (SELECT normal_agegroup
+     from mamba_dim_agegroup
+     where TIMESTAMPDIFF(YEAR, relationship_b.birthdate, ?) = age) as coarse_age_group,
+       TIMESTAMPDIFF(YEAR, relationship_b.birthdate, ?) as age
+from mamba_flat_encounter_ict_general g
+         join mamba_flat_encounter_index_contact_followup contact
+              on g.client_id = contact.client_id
+         left join mamba_flat_encounter_index_contact_followup_1 contact_1
+                   on contact.encounter_id = contact_1.encounter_id
+         left join mamba_dim_encounter encounter on contact.encounter_id = encounter.encounter_id
+         left join mamba_dim_person_attribute attribute on encounter.uuid = attribute.value
+         join mamba_dim_relationship relationship on g.client_id = relationship.person_a
+         join mamba_dim_person relationship_b on relationship.person_b = relationship_b.person_id
+GROUP BY contact.client_id,
+         contact.elicited_date,
+         contact.hiv_test_date,
+         contact.hiv_test_result,
+         contact_1.prior_hiv_test_result,
+         contact_1.prior_test_date_estimated,
+         encounter.encounter_id,
+         encounter.uuid,
+         contact.contact_birthdate) ';
 
     IF REPORT_TYPE = 'ICT_TOTAL' THEN
         SET group_query = CONCAT('SELECT COUNT(*) as Numerator FROM contact_list WHERE ', filter_condition);
@@ -171,9 +193,9 @@ BEGIN
     SET @start_date = REPORT_START_DATE;
     SET @end_date = REPORT_END_DATE;
     IF REPORT_TYPE = 'TESTING_OFFERED' OR REPORT_TYPE = 'TESTING_ACCEPTED' THEN
-        EXECUTE stmt USING  @end_date, @end_date, @end_date, @start_date , @end_date, @end_date, @end_date, @end_date;
+        EXECUTE stmt USING @end_date, @end_date, @end_date, @start_date , @end_date, @end_date, @end_date, @end_date;
     ELSEIF REPORT_TYPE = 'ELICITED' THEN
-        EXECUTE stmt USING  @end_date, @end_date, @end_date, @start_date , @end_date, @end_date, @end_date, @end_date, @start_date , @end_date;
+        EXECUTE stmt USING @end_date, @end_date, @end_date, @start_date , @end_date, @end_date, @end_date, @end_date, @start_date , @end_date;
     ELSE
         EXECUTE stmt USING @end_date, @end_date, @end_date, @start_date , @end_date, @end_date, @end_date, @end_date, @start_date, @end_date;
     END IF;
