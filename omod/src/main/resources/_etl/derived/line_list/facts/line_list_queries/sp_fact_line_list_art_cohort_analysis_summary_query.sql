@@ -256,13 +256,7 @@ BEGIN
                                            previous_treatment_end_date >= interval_end_date
                                           THEN previous_regimen
                                       ELSE regimen
-                                      END AS final_regimen,
-                                  MAX(CASE
-                                          WHEN ti_status IN ('TI', 'Transferred In') THEN 1
-                                          ELSE 0
-                                          END)
-                                      OVER (PARTITION BY PatientId) AS was_ever_ti_flag
-
+                                      END AS final_regimen
                            FROM CohortDetails_With_Last_Terminal_Status
                                     JOIN mamba_dim_client client
                                          on client.client_id = CohortDetails_With_Last_Terminal_Status.PatientId)
@@ -274,7 +268,7 @@ BEGIN
            CAST(IFNULL(SUM(CASE WHEN interval_month = 36 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 24',
            CAST(IFNULL(SUM(CASE WHEN interval_month = 36 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 36'
     FROM CohortDetails
-    WHERE was_ever_ti_flag = 0
+    WHERE NOT EXISTS(SELECT * from CohortDetails where interval_month <= 36 AND ti_status = 'TI')
     UNION ALL
     SELECT 'B. Transfer in Add+'     AS Name,
            0                         AS 'Month 0',

@@ -19,34 +19,42 @@ BEGIN
                                        date_of_reported_hiv_viral_load     AS viral_load_sent_date,
                                        date_viral_load_results_received    AS viral_load_received_date,
                                        viral_load_test_status              AS viral_load_result,
-                                       hiv_viral_load                      AS viral_load_count,
+                                       hiv_viral_load                      as viral_load_count,
                                        cd4_count,
-                                       cd4_                                AS cd4_percent,
+                                       cd4_                                as cd4_percent,
                                        current_functional_status,
-                                       transferred_in_check_this_for_all_t,
                                        visitect_cd4_result,
                                        visitect_cd4_test_date
                                 FROM mamba_flat_encounter_follow_up follow_up
-                                         LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1 USING (encounter_id)
-                                         LEFT JOIN mamba_flat_encounter_follow_up_2 follow_up_2 USING (encounter_id)
-                                         LEFT JOIN mamba_flat_encounter_follow_up_3 follow_up_3 USING (encounter_id)
-                                         LEFT JOIN mamba_flat_encounter_follow_up_4 follow_up_4 USING (encounter_id)
-                                         LEFT JOIN mamba_flat_encounter_follow_up_5 follow_up_5 USING (encounter_id)
-                                         LEFT JOIN mamba_flat_encounter_follow_up_6 follow_up_6 USING (encounter_id)
-                                         LEFT JOIN mamba_flat_encounter_follow_up_7 follow_up_7 USING (encounter_id)
-                                         LEFT JOIN mamba_flat_encounter_follow_up_8 follow_up_8 USING (encounter_id)
-                                         LEFT JOIN mamba_flat_encounter_follow_up_9 follow_up_9 USING (encounter_id)
+                                         LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1
+                                                   ON follow_up.encounter_id = follow_up_1.encounter_id
+                                         LEFT JOIN mamba_flat_encounter_follow_up_2 follow_up_2
+                                                   ON follow_up.encounter_id = follow_up_2.encounter_id
+                                         LEFT JOIN mamba_flat_encounter_follow_up_3 follow_up_3
+                                                   ON follow_up.encounter_id = follow_up_3.encounter_id
+                                         LEFT JOIN mamba_flat_encounter_follow_up_4 follow_up_4
+                                                   ON follow_up.encounter_id = follow_up_4.encounter_id
+                                         LEFT JOIN mamba_flat_encounter_follow_up_5 follow_up_5
+                                                   ON follow_up.encounter_id = follow_up_5.encounter_id
+                                         LEFT JOIN mamba_flat_encounter_follow_up_6 follow_up_6
+                                                   ON follow_up.encounter_id = follow_up_6.encounter_id
+                                         LEFT JOIN mamba_flat_encounter_follow_up_7 follow_up_7
+                                                   ON follow_up.encounter_id = follow_up_7.encounter_id
+                                         LEFT JOIN mamba_flat_encounter_follow_up_8 follow_up_8
+                                                   ON follow_up.encounter_id = follow_up_8.encounter_id
+                                         LEFT JOIN mamba_flat_encounter_follow_up_9 follow_up_9
+                                                   ON follow_up.encounter_id = follow_up_9.encounter_id
                                 WHERE follow_up.client_id IS NOT NULL
                                   AND follow_up_date_followup_ IS NOT NULL
                                   AND follow_up_status IS NOT NULL),
 
-         ART_Initiation AS (SELECT PatientId,
-                                   MIN(art_start_date) AS art_start_date
+         -- Initiated ART in Period
+         ART_Initiation AS (SELECT PatientId, MIN(art_start_date) AS art_start_date
                             FROM FollowUpEncounters
                             WHERE art_start_date IS NOT NULL
-                              AND art_start_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE
+                              and art_start_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE
                             GROUP BY PatientId),
-
+         -- To enable Dynamically Generating Interval Periods
          IntervalsDef AS (SELECT 0 AS interval_month
                           UNION ALL
                           SELECT 6
@@ -56,27 +64,21 @@ BEGIN
                           SELECT 24
                           UNION ALL
                           SELECT 36),
-
+         -- Generate Intervals For Each Client
          PatientIntervals AS (SELECT a.PatientId,
                                      a.art_start_date,
                                      i.interval_month,
-                                     fn_ethiopian_to_gregorian_calendar(
-                                             DATE_ADD(
-                                                     fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'),
-                                                     INTERVAL i.interval_month MONTH
-                                             )
-                                     )                                                           AS interval_end_date,
-                                     LAG(
-                                             fn_ethiopian_to_gregorian_calendar(
-                                                     DATE_ADD(
-                                                             fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'),
-                                                             INTERVAL i.interval_month MONTH
-                                                     )
-                                             ), 1, REPORT_START_DATE
-                                     ) OVER (PARTITION BY a.PatientId ORDER BY i.interval_month) AS interval_start_date
+                                     fn_ethiopian_to_gregorian_calendar(DATE_ADD(
+                                             fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'), INTERVAL
+                                             i.interval_month MONTH))                              as interval_end_date,
+                                     LAG(fn_ethiopian_to_gregorian_calendar(DATE_ADD(
+                                             fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'), INTERVAL
+                                             i.interval_month MONTH)), 1,
+                                         REPORT_START_DATE)
+                                         OVER (PARTITION BY a.PatientId ORDER BY i.interval_month) as interval_start_date
                               FROM ART_Initiation a
                                        CROSS JOIN IntervalsDef i),
-
+         -- Collect Follow-ups for each interval
          LatestFollowUpInInterval AS (SELECT pi.PatientId,
                                              pi.interval_month,
                                              pi.interval_start_date,
@@ -104,18 +106,18 @@ BEGIN
                                                             f.follow_up_date BETWEEN pi.interval_start_date AND pi.interval_end_date),
 
          LatestCd4InInterval AS (SELECT pi.PatientId,
-                                                  pi.interval_month,
-                                                  f.cd4_count,
-                                                  f.cd4_percent,
-                                                  f.follow_up_date,
-                                                  ROW_NUMBER() OVER (
-                                                      PARTITION BY pi.PatientId, pi.interval_month
-                                                      ORDER BY f.follow_up_date DESC, f.encounter_id DESC
-                                                      ) AS rn_cd4
-                                           FROM PatientIntervals pi
-                                                    JOIN FollowUpEncounters f ON pi.PatientId = f.PatientId
-                                           WHERE f.follow_up_date BETWEEN pi.interval_start_date AND pi.interval_end_date
-                                             AND f.cd4_count IS NOT NULL OR f.cd4_percent IS NOT NULL ),
+                                        pi.interval_month,
+                                        f.cd4_count,
+                                        f.cd4_percent,
+                                        f.follow_up_date,
+                                        ROW_NUMBER() OVER (
+                                            PARTITION BY pi.PatientId, pi.interval_month
+                                            ORDER BY f.follow_up_date DESC, f.encounter_id DESC
+                                            ) AS rn_cd4
+                                 FROM PatientIntervals pi
+                                          JOIN FollowUpEncounters f ON pi.PatientId = f.PatientId
+                                 WHERE f.follow_up_date BETWEEN pi.interval_start_date AND pi.interval_end_date
+                                     AND f.cd4_count IS NOT NULL OR f.cd4_percent IS NOT NULL ),
 
          LatestViralLoadPerformedInInterval AS (SELECT pi.PatientId,
                                                        pi.interval_month,
@@ -256,7 +258,6 @@ BEGIN
                                           THEN previous_regimen
                                       ELSE regimen
                                       END AS final_regimen
-
                            FROM CohortDetails_With_Last_Terminal_Status
                                     JOIN mamba_dim_client client
                                          on client.client_id = CohortDetails_With_Last_Terminal_Status.PatientId)
