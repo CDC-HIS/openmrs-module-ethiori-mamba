@@ -1023,7 +1023,7 @@ BEGIN
                  select client_id
                       , ''
                       , 'ART not started'
-                 from all_art_not_started_status)
+                 from all_art_not_started_status),
 
     select tmp_address.patient_name                                          AS `Patient Name`,
            tmp_address.patient_uuid                                          AS `UUID`,
