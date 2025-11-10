@@ -1025,6 +1025,50 @@ BEGIN
                       , 'ART not started'
                  from all_art_not_started_status),
 
+         offer_list as (select client.client_id,
+                               client.mrn,
+                               client.uan,
+                               client.sex,
+                               client.patient_uuid,
+                               client.patient_name,
+                               offer.offered_date,
+                               visit_date_ict_offer,
+                               priority_criteria,
+                               offered,
+                               ict_serial_number,
+                               offer.yes,
+                               offer.no,
+                               elicited,
+                               high_risk_for_ipv,
+                               accepted,
+                               accepted_date,
+                               linked_to_appropriate_care,
+                               specify_other_adverse_event_type,
+                               reason_ict_service_not_accepted,
+                               adverse_event_type,
+                               ROW_NUMBER() over (PARTITION BY client.client_id ORDER BY offered_date DESC ) as row_num
+                        from mamba_flat_encounter_ict_general ict_general
+                                 join mamba_flat_encounter_ict_offer offer on ict_general.client_id = offer.client_id
+                                 join mamba_dim_client client on ict_general.client_id = client.client_id
+                                 join tmp_address on tmp_address.client_id = client.client_id
+                        where offered_date <= END_DATE),
+         tmp_offer as (select * from offer_list where row_num = 1),
+         offer as (select tmp_offer.client_id,
+                          CASE
+                              WHEN offered_date is null and final_follow_up_status NOT IN ('Dead', 'Transferred Out')
+                                  THEN 'Never Screened for ICT'
+                              WHEN offered_date IS NOT NULL AND
+                                   DATE_ADD(offered_date, INTERVAL 730 DAY) <= END_DATE
+                                  THEN 'Screened for ICT Previously (Not Eligible)'
+                              WHEN offered_date IS NOT NULL AND
+                                   DATE_ADD(offered_date, INTERVAL 730 DAY) > END_DATE
+                                  THEN 'Currently Eligible for Rescreening'
+                              WHEN final_follow_up_status IN ('Dead', 'Transferred Out')
+                                  THEN 'Not Applicable' END AS `ict_eligibility`
+
+                   from tmp_offer
+                            join latest_follow_up lfu on tmp_offer.client_id = lfu.client_id)
+
     select tmp_address.patient_name                                          AS `Patient Name`,
            tmp_address.patient_uuid                                          AS `UUID`,
            tmp_address.mrn,
@@ -1048,6 +1092,7 @@ BEGIN
 #                when vl_eligibility.vl_status is not null then vl_eligibility.vl_status
                Else 'undetermined_VL' end                                    as `Viral Load Eligibility Status`
             ,
+           offer.ict_eligibility                                             as `ICT Eligibility Status`,
            case
                when asm.assessment_status is not null then asm.assessment_status
                Else '' end                                                   as `DSD Assesment Status`
@@ -1086,6 +1131,7 @@ BEGIN
              left join asm on asm.client_id = tmp_address.client_id
              left join cervical on cervical.client_id = tmp_address.client_id
              left join tmp_3 on tmp_3.client_id = tmp_address.client_id
+             left join offer on tmp_address.client_id = offer.client_id
 
     where (
         (START_NV_DATE IS NULL OR END_NV_DATE IS NULL)
