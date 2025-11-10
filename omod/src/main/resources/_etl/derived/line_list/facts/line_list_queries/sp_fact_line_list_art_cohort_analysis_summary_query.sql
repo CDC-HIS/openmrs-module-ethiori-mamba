@@ -73,11 +73,8 @@ BEGIN
                                      LAG(fn_ethiopian_to_gregorian_calendar(DATE_ADD(
                                              fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'), INTERVAL
                                              i.interval_month MONTH)), 1,
-                                         fn_ethiopian_to_gregorian_calendar(DATE_ADD(
-                                                 fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'), INTERVAL
-                                                 0 MONTH)) -- Use 0 MONTH for the default
-
-                                     ) OVER (PARTITION BY a.PatientId ORDER BY i.interval_month) AS interval_start_date
+                                         REPORT_START_DATE)
+                                         OVER (PARTITION BY a.PatientId ORDER BY i.interval_month) as interval_start_date
                               FROM ART_Initiation a
                                        CROSS JOIN IntervalsDef i),
          -- Collect Follow-ups for each interval
@@ -259,7 +256,12 @@ BEGIN
                                            previous_treatment_end_date >= interval_end_date
                                           THEN previous_regimen
                                       ELSE regimen
-                                      END AS final_regimen
+                                      END AS final_regimen,
+                                  MAX(CASE
+                                          WHEN ti_status IN ('TI', 'Transferred In') THEN 1
+                                          ELSE 0
+                                          END)
+                                      OVER (PARTITION BY PatientId) AS was_ever_ti_flag
 
                            FROM CohortDetails_With_Last_Terminal_Status
                                     JOIN mamba_dim_client client
@@ -272,7 +274,7 @@ BEGIN
            CAST(IFNULL(SUM(CASE WHEN interval_month = 36 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 24',
            CAST(IFNULL(SUM(CASE WHEN interval_month = 36 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 36'
     FROM CohortDetails
-    WHERE ti_status IS NULL OR ti_status NOT IN ('TI', 'Transferred In')
+    WHERE was_ever_ti_flag = 0
     UNION ALL
     SELECT 'B. Transfer in Add+'     AS Name,
            0                         AS 'Month 0',
