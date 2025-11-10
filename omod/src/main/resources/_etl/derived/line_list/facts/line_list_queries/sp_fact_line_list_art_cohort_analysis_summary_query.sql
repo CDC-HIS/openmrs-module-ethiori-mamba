@@ -232,6 +232,9 @@ BEGIN
                                                      FROM CohortDetails_With_Terminal_Group),
 
          CohortDetails AS (SELECT *,
+                                  MAX(CASE WHEN ti_status = 'TI' THEN 1 ELSE 0 END) OVER (PARTITION BY PatientId) AS ever_ti_flag,
+
+                                  ti_status AS ti_in_period,
                                   CASE
                                       WHEN last_terminal_status IN ('Dead', 'Transferred out', 'Stop all', 'Ran away')
                                           THEN last_terminal_status
@@ -262,13 +265,13 @@ BEGIN
                                          on client.client_id = CohortDetails_With_Last_Terminal_Status.PatientId)
 
     SELECT 'A. Started on ART in this clinic: original cohort'                            AS Name,
-           CAST(IFNULL(SUM(CASE WHEN interval_month = 36 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 0',
-           CAST(IFNULL(SUM(CASE WHEN interval_month = 36 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 6',
-           CAST(IFNULL(SUM(CASE WHEN interval_month = 36 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 12',
-           CAST(IFNULL(SUM(CASE WHEN interval_month = 36 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 24',
-           CAST(IFNULL(SUM(CASE WHEN interval_month = 36 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 36'
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 0 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 0',
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 0 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 6',
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 0 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 12',
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 0 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 24',
+           CAST(IFNULL(SUM(CASE WHEN interval_month = 0 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Month 36'
     FROM CohortDetails
-    WHERE NOT EXISTS(SELECT * from CohortDetails where interval_month <= 36 AND ti_status = 'TI')
+    where ever_ti_flag = 0
     UNION ALL
     SELECT 'B. Transfer in Add+'     AS Name,
            0                         AS 'Month 0',
@@ -300,25 +303,25 @@ BEGIN
     UNION ALL
     SELECT 'D. Net current cohort'                                       AS Name,
            0                                                             AS 'Month 0',
-           CAST(GREATEST(0, IFNULL(((SUM(CASE WHEN interval_month = 0 THEN 1 ELSE 0 END) +
-                                     SUM(CASE WHEN interval_month = 6 AND ti_status = 'TI' THEN 1 ELSE 0 END)) -
+           CAST(GREATEST(0, IFNULL(((SUM(CASE WHEN interval_month = 0 AND ever_ti_flag = 0 THEN 1 ELSE 0 END) +
+                                     SUM(CASE WHEN interval_month <= 6 AND ti_status = 'TI' THEN 1 ELSE 0 END)) -
                                     SUM(CASE
-                                            WHEN interval_month = 6 AND final_cohort_outcome = 'Transferred out' THEN 1
+                                            WHEN interval_month <= 6 AND final_cohort_outcome = 'Transferred out' THEN 1
                                             ELSE 0 END)), 0)) AS SIGNED) AS 'Month 6',
-           CAST(GREATEST(0, IFNULL(((SUM(CASE WHEN interval_month = 0 THEN 1 ELSE 0 END) +
-                                     SUM(CASE WHEN interval_month = 12 AND ti_status = 'TI' THEN 1 ELSE 0 END)) -
+           CAST(GREATEST(0, IFNULL(((SUM(CASE WHEN interval_month = 0 AND ever_ti_flag = 0 THEN 1 ELSE 0 END) +
+                                     SUM(CASE WHEN interval_month <= 12 AND ti_status = 'TI' THEN 1 ELSE 0 END)) -
                                     SUM(CASE
-                                            WHEN interval_month = 12 AND final_cohort_outcome = 'Transferred out' THEN 1
+                                            WHEN interval_month <= 12 AND final_cohort_outcome = 'Transferred out' THEN 1
                                             ELSE 0 END)), 0)) AS SIGNED) AS 'Month 12',
-           CAST(GREATEST(0, IFNULL(((SUM(CASE WHEN interval_month = 0 THEN 1 ELSE 0 END) +
-                                     SUM(CASE WHEN interval_month = 24 AND ti_status = 'TI' THEN 1 ELSE 0 END)) -
+           CAST(GREATEST(0, IFNULL(((SUM(CASE WHEN interval_month = 0 AND ever_ti_flag = 0 THEN 1 ELSE 0 END) +
+                                     SUM(CASE WHEN interval_month <= 24 AND ti_status = 'TI' THEN 1 ELSE 0 END)) -
                                     SUM(CASE
-                                            WHEN interval_month = 24 AND final_cohort_outcome = 'Transferred out' THEN 1
+                                            WHEN interval_month <= 24 AND final_cohort_outcome = 'Transferred out' THEN 1
                                             ELSE 0 END)), 0)) AS SIGNED) AS 'Month 24',
-           CAST(GREATEST(0, IFNULL(((SUM(CASE WHEN interval_month = 0 THEN 1 ELSE 0 END) +
-                                     SUM(CASE WHEN interval_month = 36 AND ti_status = 'TI' THEN 1 ELSE 0 END)) -
+           CAST(GREATEST(0, IFNULL(((SUM(CASE WHEN interval_month = 0 AND ever_ti_flag = 0 THEN 1 ELSE 0 END) +
+                                     SUM(CASE WHEN interval_month <= 36 AND ti_status = 'TI' THEN 1 ELSE 0 END)) -
                                     SUM(CASE
-                                            WHEN interval_month = 36 AND final_cohort_outcome = 'Transferred out' THEN 1
+                                            WHEN interval_month <= 36 AND final_cohort_outcome = 'Transferred out' THEN 1
                                             ELSE 0 END)), 0)) AS SIGNED) AS 'Month 36'
     FROM CohortDetails
     UNION ALL
@@ -577,8 +580,8 @@ BEGIN
                                             WHEN interval_month = 6 AND
                                                  final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') THEN 1
                                             ELSE 0 END) * 100 /
-                                    NULLIF(GREATEST(0, IFNULL(((SUM(CASE WHEN interval_month = 0 THEN 1 ELSE 0 END) +
-                                                                SUM(CASE WHEN interval_month = 6 AND ti_status = 'TI' THEN 1 ELSE 0 END)) -
+                                    NULLIF(GREATEST(0, IFNULL(((SUM(CASE WHEN interval_month = 0 AND ever_ti_flag = 0 THEN 1 ELSE 0 END) +
+                                                                SUM(CASE WHEN interval_month <= 6 AND ti_status = 'TI' THEN 1 ELSE 0 END)) -
                                                                SUM(CASE
                                                                        WHEN interval_month = 6 AND final_cohort_outcome = 'Transferred out'
                                                                            THEN 1
@@ -588,8 +591,8 @@ BEGIN
                                             WHEN interval_month = 12 AND
                                                  final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') THEN 1
                                             ELSE 0 END) * 100 /
-                                    NULLIF(GREATEST(0, IFNULL(((SUM(CASE WHEN interval_month = 0 THEN 1 ELSE 0 END) +
-                                                                SUM(CASE WHEN interval_month = 12 AND ti_status = 'TI' THEN 1 ELSE 0 END)) -
+                                    NULLIF(GREATEST(0, IFNULL(((SUM(CASE WHEN interval_month = 0 AND ever_ti_flag = 0 THEN 1 ELSE 0 END) +
+                                                                SUM(CASE WHEN interval_month <= 12 AND ti_status = 'TI' THEN 1 ELSE 0 END)) -
                                                                SUM(CASE
                                                                        WHEN interval_month = 12 AND final_cohort_outcome = 'Transferred out'
                                                                            THEN 1
@@ -599,8 +602,8 @@ BEGIN
                                             WHEN interval_month = 24 AND
                                                  final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') THEN 1
                                             ELSE 0 END) * 100 /
-                                    NULLIF(GREATEST(0, IFNULL(((SUM(CASE WHEN interval_month = 0 THEN 1 ELSE 0 END) +
-                                                                SUM(CASE WHEN interval_month = 24 AND ti_status = 'TI' THEN 1 ELSE 0 END)) -
+                                    NULLIF(GREATEST(0, IFNULL(((SUM(CASE WHEN interval_month = 0 AND ever_ti_flag = 0 THEN 1 ELSE 0 END) +
+                                                                SUM(CASE WHEN interval_month <= 24 AND ti_status = 'TI' THEN 1 ELSE 0 END)) -
                                                                SUM(CASE
                                                                        WHEN interval_month = 24 AND final_cohort_outcome = 'Transferred out'
                                                                            THEN 1
@@ -610,8 +613,8 @@ BEGIN
                                             WHEN interval_month = 36 AND
                                                  final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') THEN 1
                                             ELSE 0 END) * 100 /
-                                    NULLIF(GREATEST(0, IFNULL(((SUM(CASE WHEN interval_month = 0 THEN 1 ELSE 0 END) +
-                                                                SUM(CASE WHEN interval_month = 36 AND ti_status = 'TI' THEN 1 ELSE 0 END)) -
+                                    NULLIF(GREATEST(0, IFNULL(((SUM(CASE WHEN interval_month = 0 AND ever_ti_flag = 0 THEN 1 ELSE 0 END) +
+                                                                SUM(CASE WHEN interval_month <= 36 AND ti_status = 'TI' THEN 1 ELSE 0 END)) -
                                                                SUM(CASE
                                                                        WHEN interval_month = 36 AND final_cohort_outcome = 'Transferred out'
                                                                            THEN 1
