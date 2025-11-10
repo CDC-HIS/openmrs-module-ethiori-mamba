@@ -1,10 +1,8 @@
 package org.openmrs.module.mambaetl.reports.linelist;
 
-import org.openmrs.module.mambaetl.datasetdefinition.linelist.ChronicCareEnrollmentDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.datasetdefinition.linelist.MissedAppointmentDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.mambaetl.helpers.EthiopianDate;
-import org.openmrs.module.mambaetl.helpers.FollowUpConstant;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.report.ReportDesign;
 import org.openmrs.module.reporting.report.ReportRequest;
@@ -23,7 +21,7 @@ public class MissedAppointmentLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getUuid() {
-		return "691327fb-9579-0202-920a-27ee765y43ef";
+		return "0b087c2f-4e37-4b4a-8a1b-60a65b58cd19";
 	}
 	
 	@Override
@@ -68,8 +66,8 @@ public class MissedAppointmentLineListReportMamba implements ReportManager {
 	
 	@Override
 	public List<ReportDesign> constructReportDesigns(ReportDefinition reportDefinition) {
-		ReportDesign design = ReportManagerUtil.createExcelDesign("a770d35a-mile-4910-a1dc-8149b7696817", reportDefinition);
-		
+		ReportDesign design = ReportManagerUtil.createExcelDesign("abbe9d79-9b3c-46ee-b6b7-fc225e3b8480", reportDefinition);
+		design.setReportDefinition(reportDefinition);
 		return Collections.singletonList(design);
 	}
 	

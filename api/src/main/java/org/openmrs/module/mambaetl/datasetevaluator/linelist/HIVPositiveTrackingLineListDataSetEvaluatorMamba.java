@@ -3,7 +3,6 @@ package org.openmrs.module.mambaetl.datasetevaluator.linelist;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.mambaetl.datasetdefinition.linelist.AHDLineListDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.datasetdefinition.linelist.HIVPositiveTrackingLineListDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper;
 import org.openmrs.module.mambaetl.helpers.DefaultDateParameter;

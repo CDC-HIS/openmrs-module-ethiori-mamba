@@ -20,7 +20,7 @@ public class PEPLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getUuid() {
-		return "1236548-0000-7623-920a-27ee7655ebef";
+		return "6383750b-cc71-4442-8e97-96762b2d8ab8";
 	}
 	
 	@Override
@@ -66,9 +66,8 @@ public class PEPLineListReportMamba implements ReportManager {
 	
 	@Override
 	public List<ReportDesign> constructReportDesigns(ReportDefinition reportDefinition) {
-		ReportDesign design = ReportManagerUtil
-		        .createExcelDesign("89456321-1234-456321-a1dc-8149b7696817", reportDefinition);
-		
+		ReportDesign design = ReportManagerUtil.createExcelDesign("03313aa1-98e7-4e5a-a277-5da590731d55", reportDefinition);
+		design.setReportDefinition(reportDefinition);
 		return Collections.singletonList(design);
 	}
 	
