@@ -25,7 +25,7 @@ public class ArtCohortAnalysisLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "ART COHORT - ART Cohort Analysis LineList";
+		return "ART COHORT - ART Cohort Report";
 	}
 	
 	@Override
@@ -66,7 +66,7 @@ public class ArtCohortAnalysisLineListReportMamba implements ReportManager {
 		artCohortAnalysisLineListDataSetDefinitionMamba.addParameters(getParameters());
 		
 		reportDefinition.addDataSetDefinition(
-		    "ART Cohort Analysis LineList",
+		    "ART Cohort Report",
 		    map(artCohortAnalysisLineListDataSetDefinitionMamba,
 		        "startDate=${startDateGC},endDate=${endDateGC},type=${type}"));
 		return reportDefinition;
