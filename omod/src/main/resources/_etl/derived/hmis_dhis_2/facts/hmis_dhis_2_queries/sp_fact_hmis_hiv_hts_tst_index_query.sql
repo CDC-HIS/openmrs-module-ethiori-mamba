@@ -11,8 +11,18 @@ BEGIN
                                  prior_hiv_test_result,
                                  prior_test_date_estimated,
                                  date_of_case_closure,
-                                 person.birthdate,
-                                 CASE person.gender WHEN 'F' THEN 'Female' WHEN 'M' THEN 'Male' END AS sex
+                                 encounter.encounter_id,
+                                 encounter.uuid,
+                                 contact_birthdate,
+                                 relationship_b.birthdate,
+                                 relationship_b.person_id,
+                                 CASE
+                                     WHEN COALESCE(relationship_b.gender, contact_1.respondent_gender) IN
+                                          ('F', 'Female gender') THEN 'Female'
+                                     WHEN COALESCE(relationship_b.gender, contact_1.respondent_gender) IN
+                                          ('M', 'Male gender') THEN 'Male'
+                                     ELSE COALESCE(relationship_b.gender, contact_1.respondent_gender)
+                                     END AS sex
                           from mamba_flat_encounter_ict_general g
                                    join mamba_flat_encounter_index_contact_followup contact
                                         on g.client_id = contact.client_id
@@ -20,8 +30,18 @@ BEGIN
                                              on contact.encounter_id = contact_1.encounter_id
                                    left join mamba_dim_encounter encounter on contact.encounter_id = encounter.encounter_id
                                    left join mamba_dim_person_attribute attribute on encounter.uuid = attribute.value
-                                   left join mamba_dim_relationship relationship on attribute.person_id = person_b
-                                   left join mamba_dim_person person on relationship.person_b = person.person_id),
+                                   join mamba_dim_relationship relationship on g.client_id = relationship.person_a
+                                   join mamba_dim_person relationship_b on relationship.person_b = relationship_b.person_id
+                          GROUP BY
+                              contact.client_id,
+                              contact.elicited_date,
+                              contact.hiv_test_date,
+                              contact.hiv_test_result,
+                              contact_1.prior_hiv_test_result,
+                              contact_1.prior_test_date_estimated,
+                              encounter.encounter_id,
+                              encounter.uuid,
+                              contact.contact_birthdate),
          offer_list as (select client.client_id,
                                client.mrn,
                                client.uan,
