@@ -39,7 +39,6 @@ BEGIN
                              pre_test_counselling_for_cervical_c             as councelling_given,
                              biopsy_result,
                              assessment_date,
-                             cervical_cancer_screening_status,
                              next_follow_up_screening_date                   as ccs_next_date,
                              assessment_status,
 
@@ -1054,6 +1053,7 @@ BEGIN
                         where offered_date <= END_DATE),
          tmp_offer as (select * from offer_list where row_num = 1),
          offer as (select tmp_offer.client_id,
+                          offered_date,
                           CASE
                               WHEN offered_date is null and final_follow_up_status NOT IN ('Dead', 'Transferred Out')
                                   THEN 'Never Screened for ICT'
@@ -1093,6 +1093,8 @@ BEGIN
                Else 'undetermined_VL' end                                    as `Viral Load Eligibility Status`
             ,
            offer.ict_eligibility                                             as `ICT Eligibility Status`,
+           offer.offered_date as `Latest ICT Offer Date GC.`,
+           offer.offered_date as `Latest ICT Offer Date EC.`,
            case
                when asm.assessment_status is not null then asm.assessment_status
                Else '' end                                                   as `DSD Assesment Status`
@@ -1115,6 +1117,8 @@ BEGIN
            tmp_3.follow_up_date                                              as `Follow Up Date EC.`,
            tmp_3.art_start_date                                              as `Art Start Date`,
            tmp_3.art_start_date                                              as `Art Start Date EC.`,
+           tmp_3.hiv_confirmed_date as `HIV Confirmed Date GC.`,
+           tmp_3.hiv_confirmed_date as `HIV Confirmed Date EC.`,
            tmp_3.next_visit_date                                             as `Nex Visit Date`,
            tmp_3.next_visit_date                                             as `Nex Visit Date EC.`,
            timestampdiff(month, tmp_3.art_start_date, tmp_3.next_visit_date) as monthsonART,
