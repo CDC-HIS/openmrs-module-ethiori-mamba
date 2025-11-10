@@ -119,10 +119,10 @@ BEGIN
                                     on g.client_id = contact.client_id
                                left join mamba_flat_encounter_index_contact_followup_1 contact_1
                                          on contact.encounter_id = contact_1.encounter_id
-                               join mamba_dim_encounter encounter on contact.encounter_id = encounter.encounter_id
-                               join mamba_dim_person_attribute attribute on encounter.uuid = attribute.value
-                               join mamba_dim_relationship relationship on attribute.person_id = person_b
-                               join mamba_dim_person person on relationship.person_b = person.person_id) ';
+                               left join mamba_dim_encounter encounter on contact.encounter_id = encounter.encounter_id
+                               left join mamba_dim_person_attribute attribute on encounter.uuid = attribute.value
+                               left join mamba_dim_relationship relationship on attribute.person_id = person_b
+                               left join mamba_dim_person person on relationship.person_b = person.person_id) ';
 
     IF REPORT_TYPE = 'ICT_TOTAL' THEN
         SET group_query = CONCAT('SELECT COUNT(*) as Numerator FROM contact_list WHERE ', filter_condition);
