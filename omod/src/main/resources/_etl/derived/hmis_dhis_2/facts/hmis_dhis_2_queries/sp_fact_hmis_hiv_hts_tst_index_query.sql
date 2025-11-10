@@ -18,10 +18,10 @@ BEGIN
                                         on g.client_id = contact.client_id
                                    left join mamba_flat_encounter_index_contact_followup_1 contact_1
                                              on contact.encounter_id = contact_1.encounter_id
-                                   join mamba_dim_encounter encounter on contact.encounter_id = encounter.encounter_id
-                                   join mamba_dim_person_attribute attribute on encounter.uuid = attribute.value
-                                   join mamba_dim_relationship relationship on attribute.person_id = person_b
-                                   join mamba_dim_person person on relationship.person_b = person.person_id),
+                                   left join mamba_dim_encounter encounter on contact.encounter_id = encounter.encounter_id
+                                   left join mamba_dim_person_attribute attribute on encounter.uuid = attribute.value
+                                   left join mamba_dim_relationship relationship on attribute.person_id = person_b
+                                   left join mamba_dim_person person on relationship.person_b = person.person_id),
          offer_list as (select client.client_id,
                                client.mrn,
                                client.uan,
@@ -255,8 +255,9 @@ BEGIN
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.2'            AS S_NO,
            'Number of contacts elicited'    as Activity,
-           CAST(COALESCE(SUM(number_of_contacts_elicited),0) AS SIGNED) AS Value
-    FROM offer
+           COUNT(*)                  AS Value
+    FROM contact_list
+    WHERE elicited_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE
 -- < 15 years, Male
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX.2. 1'         AS S_NO,
