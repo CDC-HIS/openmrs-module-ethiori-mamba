@@ -23,6 +23,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Handler(supports = { TPTLineListDataSetDefinitionMamba.class })
@@ -74,12 +75,12 @@ public class TPTLineListDataSetEvaluatorMamba implements DataSetEvaluator {
         java.sql.Date startDate = new java.sql.Date(tptLineListDataSetDefinitionMamba.getStartDate().getTime());
         java.sql.Date endDate = new java.sql.Date(tptLineListDataSetDefinitionMamba.getEndDate().getTime());
 
-        return Arrays.asList(
+        return Collections.singletonList(
 
                 new ProcedureCall("{call sp_fact_line_list_tpt_linelist_query(?,?,?)}", statement -> {
                     statement.setDate(1, startDate);
                     statement.setDate(2, endDate);
-                    statement.setString(3,tptLineListDataSetDefinitionMamba.getTptType());
+                    statement.setString(3, tptLineListDataSetDefinitionMamba.getTptType());
                 })
         );
     }
