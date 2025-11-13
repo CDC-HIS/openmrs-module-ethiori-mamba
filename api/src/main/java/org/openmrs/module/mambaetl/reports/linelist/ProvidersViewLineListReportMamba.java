@@ -33,11 +33,7 @@ public class ProvidersViewLineListReportMamba implements ReportManager {
 	@Override
 	public List<Parameter> getParameters() {
 		
-		Parameter startDate = new Parameter("startDate", "Start Date", Date.class);
-		startDate.setRequired(true);
-		Parameter startDateGC = new Parameter("startDateGC", " ", Date.class);
-		startDateGC.setRequired(false);
-		
+
 		Parameter endDate = new Parameter("endDate", "End Date", Date.class);
 		endDate.setRequired(true);
 		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
@@ -50,9 +46,8 @@ public class ProvidersViewLineListReportMamba implements ReportManager {
 		
 		Parameter patientGUID = new Parameter("patientGUID", "Patient GUID", String.class);
 		patientGUID.setRequired(false);
-		//
 		
-		return Arrays.asList(startDate, startDateGC, endDate, endDateGC, clientType, patientGUID);
+		return Arrays.asList( endDate, endDateGC, clientType, patientGUID);
 		
 	}
 	
@@ -70,7 +65,7 @@ public class ProvidersViewLineListReportMamba implements ReportManager {
 		
 		reportDefinition.addDataSetDefinition("Data Quality and Data Use", EthiOhriUtil.map(
 		    providersViewLineListDataSetDefinitionMamba,
-		    "startDate=${startDateGC},endDate=${endDateGC},clientType=${clientType},patientGUID=${patientGUID}"));
+		    "endDate=${endDateGC},clientType=${clientType},patientGUID=${patientGUID}"));
 		return reportDefinition;
 	}
 	

@@ -1,6 +1,6 @@
 DELIMITER //
 DROP PROCEDURE IF EXISTS sp_fact_line_list_providers_view_query;
-CREATE PROCEDURE sp_fact_line_list_providers_view_query(IN TYPE_OF_CLIENT VARCHAR(50), IN START_DATE DATE,
+CREATE PROCEDURE sp_fact_line_list_providers_view_query(IN TYPE_OF_CLIENT VARCHAR(50),
                                                         IN END_DATE DATE,
                                                         IN START_NV_DATE DATE, IN END_NV_DATE DATE,
                                                         IN PATIENT_GUID VARCHAR(50))
