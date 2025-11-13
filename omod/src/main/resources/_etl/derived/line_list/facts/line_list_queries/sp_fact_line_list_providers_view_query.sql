@@ -222,7 +222,9 @@ BEGIN
                                   where reason_not_eligible_for_tuberculosi = 'Contraindication'
                                     and inhprophylaxis_completed_date is null
                                     and inhprophylaxis_discontinued_date is null
-                                    and inhprophylaxis_started_date is null),
+                                    and inhprophylaxis_started_date is null
+                                    and follow_up_date <= END_DATE
+                                  ),
          tpt_not_eligible as (select * from tmp_tpt_not_eligible where row_num = 1),
 
          contraindicated as (select client_id, 'Contraindicated' as tpt_status from tpt_not_eligible),
@@ -1105,6 +1107,7 @@ BEGIN
                WHEN 'Stop all' THEN 'Stop'
                WHEN 'Loss to follow-up (LTFU)' THEN 'Lost'
                WHEN 'Ran away' THEN 'Drop'
+               ELSE tmp_3.follow_up_status
                END                                                           as follow_up_status,
 
            tmp_3.follow_up_date                                              as `Follow Up Date`,
