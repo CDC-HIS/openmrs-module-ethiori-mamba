@@ -14,46 +14,44 @@ BEGIN
                                  WHEN 'Stop all' THEN 'Stop'
                                  WHEN 'Loss to follow-up (LTFU)' THEN 'Lost'
                                  WHEN 'Ran away' THEN 'Drop'
-                                 END                                             as follow_up_status,
-                             follow_up_date_followup_                            as follow_up_date,
-                             art_antiretroviral_start_date                       as art_start_date,
+                                 END                                         as follow_up_status,
+                             follow_up_date_followup_                        as follow_up_date,
+                             art_antiretroviral_start_date                   as art_start_date,
                              height,
-                             TIMESTAMPDIFF(DAY, follow_up_date_followup_,
-                                           COALESCE(next_visit_date, CURDATE())) AS missed_days,
-                             mfeia.date_hiv_confirmed                            as date_hiv_confirmed,
+                             mfeia.date_hiv_confirmed                        as date_hiv_confirmed,
                              current_who_hiv_stage,
                              cd4_count,
-                             follow_up_2.weight_text_                            as weight,
-                             follow_up_6.method_of_family_planning               as family_planning_method,
-                             follow_up_6.current_functional_status               as functional_status,
-                             follow_up_4.pregnancy_status                        as pregnancy_status,
-                             follow_up_7.currently_breastfeeding_child           as breastfeeding_status,
-                             follow_up_9.tb_related_ois_opportunistic_illnes     as tb_related_ois,
-                             follow_up.cd4_                                      as cd4,
-                             follow_up_1.cd4_count                               as cd4_count_1,
-                             follow_up_5.stages_of_disclosure                    as disclosure_stage,
-                             follow_up_8.date_viral_load_results_received        as vl_received_date,
-                             follow_up_5.viral_load_test_status                  as vl_test_status,
-                             follow_up_7.nutritional_screening_result            as nutritional_screening_result,
-                             nutritional_status_of_adult                         as nutritional_status,
-                             screening_test_result_tuberculosis                  as tb_screening_result,
+                             follow_up_2.weight_text_                        as weight,
+                             follow_up_6.method_of_family_planning           as family_planning_method,
+                             follow_up_6.current_functional_status           as functional_status,
+                             follow_up_4.pregnancy_status                    as pregnancy_status,
+                             follow_up_7.currently_breastfeeding_child       as breastfeeding_status,
+                             follow_up_9.tb_related_ois_opportunistic_illnes as tb_related_ois,
+                             follow_up.cd4_                                  as cd4,
+                             follow_up_1.cd4_count                           as cd4_count_1,
+                             follow_up_5.stages_of_disclosure                as disclosure_stage,
+                             follow_up_8.date_viral_load_results_received    as vl_received_date,
+                             follow_up_5.viral_load_test_status              as vl_test_status,
+                             follow_up_7.nutritional_screening_result        as nutritional_screening_result,
+                             nutritional_status_of_adult                     as nutritional_status,
+                             screening_test_result_tuberculosis              as tb_screening_result,
 
                              CASE scheduled_visit
-                                 WHEN scheduled_visit <> NULL
+                                 WHEN scheduled_visit IS NOT NULL
                                      THEN 'Scheduled'
                                  ELSE 'Unscheduled'
-                                 END                                             as scheduled_visit,
-                             antiretroviral_art_dispensed_dose_i                 AS art_dose_days,
+                                 END                                         as scheduled_visit,
+                             antiretroviral_art_dispensed_dose_i             AS art_dose_days,
                              regimen,
-                             anitiretroviral_adherence_level                     as adherence,
+                             anitiretroviral_adherence_level                 as adherence,
                              next_visit_date,
                              treatment_end_date,
                              CASE
                                  WHEN transferred_in_check_this_for_all_t = 'Yes'
                                      THEN follow_up_date_followup_
-                                 end                                             as ti_date,
-                             transferred_in_check_this_for_all_t                 as transfer_in,
-                             reg.registration_date                               as enrollement_date
+                                 end                                         as ti_date,
+                             transferred_in_check_this_for_all_t             as transfer_in,
+                             reg.registration_date                           as enrollement_date
                       FROM mamba_flat_encounter_intake_a mfeia
                                LEFT JOIN mamba_flat_encounter_follow_up follow_up
                                          on follow_up.client_id = mfeia.client_id
@@ -76,29 +74,22 @@ BEGIN
                                LEFT JOIN mamba_flat_encounter_follow_up_9 follow_up_9
                                          ON follow_up.encounter_id = follow_up_9.encounter_id
                                LEFT JOIN mamba_flat_encounter_registration reg
-                                         ON reg.client_id = follow_up.client_id
-                      WHERE follow_up_date_followup_ <= COALESCE(REPORT_END_DATE, CURDATE())
-
-                        AND follow_up_status in ('Restart medication', 'Alive')
-                        AND follow_up.client_id
-                          NOT IN (SELECT mamba_flat_encounter_follow_up.client_id
-                                  FROM mamba_flat_encounter_follow_up
-                                  WHERE follow_up_date_followup_ > COALESCE(REPORT_END_DATE, CURDATE()))),
+                                         ON reg.client_id = follow_up.client_id),
 
 
          tmp_latest_follow_up AS (SELECT FollowUp.*,
                                          ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY follow_up_date DESC,
                                              encounter_id DESC) AS row_num
                                   FROM FollowUp
-                                           join mamba_dim_client client on FollowUp.client_id = client.client_id),
+                                  WHERE follow_up_date <= COALESCE(REPORT_END_DATE, CURDATE())),
 
-         latest_follow_up AS (select *
-                              from tmp_latest_follow_up
-                              where row_num = 1),
+         missedAppiontement AS (select *, TIMESTAMPDIFF(DAY, next_visit_date, REPORT_END_DATE) AS missed_days
 
-         missedAppiontement As (select *
-                                from latest_follow_up
-                                where next_visit_date <= COALESCE(REPORT_END_DATE, CURDATE()))
+                                from tmp_latest_follow_up
+                                where row_num = 1
+                                  AND follow_up_status in ('Restart medication', 'Alive')
+                                  AND next_visit_date <= COALESCE(REPORT_END_DATE, CURDATE()))
+
 
     SELECT ROW_NUMBER() OVER (ORDER BY patient_name)           as `#`,
            client.patient_uuid                                 as `Patient GUID`,
