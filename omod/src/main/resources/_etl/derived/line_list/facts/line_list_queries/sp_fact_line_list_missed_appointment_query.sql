@@ -87,7 +87,7 @@ BEGIN
 
                                 from tmp_latest_follow_up
                                 where row_num = 1
-                                  AND follow_up_status in ('Restart medication', 'Alive on ART')
+                                  AND follow_up_status in ('Restart', 'Alive on ART')
                                   AND next_visit_date <= COALESCE(REPORT_END_DATE, CURDATE()))
 
 
