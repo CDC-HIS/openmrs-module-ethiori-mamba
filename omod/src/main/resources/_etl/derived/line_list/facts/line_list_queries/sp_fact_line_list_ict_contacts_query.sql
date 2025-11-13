@@ -9,60 +9,69 @@ BEGIN
                                  contact.elicited_date,
                                  contact.hiv_test_date,
                                  contact.hiv_test_result,
-                                 hivst_result,
-                                 hivst_kit_distributed_date,
-                                 hivst_report_date,
+                                 contact.trial_date_1st,
+                                 contact.trial_date_2nd,
+                                 contact.trial_date_3rd,
+                                 contact.contact_category,
+                                 contact.hivst_result,
+                                 contact.hivst_report_date,
+                                 contact.first_name as contact_first_name,
+                                 contact.middle_name as contact_middle_name,
+                                 contact.last_name as contact_last_name,
+                                 contact_1.hivst_kit_distributed_date,
                                  contact_1.is_ipv_intimate_partner_violence_risk_assessed,
                                  contact_1.prior_hiv_test_result,
-                                 g.ict_serial_number,
                                  contact_1.prior_test_date_estimated,
                                  contact_1.ipv_intimate_partner_violence_risk_outcome,
                                  contact_1.hiv_status_disclosed_by_index_client,
-                                 contact.trial_date_1st,
                                  contact_1.trial_outcome_1st,
-                                 contact.trial_date_2nd,
                                  contact_1.trial_outcome_2nd,
-                                 contact.trial_date_3rd,
                                  contact_1.trial_outcome_3rd,
                                  contact_1.date_of_case_closure,
                                  contact_1.notification_plan,
-                                 contact.contact_category,
-                                 COALESCE(ae_type_3rd_report, ae_type_2nd_report, ae_type_1st_report) as adverse_event_type,
-                                 COALESCE(ae_for_ipv_report_date_3rd, ae_for_ipv_report_date_2nd,
-                                          ae_for_ipv_report_date_1st)                                 as adverse_event_reported,
-                                 hiv_selftest_performed,
-                                 date_linked_to_care,
-                                 ict_indexclient_testing,
-                                 reason_if_not_linked_to_ict,
-                                 date_linked_to_ict_service,
-                                 art_antiretroviral_start_date,
-                                 link_date_ict,
-                                 state_province,
-                                 contact.first_name,
-                                 contact.middle_name,
-                                 contact.last_name,
-                                 contact.contact_birthdate,
-                                 person.gender,
-                                 person.uuid,
-                                 person.person_name_long,
-                                 client.uan,
-                                 client.phone_no,
-                                 client.mobile_no,
-                                 client.county_district,
-                                 city_village,
-                                 mrn
-                          from mamba_flat_encounter_ict_general g
-                                   join mamba_flat_encounter_index_contact_followup contact
-                                        on g.client_id = contact.client_id
+                                 COALESCE(contact_1.ae_type_3rd_report, contact_1.ae_type_2nd_report, contact_1.ae_type_1st_report) as adverse_event_type,
+                                 COALESCE(contact_1.ae_for_ipv_report_date_3rd, contact_1.ae_for_ipv_report_date_2nd,
+                                          contact_1.ae_for_ipv_report_date_1st)                                 as adverse_event_reported,
+                                 contact_1.date_linked_to_care,
+                                 contact_1.reason_if_not_linked_to_ict,
+                                 contact_1.date_linked_to_ict_service,
+                                 contact_1.art_antiretroviral_start_date,
+                                 g.ict_serial_number,
+                                 g.hiv_selftest_performed,
+                                 g.ict_indexclient_testing,
+                                 g.link_date_ict,
+                                 index_contact.state_province,
+                                 index_contact.county_district,
+                                 index_contact.city_village,
+                                 index_contact.phone_no,
+                                 index_contact.mobile_no,
+                                 index_contact.mrn,
+                                 index_contact.uan,
+
+                                 index_client.patient_uuid,
+                                 index_client.given_name,
+                                 index_client.middle_name,
+                                 index_client.family_name,
+                                 coalesce(contact_birthdate,index_contact.date_of_birth) as birthdate,
+                                 CASE
+                                     WHEN COALESCE(index_contact.sex, contact_1.respondent_gender) IN
+                                          ('F', 'Female gender') THEN 'Female'
+                                     WHEN COALESCE(index_contact.sex, contact_1.respondent_gender) IN
+                                          ('M', 'Male gender') THEN 'Male'
+                                     ELSE COALESCE(index_contact.sex, contact_1.respondent_gender)
+                                     END AS sex
+
+                          from mamba_flat_encounter_index_contact_followup contact
                                    left join mamba_flat_encounter_index_contact_followup_1 contact_1
                                              on contact.encounter_id = contact_1.encounter_id
-                                   left join mamba_dim_encounter encounter
-                                             on contact.encounter_id = encounter.encounter_id
+                                   left join mamba_flat_encounter_ict_general g on contact.client_id = g.client_id
+                                   left join mamba_dim_client index_client on contact.client_id = index_client.client_id
+                                   left join mamba_dim_encounter encounter on contact.encounter_id = encounter.encounter_id
                                    left join mamba_dim_person_attribute attribute on encounter.uuid = attribute.value
-                                   left join mamba_dim_relationship relationship on attribute.person_id = person_b
-                                   left join mamba_dim_person person on relationship.person_b = person.person_id
-                                   left join mamba_dim_client client on person.person_id = client.client_id)
-    select CONCAT_WS(' ', first_name, contact_list.middle_name, last_name)           as `Contact’s Full Name`,
+                                   left join mamba_dim_client index_contact on attribute.person_id = index_contact.client_id
+
+                          )
+    select CONCAT_WS(' ', contact_first_name, contact_middle_name, contact_last_name)           as `Contact’s Full Name`,
            elicited_date                                                             as `Elicited date GC.`,
            elicited_date                                                             as `Elicited date EC.`,
 
@@ -107,11 +116,10 @@ BEGIN
            date_linked_to_ict_service                                                   `Date linked to ICT Service EC.`,
            CASE WHEN adverse_event_reported is not null THEN 'Yes' ELSE 'No' END     as `Adverse Event Reported`,
            adverse_event_type                                                        as `Adverse Event Type`,
-           uuid                                                                      as `GUID of Index Case`,
-           CONCAT_WS(' ', client.given_name, client.middle_name, client.family_name) as `Full Name of Index Case`,
+           patient_uuid                                                                      as `GUID of Index Case`,
+           CONCAT_WS(' ', given_name, middle_name, family_name) as `Full Name of Index Case`,
            ict_serial_number                                                         as `ICT#`
     from contact_list
-             join mamba_dim_client client on contact_list.index_client_id = client.client_id
     WHERE elicited_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE;
 
 END //
