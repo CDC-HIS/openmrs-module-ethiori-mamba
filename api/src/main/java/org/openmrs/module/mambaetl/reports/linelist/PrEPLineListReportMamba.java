@@ -34,7 +34,6 @@ public class PrEPLineListReportMamba implements ReportManager {
 	@Override
 	public List<Parameter> getParameters() {
 		
-
 		Parameter endDate = new Parameter("endDate", "End Date", Date.class);
 		endDate.setRequired(false);
 		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
