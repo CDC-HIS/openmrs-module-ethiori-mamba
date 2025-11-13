@@ -7,8 +7,7 @@ import org.openmrs.module.mambaetl.datasetdefinition.linelist.ProvidersViewLineL
 import org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
 import org.openmrs.module.reporting.dataset.DataSet;
-import org.openmrs.module.reporting.dataset.DataSetColumn;
-import org.openmrs.module.reporting.dataset.DataSetRow;
+
 import org.openmrs.module.reporting.dataset.SimpleDataSet;
 import org.openmrs.module.reporting.dataset.definition.DataSetDefinition;
 import org.openmrs.module.reporting.dataset.definition.evaluator.DataSetEvaluator;
@@ -41,7 +40,6 @@ public class ProvidersViewListDatasetEvaluatorMamba implements DataSetEvaluator 
         SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
         ResultSetMapper resultSetMapper = new ResultSetMapper();
 
-        ValidateDates(data, dataSetDefinitionMamba.getStartDate(), dataSetDefinitionMamba.getEndDate());
         if(!data.getRows().isEmpty()){
             return data;
         }
@@ -70,18 +68,16 @@ public class ProvidersViewListDatasetEvaluatorMamba implements DataSetEvaluator 
     }
 	
 	private List<ProcedureCall> createProcedureCalls(ProvidersViewLineListDataSetDefinitionMamba dataSetDefinitionMamba) {
-        java.sql.Date startDate = new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime());
         java.sql.Date endDate = new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime());
 
 
         return Collections.singletonList(
-                new ProcedureCall("{call sp_fact_line_list_providers_view_query(?,?,?,?,?,?)}", statement -> {
+                new ProcedureCall("{call sp_fact_line_list_providers_view_query(?,?,?,?,?)}", statement -> {
                     statement.setString(1, dataSetDefinitionMamba.getClientType());
-                    statement.setDate(2, startDate);
-                    statement.setDate(3, endDate);
+                    statement.setDate(2, endDate);
+                    statement.setDate(3, null);
                     statement.setDate(4, null);
-                    statement.setDate(5, null);
-                    statement.setString(6, dataSetDefinitionMamba.getPatientGUID());
+                    statement.setString(5, dataSetDefinitionMamba.getPatientGUID());
                 })
         );
     }
