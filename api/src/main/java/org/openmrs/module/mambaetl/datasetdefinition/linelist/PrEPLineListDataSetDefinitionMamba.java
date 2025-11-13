@@ -8,20 +8,10 @@ import java.util.Date;
 
 @Component
 public class PrEPLineListDataSetDefinitionMamba extends BaseDataSetDefinition {
-	
-	@ConfigurationProperty
-	private Date startDate;
+
 	
 	@ConfigurationProperty
 	private Date endDate;
-	
-	public Date getStartDate() {
-		return startDate;
-	}
-	
-	public void setStartDate(Date startDate) {
-		this.startDate = startDate;
-	}
 	
 	public Date getEndDate() {
 		return endDate;
