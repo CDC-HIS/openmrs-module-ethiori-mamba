@@ -1047,11 +1047,13 @@ BEGIN
                                specify_other_adverse_event_type,
                                reason_ict_service_not_accepted,
                                adverse_event_type,
+                               CASE WHEN all_art_not_started_status.client_id IS NOT NULL THEN 'YES' ELSE 'NO' END AS art_not_started,
                                ROW_NUMBER() over (PARTITION BY client.client_id ORDER BY offered_date DESC ) as row_num
                         from mamba_flat_encounter_ict_general ict_general
                                  join mamba_flat_encounter_ict_offer offer on ict_general.client_id = offer.client_id
                                  join mamba_dim_client client on ict_general.client_id = client.client_id
                                  join tmp_address on tmp_address.client_id = client.client_id
+                        join all_art_not_started_status on tmp_address.client_id = all_art_not_started_status.client_id
                         where offered_date <= END_DATE),
          offer as (select * from offer_list where row_num = 1)
 
@@ -1079,6 +1081,7 @@ BEGIN
                Else 'undetermined_VL' end                                    as `Viral Load Eligibility Status`
             ,
            CASE
+               WHEN art_not_started = 'YES' THEN 'N/A'
                WHEN offered_date is null and final_follow_up_status NOT IN ('Dead', 'Transferred Out')
                    THEN 'Never Screened for ICT'
                WHEN offered_date IS NOT NULL AND
