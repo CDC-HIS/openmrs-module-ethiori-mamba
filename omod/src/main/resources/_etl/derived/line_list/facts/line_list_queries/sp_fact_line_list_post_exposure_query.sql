@@ -21,17 +21,87 @@ BEGIN
                               WHERE ps.reporting_date >= COALESCE(REPORT_START_DATE, CURDATE())
                                 AND ps.reporting_date <= COALESCE(REPORT_END_DATE, CURDATE()))
             ,
+         latest_name AS (SELECT person_id,
+                                prefix,
+                                given_name,
+                                middle_name,
+                                family_name
+                         FROM (SELECT *,
+                                      ROW_NUMBER() OVER (PARTITION BY person_id ORDER BY person_name_id DESC) AS row_num
+                               FROM mamba_dim_person_name
+                               WHERE preferred = 1
+                                 AND voided = 0) AS pn
+                         WHERE row_num = 1),
+         latest_address AS (SELECT person_id,
+                                   state_province,
+                                   county_district,
+                                   city_village
+                            FROM (SELECT *,
+                                         ROW_NUMBER() OVER (PARTITION BY person_id ORDER BY person_address_id DESC) AS row_num
+                                  FROM mamba_dim_person_address
+                                  WHERE preferred = 1
+                                    AND voided = 0) AS p_addr
+                            WHERE row_num = 1),
+         person_identifiers AS (SELECT patient_id,
+                                       MAX(CASE WHEN identifier_type = 5 THEN identifier END) AS MRN,
+                                       MAX(CASE WHEN identifier_type = 6 THEN identifier END) AS UAN
+                                FROM mamba_dim_patient_identifier
+                                GROUP BY patient_id),
+         person_attributes AS (SELECT person_id,
+                                      MAX(CASE WHEN person_attribute_type_id = 26 THEN value END) AS mobile_no,
+                                      MAX(CASE WHEN person_attribute_type_id = 16 THEN value END) AS phone_no,
+                                      MAX(CASE WHEN person_attribute_type_id = 25 THEN value END) AS key_population,
+                                      MAX(CASE WHEN person_attribute_type_id = 5 THEN value END)  AS marital_status,
+                                      MAX(CASE WHEN person_attribute_type_id = 24 THEN value END) AS education_level,
+                                      MAX(CASE WHEN person_attribute_type_id = 11 THEN value END) AS house_number,
+                                      MAX(CASE WHEN person_attribute_type_id = 12 THEN value END) AS kebele
+                               FROM mamba_dim_person_attribute
+                               GROUP BY person_id),
+         client_list as (SELECT p.person_id,
+                                p.person_name_long,
+                                pn.prefix,
+                                pn.given_name,
+                                pn.middle_name,
+                                pn.family_name,
+                                pid.MRN,
+                                pid.UAN,
+                                p.uuid,
+                                fn_mamba_age_calculator(p.birthdate, CURDATE()) AS current_age,
+                                pa.mobile_no,
+                                pa.phone_no,
+                                p.birthdate,
+                                CASE
+                                    WHEN p.gender = 'F' THEN 'Female'
+                                    WHEN p.gender = 'M' THEN 'Male'
+                                    END                                         AS gender,
+                                pa_addr.state_province,
+                                pa_addr.county_district,
+                                pa_addr.city_village,
+                                pa.key_population,
+                                pa.marital_status,
+                                pa.education_level,
+                                pa.house_number,
+                                pa.kebele,
+                                mag_normal.normal_agegroup                      AS coarse_age_group,
+                                mag_datim.datim_agegroup                        AS fine_age_group
+                         FROM mamba_dim_person p
+                                  LEFT JOIN latest_name pn ON p.person_id = pn.person_id
+                                  LEFT JOIN latest_address pa_addr ON p.person_id = pa_addr.person_id
+                                  LEFT JOIN person_identifiers pid ON p.person_id = pid.patient_id
+                                  LEFT JOIN person_attributes pa ON p.person_id = pa.person_id
+                                  LEFT JOIN mamba_dim_agegroup mag_normal
+                                            ON fn_mamba_age_calculator(p.birthdate, CURDATE()) = mag_normal.age
+                                  LEFT JOIN mamba_dim_agegroup mag_datim
+                                            ON fn_mamba_age_calculator(p.birthdate, CURDATE()) = mag_datim.age
+                         WHERE pn.person_id IS NOT NULL),
+
          tmp_latest_reported AS (SELECT p.*,
-                                        ROW_NUMBER() OVER (PARTITION BY p.client_id ORDER BY reporting_date DESC,
-                                            encounter_id DESC) AS row_num
+                                        ROW_NUMBER() OVER (PARTITION BY p.client_id ORDER BY reporting_date DESC, encounter_id DESC) AS row_num
                                  FROM post_information as p
-                                          join mamba_dim_client client on p.client_id = client.client_id),
-
-
+                                          join client_list client on p.client_id = client.person_id),
          latest_peported AS (select *
                              from tmp_latest_reported
                              where row_num = 1),
-
          2_weeks_follow_up as (select f.client_id,
                                       f.anitiretroviral_adherence_level,
                                       f.medication_side_effect,
@@ -109,11 +179,11 @@ BEGIN
            two_weeks.medication_side_effect                    as ` Side Effect (at 2WK)`,
            two_weeks.final_post_pep_hiv_status                 as `Exposed client HIV Status (at 2WK)`,
 
-           four_weeks.visit_period                              as `Follow-Up Visit Date (at 4WK) EC.`,
-           four_weeks.visit_period                              as `Follow-Up Visit Date (at 4WK) GC.`,
-           four_weeks.anitiretroviral_adherence_level           as `Adherence  (at 4WK)`,
-           four_weeks.medication_side_effect                    as ` Side Effect (at 4WK)`,
-           four_weeks.final_post_pep_hiv_status                 as `Exposed client HIV Status (at 4WK)`,
+           four_weeks.visit_period                             as `Follow-Up Visit Date (at 4WK) EC.`,
+           four_weeks.visit_period                             as `Follow-Up Visit Date (at 4WK) GC.`,
+           four_weeks.anitiretroviral_adherence_level          as `Adherence  (at 4WK)`,
+           four_weeks.medication_side_effect                   as ` Side Effect (at 4WK)`,
+           four_weeks.final_post_pep_hiv_status                as `Exposed client HIV Status (at 4WK)`,
 
            six_weeks.visit_period                              as `Follow-Up Visit Date (at 6WK) EC.`,
            six_weeks.visit_period                              as `Follow-Up Visit Date (at 6WK) GC.`,
@@ -121,17 +191,17 @@ BEGIN
            six_weeks.medication_side_effect                    as ` Side Effect (at 6WK)`,
            six_weeks.final_post_pep_hiv_status                 as `Exposed client HIV Status (at 6WK)`,
 
-           three_months.visit_period                              as `Follow-Up Visit Date (at 3M) EC.`,
-           three_months.visit_period                              as `Follow-Up Visit Date (at 3M) GC.`,
-           three_months.anitiretroviral_adherence_level           as `Adherence  (at 3M)`,
-           three_months.medication_side_effect                    as ` Side Effect (at 3M)`,
-           three_months.final_post_pep_hiv_status                 as `Exposed client HIV Status (at 3M)`,
+           three_months.visit_period                           as `Follow-Up Visit Date (at 3M) EC.`,
+           three_months.visit_period                           as `Follow-Up Visit Date (at 3M) GC.`,
+           three_months.anitiretroviral_adherence_level        as `Adherence  (at 3M)`,
+           three_months.medication_side_effect                 as ` Side Effect (at 3M)`,
+           three_months.final_post_pep_hiv_status              as `Exposed client HIV Status (at 3M)`,
 
-           six_months.visit_period                              as `Follow-Up Visit Date (at 6M) EC.`,
-           six_months.visit_period                              as `Follow-Up Visit Date (at 6M) GC.`,
-           six_months.anitiretroviral_adherence_level           as `Adherence  (at 6M)`,
-           six_months.medication_side_effect                    as ` Side Effect (at 6M)`,
-           six_months.final_post_pep_hiv_status                 as `Exposed client HIV Status (at 6M)`
+           six_months.visit_period                             as `Follow-Up Visit Date (at 6M) EC.`,
+           six_months.visit_period                             as `Follow-Up Visit Date (at 6M) GC.`,
+           six_months.anitiretroviral_adherence_level          as `Adherence  (at 6M)`,
+           six_months.medication_side_effect                   as ` Side Effect (at 6M)`,
+           six_months.final_post_pep_hiv_status                as `Exposed client HIV Status (at 6M)`
 
     FROM latest_peported AS f_case
              INNER JOIN mamba_dim_client client on f_case.client_id = client.client_id
