@@ -33,7 +33,6 @@ public class ProvidersViewLineListReportMamba implements ReportManager {
 	@Override
 	public List<Parameter> getParameters() {
 		
-
 		Parameter endDate = new Parameter("endDate", "End Date", Date.class);
 		endDate.setRequired(true);
 		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
@@ -47,7 +46,7 @@ public class ProvidersViewLineListReportMamba implements ReportManager {
 		Parameter patientGUID = new Parameter("patientGUID", "Patient GUID", String.class);
 		patientGUID.setRequired(false);
 		
-		return Arrays.asList( endDate, endDateGC, clientType, patientGUID);
+		return Arrays.asList(endDate, endDateGC, clientType, patientGUID);
 		
 	}
 	
