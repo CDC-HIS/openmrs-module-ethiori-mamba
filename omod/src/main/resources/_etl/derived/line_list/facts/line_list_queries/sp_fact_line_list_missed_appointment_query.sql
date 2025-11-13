@@ -87,7 +87,7 @@ BEGIN
 
                                 from tmp_latest_follow_up
                                 where row_num = 1
-                                  AND follow_up_status in ('Restart medication', 'Alive')
+                                  AND follow_up_status in ('Restart medication', 'Alive on ART')
                                   AND next_visit_date <= COALESCE(REPORT_END_DATE, CURDATE()))
 
 
@@ -130,7 +130,7 @@ BEGIN
     FROM missedAppiontement AS f_case
              INNER JOIN mamba_dim_client client on f_case.client_id = client.client_id
 
-    ORDER BY client.patient_name asc;
+    ORDER BY client.patient_name;
 
 
 END //
