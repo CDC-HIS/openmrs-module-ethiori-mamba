@@ -3,11 +3,8 @@ package org.openmrs.module.mambaetl.datasetevaluator.linelist;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.mambaetl.datasetdefinition.linelist.AHDLineListDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.datasetdefinition.linelist.PrEPLineListDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper;
-import org.openmrs.module.mambaetl.helpers.DefaultDateParameter;
-import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
 import org.openmrs.module.reporting.dataset.DataSet;
 import org.openmrs.module.reporting.dataset.SimpleDataSet;
@@ -19,7 +16,6 @@ import org.openmrs.module.reporting.evaluation.EvaluationException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
@@ -66,13 +62,11 @@ public class PrEPLineListDataSetEvaluatorMamba implements DataSetEvaluator {
 	}
 	
 	private List<ProcedureCall> createProcedureCalls(PrEPLineListDataSetDefinitionMamba dataSetDefinitionMamba) {
-        DefaultDateParameter result =  EthiOhriUtil.getDefaultDateParameter(dataSetDefinitionMamba.getStartDate(),
-                dataSetDefinitionMamba.getEndDate());
+		java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime()) : null;
 
 		return Collections.singletonList(
-                new ProcedureCall("{call sp_fact_line_list_pre_exposure_query(?,?)}", statement -> {
-					statement.setDate(1, result.startDate);
-					statement.setDate(2, result.endDate);
+                new ProcedureCall("{call sp_fact_line_list_pre_exposure_query(?)}", statement -> {
+					statement.setDate(1, endDate);
                 })
         );
 	}
