@@ -1051,23 +1051,7 @@ BEGIN
                                  join mamba_dim_client client on ict_general.client_id = client.client_id
                                  join tmp_address on tmp_address.client_id = client.client_id
                         where offered_date <= END_DATE),
-         tmp_offer as (select * from offer_list where row_num = 1),
-         offer as (select tmp_offer.client_id,
-                          offered_date,
-                          CASE
-                              WHEN offered_date is null and final_follow_up_status NOT IN ('Dead', 'Transferred Out')
-                                  THEN 'Never Screened for ICT'
-                              WHEN offered_date IS NOT NULL AND
-                                   DATE_ADD(offered_date, INTERVAL 730 DAY) > END_DATE
-                                  THEN 'Screened for ICT Previously (Not Eligible)'
-                              WHEN offered_date IS NOT NULL AND
-                                   DATE_ADD(offered_date, INTERVAL 730 DAY) <= END_DATE
-                                  THEN 'Currently Eligible for Rescreening'
-                              WHEN final_follow_up_status IN ('Dead', 'Transferred Out')
-                                  THEN 'Not Applicable' END AS `ict_eligibility`
-
-                   from tmp_offer
-                            join latest_follow_up lfu on tmp_offer.client_id = lfu.client_id)
+         offer as (select * from offer_list where row_num = 1)
 
     select tmp_address.patient_name                                          AS `Patient Name`,
            tmp_address.patient_uuid                                          AS `UUID`,
@@ -1092,9 +1076,19 @@ BEGIN
 #                when vl_eligibility.vl_status is not null then vl_eligibility.vl_status
                Else 'undetermined_VL' end                                    as `Viral Load Eligibility Status`
             ,
-           offer.ict_eligibility                                             as `ICT Eligibility Status`,
-           offer.offered_date as `Latest ICT Offer Date GC.`,
-           offer.offered_date as `Latest ICT Offer Date EC.`,
+           CASE
+               WHEN offered_date is null and final_follow_up_status NOT IN ('Dead', 'Transferred Out')
+                   THEN 'Never Screened for ICT'
+               WHEN offered_date IS NOT NULL AND
+                    DATE_ADD(offered_date, INTERVAL 730 DAY) > '2025-10-30'
+                   THEN 'Screened for ICT Previously (Not Eligible)'
+               WHEN offered_date IS NOT NULL AND
+                    DATE_ADD(offered_date, INTERVAL 730 DAY) <= '2025-10-30'
+                   THEN 'Currently Eligible for Rescreening'
+               WHEN final_follow_up_status IN ('Dead', 'Transferred Out')
+                   THEN 'Not Applicable' END                                 AS `ICT Eligibility Status`,
+           offer.offered_date                                                as `Latest ICT Offer Date GC.`,
+           offer.offered_date                                                as `Latest ICT Offer Date EC.`,
            case
                when asm.assessment_status is not null then asm.assessment_status
                Else '' end                                                   as `DSD Assesment Status`
@@ -1135,7 +1129,7 @@ BEGIN
              left join asm on asm.client_id = tmp_address.client_id
              left join cervical on cervical.client_id = tmp_address.client_id
              left join tmp_3 on tmp_3.client_id = tmp_address.client_id
-             left join offer on tmp_address.client_id = offer.client_id
+             left join offer on offer.client_id = tmp_address.client_id
 
     where (
         (START_NV_DATE IS NULL OR END_NV_DATE IS NULL)
