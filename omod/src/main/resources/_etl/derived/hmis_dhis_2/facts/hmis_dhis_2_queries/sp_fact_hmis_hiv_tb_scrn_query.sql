@@ -55,7 +55,7 @@ BEGIN
                                   WHERE follow_up_status IS NOT NULL
                                     AND art_start_date IS NOT NULL
                                     AND tb_screening_date is not null
-                                    AND tb_screened = 'Yes'
+                                 --   AND tb_screened = 'Yes'
                                     and tb_screening_date between REPORT_START_DATE AND REPORT_END_DATE
          ),
          latest_tb_screened_follow_up as (SELECT follow_up.client_id,
@@ -80,12 +80,12 @@ BEGIN
          prev_on_art_tb_screened as (select *
                                       from latest_tb_screened_follow_up
                                       where art_start_date < REPORT_START_DATE
-                                        and follow_up_status in ('Alive', 'Restart medication')
+                                     --   and follow_up_status in ('Alive', 'Restart medication')
          )
     SELECT 'HIV_TB_SCRN'                                                               AS S_NO,
            'Proportion of patients enrolled in HIV care who were screened for TB (FD)' as Activity,
            COUNT(*)                                                                    as Value
-    FROM tx_new_tb_screened
+    FROM latest_tb_screened_follow_up
 -- HIV_TB_SCRN.1
     UNION ALL
     SELECT 'HIV_TB_SCRN.1'                                                                             AS S_NO,
