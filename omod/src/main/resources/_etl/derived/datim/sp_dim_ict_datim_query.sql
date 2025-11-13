@@ -101,54 +101,39 @@ BEGIN
                     where offered_date BETWEEN ? AND ?),
                  offer as (select * from offer_list where row_num = 1),
                       contact_list as (select contact.client_id,
-                                       contact.elicited_date,
-                                       contact.hiv_test_date,
-                                       contact.hiv_test_result,
-                                       prior_hiv_test_result,
-                                       prior_test_date_estimated,
-                                       date_of_case_closure,
-                                       encounter.encounter_id,
-                                       encounter.uuid,
-                                       contact_birthdate,
-                                       relationship_b.birthdate,
-                                       relationship_b.person_id,
-                                       CASE
-                                           WHEN COALESCE(relationship_b.gender, contact_1.respondent_gender) IN
-                                                (''F'', ''Female gender'') THEN ''Female''
-                                           WHEN COALESCE(relationship_b.gender, contact_1.respondent_gender) IN
-                                                (''M'', ''Male gender'') THEN ''Male''
-                                           ELSE COALESCE(relationship_b.gender, contact_1.respondent_gender)
-                                           END AS sex,
+       contact.elicited_date,
+       contact.hiv_test_date,
+       contact.hiv_test_result,
+       prior_hiv_test_result,
+       prior_test_date_estimated,
+       date_of_case_closure,
+       encounter.encounter_id,
+       encounter.uuid,
+       coalesce(contact_birthdate,index_contact.date_of_birth) as birthdate,
 
-                                        (SELECT datim_agegroup
-                                            from mamba_dim_agegroup
-                                            where TIMESTAMPDIFF(YEAR, relationship_b.birthdate, ?) = age) as fine_age_group,
-                                        (SELECT normal_agegroup
-                                         from mamba_dim_agegroup
-                                         where TIMESTAMPDIFF(YEAR, relationship_b.birthdate, ?) = age) as coarse_age_group,
-                                           TIMESTAMPDIFF(YEAR, relationship_b.birthdate, ?) as age
-                                    from mamba_flat_encounter_ict_general g
-                                             join mamba_flat_encounter_index_contact_followup contact
-                                                  on g.client_id = contact.client_id
-                                             left join mamba_flat_encounter_index_contact_followup_1 contact_1
-                                                       on contact.encounter_id = contact_1.encounter_id
-                                             left join mamba_dim_encounter encounter on contact.encounter_id = encounter.encounter_id
-                                             left join mamba_dim_person_attribute attribute on encounter.uuid = attribute.value
-                                             join mamba_dim_relationship relationship on g.client_id = relationship.person_a
-                                             join mamba_dim_person relationship_b on relationship.person_b = relationship_b.person_id
-                                    GROUP BY contact.client_id,
-                                                      contact.elicited_date,
-                                                      contact.hiv_test_date,
-                                                      contact.hiv_test_result,
-                                                      prior_hiv_test_result,
-                                                      prior_test_date_estimated,
-                                                      date_of_case_closure,
-                                                      encounter.encounter_id,
-                                                      encounter.uuid,
-                                                      contact_birthdate,
-                                                      relationship_b.birthdate,
-                                                      relationship_b.person_id,
-                                                      contact_1.respondent_gender) ';
+       CASE
+           WHEN COALESCE(index_contact.sex, contact_1.respondent_gender) IN
+                (''F'', ''Female gender'') THEN ''Female''
+           WHEN COALESCE(index_contact.sex, contact_1.respondent_gender) IN
+                (''M'', ''Male gender'') THEN ''Male''
+           ELSE COALESCE(index_contact.sex, contact_1.respondent_gender)
+           END AS sex,
+
+       (SELECT datim_agegroup
+        from mamba_dim_agegroup
+        where TIMESTAMPDIFF(YEAR, coalesce(contact_birthdate,index_contact.date_of_birth), ?) = age) as fine_age_group,
+       (SELECT normal_agegroup
+        from mamba_dim_agegroup
+        where TIMESTAMPDIFF(YEAR, coalesce(contact_birthdate,index_contact.date_of_birth), ?) = age) as coarse_age_group,
+       TIMESTAMPDIFF(YEAR, coalesce(contact_birthdate,index_contact.date_of_birth), ?) as age
+from mamba_flat_encounter_index_contact_followup contact
+         left join mamba_flat_encounter_index_contact_followup_1 contact_1
+                   on contact.encounter_id = contact_1.encounter_id
+         left join mamba_flat_encounter_ict_general g on contact.client_id = g.client_id
+         left join mamba_dim_client index_client on contact.client_id = index_client.client_id
+         left join mamba_dim_encounter encounter on contact.encounter_id = encounter.encounter_id
+         left join mamba_dim_person_attribute attribute on encounter.uuid = attribute.value
+         left join mamba_dim_client index_contact on attribute.person_id = index_contact.client_id) ';
 
     IF REPORT_TYPE = 'ICT_TOTAL' THEN
         SET group_query = CONCAT('SELECT COUNT(*) as Numerator FROM contact_list WHERE ', filter_condition);

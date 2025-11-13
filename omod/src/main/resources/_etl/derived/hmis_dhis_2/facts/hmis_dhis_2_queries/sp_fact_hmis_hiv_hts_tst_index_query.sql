@@ -13,39 +13,22 @@ BEGIN
                                  date_of_case_closure,
                                  encounter.encounter_id,
                                  encounter.uuid,
-                                 contact_birthdate,
-                                 relationship_b.birthdate,
-                                 relationship_b.person_id,
+                                 coalesce(contact_birthdate,index_contact.date_of_birth) as birthdate,
                                  CASE
-                                     WHEN COALESCE(relationship_b.gender, contact_1.respondent_gender) IN
+                                     WHEN COALESCE(index_contact.sex, contact_1.respondent_gender) IN
                                           ('F', 'Female gender') THEN 'Female'
-                                     WHEN COALESCE(relationship_b.gender, contact_1.respondent_gender) IN
+                                     WHEN COALESCE(index_contact.sex, contact_1.respondent_gender) IN
                                           ('M', 'Male gender') THEN 'Male'
-                                     ELSE COALESCE(relationship_b.gender, contact_1.respondent_gender)
+                                     ELSE COALESCE(index_contact.sex, contact_1.respondent_gender)
                                      END AS sex
-                          from mamba_flat_encounter_ict_general g
-                                   join mamba_flat_encounter_index_contact_followup contact
-                                        on g.client_id = contact.client_id
+                          from mamba_flat_encounter_index_contact_followup contact
                                    left join mamba_flat_encounter_index_contact_followup_1 contact_1
                                              on contact.encounter_id = contact_1.encounter_id
+                                   left join mamba_flat_encounter_ict_general g on contact.client_id = g.client_id
+                                   left join mamba_dim_client index_client on contact.client_id = index_client.client_id
                                    left join mamba_dim_encounter encounter on contact.encounter_id = encounter.encounter_id
                                    left join mamba_dim_person_attribute attribute on encounter.uuid = attribute.value
-                                   join mamba_dim_relationship relationship on g.client_id = relationship.person_a
-                                   join mamba_dim_person relationship_b on relationship.person_b = relationship_b.person_id
-                          GROUP BY
-                              contact.client_id,
-                              contact.elicited_date,
-                              contact.hiv_test_date,
-                              contact.hiv_test_result,
-                              prior_hiv_test_result,
-                              prior_test_date_estimated,
-                              date_of_case_closure,
-                              encounter.encounter_id,
-                              encounter.uuid,
-                              contact_birthdate,
-                              relationship_b.birthdate,
-                              relationship_b.person_id,
-                              contact_1.respondent_gender),
+                                   left join mamba_dim_client index_contact on attribute.person_id = index_contact.client_id),
          offer_list as (select client.client_id,
                                client.mrn,
                                client.uan,
