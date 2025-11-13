@@ -984,7 +984,7 @@ BEGIN
 
                                  -- RULE 2: Black (ART Not Started)
                                  -- HIV Confirmation Date but no ART START DATE
-                                 WHEN base.hiv_confirmed_date IS NOT NULL AND base.art_start_date IS NULL
+                                 WHEN base.art_start_date IS NULL
                                      THEN 'Black'
 
                                  -- RULE 3: Red (Confirmed CXCA)
