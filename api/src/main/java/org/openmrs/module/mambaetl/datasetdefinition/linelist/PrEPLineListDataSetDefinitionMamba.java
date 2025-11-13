@@ -8,7 +8,6 @@ import java.util.Date;
 
 @Component
 public class PrEPLineListDataSetDefinitionMamba extends BaseDataSetDefinition {
-
 	
 	@ConfigurationProperty
 	private Date endDate;
