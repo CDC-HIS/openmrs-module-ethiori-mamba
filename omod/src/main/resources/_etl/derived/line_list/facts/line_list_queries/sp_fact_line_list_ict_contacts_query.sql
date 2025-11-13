@@ -52,6 +52,8 @@ BEGIN
                                  index_client.given_name,
                                  index_client.middle_name,
                                  index_client.family_name,
+                                 index_client.mrn as index_mrn,
+                                 index_client.uan as index_uan,
                                  coalesce(contact_birthdate,index_contact.date_of_birth) as birthdate,
                                  CASE
                                      WHEN COALESCE(index_contact.sex, contact_1.respondent_gender) IN
@@ -94,7 +96,7 @@ BEGIN
            trial_date_3rd                                                            as `3rd Trial Date GC.`,
            trial_date_3rd                                                            as `3rd Trial Date EC.`,
            trial_outcome_3rd                                                         as `3rd Trial Outcome`,
-
+           prior_hiv_test_result as `Prior HIV Test Result`,
            hivst_kit_distributed_date                                                as `Date Self-Test Kit distributed GC.`,
            hivst_kit_distributed_date                                                as `Date Self-Test Kit distributed EC.`,
            hivst_report_date                                                         as `HIV Self-Test Report Date GC.`,
@@ -117,6 +119,8 @@ BEGIN
            CASE WHEN adverse_event_reported is not null THEN 'Yes' ELSE 'No' END     as `Adverse Event Reported`,
            adverse_event_type                                                        as `Adverse Event Type`,
            patient_uuid                                                                      as `GUID of Index Case`,
+           index_mrn as `MRN of Index Case`,
+           index_uan as `UAN of Index Case`,
            CONCAT_WS(' ', given_name, middle_name, family_name) as `Full Name of Index Case`,
            ict_serial_number                                                         as `ICT#`
     from contact_list
