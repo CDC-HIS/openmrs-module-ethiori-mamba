@@ -406,7 +406,8 @@ BEGIN
                                             '> Ascus'
                                                 and prev_screening.colposcopy_exam_finding is null
                                             THEN 'Eligible Needs Colposcopy Test'
-                                        END                       AS EligibilityStatus,
+                                        END
+                                        AS EligibilityStatus,
 
 
                                     CASE
@@ -789,7 +790,9 @@ BEGIN
                                     Age,
                                     CAST(EligibilityDate AS Date)                                                           as `Eligibility Date`,
                                     CAST(EligibilityDate AS Date)                                                           as `Eligibility Date EC.`,
-                                    LEFT(EligibilityStatus, IF(LEFT(EligibilityStatus, 3) = 'Eli', 8, 12))    as `Eligibility Status`,
+                                    CASE WHEN EligibilityStatus IS NOT NULL THEN LEFT(EligibilityStatus, IF(LEFT(EligibilityStatus, 3) = 'Eli', 8, 12))
+                                        ELSE 'Screened for CXCA' END
+                                        as `Eligibility Status`,
                                     SUBSTR(EligibilityStatus, IF(LEFT(EligibilityStatus, 3) = 'Eli', 10, 14)) as `Eligibility Reason`,
                                     follow_up_date                                                            as `Follow Up Date`,
                                     follow_up_date                                                            as `Follow Up Date EC.`,
