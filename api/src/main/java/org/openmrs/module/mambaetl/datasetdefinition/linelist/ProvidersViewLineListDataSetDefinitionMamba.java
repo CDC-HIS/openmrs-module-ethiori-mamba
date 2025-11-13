@@ -11,7 +11,6 @@ import java.util.Date;
  */
 @Component
 public class ProvidersViewLineListDataSetDefinitionMamba extends BaseDataSetDefinition {
-
 	
 	@ConfigurationProperty
 	private Date endDate;
@@ -21,7 +20,6 @@ public class ProvidersViewLineListDataSetDefinitionMamba extends BaseDataSetDefi
 	
 	@ConfigurationProperty
 	private String patientGUID;
-
 	
 	public Date getEndDate() {
 		return endDate;
