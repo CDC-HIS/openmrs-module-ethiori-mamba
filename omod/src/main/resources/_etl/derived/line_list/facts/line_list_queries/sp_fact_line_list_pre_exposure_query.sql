@@ -112,7 +112,7 @@ BEGIN
            prep.screening_date                               as `PrEP Screening Date in EC.`,
            prep.screening_date                               as `PrEP Screening Date in GC.`,
            prep.prep_started                                 as `PrEP Started?`,
-           prep.treatment_start_date                         as `PrEP Start Date in EC`,
+           prep.treatment_start_date                         as `PrEP Start Date in EC.`,
            prep.treatment_start_date                         as `PrEP Start Date in G.C`,
            prep.type_of_client                               as `Type of Client`,
            prep.follow_up_date                               as `PrEP Follow Up Date in EC.`,
