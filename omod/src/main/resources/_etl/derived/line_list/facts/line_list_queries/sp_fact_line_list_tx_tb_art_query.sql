@@ -8,43 +8,37 @@ BEGIN
 
     WITH FollowUp AS (select follow_up.encounter_id,
                              follow_up.client_id,
-                             CASE follow_up_status
-                                 WHEN 'Alive' THEN 'Alive on ART'
-                                 WHEN 'Restart medication' THEN 'Restart'
-                                 WHEN 'Transferred out' THEN 'TO'
-                                 WHEN 'Stop all' THEN 'Stop'
-                                 WHEN 'Loss to follow-up (LTFU)' THEN 'Lost'
-                                 WHEN 'Ran away' THEN 'Drop'
-                                 END                                   as follow_up_status,
-                             follow_up_date_followup_                  as follow_up_date,
-                             art_antiretroviral_start_date             as art_start_date,
-                             height,
-                             pregnancy_status,
-                             currently_breastfeeding_child,
-                             specimen_sent_to_lab,
-                             mfeia.date_hiv_confirmed                  as date_hiv_confirmed,
-                             current_who_hiv_stage,
-                             tb_screening_date,
-                             follow_up_2.weight_text_                  as weight,
-                             antiretroviral_art_dispensed_dose_i       AS art_dose_days,
-                             regimen,
-                             anitiretroviral_adherence_level           as adherence,
-                             next_visit_date,
+                             follow_up_status,
+                             follow_up_date_followup_            AS follow_up_date,
+                             art_antiretroviral_start_date       AS art_start_date,
                              treatment_end_date,
-                             lf_lam_result,
-                             gene_xpert_result,
-                             diagnostic_test                           as other_diagnostic_test,
-                             tb_diagnostic_test_result,
-                             diagnosis_date,
+                             next_visit_date,
+                             regimen,
+                             currently_breastfeeding_child          breast_feeding_status,
+                             pregnancy_status,
+                             was_the_patient_screened_for_tuberc as tb_screened,
+                             tb_screening_date,
                              tb_treatment_status,
-                             screening_test_result_tuberculosis        as screening_result,
-                             tuberculosis_drug_treatment_start_d       as tb_treatment_start_date,
-                             date_active_tbrx_completed       as tb_treatment_completed_date,
-                             date_active_tbrx_dc       as tb_treatment_discontinued_date,
-                             mfepe.operation_triple_zero_enrollment_da as booking_date
-                      FROM mamba_flat_encounter_intake_a mfeia
-                               LEFT JOIN mamba_flat_encounter_follow_up follow_up
-                                         on follow_up.client_id = mfeia.client_id
+                             transferred_in_check_this_for_all_t as transferred_in,
+                             date_started_on_tuberculosis_prophy,
+                             screening_test_result_tuberculosis     screening_result,
+                             lf_lam_result,
+                             patient_diagnosed_with_active_tuber,
+                             tb_diagnostic_test_result,
+                             diagnostic_test                     as other_diagnostic_test,
+                             gene_xpert_result,
+                             diagnosis_date,
+                             diagnosis_date                      as active_tb_diagnosed_date,
+                             tuberculosis_drug_treatment_start_d as tb_treatment_start_date,
+                             date_active_tbrx_completed,
+                             date_active_tbrx_dc,
+                             currently_taking_tuberculosis_proph,
+                             specimen_sent_to_lab,
+                             antiretroviral_art_dispensed_dose_i as art_dose_days,
+                             date_active_tbrx_completed          as tb_treatment_completed_date,
+                             date_active_tbrx_dc                 as tb_treatment_discontinued_date,
+                             adherence
+                      FROM mamba_flat_encounter_follow_up follow_up
                                LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1
                                          ON follow_up.encounter_id = follow_up_1.encounter_id
                                LEFT JOIN mamba_flat_encounter_follow_up_2 follow_up_2
@@ -62,32 +56,30 @@ BEGIN
                                LEFT JOIN mamba_flat_encounter_follow_up_8 follow_up_8
                                          ON follow_up.encounter_id = follow_up_8.encounter_id
                                LEFT JOIN mamba_flat_encounter_follow_up_9 follow_up_9
-                                         ON follow_up.encounter_id = follow_up_9.encounter_id
-                               LEFT JOIN mamba_flat_encounter_registration reg
-                                         ON reg.client_id = follow_up.client_id
-                               LEFT JOIN mamba_flat_encounter_pmtct_enrollment as mfepe
-                                         ON mfepe.client_id = follow_up.client_id
-                      WHERE tuberculosis_drug_treatment_start_d >= COALESCE(REPORT_START_DATE, CURDATE())
-                        AND tuberculosis_drug_treatment_start_d <= COALESCE(REPORT_END_DATE, CURDATE())
-                       or  (diagnosis_date >= COALESCE(REPORT_START_DATE, CURDATE()) and
-                            diagnosis_date <= COALESCE(REPORT_END_DATE, CURDATE()))
-                        AND follow_up_status in ('Alive', 'Restart medication')),
-
-
-         tmp_latest_follow_up AS (SELECT f.*,
-                                         ROW_NUMBER() OVER (PARTITION BY f.client_id ORDER BY follow_up_date DESC,
-                                             encounter_id DESC) AS row_num
-                                  FROM FollowUp as f
-                                           join mamba_dim_client client on f.client_id = client.client_id),
-
-
-         latest_follow_up AS (select *
-                              from tmp_latest_follow_up
-                              where row_num = 1),
-
-        only_active_tb as (select * from latest_follow_up where
-        tb_treatment_completed_date is null and
-        tb_treatment_discontinued_date is null)
+                                         ON follow_up.encounter_id = follow_up_9.encounter_id),
+         tmp_latest_follow_up as (SELECT *,
+                                         ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
+                                  FROM FollowUp
+                                  WHERE follow_up_status IS NOT NULL
+                                    AND art_start_date IS NOT NULL
+                                    AND follow_up_date <= REPORT_END_DATE),
+         tb_art as (select tmp_latest_follow_up.*,
+                           sex,
+                           date_of_birth,
+                           mrn,
+                           uan
+                    from tmp_latest_follow_up
+                             join mamba_dim_client client on client.client_id = tmp_latest_follow_up.client_id
+                    where follow_up_status in ('Alive', 'Restart medication')
+                      and row_num = 1
+                      and art_start_date <= REPORT_END_DATE
+                      and (active_tb_diagnosed_date <= REPORT_END_DATE OR tb_treatment_start_date <= REPORT_END_DATE)
+                      and (
+                        (date_active_tbrx_dc is null and date_active_tbrx_completed is null and
+                         (DATE_ADD(tb_treatment_start_date, INTERVAL 1 YEAR) >= REPORT_END_DATE))
+                            OR
+                        (date_active_tbrx_completed > REPORT_END_DATE OR date_active_tbrx_dc > REPORT_END_DATE)
+                        ))
 
 
     SELECT ROW_NUMBER() OVER (ORDER BY patient_name)           as `#`,
@@ -107,13 +99,8 @@ BEGIN
            f_case.art_dose_days                                as `ARV Dose Days`,
            f_case.adherence                                    as ` Adherence`,
            pregnancy_status                                    as `Pregnant?`,
-           currently_breastfeeding_child                       as `Breastfeeding?`,
-           case
-               when client.sex = 'MALE'
-                   then ''
-               when booking_date is not null
-                   then 'Yes'
-               else 'No' end
+           breast_feeding_status                               as `Breastfeeding?`,
+           ''
                                                                as `On PMTCT?`,
            tb_screening_date                                   as `TB Screening Date EC.`,
            tb_screening_date                                   as `TB Screening Date G.C.`,
@@ -133,7 +120,7 @@ BEGIN
            tb_treatment_discontinued_date                      as `TB Treatment Discontinued Date EC.`,
            tb_treatment_discontinued_date                      as `TB Treatment Discontinued Date G.C.`
 
-    FROM only_active_tb AS f_case
+    FROM tb_art AS f_case
              INNER JOIN mamba_dim_client client on f_case.client_id = client.client_id
     ORDER BY client.patient_name;
 
