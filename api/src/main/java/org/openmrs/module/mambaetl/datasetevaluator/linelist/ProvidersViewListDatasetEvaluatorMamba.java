@@ -68,7 +68,7 @@ public class ProvidersViewListDatasetEvaluatorMamba implements DataSetEvaluator 
     }
 	
 	private List<ProcedureCall> createProcedureCalls(ProvidersViewLineListDataSetDefinitionMamba dataSetDefinitionMamba) {
-        java.sql.Date endDate = new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime());
+        java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime()) : null;
 
 
         return Collections.singletonList(
