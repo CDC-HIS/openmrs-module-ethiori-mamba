@@ -10,9 +10,10 @@ CREATE PROCEDURE sp_dim_tx_tb_datim_query(
 )
 BEGIN
     DECLARE age_group_cols VARCHAR(5000);
-    DECLARE tx_tb_query VARCHAR(6067);
+    DECLARE tx_tb_query VARCHAR(8469);
     DECLARE group_query TEXT;
     DECLARE outcome_condition VARCHAR(227);
+    DECLARE source_table VARCHAR(50);
     SET session group_concat_max_len = 20000;
 
     IF REPORT_TYPE = 'NEW_ART_POSITIVE' THEN
@@ -36,13 +37,17 @@ BEGIN
     ELSEIF REPORT_TYPE = 'POSITIVE_RESULT' THEN
         SET outcome_condition = ' 1=1 ';
     ELSEIF REPORT_TYPE = 'NUMERATOR_NEW' THEN
-        SET outcome_condition =' art_start_date between ? AND ? and tb_treatment_start_date between ? AND ? ';
+        SET outcome_condition = ' art_start_date between ? AND ? and tb_treatment_start_date between ? AND ? ';
+        SET source_table = 'tb_treatment';
     ELSEIF REPORT_TYPE = 'NUMERATOR_TOTAL' THEN
-        SET outcome_condition =' tb_treatment_start_date between ? AND ? ';
+        SET outcome_condition = ' tb_treatment_start_date between ? AND ? ';
+        SET source_table = 'tb_treatment';
     ELSEIF REPORT_TYPE = 'NUMERATOR_PREV' THEN
-        SET outcome_condition =' art_start_date < ? and follow_up_status in (''Alive'', ''Restart medication'') and tb_treatment_start_date between ? AND ? ';
+        SET outcome_condition = ' art_start_date < ? and tb_treatment_start_date between ? AND ? ';
+        SET source_table = 'tb_treatment';
     ELSE
-        SET  outcome_condition = '1=1';
+        SET outcome_condition = '1=1';
+        SET source_table = 'tb_screening';
     END IF;
 
     IF IS_COURSE_AGE_GROUP THEN
@@ -105,49 +110,69 @@ BEGIN
                                          ON follow_up.encounter_id = follow_up_8.encounter_id
                                LEFT JOIN mamba_flat_encounter_follow_up_9 follow_up_9
                                          ON follow_up.encounter_id = follow_up_9.encounter_id
-),
-     tmp_latest_follow_up
-         as (select client_id,
-                    encounter_id,
-                    follow_up_status,
-                    ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
-             from FollowUp
-             where follow_up_date <= ?),
-     tmp_latest_screeing_follow_up as (SELECT client_id,
-                                              follow_up_date                                                                                ,
-                                              encounter_id,
-                                              follow_up_status,
-                                              tb_screening_date,
-                                              art_start_date,
-                                              tb_screened,
-                                              screening_result,
-                                              lf_lam_result,
-                                              gene_xpert_result,
-                                              other_diagnostic_test,
-                                              other_tb_diagnostic_result,
-                                              specimen_sent_to_lab,
-                                              tb_treatment_start_date,
-                                              tb_treatment_completed_date,
-                                              ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY tb_screening_date DESC, encounter_id DESC) AS row_num
-                                       FROM FollowUp
-                                       WHERE follow_up_status IS NOT NULL
-                                         AND art_start_date IS NOT NULL
-                                         AND tb_screening_date is not null
-                                         AND tb_screened = ''Yes''
-                                         and tb_screening_date between ? AND ?),
-     latest_follow_up as (select * from tmp_latest_follow_up where row_num = 1),
-     latest_screeing_follow_up as (select * from tmp_latest_screeing_follow_up where row_num = 1),
-     tb_screening as (SELECT follow_up.*,
-                             sex,
-                             date_of_birth,
-                            (SELECT datim_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as fine_age_group,
-                            (SELECT normal_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as coarse_age_group,
-                             mrn,
-                             uan,
-                             latest_follow_up.follow_up_status as latest_follow_up_staus
-                      from latest_screeing_follow_up follow_up
-                               inner join mamba_dim_client client on follow_up.client_id = client.client_id
-                               left join latest_follow_up on follow_up.client_id = latest_follow_up.client_id) ';
+                    ),
+                         tmp_latest_follow_up
+                             as (select client_id,
+                                        encounter_id,
+                                        follow_up_status,
+                                        ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
+                                 from FollowUp
+                                 where follow_up_date <= ?),
+                         tmp_latest_screeing_follow_up as (SELECT client_id,
+                                                                  follow_up_date                                                                                ,
+                                                                  encounter_id,
+                                                                  follow_up_status,
+                                                                  tb_screening_date,
+                                                                  art_start_date,
+                                                                  tb_screened,
+                                                                  screening_result,
+                                                                  lf_lam_result,
+                                                                  gene_xpert_result,
+                                                                  other_diagnostic_test,
+                                                                  other_tb_diagnostic_result,
+                                                                  specimen_sent_to_lab,
+                                                                  tb_treatment_start_date,
+                                                                  tb_treatment_completed_date,
+                                                                  ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY tb_screening_date DESC, encounter_id DESC) AS row_num
+                                                           FROM FollowUp
+                                                           WHERE follow_up_status IS NOT NULL
+                                                             AND art_start_date IS NOT NULL
+                                                             AND tb_screening_date is not null
+                                                             AND tb_screened = ''Yes''
+                                                             and tb_screening_date between ? AND ?),
+                         latest_follow_up as (select * from tmp_latest_follow_up where row_num = 1),
+                         latest_screeing_follow_up as (select * from tmp_latest_screeing_follow_up where row_num = 1),
+                         tb_screening as (SELECT follow_up.*,
+                                                 sex,
+                                                 date_of_birth,
+                                                (SELECT datim_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as fine_age_group,
+                                                (SELECT normal_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as coarse_age_group,
+                                                 mrn,
+                                                 uan,
+                                                 latest_follow_up.follow_up_status as latest_follow_up_staus
+                                          from latest_screeing_follow_up follow_up
+                                                   inner join mamba_dim_client client on follow_up.client_id = client.client_id
+                                                   left join latest_follow_up on follow_up.client_id = latest_follow_up.client_id),
+                     tmp_tb_treatment as (select *,
+                                                     ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY tb_treatment_start_date DESC,
+                                                         encounter_id DESC) AS row_num
+                                              from FollowUp
+                                              WHERE tb_treatment_start_date BETWEEN ? AND ?),
+
+                         tb_treatment AS (SELECT tmp_tb_treatment.*,
+                                                 sex,
+                                                 date_of_birth,
+                                                 (SELECT datim_agegroup
+                                                  from mamba_dim_agegroup
+                                                  where TIMESTAMPDIFF(YEAR, date_of_birth, ?) = age) as fine_age_group,
+                                                 (SELECT normal_agegroup
+                                                  from mamba_dim_agegroup
+                                                  where TIMESTAMPDIFF(YEAR, date_of_birth, ?) = age) as coarse_age_group,
+                                                 mrn,
+                                                 uan
+                                          FROM tmp_tb_treatment
+                                          JOIN mamba_dim_client client on client.client_id = tmp_tb_treatment.client_id
+                                          where row_num = 1 and art_start_date is not null)';
     IF REPORT_TYPE = 'SCREEN_TYPE' THEN
         SET group_query = 'select SUM(CASE WHEN other_diagnostic_test = ''Chest X-Ray'' is not null THEN 1 ELSE 0 END) as `Chest X-Ray` ,
        SUM(CASE WHEN other_diagnostic_test != ''Chest X-Ray'' is null THEN 1 ELSE 0 END) AS ''Symptom Screen Only'',
@@ -159,17 +184,17 @@ BEGIN
         SUM(CASE WHEN other_diagnostic_test = ''Additional test other than Gene-Xpert'' is not null THEN 1 ELSE 0 END) as `Additional test other than mWRD`
 from tb_screening where specimen_sent_to_lab=''Yes'' ';
     ELSEIF REPORT_TYPE = 'DIAGNOSTIC_TEST' THEN
-        SET group_query = ' select  ''Number of ART patients who had a specimen sent for bacteriologic diagnosis of active TB disease'' AS `Name`,COUNT(*) AS `Value` from tb_screening where specimen_sent_to_lab=''Yes'' ';
-    ELSEIF REPORT_TYPE='POSITIVE_RESULT' THEN
-        SET group_query = ' select  ''Number of ART patients who had a positive result returned for bacteriologic diagnosis of active TB disease'' AS `Name`,COUNT(*) AS `Value` from tb_screening where specimen_sent_to_lab=''Yes'' and (lf_lam_result=''Positive'' or gene_xpert_result=''Positive'') ';
-    ELSEIF REPORT_TYPE='NUMERATOR_TOTAL' THEN
-        SET group_query = CONCAT(' select COUNT(*) as `Subtotal` FROM tb_screening WHERE ',outcome_condition);
-    ELSEIF REPORT_TYPE='TOTAL' THEN
-        SET group_query ='select COUNT(*) as `Subtotal` FROM tb_screening';
-    ELSEIF REPORT_TYPE='DEBUG' THEN
-        SET group_query ='select * FROM tb_screening';
-    ELSEIF REPORT_TYPE='DEBUG' THEN
-        SET group_query ='select * FROM tb_screening';
+        SET group_query =
+                ' select  ''Number of ART patients who had a specimen sent for bacteriologic diagnosis of active TB disease'' AS `Name`,COUNT(*) AS `Value` from tb_screening where specimen_sent_to_lab=''Yes'' ';
+    ELSEIF REPORT_TYPE = 'POSITIVE_RESULT' THEN
+        SET group_query =
+                ' select  ''Number of ART patients who had a positive result returned for bacteriologic diagnosis of active TB disease'' AS `Name`,COUNT(*) AS `Value` from tb_screening where specimen_sent_to_lab=''Yes'' and (lf_lam_result=''Positive'' or gene_xpert_result=''Positive'') ';
+    ELSEIF REPORT_TYPE = 'NUMERATOR_TOTAL' THEN
+        SET group_query = CONCAT(' select COUNT(*) as `Subtotal` FROM tb_treatment WHERE ', outcome_condition);
+    ELSEIF REPORT_TYPE = 'TOTAL' THEN
+        SET group_query = 'select COUNT(*) as `Subtotal` FROM tb_screening';
+    ELSEIF REPORT_TYPE = 'DEBUG' THEN
+        SET group_query = 'select * FROM tb_screening';
     ELSE
         SET group_query = CONCAT('
         SELECT
@@ -182,7 +207,7 @@ from tb_screening where specimen_sent_to_lab=''Yes'' ';
             sex,
             ', IF(IS_COURSE_AGE_GROUP, 'coarse_age_group', 'fine_age_group'), ',
             COUNT(*) AS count
-          FROM tb_screening WHERE ', outcome_condition, '
+          FROM ',source_table, ' WHERE ', outcome_condition, '
           GROUP BY sex, ', IF(IS_COURSE_AGE_GROUP, 'coarse_age_group', 'fine_age_group'), '
         ) AS subquery
         RIGHT JOIN (SELECT ''Female'' AS sex UNION SELECT ''Male'') AS genders
@@ -196,15 +221,15 @@ from tb_screening where specimen_sent_to_lab=''Yes'' ';
     SET @start_date = REPORT_START_DATE;
     SET @end_date = REPORT_END_DATE;
     IF REPORT_TYPE = 'PREV_ART_POSITIVE' OR REPORT_TYPE = 'PREV_ART_NEGATIVE' THEN
-        EXECUTE stmt USING @end_date, @start_date , @end_date, @end_date, @end_date, @end_date;
-    ELSEIF REPORT_TYPE = 'NEW_ART_POSITIVE' OR REPORT_TYPE = 'NEW_ART_NEGATIVE' OR REPORT_TYPE='NUMERATOR_TOTAL' THEN
-        EXECUTE stmt USING @end_date, @start_date , @end_date, @end_date, @end_date, @start_date ,@end_date;
+        EXECUTE stmt USING @end_date, @start_date , @end_date, @end_date, @end_date, @start_date, @end_date, @end_date, @end_date, @end_date;
+    ELSEIF REPORT_TYPE = 'NEW_ART_POSITIVE' OR REPORT_TYPE = 'NEW_ART_NEGATIVE' OR REPORT_TYPE = 'NUMERATOR_TOTAL' THEN
+        EXECUTE stmt USING @end_date, @start_date , @end_date, @end_date, @end_date, @start_date, @end_date, @end_date, @end_date, @start_date ,@end_date;
     ELSEIF REPORT_TYPE = 'NUMERATOR_PREV' THEN
-        EXECUTE stmt USING @end_date, @start_date , @end_date, @end_date, @end_date, @end_date , @end_date, @end_date;
+        EXECUTE stmt USING @end_date, @start_date , @end_date, @end_date, @end_date, @start_date, @end_date, @end_date, @end_date, @start_date , @start_date, @end_date;
     ELSEIF REPORT_TYPE = 'NUMERATOR_NEW' THEN
-        EXECUTE stmt USING @end_date, @start_date , @end_date, @end_date, @end_date, @start_date ,@end_date, @start_date ,@end_date;
+        EXECUTE stmt USING @end_date, @start_date , @end_date, @end_date, @end_date, @start_date, @end_date, @end_date, @end_date, @start_date ,@end_date, @start_date ,@end_date;
     ELSE
-        EXECUTE stmt USING @end_date, @start_date , @end_date, @end_date, @end_date;
+        EXECUTE stmt USING @end_date, @start_date , @end_date, @end_date, @end_date, @start_date, @end_date, @end_date, @end_date;
     END IF;
     DEALLOCATE PREPARE stmt;
 END //
