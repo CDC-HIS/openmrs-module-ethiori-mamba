@@ -69,7 +69,9 @@ BEGIN
                                          ON mfepe.client_id = follow_up.client_id
                       WHERE tb_screening_date >= COALESCE(REPORT_START_DATE, CURDATE())
                         AND tb_screening_date <= COALESCE(REPORT_END_DATE, CURDATE())
-                        AND follow_up_status in ('Alive', 'Restart medication')),
+                      --  AND follow_up_status in ('Alive', 'Restart medication')
+
+                      ),
 
 
          tmp_latest_follow_up AS (SELECT f.*,
