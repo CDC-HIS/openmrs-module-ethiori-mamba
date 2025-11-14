@@ -80,7 +80,7 @@ BEGIN
 
          latest_follow_up AS (select *
                               from tmp_latest_follow_up
-                              where row_num = 1)
+                              where row_num = 1 and art_start_date is not null )
 
 
     SELECT ROW_NUMBER() OVER (ORDER BY patient_name)           as `#`,

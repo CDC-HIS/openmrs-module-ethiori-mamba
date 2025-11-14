@@ -77,7 +77,7 @@ public class TxTBNumeratorDATIMReportsMamba implements ReportManager {
 		
 		TxTBNumeratorDataSetDefinitionMamba txTBPrevNumeratorDataSetDefinitionMamba = new TxTBNumeratorDataSetDefinitionMamba();
 		txTBPrevNumeratorDataSetDefinitionMamba.addParameters(getParameters());
-		txTBPrevNumeratorDataSetDefinitionMamba.setTxTBAggregationTypes(TxTBAggregationTypes.NUMERATOR_NEW);
+		txTBPrevNumeratorDataSetDefinitionMamba.setTxTBAggregationTypes(TxTBAggregationTypes.NUMERATOR_PREV);
 		txTBPrevNumeratorDataSetDefinitionMamba
 		        .setDescription("The number of patients starting TB treatment who were already on ART prior to the start of the reporting period");
 		reportDefinition
