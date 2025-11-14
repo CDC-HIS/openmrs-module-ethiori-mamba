@@ -34,7 +34,7 @@ BEGIN
                 ' hiv_test_result = ''Positive'' and coalesce(hiv_test_date,date_of_case_closure,elicited_date) BETWEEN ? AND ? ';
     ELSEIF REPORT_TYPE = 'NEW_NEGATIVE' THEN
         SET filter_condition =
-                ' prior_hiv_test_result != ''Positive'' and hiv_test_result = ''Negative result'' and coalesce(hiv_test_date,date_of_case_closure,elicited_date) BETWEEN ? AND ? ';
+                ' hiv_test_result = ''Negative result'' and coalesce(hiv_test_date,date_of_case_closure,elicited_date) BETWEEN ? AND ? AND age > 14 ';
     ELSEIF REPORT_TYPE = 'ICT_TOTAL' THEN
         SET filter_condition = ' hiv_test_date BETWEEN ? AND ? and hiv_test_result is not null ';
     ELSE
