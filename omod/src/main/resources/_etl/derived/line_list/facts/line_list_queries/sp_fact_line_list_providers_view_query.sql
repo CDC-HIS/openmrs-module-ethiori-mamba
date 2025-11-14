@@ -980,34 +980,34 @@ BEGIN
                                      OR age > 65
                                      OR
                                       base.final_follow_up_status IN ('Dead', 'Transferred out', 'Stop all', 'Ran away')
-                                     THEN 'Blue'
+                                     THEN 'Not Applicable (Blue)'
 
                                  -- RULE 2: Black (ART Not Started)
                                  -- HIV Confirmation Date but no ART START DATE
                                  WHEN base.art_start_date IS NULL
-                                     THEN 'Black'
+                                     THEN 'ART Not Started (Black)'
 
                                  -- RULE 3: Red (Confirmed CXCA)
                                  -- Clients with confirmed cancer are excluded from screening eligibility (using the detailed status)
                                  WHEN base.EligibilityStatus = 'Not Eligible Confirmed Cirvical Cancer'
-                                     THEN 'Red'
+                                     THEN 'Confirmed CXCA (RED)'
 
                                  -- The remaining rules apply to the active, 25-65 female cohort
 
                                  -- RULE 4: Green (Previously Screened / Screening Done)
                                  -- Maps to the catch-all status where screening is up-to-date
                                  WHEN base.EligibilityStatus = 'Not Eligible (Screening Up-to-Date)'
-                                     THEN 'Green'
+                                     THEN 'Previously Screened (Green)'
 
                                  -- RULE 5: Yellow (Eligible for Screening/RX)
                                  -- Maps to *any* status that requires screening/follow-up action
                                  WHEN base.EligibilityStatus LIKE 'Eligible%'
-                                     THEN 'Yellow'
+                                     THEN 'Eligible (Yellow)'
 
                                  -- RULE 6: White (Not Eligible - Other Reasons)
                                  -- Maps to other 'Not Eligible' statuses (e.g., Hysterectomy, etc.)
                                  WHEN base.EligibilityStatus LIKE 'Not Eligible%'
-                                     THEN 'White'
+                                     THEN 'Not Eligible (White)'
 
                                  -- Fallback
                                  ELSE 'Unknown Status'
@@ -1074,7 +1074,7 @@ BEGIN
                when eligiblityDate <= COALESCE(END_DATE, CURDATE())
                    THEN 'Eligible for Viral Load'
                when eligiblityDate > COALESCE(END_DATE, CURDATE())
-                   THEN 'Viral Load Done' -- 'Viral Load Done'
+                   THEN 'Viral Load Done (Currently not Eligible)' -- 'Viral Load Done'
                when tmp_3.art_start_date is NULL and follow_up_status is null THEN 'Not Started ART'
 
 #                when vl_eligibility.vl_status is not null then vl_eligibility.vl_status
