@@ -21,7 +21,7 @@ BEGIN
                               date_of_event                                       as date_hiv_confirmed,
                               next_visit_date,
                               antiretroviral_art_dispensed_dose_i                 as art_dose,
-                              intake_a.date_enrolled_in_care                      as registration_date
+                              intake_a.date_hiv_confirmed                      as registration_date
                        FROM mamba_flat_encounter_follow_up follow_up
                                 LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1
                                           ON follow_up.encounter_id = follow_up_1.encounter_id
@@ -75,11 +75,11 @@ BEGIN
                     sex,
                     date_of_birth                             AS `Date of birth`,
                     date_of_birth                             AS `Date of birth EC.`,
-                    TIMESTAMPDIFF(YEAR, date_of_birth, registration_date)
+                    TIMESTAMPDIFF(YEAR, date_of_birth, date_hiv_confirmed)
                                                               AS age_at_enrollment,
                     age                                       AS current_age,
-                    registration_date                         as `Enrollment Date`,
-                    registration_date                         as `Enrollment Date EC.`,
+                    date_hiv_confirmed                         as `Enrollment Date`,
+                    date_hiv_confirmed                         as `Enrollment Date EC.`,
                     date_hiv_confirmed                        as `HIV Confirmed Date`,
                     date_hiv_confirmed                        as `HIV Confirmed Date EC.`,
                     art_sart_date                             as `Art Start Date`,
