@@ -19,31 +19,39 @@ BEGIN
     IF REPORT_TYPE = 'NEW_ART_POSITIVE' THEN
         SET outcome_condition =
                 ' art_start_date between ? AND ? and screening_result=''Positive'' ';
+        SET source_table = 'tb_screening';
     ELSEIF REPORT_TYPE = 'NEW_ART_NEGATIVE' THEN
         SET outcome_condition =
                 ' art_start_date between ? AND ?  and screening_result != ''Positive''  ';
+        SET source_table = 'tb_screening';
     ELSEIF REPORT_TYPE = 'PREV_ART_POSITIVE' THEN
         SET outcome_condition =
                 ' art_start_date < ? and follow_up_status in (''Alive'', ''Restart medication'') and screening_result = ''Positive'' ';
+        SET source_table = 'tb_screening';
     ELSEIF REPORT_TYPE = 'PREV_ART_NEGATIVE' THEN
         SET outcome_condition =
                 ' art_start_date < ? and follow_up_status in (''Alive'', ''Restart medication'')  and screening_result != ''Positive'' ';
+        SET source_table = 'tb_screening';
     ELSEIF REPORT_TYPE = 'SCREEN_TYPE' THEN
         SET outcome_condition = ' 1=1 ';
+        SET source_table = 'tb_screening';
     ELSEIF REPORT_TYPE = 'SPECIMEN_SENT' THEN
         SET outcome_condition = ' 1=1 ';
+        SET source_table = 'tb_screening';
     ELSEIF REPORT_TYPE = 'DIAGNOSTIC_TEST' THEN
         SET outcome_condition = ' 1=1 ';
+        SET source_table = 'tb_screening';
     ELSEIF REPORT_TYPE = 'POSITIVE_RESULT' THEN
         SET outcome_condition = ' 1=1 ';
+        SET source_table = 'tb_screening';
     ELSEIF REPORT_TYPE = 'NUMERATOR_NEW' THEN
-        SET outcome_condition = ' art_start_date between ? AND ? and tb_treatment_start_date between ? AND ? ';
+        SET outcome_condition = ' art_start_date IS NOT NULL AND art_start_date between ? AND ? and tb_treatment_start_date between ? AND ? ';
         SET source_table = 'tb_treatment';
     ELSEIF REPORT_TYPE = 'NUMERATOR_TOTAL' THEN
-        SET outcome_condition = ' tb_treatment_start_date between ? AND ? ';
+        SET outcome_condition = ' art_start_date IS NOT NULL AND tb_treatment_start_date between ? AND ? ';
         SET source_table = 'tb_treatment';
     ELSEIF REPORT_TYPE = 'NUMERATOR_PREV' THEN
-        SET outcome_condition = ' art_start_date < ? and tb_treatment_start_date between ? AND ? ';
+        SET outcome_condition = ' art_start_date IS NOT NULL AND art_start_date < ? and tb_treatment_start_date between ? AND ? ';
         SET source_table = 'tb_treatment';
     ELSE
         SET outcome_condition = '1=1';
@@ -136,9 +144,7 @@ BEGIN
                                                                   ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY tb_screening_date DESC, encounter_id DESC) AS row_num
                                                            FROM FollowUp
                                                            WHERE follow_up_status IS NOT NULL
-                                                             AND art_start_date IS NOT NULL
                                                              AND tb_screening_date is not null
-                                                             AND tb_screened = ''Yes''
                                                              and tb_screening_date between ? AND ?),
                          latest_follow_up as (select * from tmp_latest_follow_up where row_num = 1),
                          latest_screeing_follow_up as (select * from tmp_latest_screeing_follow_up where row_num = 1),
@@ -172,7 +178,7 @@ BEGIN
                                                  uan
                                           FROM tmp_tb_treatment
                                           JOIN mamba_dim_client client on client.client_id = tmp_tb_treatment.client_id
-                                          where row_num = 1 and art_start_date is not null)';
+                                          where row_num = 1)';
     IF REPORT_TYPE = 'SCREEN_TYPE' THEN
         SET group_query = 'select SUM(CASE WHEN other_diagnostic_test = ''Chest X-Ray'' is not null THEN 1 ELSE 0 END) as `Chest X-Ray` ,
        SUM(CASE WHEN other_diagnostic_test != ''Chest X-Ray'' is null THEN 1 ELSE 0 END) AS ''Symptom Screen Only'',
@@ -215,6 +221,8 @@ from tb_screening where specimen_sent_to_lab=''Yes'' ';
         GROUP BY sex
         ');
     END IF;
+
+    SELECT group_query;
 
     SET @sql = CONCAT(tx_tb_query, group_query);
     PREPARE stmt FROM @sql;
