@@ -5,7 +5,6 @@ import org.apache.commons.logging.LogFactory;
 import org.openmrs.annotation.Handler;
 import org.openmrs.module.mambaetl.datasetdefinition.linelist.TXTBDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper;
-import org.openmrs.module.mambaetl.helpers.DefaultDateParameter;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
 import org.openmrs.module.reporting.dataset.DataSet;
 import org.openmrs.module.reporting.dataset.SimpleDataSet;
@@ -15,15 +14,12 @@ import org.openmrs.module.reporting.evaluation.EvaluationContext;
 import org.openmrs.module.reporting.evaluation.EvaluationException;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
 import static org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper.*;
-import static org.openmrs.module.mambaetl.helpers.EthiOhriUtil.getDefaultDateParameter;
 import static org.openmrs.module.mambaetl.reports.linelist.TXTBReportMamba.*;
 
 @Handler(supports = { TXTBDataSetDefinitionMamba.class })
@@ -67,18 +63,12 @@ public class TXTBDataSetEvaluatorMamba implements DataSetEvaluator {
     }
 	
 	private List<ProcedureCall> createProcedureCalls(TXTBDataSetDefinitionMamba dataSetDefinitionMamba) {
-        DefaultDateParameter result = getDefaultDateParameter(dataSetDefinitionMamba.getStartDate(),
-                dataSetDefinitionMamba.getEndDate());
-
-        Date startDate = result.startDate;
+        java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null ? new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime()) : null;
+        java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime()) : null;
 
         String procedureName;
         switch (dataSetDefinitionMamba.getType()) {
             case tb_art:
-                Date startDateTobe = dataSetDefinitionMamba.getEndDate() != null ?
-                        new Date(dataSetDefinitionMamba.getEndDate().getTime()) : new Date(System.currentTimeMillis());
-                //start date is one year before the end date
-                startDate = new Date(startDateTobe.toLocalDate().minusYears(1).toEpochDay() * 24 * 60 * 60 * 1000);
                 procedureName = "{call sp_fact_line_list_tx_tb_art_query(?,?)}";
                 break;
             case denominator:
@@ -91,12 +81,17 @@ public class TXTBDataSetEvaluatorMamba implements DataSetEvaluator {
                 throw new IllegalArgumentException("Invalid TPT status: " + dataSetDefinitionMamba.getType());
         }
 
-        Date finalStartDate = startDate;
         return Collections.singletonList(
                 new ProcedureCall(procedureName, statement -> {
-                    statement.setDate(1, finalStartDate);
-                    statement.setDate(2, result.endDate);
+                    statement.setDate(1, startDate);
+                    statement.setDate(2, endDate);
                 })
         );
+
+
+
+
+
+
     }
 }
