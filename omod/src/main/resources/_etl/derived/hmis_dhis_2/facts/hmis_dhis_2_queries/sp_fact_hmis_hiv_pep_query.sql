@@ -47,13 +47,13 @@ SELECT 'HIV_PEP. 2'                                                             
        'Sexual violence' as Activity,
        COUNT(*)                                                                                as Value
 FROM tx_new
-where exposure_type='Sexual violence'
+where exposure_type in ('Sexual violence','Sexual assault')
 UNION ALL
 SELECT 'HIV_PEP. 3'                                                                       AS S_NO,
        'Other Non occupational' as Activity,
        COUNT(*)                                                                                as Value
 FROM tx_new
-where exposure_type='Other';
+where exposure_type in ('Other','Non-occupational');
 END //
 
 DELIMITER ;
