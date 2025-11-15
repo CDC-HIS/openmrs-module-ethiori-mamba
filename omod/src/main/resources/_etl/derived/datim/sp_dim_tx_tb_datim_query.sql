@@ -222,8 +222,6 @@ from tb_screening where specimen_sent_to_lab=''Yes'' ';
         ');
     END IF;
 
-    SELECT group_query;
-
     SET @sql = CONCAT(tx_tb_query, group_query);
     PREPARE stmt FROM @sql;
     SET @start_date = REPORT_START_DATE;
