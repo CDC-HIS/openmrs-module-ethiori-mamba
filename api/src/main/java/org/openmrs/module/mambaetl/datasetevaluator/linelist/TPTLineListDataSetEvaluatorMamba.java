@@ -71,16 +71,16 @@ public class TPTLineListDataSetEvaluatorMamba implements DataSetEvaluator {
         return null;
     }
 	
-	private List<ProcedureCall> createProcedureCalls(TPTLineListDataSetDefinitionMamba tptLineListDataSetDefinitionMamba) {
-        java.sql.Date startDate = new java.sql.Date(tptLineListDataSetDefinitionMamba.getStartDate().getTime());
-        java.sql.Date endDate = new java.sql.Date(tptLineListDataSetDefinitionMamba.getEndDate().getTime());
+	private List<ProcedureCall> createProcedureCalls(TPTLineListDataSetDefinitionMamba dataSetDefinitionMamba) {
+        java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null ? new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime()):null ;
+        java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date( dataSetDefinitionMamba.getEndDate().getTime()):null ;
 
         return Collections.singletonList(
 
                 new ProcedureCall("{call sp_fact_line_list_tpt_linelist_query(?,?,?)}", statement -> {
                     statement.setDate(1, startDate);
                     statement.setDate(2, endDate);
-                    statement.setString(3, tptLineListDataSetDefinitionMamba.getTptType());
+                    statement.setString(3, dataSetDefinitionMamba.getTptType());
                 })
         );
     }

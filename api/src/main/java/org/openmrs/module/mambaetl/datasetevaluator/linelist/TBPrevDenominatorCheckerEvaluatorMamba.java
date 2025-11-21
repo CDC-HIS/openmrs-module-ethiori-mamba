@@ -68,8 +68,8 @@ public class TBPrevDenominatorCheckerEvaluatorMamba implements DataSetEvaluator 
     }
 	
 	private List<ProcedureCall> createProcedureCalls(TBPrevDenominatorCheckerDataSetDefinitionMamba dataSetDefinitionMamba) {
-        java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null ? new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime()) : null;
-        java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime()) : null;
+        java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null ? new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime()):null ;
+        java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date( dataSetDefinitionMamba.getEndDate().getTime()):null ;
 
         return Collections.singletonList(
                 new ProcedureCall("{call sp_dim_tb_prev_datim_denominator_query(?,?,?,?)}", statement -> {

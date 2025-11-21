@@ -68,13 +68,13 @@ public class ChronicCareEnrollmentDataSetEvaluatorMamba implements DataSetEvalua
 	}
 	
 	private List<ProcedureCall> createProcedureCalls(ChronicCareEnrollmentDataSetDefinitionMamba dataSetDefinitionMamba) {
-		DefaultDateParameter result =  EthiOhriUtil.getDefaultDateParameter(dataSetDefinitionMamba.getStartDate(),
-                dataSetDefinitionMamba.getEndDate());
+		java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null ? new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime()):null ;
+		java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date( dataSetDefinitionMamba.getEndDate().getTime()):null ;
 
 		return Collections.singletonList(
                 new ProcedureCall("{call sp_fact_line_list_chronic_care_query(?,?,?)}", statement -> {
-                    statement.setDate(1, result.startDate);
-					statement.setDate(2, result.endDate);
+                    statement.setDate(1, startDate);
+					statement.setDate(2, endDate);
 					statement.setString(3,
 							FollowUpConstant.
 									getDbRepresentation(dataSetDefinitionMamba
