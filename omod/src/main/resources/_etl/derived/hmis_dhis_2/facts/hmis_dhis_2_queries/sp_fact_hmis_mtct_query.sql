@@ -44,11 +44,12 @@ BEGIN
                                 f.encounter_datetime as cpt_date,
                                 c.date_of_birth,
                                 DATEDIFF(f.encounter_datetime, c.date_of_birth) as age_days_at_cpt,
-                                ROW_NUMBER() over (PARTITION BY f.client_id ORDER BY f.encounter_datetime ASC) as row_num
+                                ROW_NUMBER() over (PARTITION BY f.client_id ORDER BY f.encounter_datetime DESC ) as row_num
                          from mamba_flat_encounter_hei_followup f
                                   join mamba_dim_client c on f.client_id = c.client_id
-                         where f.cotrimoxazole_prophylaxis_dose is not null
-                           and f.encounter_datetime BETWEEN REPORT_START_DATE AND REPORT_END_DATE),
+                         where
+                            -- f.cotrimoxazole_prophylaxis_dose is not null                 and
+                             f.encounter_datetime BETWEEN REPORT_START_DATE AND REPORT_END_DATE),
          hei_cpt as (select * from tmp_hei_cpt where row_num=1),
 
          tmp_hei_enrollment as (
