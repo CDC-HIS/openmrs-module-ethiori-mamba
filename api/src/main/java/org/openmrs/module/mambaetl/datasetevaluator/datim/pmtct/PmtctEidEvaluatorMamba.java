@@ -3,7 +3,6 @@ package org.openmrs.module.mambaetl.datasetevaluator.datim.pmtct;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.mambaetl.datasetdefinition.datim.pmtct.PmtctArtDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.datasetdefinition.datim.pmtct.PmtctEidDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
