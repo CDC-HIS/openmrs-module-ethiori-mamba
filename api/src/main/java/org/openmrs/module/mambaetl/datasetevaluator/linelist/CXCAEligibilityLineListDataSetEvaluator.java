@@ -68,9 +68,9 @@ public class CXCAEligibilityLineListDataSetEvaluator implements DataSetEvaluator
 		return null;
 	}
 	
-	private List<ProcedureCall> createProcedureCalls(CXCAEligibilityListDatasetDefinition cxcaEligibilityListDatasetDefinition) {
+	private List<ProcedureCall> createProcedureCalls(CXCAEligibilityListDatasetDefinition dataSetDefinitionMamba) {
 
-		java.sql.Date endDate = new java.sql.Date(cxcaEligibilityListDatasetDefinition.getEndDate().getTime());
+		java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date( dataSetDefinitionMamba.getEndDate().getTime()):null ;
 
 		return Collections.singletonList(
 

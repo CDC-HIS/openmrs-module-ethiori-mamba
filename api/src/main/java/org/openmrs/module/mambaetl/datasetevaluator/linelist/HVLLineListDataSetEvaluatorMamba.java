@@ -65,9 +65,9 @@ public class HVLLineListDataSetEvaluatorMamba implements DataSetEvaluator {
 		return null;
 	}
 	
-	private List<ProcedureCall> createProcedureCalls(HVLLineListDataSetDefinitionMamba hvlLineListDataSetDefinitionMamba) {
-		java.sql.Date startDate = hvlLineListDataSetDefinitionMamba.getStartDate() != null ? new java.sql.Date( hvlLineListDataSetDefinitionMamba.getStartDate().getTime()):null ;
-		java.sql.Date endDate = hvlLineListDataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date( hvlLineListDataSetDefinitionMamba.getEndDate().getTime()):null ;
+	private List<ProcedureCall> createProcedureCalls(HVLLineListDataSetDefinitionMamba dataSetDefinitionMamba) {
+		java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null ? new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime()):null ;
+		java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date( dataSetDefinitionMamba.getEndDate().getTime()):null ;
 
 		return Collections.singletonList(
                 new ProcedureCall("{call sp_fact_line_list_hvl_query(?,?)}", statement -> {

@@ -69,8 +69,8 @@ public class VlSentReceivedLineListDatasetEvaluatorMamba implements DataSetEvalu
     }
 	
 	private List<ProcedureCall> createProcedureCalls(VlSentReceivedLineListDataSetDefinitionMamba dataSetDefinitionMamba) {
-        java.sql.Date startDate = new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime());
-        java.sql.Date endDate = new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime());
+        java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null ? new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime()):null ;
+        java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date( dataSetDefinitionMamba.getEndDate().getTime()):null ;
 
         if (dataSetDefinitionMamba.getType().equalsIgnoreCase("sent")) {
             return Collections.singletonList(

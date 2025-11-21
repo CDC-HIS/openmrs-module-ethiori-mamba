@@ -71,8 +71,8 @@ public class CXCASCRNEvaluatorMamba implements DataSetEvaluator {
 	}
 	
 	private List<ProcedureCall> createProcedureCalls(CXCASCRNDataSetDefinitionMamba dataSetDefinitionMamba) {
-		java.sql.Date startDate = new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime());
-		java.sql.Date endDate = new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime());
+		java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null ? new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime()):null ;
+		java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date( dataSetDefinitionMamba.getEndDate().getTime()):null ;
 
 		return Collections.singletonList(
                 new ProcedureCall("{call sp_dim_cxca_scrn_datim_query(?,?,?,?)}", statement -> {

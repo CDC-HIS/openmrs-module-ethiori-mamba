@@ -64,7 +64,7 @@ public class ScheduleVisitLineListDataSetEvaluatorMamba implements DataSetEvalua
 	}
 	
 	private List<ProcedureCall> createProcedureCalls(ScheduleVisitLineListDataSetDefinitionMamba dataSetDefinitionMamba) {
-		java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null ? new java.sql.Date( dataSetDefinitionMamba.getStartDate().getTime()):null ;
+		java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null ? new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime()):null ;
 		java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date( dataSetDefinitionMamba.getEndDate().getTime()):null ;
 
 		return Collections.singletonList(

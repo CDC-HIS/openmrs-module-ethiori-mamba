@@ -72,15 +72,15 @@ public class TxCurrAnalysisLineListDataSetEvaluatorMamba implements DataSetEvalu
         return null;
     }
 	
-	private List<ProcedureCall> createProcedureCalls(TxCurrAnalysisLineListDataSetDefinitionMamba txCurrAnalysisLineListDataSetDefinitionMamba) {
-        java.sql.Date startDate = new java.sql.Date(txCurrAnalysisLineListDataSetDefinitionMamba.getStartDate().getTime());
-        java.sql.Date endDate = new java.sql.Date(txCurrAnalysisLineListDataSetDefinitionMamba.getEndDate().getTime());
+	private List<ProcedureCall> createProcedureCalls(TxCurrAnalysisLineListDataSetDefinitionMamba dataSetDefinitionMamba) {
+        java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null ? new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime()):null ;
+        java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date( dataSetDefinitionMamba.getEndDate().getTime()):null ;
         return Collections.singletonList(
 
                 new ProcedureCall("{call sp_fact_line_list_tx_curr_analysis_query(?,?,?)}", statement -> {
                     statement.setDate(1, startDate);
                     statement.setDate(2, endDate);
-                        statement.setString(3,TxCurrAnalysisCategories.fromString(txCurrAnalysisLineListDataSetDefinitionMamba.getTxCurrAnalysisCategories()).name());
+                        statement.setString(3,TxCurrAnalysisCategories.fromString(dataSetDefinitionMamba.getTxCurrAnalysisCategories()).name());
                 })
         );
     }

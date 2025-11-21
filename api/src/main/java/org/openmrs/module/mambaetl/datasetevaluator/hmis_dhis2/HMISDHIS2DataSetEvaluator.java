@@ -70,16 +70,17 @@ public class HMISDHIS2DataSetEvaluator implements DataSetEvaluator {
 		return null;
 	}
 	
-	private List<ProcedureCall> createProcedureCalls(HMISDHIS2DatasetDefinition hmisdhis2DatasetDefinition) {
-		java.sql.Date startDate = new java.sql.Date(hmisdhis2DatasetDefinition.getStartDate().getTime());
-		java.sql.Date endDate = new java.sql.Date(hmisdhis2DatasetDefinition.getEndDate().getTime());
+	private List<ProcedureCall> createProcedureCalls(HMISDHIS2DatasetDefinition datasetDefinition) {
+		java.sql.Date startDate = datasetDefinition.getStartDate() != null ? new java.sql.Date(datasetDefinition.getStartDate().getTime()):null ;
+		java.sql.Date endDate = datasetDefinition.getEndDate() != null ? new java.sql.Date( datasetDefinition.getEndDate().getTime()):null ;
 
 		java.sql.Date startDateVL12Month;
 
 		String viralLoadType = Context.getService(AdministrationService.class).getGlobalProperty("_viralLoad12MSetting")!=null?Context.getService(AdministrationService.class).getGlobalProperty("_viralLoad12MSetting"):"";
 		if( Objects.nonNull(viralLoadType) && viralLoadType.equalsIgnoreCase("YES")){
 			Calendar calendar = Calendar.getInstance();
-			calendar.setTime(endDate);
+            assert endDate != null;
+            calendar.setTime(endDate);
 			calendar.add(Calendar.MONTH,-12);
 			startDateVL12Month = new java.sql.Date(calendar.getTime().getTime());
 		} else {

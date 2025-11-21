@@ -75,9 +75,10 @@ public class PmtctHeiEvaluatorMamba implements DataSetEvaluator {
         java.sql.Date endDate = new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime());
 
         return Collections.singletonList(
-                new ProcedureCall("{call sp_dim_tx_new_datim_query(?,?,?,?)}", statement -> {
+                new ProcedureCall("{call sp_dim_pmtct_hei_datim_query(?,?,?)}", statement -> {
                     statement.setDate(1, startDate);
                     statement.setDate(2, endDate);
+                    statement.setString(3, dataSetDefinitionMamba.getName());
                 })
         );
     }

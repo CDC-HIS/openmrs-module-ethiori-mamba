@@ -69,9 +69,9 @@ public class CXCAScreeningLineListDataSetEvaluator implements DataSetEvaluator {
 		return null;
 	}
 	
-	private List<ProcedureCall> createProcedureCalls(CXCAScreeningLineListDatasetDefinition cxcaScreeningLineListDatasetDefinition) {
-		java.sql.Date startDate = new java.sql.Date(cxcaScreeningLineListDatasetDefinition.getStartDate().getTime());
-		java.sql.Date endDate = new java.sql.Date(cxcaScreeningLineListDatasetDefinition.getEndDate().getTime());
+	private List<ProcedureCall> createProcedureCalls(CXCAScreeningLineListDatasetDefinition dataSetDefinitionMamba) {
+		java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null ? new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime()):null ;
+		java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date( dataSetDefinitionMamba.getEndDate().getTime()):null ;
 
 		return Collections.singletonList(
 

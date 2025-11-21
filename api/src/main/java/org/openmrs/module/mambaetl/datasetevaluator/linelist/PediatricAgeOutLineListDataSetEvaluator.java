@@ -69,9 +69,9 @@ public class PediatricAgeOutLineListDataSetEvaluator implements DataSetEvaluator
 		return null;
 	}
 	
-	private List<ProcedureCall> createProcedureCalls(PediatricAgeOutLineListDatasetDefinition pediatricAgeOutLineListDatasetDefinition) {
-		java.sql.Date startDate = pediatricAgeOutLineListDatasetDefinition.getStartDate()!=null? new java.sql.Date(pediatricAgeOutLineListDatasetDefinition.getStartDate().getTime()):null;
-		java.sql.Date endDate = pediatricAgeOutLineListDatasetDefinition.getEndDate()!= null? new java.sql.Date(pediatricAgeOutLineListDatasetDefinition.getEndDate().getTime()):null;
+	private List<ProcedureCall> createProcedureCalls(PediatricAgeOutLineListDatasetDefinition dataSetDefinitionMamba) {
+		java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null ? new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime()):null ;
+		java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date( dataSetDefinitionMamba.getEndDate().getTime()):null ;
 
 		return Collections.singletonList(
 

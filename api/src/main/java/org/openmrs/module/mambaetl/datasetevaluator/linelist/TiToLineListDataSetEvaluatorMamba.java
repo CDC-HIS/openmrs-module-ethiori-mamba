@@ -66,8 +66,8 @@ public class TiToLineListDataSetEvaluatorMamba implements DataSetEvaluator {
     }
 	
 	private List<ProcedureCall> createProcedureCalls(TiToLineListDataSetDefinitionMamba dataSetDefinitionMamba) {
-        DefaultDateParameter result = getDefaultDateParameter(dataSetDefinitionMamba.getStartDate(),
-                dataSetDefinitionMamba.getEndDate());
+        java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null ? new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime()):null ;
+        java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date( dataSetDefinitionMamba.getEndDate().getTime()):null ;
 
         String procedureName = "{call sp_fact_line_list_to_query(?,?)}";
         if (dataSetDefinitionMamba.getStatus().equalsIgnoreCase("ti")) {
@@ -75,8 +75,8 @@ public class TiToLineListDataSetEvaluatorMamba implements DataSetEvaluator {
         }
         return Collections.singletonList(
                 new ProcedureCall(procedureName, statement -> {
-                    statement.setDate(1, result.startDate);
-                    statement.setDate(2, result.endDate);
+                    statement.setDate(1, startDate);
+                    statement.setDate(2, endDate);
                 })
         );
     }

@@ -67,8 +67,8 @@ public class VLEligibilityLineListDataSetEvaluator implements DataSetEvaluator {
 		return null;
 	}
 	
-	private List<ProcedureCall> createProcedureCalls(VLEligibilityLineListDatasetDefinition vlEligibilityLineListDatasetDefinition) {
-		java.sql.Date endDate = vlEligibilityLineListDatasetDefinition.getEndDate()!= null? new java.sql.Date(vlEligibilityLineListDatasetDefinition.getEndDate().getTime()):null;
+	private List<ProcedureCall> createProcedureCalls(VLEligibilityLineListDatasetDefinition dataSetDefinitionMamba) {
+		java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date( dataSetDefinitionMamba.getEndDate().getTime()):null ;
 
 		return Collections.singletonList(
 				new ProcedureCall("{call sp_fact_line_list_vl_eligibility_query(?)}", statement -> {

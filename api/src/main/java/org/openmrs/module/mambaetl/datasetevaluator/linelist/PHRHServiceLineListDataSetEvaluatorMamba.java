@@ -66,10 +66,10 @@ public class PHRHServiceLineListDataSetEvaluatorMamba implements DataSetEvaluato
 		return null;
 	}
 	
-	private List<ProcedureCall> createProcedureCalls(PHRHServiceLineListDataSetDefinitionMamba phrhServiceLineListDataSetDefinitionMamba) {
-		java.sql.Date startDate = phrhServiceLineListDataSetDefinitionMamba.getStartDate() != null ? new java.sql.Date(phrhServiceLineListDataSetDefinitionMamba.getStartDate().getTime()):null ;
-		java.sql.Date endDate = phrhServiceLineListDataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date( phrhServiceLineListDataSetDefinitionMamba.getEndDate().getTime()):null ;
-		String targetGroup = phrhServiceLineListDataSetDefinitionMamba.getTargetGroup() != null ? phrhServiceLineListDataSetDefinitionMamba.getTargetGroup() : null;
+	private List<ProcedureCall> createProcedureCalls(PHRHServiceLineListDataSetDefinitionMamba dataSetDefinitionMamba) {
+		java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null ? new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime()):null ;
+		java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date( dataSetDefinitionMamba.getEndDate().getTime()):null ;
+		String targetGroup = dataSetDefinitionMamba.getTargetGroup() != null ? dataSetDefinitionMamba.getTargetGroup() : null;
 
 		return Collections.singletonList(
                 new ProcedureCall("{call sp_fact_line_list_phrh_service_query(?,?,?)}", statement -> {

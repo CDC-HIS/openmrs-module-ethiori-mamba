@@ -3,17 +3,19 @@ package org.openmrs.module.mambaetl.reports.datim;
 import org.openmrs.module.mambaetl.datasetdefinition.datim.HeaderDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.datasetdefinition.datim.pmtct.PmtctHeiDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
+import org.openmrs.module.mambaetl.helpers.reportOptions.HEIAggregationTypes;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.report.ReportDesign;
 import org.openmrs.module.reporting.report.ReportRequest;
 import org.openmrs.module.reporting.report.definition.ReportDefinition;
 import org.openmrs.module.reporting.report.manager.ReportManager;
 import org.openmrs.module.reporting.report.manager.ReportManagerUtil;
+import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 import java.util.List;
 
-//@Component
+@Component
 public class PMTCTHeiReportsMamba implements ReportManager {
 	
 	@Override
@@ -52,10 +54,11 @@ public class PMTCTHeiReportsMamba implements ReportManager {
 		
 		PmtctHeiDataSetDefinitionMamba pmtctHeiDataSetDefinitionMamba = new PmtctHeiDataSetDefinitionMamba();
 		pmtctHeiDataSetDefinitionMamba.addParameters(getParameters());
+		pmtctHeiDataSetDefinitionMamba.setHeiAggregationTypes(HEIAggregationTypes.RESULT_COLLECTED);
 		pmtctHeiDataSetDefinitionMamba
 		        .setDescription("Disaggregated by infant age at virologic sample collection and result returned.");
 		reportDefinition.addDataSetDefinition(
-		    "Disaggregated by infant age at virologic sample collection and result returned.",
+		    "Infants who had a first virologic HIV test (sample collected) by:",
 		    EthiOhriUtil.map(pmtctHeiDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
 		
 		return reportDefinition;

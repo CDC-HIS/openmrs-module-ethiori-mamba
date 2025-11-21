@@ -64,8 +64,7 @@ public class MissedAppointmentDataSetEvaluatorMamba implements DataSetEvaluator 
 	}
 	
 	private List<ProcedureCall> createProcedureCalls(MissedAppointmentDataSetDefinitionMamba dataSetDefinitionMamba) {
-	Date endDate = dataSetDefinitionMamba.getEndDate() != null ?
-				new Date( dataSetDefinitionMamba.getEndDate().getTime()): new Date(System.currentTimeMillis());
+		java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date( dataSetDefinitionMamba.getEndDate().getTime()):null ;
 
 		return Collections.singletonList(
                 new ProcedureCall("{call sp_fact_line_list_missed_appointment_query(?)}", statement -> {
