@@ -15,7 +15,9 @@ BEGIN
     SET session group_concat_max_len = 30000;
 
     IF REPORT_TYPE = 'RESULT_COLLECTED' THEN
-        SET outcome_condition = ' ';
+        SET outcome_condition = ' 1=1';
+    ELSEIF REPORT_TYPE = 'ART_STARTED' THEN
+        SET outcome_condition = ' 1=1';
     ELSE
         SET  outcome_condition = '1=1';
     END IF;
