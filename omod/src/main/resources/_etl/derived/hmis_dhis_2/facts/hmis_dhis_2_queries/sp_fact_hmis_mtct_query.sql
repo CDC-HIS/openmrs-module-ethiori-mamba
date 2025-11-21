@@ -4,7 +4,6 @@ DROP PROCEDURE IF EXISTS sp_fact_hmis_mtct_query;
 
 CREATE PROCEDURE sp_fact_hmis_mtct_query(IN REPORT_START_DATE DATE, IN REPORT_END_DATE DATE)
 BEGIN
-    #Known positive
     WITH Enrollment_tmp as (select client_id,
                                    antenatal_care_provider,
                                    ld_client,
