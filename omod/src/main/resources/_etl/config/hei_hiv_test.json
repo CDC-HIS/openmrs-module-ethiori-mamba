@@ -1,7 +1,7 @@
 {
-  "report_name": "HEI DNA PCR Test",
-  "flat_table_name": "mamba_flat_encounter_hei_dna_pcr_test",
-  "encounter_type_uuid": "b9ee1d60-af5f-490e-adaa-723ddc3c403e",
+  "report_name": "HEI HIV Test",
+  "flat_table_name": "mamba_flat_encounter_hei_hiv_test",
+  "encounter_type_uuid": "9b6feebc-7f9a-4257-ba80-7fa5108557bc",
   "table_columns": {
     "followup_date_followup_1":"5c118396-52dc-4cac-8860-e6d8e4a7f296",
     "rapid_antibody_result":"aa69908a-989a-4fef-ad65-cbd73ba487b7",
