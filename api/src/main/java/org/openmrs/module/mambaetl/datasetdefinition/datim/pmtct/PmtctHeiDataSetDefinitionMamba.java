@@ -15,7 +15,7 @@ public class PmtctHeiDataSetDefinitionMamba extends BaseDataSetDefinition {
 	
 	@ConfigurationProperty
 	private Date endDate;
-
+	
 	@ConfigurationProperty
 	private HEIAggregationTypes heiAggregationTypes;
 	
@@ -34,10 +34,11 @@ public class PmtctHeiDataSetDefinitionMamba extends BaseDataSetDefinition {
 	public void setEndDate(Date endDate) {
 		this.endDate = endDate;
 	}
-
+	
 	public HEIAggregationTypes getHeiAggregationTypes() {
 		return heiAggregationTypes;
 	}
+	
 	public void setHeiAggregationTypes(HEIAggregationTypes heiAggregationTypes) {
 		this.heiAggregationTypes = heiAggregationTypes;
 	}

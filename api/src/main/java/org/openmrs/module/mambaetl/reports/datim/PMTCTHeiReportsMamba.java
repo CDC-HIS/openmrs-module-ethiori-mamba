@@ -57,8 +57,7 @@ public class PMTCTHeiReportsMamba implements ReportManager {
 		pmtctHeiDataSetDefinitionMamba.setHeiAggregationTypes(HEIAggregationTypes.RESULT_COLLECTED);
 		pmtctHeiDataSetDefinitionMamba
 		        .setDescription("Disaggregated by infant age at virologic sample collection and result returned.");
-		reportDefinition.addDataSetDefinition(
-		    "Infants who had a first virologic HIV test (sample collected) by:",
+		reportDefinition.addDataSetDefinition("Infants who had a first virologic HIV test (sample collected) by:",
 		    EthiOhriUtil.map(pmtctHeiDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
 		
 		return reportDefinition;
