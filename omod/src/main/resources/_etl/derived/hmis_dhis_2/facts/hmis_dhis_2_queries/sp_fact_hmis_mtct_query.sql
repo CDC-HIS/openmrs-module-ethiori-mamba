@@ -20,7 +20,6 @@ BEGIN
                              hiv_test_result,
                              TIMESTAMPDIFF(MONTH, date_of_birth, REPORT_END_DATE) as age_in_months
                       from mamba_flat_encounter_hei_dna_pcr_test hiv_test
-
                                join mamba_dim_client client on hiv_test.client_id = client.client_id
                       where test_round = 'Initial test'
                         and dna_pcr_sample_collection_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE),
