@@ -39,7 +39,6 @@ BEGIN
                                     and hiv_test_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE),
          hei_confirmatory as (select * from tmp_hei_confirmatory where row_num=1),
 
-         -- New CTE for CPT from Followup
          tmp_hei_cpt as (select f.client_id,
                                 f.encounter_datetime as cpt_date,
                                 c.date_of_birth,
@@ -107,6 +106,7 @@ BEGIN
            'Percentage of  HIV exposed infants who received a virologic HIV test (sample collected) within 12 month' as Activity,
            COUNT(*)                                                                                                  as Value
     FROM hei_test
+    where age_in_months BETWEEN 0 AND 2
 -- Percentage of  HIV exposed infants who received a virologic HIV test (sample collected) within 12 month
     UNION ALL
     SELECT 'MTCT_HEI_EID.1'                                                                                          AS S_NO,
@@ -120,7 +120,7 @@ BEGIN
            'Number of HIV exposed infants who received a virologic HIV test (sample collected) 2-12 months of birth' as Activity,
            COUNT(*)                                                                                                  as Value
     FROM hei_test
-    where age_in_months BETWEEN 2 AND 12
+    where age_in_months > 2 and age_in_months <= 12
 -- Total Number of infants within 12 month received virological test result
     UNION ALL
     SELECT 'MTCT_HEI_EID.3'                                                           AS S_NO,
@@ -161,7 +161,7 @@ BEGIN
            COUNT(*)                                                                      as Value
     FROM hei_test
     where hiv_test_result is not null
-      and age_in_months BETWEEN 2 AND 12
+      and age_in_months > 2 and age_in_months <= 12
 -- Positive
     UNION ALL
     SELECT 'MTCT_HEI_EID.1.2. 1' AS S_NO,
@@ -169,7 +169,7 @@ BEGIN
            COUNT(*)              as Value
     FROM hei_test
     where hiv_test_result is not null
-      and age_in_months BETWEEN 2 AND 12
+      and age_in_months > 2 and age_in_months <= 12
       and hiv_test_result = 'Positive'
 -- Negative
     UNION ALL
@@ -178,8 +178,13 @@ BEGIN
            COUNT(*)              as Value
     FROM hei_test
     where hiv_test_result is not null
-      and age_in_months BETWEEN 2 AND 12
+      and age_in_months > 2 and age_in_months <= 12
       and hiv_test_result = 'Negative'
+
+
+
+
+
 -- Percentage of exposed Infants born to HIV positive women who were started on co-trimoxazole prophylaxis within two months of birth
     UNION ALL
     SELECT 'MTCT_HEI_COTR'                                                                                                                      AS S_NO,
