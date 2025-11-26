@@ -1,7 +1,7 @@
-package org.openmrs.module.mambaetl.reports.datim;
+package org.openmrs.module.mambaetl.reports.linelist;
 
-import org.openmrs.module.mambaetl.datasetdefinition.datim.HeaderDataSetDefinitionMamba;
-import org.openmrs.module.mambaetl.datasetdefinition.datim.pmtct.PmtctHeiDataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.datasetdefinition.linelist.MaternalPMTCTLineListDataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.datasetdefinition.linelist.TXNewLineListDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.report.ReportDesign;
@@ -15,21 +15,21 @@ import java.util.Collections;
 import java.util.List;
 
 @Component
-public class PMTCTEidReportsMamba implements ReportManager {
+public class MaternalPMTCTLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getUuid() {
-		return "8b561208-4052-4635-b345-71d5965b3e46";
+		return "ab2e8b10-04cc-4350-b4af-c673a9510b68";
 	}
 	
 	@Override
 	public String getName() {
-		return "DATIM TREATMENT- PMTCT_EID";
+		return "LINELIST- Maternal PMTCT";
 	}
 	
 	@Override
 	public String getDescription() {
-		return "PMTCT_EID DATIM mamba report ";
+		return "Maternal PMTCT line list report";
 	}
 	
 	@Override
@@ -46,16 +46,10 @@ public class PMTCTEidReportsMamba implements ReportManager {
 		reportDefinition.setDescription(getDescription());
 		reportDefinition.setParameters(getParameters());
 		
-		HeaderDataSetDefinitionMamba headerDefinition = new HeaderDataSetDefinitionMamba();
-		headerDefinition.setDescription("DSD: PMTCT_EID");
-		headerDefinition.setParameters(getParameters());
-		reportDefinition.addDataSetDefinition("DSD: PMTCT_EID", EthiOhriUtil.map(headerDefinition, "endDate=${endDateGC}"));
-		
-		PmtctHeiDataSetDefinitionMamba pmtctHeiDataSetDefinitionMamba = new PmtctHeiDataSetDefinitionMamba();
-		pmtctHeiDataSetDefinitionMamba.addParameters(getParameters());
-		pmtctHeiDataSetDefinitionMamba.setDescription("Disaggregated by infant age at test.");
-		reportDefinition.addDataSetDefinition("Disaggregated by infant age at test.",
-		    EthiOhriUtil.map(pmtctHeiDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		MaternalPMTCTLineListDataSetDefinitionMamba maternalPMTCTLineListDataSetDefinitionMamba = new MaternalPMTCTLineListDataSetDefinitionMamba();
+		maternalPMTCTLineListDataSetDefinitionMamba.addParameters(getParameters());
+		reportDefinition.addDataSetDefinition("Line List of ART Clients on PMTCT",
+		    EthiOhriUtil.map(maternalPMTCTLineListDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
 		
 		return reportDefinition;
 	}
@@ -63,8 +57,9 @@ public class PMTCTEidReportsMamba implements ReportManager {
 	@Override
 	public List<ReportDesign> constructReportDesigns(ReportDefinition reportDefinition) {
 		
-		ReportDesign design = ReportManagerUtil.createExcelDesign("d4cf7744-6ad4-4b7f-9e9d-e0bbd2b09320", reportDefinition);
+		ReportDesign design = ReportManagerUtil.createExcelDesign("862b6053-0bd2-456a-92ca-8dac455af0df", reportDefinition);
 		design.setReportDefinition(reportDefinition);
+		
 		return Collections.singletonList(design);
 	}
 	
