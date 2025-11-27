@@ -24,10 +24,10 @@ BEGIN
         SELECT
             f.client_id,
             f.encounter_datetime as follow_up_date,
-            COALESCE(f.infant_feeding_practice_within_the_first_6_months_of_life, f.infant_feeding_practice_older_than_6_months_of_life) as feeding_practice,
-            ROW_NUMBER() OVER (PARTITION BY f.client_id ORDER BY f.encounter_date DESC) as rn
+#             COALESCE(f.infant_feeding_practice_within_the_first_6_months_of_life, f.infant_feeding_practice_older_than_6_months_of_life) as feeding_practice,
+            ROW_NUMBER() OVER (PARTITION BY f.client_id ORDER BY f.encounter_datetime DESC) as rn
         FROM mamba_flat_encounter_hei_followup f
-        WHERE f.encounter_date <= REPORT_END_DATE
+        WHERE f.encounter_datetime <= REPORT_END_DATE
     ),
 
     DNAPCRTests AS (
@@ -61,7 +61,7 @@ BEGIN
         c.mrn as `MRN`,
         e.hei_code as `HEI Code`,
         f.follow_up_date as `Follow-up Date`,
-        f.feeding_practice as `Infant on BF?`,
+#         f.feeding_practice as `Infant on BF?`,
         e.enrollment_arv_prophylaxis as `ARV Prophylaxis`,
         t.maternal_art_status as `Maternal ART Status`,
         t.initial_test as `Test Indication`, -- Mapping check needed
