@@ -17,13 +17,13 @@ BEGIN
             e.arv_prophylaxis as enrollment_arv_prophylaxis,
             e.mother_status
         FROM mamba_flat_encounter_hei_enrollment e
-        WHERE e.encounter_date <= REPORT_END_DATE
+        WHERE e.encounter_datetime <= REPORT_END_DATE
     ),
 
     LatestFollowUp AS (
         SELECT
             f.client_id,
-            f.encounter_date as follow_up_date,
+            f.encounter_datetime as follow_up_date,
             COALESCE(f.infant_feeding_practice_within_the_first_6_months_of_life, f.infant_feeding_practice_older_than_6_months_of_life) as feeding_practice,
             ROW_NUMBER() OVER (PARTITION BY f.client_id ORDER BY f.encounter_date DESC) as rn
         FROM mamba_flat_encounter_hei_followup f
@@ -49,7 +49,7 @@ BEGIN
             t.telephone_number_of_referringordering_clinician as mothers_phone_no, -- Assuming this field or similar
             ROW_NUMBER() OVER (PARTITION BY t.client_id ORDER BY t.dna_pcr_sample_collection_date DESC) as rn
         FROM mamba_flat_encounter_hei_hiv_test t
-        WHERE t.encounter_date <= REPORT_END_DATE
+        WHERE t.encounter_datetime <= REPORT_END_DATE
           AND (t.test_round = 'Initial test' OR t.specimen_type = 'DBS') -- Filter for PCR relevant tests
     )
 
