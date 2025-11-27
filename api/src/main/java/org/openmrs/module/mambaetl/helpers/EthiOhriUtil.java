@@ -50,7 +50,7 @@ public class EthiOhriUtil {
 			throw new IllegalArgumentException("Parameterizable cannot be null");
 		}
 		if (mappings == null) {
-			mappings = ""; // probably not necessary, just to be safe
+			mappings = "";
 		}
 		return new Mapped<>(parameterizable, ParameterizableUtil.createParameterMappings(mappings));
 	}
@@ -64,7 +64,6 @@ public class EthiOhriUtil {
 		try {
 			ethiopianDate = EthiopianDateConverter.ToEthiopianDate(lDate);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return ethiopianDate;
