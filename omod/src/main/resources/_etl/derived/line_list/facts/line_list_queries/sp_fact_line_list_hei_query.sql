@@ -59,7 +59,7 @@ BEGIN
     WITH Enrollment AS (
         SELECT
             e.client_id,
-            e.encounter_date as enrollment_date,
+            e.encounter_datetime as enrollment_date,
             e.hei_code,
             e.mothers_name,
             e.mother_status,
@@ -68,13 +68,13 @@ BEGIN
             e.date_enrolled_in_care,
             e.referring_facility_name
         FROM mamba_flat_encounter_hei_enrollment e
-        WHERE e.encounter_date <= REPORT_END_DATE
+        WHERE e.encounter_datetime <= REPORT_END_DATE
     ),
 
     LatestFollowUp AS (
         SELECT
             f.client_id,
-            f.encounter_date as follow_up_date,
+            f.follow_up_date_followup_ as follow_up_date,
             f.weight_text as current_weight,
             f.infant_feeding_practice_within_the_first_6_months_of_life,
             f.infant_feeding_practice_older_than_6_months_of_life,
@@ -83,9 +83,9 @@ BEGIN
             f.cotrimoxazole_adherence_level,
             f.developmental_milestone_for_children,
             f.next_visit_date,
-            ROW_NUMBER() OVER (PARTITION BY f.client_id ORDER BY f.encounter_date DESC) as rn
+            ROW_NUMBER() OVER (PARTITION BY f.client_id ORDER BY f.encounter_datetime DESC) as rn
         FROM mamba_flat_encounter_hei_followup f
-        WHERE f.encounter_date <= REPORT_END_DATE
+        WHERE f.encounter_datetime <= REPORT_END_DATE
     ),
 
     HIVTesting AS (
@@ -101,7 +101,7 @@ BEGIN
             MAX(CASE WHEN t.specimen_type != 'DBS' THEN t.hiv_test_date END) as antibody_test_date,
             MAX(CASE WHEN t.specimen_type != 'DBS' THEN t.hiv_test_result END) as antibody_test_result
         FROM mamba_flat_encounter_hei_hiv_test t
-        WHERE t.encounter_date <= REPORT_END_DATE
+        WHERE t.encounter_datetime <= REPORT_END_DATE
         GROUP BY t.client_id
     ),
 
@@ -110,9 +110,9 @@ BEGIN
             fo.client_id,
             fo.hei_pmtct_final_outcome,
             fo.date_when_final_outcome_was_known,
-            ROW_NUMBER() OVER (PARTITION BY fo.client_id ORDER BY fo.encounter_date DESC) as rn
+            ROW_NUMBER() OVER (PARTITION BY fo.client_id ORDER BY fo.encounter_datetime DESC) as rn
         FROM mamba_flat_encounter_hei_final_outcome fo
-        WHERE fo.encounter_date <= REPORT_END_DATE
+        WHERE fo.encounter_datetime <= REPORT_END_DATE
     )
 
     SELECT

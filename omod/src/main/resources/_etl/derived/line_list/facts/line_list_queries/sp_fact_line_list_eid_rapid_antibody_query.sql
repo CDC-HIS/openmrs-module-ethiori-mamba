@@ -15,16 +15,16 @@ BEGIN
             e.client_id,
             e.hei_code
         FROM mamba_flat_encounter_hei_enrollment e
-        WHERE e.encounter_date <= REPORT_END_DATE
+        WHERE e.encounter_datetime <= REPORT_END_DATE
     ),
 
     LatestFollowUp AS (
         SELECT
             f.client_id,
-            f.encounter_date as follow_up_date,
-            ROW_NUMBER() OVER (PARTITION BY f.client_id ORDER BY f.encounter_date DESC) as rn
+            f.encounter_datetime as follow_up_date,
+            ROW_NUMBER() OVER (PARTITION BY f.client_id ORDER BY f.encounter_datetime DESC) as rn
         FROM mamba_flat_encounter_hei_followup f
-        WHERE f.encounter_date <= REPORT_END_DATE
+        WHERE f.encounter_datetime <= REPORT_END_DATE
     ),
 
     AntibodyTests AS (
@@ -33,7 +33,7 @@ BEGIN
             t.hiv_test_result as rapid_antibody_test_result,
             ROW_NUMBER() OVER (PARTITION BY t.client_id ORDER BY t.hiv_test_date DESC) as rn
         FROM mamba_flat_encounter_hei_hiv_test t
-        WHERE t.encounter_date <= REPORT_END_DATE
+        WHERE t.encounter_datetime <= REPORT_END_DATE
           AND t.specimen_type != 'DBS' -- Assuming non-DBS are rapid tests, or use specific test type logic
     )
 
