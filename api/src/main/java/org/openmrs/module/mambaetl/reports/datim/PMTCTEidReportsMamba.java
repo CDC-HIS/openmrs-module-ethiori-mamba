@@ -17,28 +17,28 @@ import java.util.List;
 
 @Component
 public class PMTCTEidReportsMamba implements ReportManager {
-
+	
 	@Override
 	public String getUuid() {
 		return "8b561208-4052-4635-b345-71d5965b3e46";
 	}
-
+	
 	@Override
 	public String getName() {
 		return "DATIM TREATMENT- PMTCT_EID";
 	}
-
+	
 	@Override
 	public String getDescription() {
 		return "PMTCT_EID DATIM mamba report ";
 	}
-
+	
 	@Override
 	public List<Parameter> getParameters() {
 		return EthiOhriUtil.getDateRangeParameters(Boolean.TRUE);
-
+		
 	}
-
+	
 	@Override
 	public ReportDefinition constructReportDefinition() {
 		ReportDefinition reportDefinition = new ReportDefinition();
@@ -46,49 +46,47 @@ public class PMTCTEidReportsMamba implements ReportManager {
 		reportDefinition.setName(getName());
 		reportDefinition.setDescription(getDescription());
 		reportDefinition.setParameters(getParameters());
-
+		
 		HeaderDataSetDefinitionMamba headerDefinition = new HeaderDataSetDefinitionMamba();
 		headerDefinition.setDescription("DSD: PMTCT_EID");
 		headerDefinition.setParameters(getParameters());
-		reportDefinition.addDataSetDefinition("DSD: PMTCT_EID",
-				EthiOhriUtil.map(headerDefinition, "endDate=${endDateGC}"));
-
+		reportDefinition.addDataSetDefinition("DSD: PMTCT_EID", EthiOhriUtil.map(headerDefinition, "endDate=${endDateGC}"));
+		
 		// Numerator: Auto-Calculate
 		PmtctEidDataSetDefinitionMamba numeratorDataSet = new PmtctEidDataSetDefinitionMamba();
 		numeratorDataSet.addParameters(getParameters());
 		numeratorDataSet.setDescription("Auto-Calculate");
 		numeratorDataSet.setReportType("NUMERATOR");
 		reportDefinition.addDataSetDefinition("Numerator",
-				EthiOhriUtil.map(numeratorDataSet, "startDate=${startDateGC},endDate=${endDateGC}"));
-
+		    EthiOhriUtil.map(numeratorDataSet, "startDate=${startDateGC},endDate=${endDateGC}"));
+		
 		// Disaggregated by infant age at test
 		PmtctEidDataSetDefinitionMamba disaggregatedDataSet = new PmtctEidDataSetDefinitionMamba();
 		disaggregatedDataSet.addParameters(getParameters());
 		disaggregatedDataSet.setDescription("Disaggregated by infant age at test.");
 		disaggregatedDataSet.setReportType("DISAGGREGATED");
 		reportDefinition.addDataSetDefinition("Disaggregated by infant age at test.",
-				EthiOhriUtil.map(disaggregatedDataSet, "startDate=${startDateGC},endDate=${endDateGC}"));
-
+		    EthiOhriUtil.map(disaggregatedDataSet, "startDate=${startDateGC},endDate=${endDateGC}"));
+		
 		return reportDefinition;
 	}
-
+	
 	@Override
 	public List<ReportDesign> constructReportDesigns(ReportDefinition reportDefinition) {
-
-		ReportDesign design = ReportManagerUtil.createExcelDesign("d4cf7744-6ad4-4b7f-9e9d-e0bbd2b09320",
-				reportDefinition);
+		
+		ReportDesign design = ReportManagerUtil.createExcelDesign("d4cf7744-6ad4-4b7f-9e9d-e0bbd2b09320", reportDefinition);
 		design.setReportDefinition(reportDefinition);
 		return Collections.singletonList(design);
 	}
-
+	
 	@Override
 	public List<ReportRequest> constructScheduledRequests(ReportDefinition reportDefinition) {
 		return null;
 	}
-
+	
 	@Override
 	public String getVersion() {
 		return "1.0.0-SNAPSHOT";
 	}
-
+	
 }
