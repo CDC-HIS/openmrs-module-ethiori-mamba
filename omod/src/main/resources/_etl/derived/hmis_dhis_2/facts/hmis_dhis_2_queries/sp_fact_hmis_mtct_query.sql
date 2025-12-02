@@ -18,53 +18,51 @@ BEGIN
                                  hiv_test_date,
                                  date_of_birth,
                                  hiv_test_result,
-                                 TIMESTAMPDIFF(MONTH, date_of_birth, dna_pcr_sample_collection_date)                                                                as age_in_months,
+                                 TIMESTAMPDIFF(MONTH, date_of_birth, dna_pcr_sample_collection_date)                                                 as age_in_months,
                                  ROW_NUMBER() over (PARTITION BY hiv_test.client_id ORDER BY dna_pcr_sample_collection_date DESC, encounter_id DESC) as row_num
                           from mamba_flat_encounter_hei_hiv_test hiv_test
                                    join mamba_dim_client client on hiv_test.client_id = client.client_id
                           where test_round = 'Initial test'
                             and dna_pcr_sample_collection_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE),
-         hei_test as ( select * from tmp_hei_test where row_num=1),
-         
+         hei_test as (select * from tmp_hei_test where row_num = 1),
+
          -- New CTE for Confirmatory Test
          tmp_hei_confirmatory as (select hiv_test.client_id,
                                          hiv_test_date,
                                          date_of_birth,
                                          hiv_test_result,
-                                         TIMESTAMPDIFF(MONTH, date_of_birth, hiv_test_date) as age_in_months,
-                                         ROW_NUMBER() over (PARTITION BY hiv_test.client_id ORDER BY hiv_test_date DESC, encounter_id DESC) as row_num
+                                         TIMESTAMPDIFF(MONTH, date_of_birth, hiv_test_date)                                                 as age_in_months,
+                                         ROW_NUMBER() over (PARTITION BY hiv_test.client_id ORDER BY dna_pcr_sample_collection_date DESC, encounter_id DESC) as row_num
                                   from mamba_flat_encounter_hei_hiv_test hiv_test
                                            join mamba_dim_client client on hiv_test.client_id = client.client_id
                                   where test_round LIKE '%Confirmatory%'
-                                    and hiv_test_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE),
-         hei_confirmatory as (select * from tmp_hei_confirmatory where row_num=1),
+                                    and dna_pcr_sample_collection_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE),
+         hei_confirmatory as (select * from tmp_hei_confirmatory where row_num = 1),
 
          tmp_hei_cpt as (select f.client_id,
-                                f.encounter_datetime as cpt_date,
+                                f.follow_up_date_followup_                                                             as cpt_date,
                                 c.date_of_birth,
-                                DATEDIFF(f.encounter_datetime, c.date_of_birth) as age_days_at_cpt,
-                                ROW_NUMBER() over (PARTITION BY f.client_id ORDER BY f.encounter_datetime DESC ) as row_num
+                                arv_prophylaxis,
+                                DATEDIFF(f.follow_up_date_followup_, c.date_of_birth)                                  as age_days_at_cpt,
+                                ROW_NUMBER() over (PARTITION BY f.client_id ORDER BY f.follow_up_date_followup_ DESC ) as row_num
                          from mamba_flat_encounter_hei_followup f
                                   join mamba_dim_client c on f.client_id = c.client_id
                          where
-                            -- f.cotrimoxazole_prophylaxis_dose is not null                 and
-                             f.encounter_datetime BETWEEN REPORT_START_DATE AND REPORT_END_DATE),
-         hei_cpt as (select * from tmp_hei_cpt where row_num=1),
+                             -- f.cotrimoxazole_prophylaxis_dose is not null                 and
+                             f.follow_up_date_followup_ BETWEEN REPORT_START_DATE AND REPORT_END_DATE),
+         hei_cpt as (select * from tmp_hei_cpt where row_num = 1),
 
-         tmp_hei_enrollment as (
-             SELECT
-                 e.client_id,
-                 c.date_of_birth,
-                 e.art_antiretroviral_start_date,
-                 e.arv_prophylaxis,
-                 ROW_NUMBER() over (PARTITION BY e.client_id ORDER BY e.encounter_datetime DESC) as row_num
-             FROM mamba_flat_encounter_hei_enrollment e 
-                       JOIN mamba_dim_client c ON e.client_id = c.client_id
-             WHERE e.encounter_datetime <= REPORT_END_DATE
-         ),
-         hei_enrollment as (
-             SELECT * FROM tmp_hei_enrollment WHERE row_num = 1
-         )
+         tmp_hei_enrollment as (SELECT e.client_id,
+                                       c.date_of_birth,
+                                       e.art_antiretroviral_start_date,
+                                       e.arv_prophylaxis,
+                                       ROW_NUMBER() over (PARTITION BY e.client_id ORDER BY e.date_enrolled_in_care DESC) as row_num
+                                FROM mamba_flat_encounter_hei_enrollment e
+                                         JOIN mamba_dim_client c ON e.client_id = c.client_id
+                                WHERE e.date_enrolled_in_care <= REPORT_END_DATE),
+         hei_enrollment as (SELECT *
+                            FROM tmp_hei_enrollment
+                            WHERE row_num = 1)
 
 -- Percentage of HIV-positive pregnant women who received ART to reduce the risk of mother-to child-transmission (MTCT) during pregnancy, L&D and PNC
     SELECT 'MTCT_ART'                                                                                                                                           AS S_NO,
@@ -120,7 +118,8 @@ BEGIN
            'Number of HIV exposed infants who received a virologic HIV test (sample collected) 2-12 months of birth' as Activity,
            COUNT(*)                                                                                                  as Value
     FROM hei_test
-    where age_in_months > 2 and age_in_months <= 12
+    where age_in_months > 2
+      and age_in_months <= 12
 -- Total Number of infants within 12 month received virological test result
     UNION ALL
     SELECT 'MTCT_HEI_EID.3'                                                           AS S_NO,
@@ -161,7 +160,8 @@ BEGIN
            COUNT(*)                                                                      as Value
     FROM hei_test
     where hiv_test_result is not null
-      and age_in_months > 2 and age_in_months <= 12
+      and age_in_months > 2
+      and age_in_months <= 12
 -- Positive
     UNION ALL
     SELECT 'MTCT_HEI_EID.1.2. 1' AS S_NO,
@@ -169,7 +169,8 @@ BEGIN
            COUNT(*)              as Value
     FROM hei_test
     where hiv_test_result is not null
-      and age_in_months > 2 and age_in_months <= 12
+      and age_in_months > 2
+      and age_in_months <= 12
       and hiv_test_result = 'Positive'
 -- Negative
     UNION ALL
@@ -178,11 +179,9 @@ BEGIN
            COUNT(*)              as Value
     FROM hei_test
     where hiv_test_result is not null
-      and age_in_months > 2 and age_in_months <= 12
+      and age_in_months > 2
+      and age_in_months <= 12
       and hiv_test_result = 'Negative'
-
-
-
 
 
 -- Percentage of exposed Infants born to HIV positive women who were started on co-trimoxazole prophylaxis within two months of birth
@@ -226,30 +225,31 @@ BEGIN
            'Percentage of HIV exposed infants receiving HIV confirmatory (antibody test) test by 18 months' as Activity,
            COUNT(*)                                                                                         as Value
     FROM hei_confirmatory
-    where age_in_months <= 18
+    --  where age_in_months <= 18
 -- Number of HIV exposed infants receiving HIV confirmatory (antibody test) by 18 months
     UNION ALL
     SELECT 'MTCT_HEI_ABTST.1'                                                                      AS S_NO,
            'Number of HIV exposed infants receiving HIV confirmatory (antibody test) by 18 months' as Activity,
            COUNT(*)                                                                                as Value
     FROM hei_confirmatory
-    where age_in_months <= 18
+    --  where age_in_months <= 18
 -- Positive
     UNION ALL
     SELECT 'MTCT_HEI_ABTST.1. 1' AS S_NO,
            'Positive'            as Activity,
            COUNT(*)              as Value
     FROM hei_confirmatory
-    where age_in_months <= 18
-      and hiv_test_result = 'Positive'
+    where hiv_test_result = 'Positive'
+    --  and  age_in_months <= 18
 -- Negative
     UNION ALL
     SELECT 'MTCT_HEI_ABTST.1. 2' AS S_NO,
            'Negative'            as Activity,
            COUNT(*)              as Value
     FROM hei_confirmatory
-    where age_in_months <= 18
-      and hiv_test_result = 'Negative';
+    where hiv_test_result = 'Negative'
+    --  and age_in_months <= 18
+    ;
 END //
 
 DELIMITER ;
