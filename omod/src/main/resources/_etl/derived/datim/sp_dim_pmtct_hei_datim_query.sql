@@ -25,7 +25,7 @@ BEGIN
         '           ROW_NUMBER() OVER (PARTITION BY hiv_test.client_id ORDER BY dna_pcr_sample_collection_date DESC, encounter_id DESC) as row_num ',
         '    FROM mamba_flat_encounter_hei_hiv_test hiv_test ',
         '    JOIN mamba_dim_client client ON hiv_test.client_id = client.client_id ',
-        '    WHERE test_round = ''Initial test'' ',
+        '    WHERE test_type = ''HIV DNA polymerase chain reaction, dried blood spot (DBS)'' and test_round = ''Initial test'' ',
         '      AND dna_pcr_sample_collection_date BETWEEN ''', REPORT_START_DATE, ''' AND ''', REPORT_END_DATE, ''' ',
         '), ',
         'hei_test AS ( ',
