@@ -14,6 +14,16 @@ BEGIN
                             from mamba_flat_encounter_pmtct_enrollment
                             where date_of_enrollment_or_booking BETWEEN REPORT_START_DATE AND REPORT_END_DATE),
          Enrollment as (select * from Enrollment_tmp where row_num = 1),
+         delivery_tmp as (select client_id,
+                                   antenatal_care_provider,
+                                   ld_client,
+                                   post_natal_care,
+                                   art_clinic,
+                                   location_of_birth,
+                                   ROW_NUMBER() over (PARTITION BY client_id ORDER BY date_of_delivery DESC, encounter_id DESC) as row_num
+                            from mamba_flat_encounter_pmtct_enrollment
+                            where date_of_delivery BETWEEN REPORT_START_DATE AND REPORT_END_DATE),
+         Delivery as (select * from delivery_tmp where row_num = 1),
          tmp_hei_test as (select hiv_test.client_id,
                                  hiv_test_date,
                                  date_of_birth,
@@ -221,7 +231,7 @@ BEGIN
     SELECT 'MTCT_HEI_ARV.2.'                                                   AS S_NO,
            'Number of HIV positive women who gave birth at health institution' as Activity,
            COUNT(*)                                                            as Value
-    FROM Enrollment
+    FROM Delivery
     where location_of_birth != 'Home Delivery'
 -- Percentage of HIV exposed infants receiving HIV confirmatory (antibody test) test by 18 months
     UNION ALL
