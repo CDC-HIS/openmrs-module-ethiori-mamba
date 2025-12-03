@@ -3,7 +3,7 @@
   "flat_table_name": "mamba_flat_encounter_hei_followup",
   "encounter_type_uuid": "d7f3c5d9-2927-41c4-a39f-ad9a6c7cf31d",
   "table_columns": {
-    "followup_date_followup_1": "5c118396-52dc-4cac-8860-e6d8e4a7f296",
+    "followup_date_followup": "5c118396-52dc-4cac-8860-e6d8e4a7f296",
     "weight_text": "4ab93a3c-4373-4b9b-9268-5ff0641cc242",
     "height_length_if_child": "78230f35-d01c-48de-9ce3-8a0065a305bb",
     "head_circumference": "5314AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
@@ -78,7 +78,6 @@
     "discharged_negative_form_care_hiv_free": "00c3deda-9bb6-490f-821b-75ba9cc85db5",
     "weight_text_": "4ab93a3c-4373-4b9b-9268-5ff0641cc242",
     "height_length_if_child_": "78230f35-d01c-48de-9ce3-8a0065a305bb",
-    "follow_up_date_followup_": "5c118396-52dc-4cac-8860-e6d8e4a7f296",
     "mother_s_breast_condition": "5efb8e8d-36e1-4eef-9a50-d59ce5d50d7d",
     "developmental_milestone_for_childre": "d646c980-b04d-46a0-8a49-4800506ad64c",
     "infant_feeding_practice_older_than_": "db416d1c-d29b-4257-8cd7-76ff835845c5",
