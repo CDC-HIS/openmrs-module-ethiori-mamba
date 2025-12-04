@@ -9,8 +9,6 @@ CREATE PROCEDURE sp_fact_line_list_hei_query(
 BEGIN
 
 
-    SET @row_number = 0;
-
     WITH Enrollment AS (
         SELECT
             e.client_id,
