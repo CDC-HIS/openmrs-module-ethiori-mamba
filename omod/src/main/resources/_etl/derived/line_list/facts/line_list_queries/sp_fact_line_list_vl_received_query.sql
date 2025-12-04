@@ -61,8 +61,7 @@ BEGIN
                                LEFT JOIN mamba_flat_encounter_follow_up_9 follow_up_9
                                          ON follow_up.encounter_id = follow_up_9.encounter_id
                                LEFT JOIN mamba_flat_encounter_follow_up_10 follow_up_10
-                                         ON follow_up.encounter_id = follow_up_10.encounter_id
-                      ),
+                                         ON follow_up.encounter_id = follow_up_10.encounter_id),
 
          vl_performed_date_tmp AS (SELECT FollowUp.encounter_id,
                                           FollowUp.client_id,
@@ -75,7 +74,6 @@ BEGIN
                                           adherence,
                                           regimen,
                                           viral_load_count,
-                                          'vl_performed'                                                                                      as vl_type,
                                           cd4_,
                                           routine_viral_load_test_indication,
                                           targeted_viral_load_test_indication,
@@ -83,8 +81,7 @@ BEGIN
                                    FROM FollowUp
                                    WHERE follow_up_status IS NOT NULL
                                      AND art_start_date IS NOT NULL
-                                     AND viral_load_perform_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE
-                                   GROUP BY client_id, encounter_id),
+                                     AND viral_load_perform_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE),
          latest_follow_up_tmp AS (SELECT client_id,
                                          follow_up_date                                                                             AS FollowupDate,
                                          encounter_id,
@@ -103,7 +100,7 @@ BEGIN
          vl_performed_date as (select * from vl_performed_date_tmp where row_num = 1),
 
          vl_test_performed AS (SELECT patient_name                                        as `Patient Name`,
-                                      patient_uuid as `UUID`,
+                                      patient_uuid                                        as `UUID`,
                                       MRN,
                                       UAN,
                                       TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) as Age,
@@ -129,7 +126,7 @@ BEGIN
                                       vlperfdate.viral_load_perform_date                  as `VL Received Date`,
                                       vlperfdate.viral_load_perform_date                  as `VL Received Date EC.`,
                                       TIMESTAMPDIFF(DAY, vlperfdate.viral_load_sent_date,
-                                                    vlperfdate.viral_load_perform_date)                         `TAT (in days)`,
+                                                    vlperfdate.viral_load_perform_date)      `TAT (in days)`,
                                       vlperfdate.routine_viral_load_test_indication       as `Routine Test type`,
                                       vlperfdate.targeted_viral_load_test_indication      as `Targeted Test Type`,
                                       vlperfdate.viral_load_test_status                   as viral_load_status,

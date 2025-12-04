@@ -55,7 +55,7 @@ BEGIN
                                 c.date_of_birth,
                                 arv_prophylaxis,
                                 DATEDIFF(f.followup_date_followup, c.date_of_birth)                                  as age_days_at_cpt,
-                                ROW_NUMBER() over (PARTITION BY f.client_id ORDER BY f.followup_date_followup ) as row_num
+                                ROW_NUMBER() over (PARTITION BY f.client_id ORDER BY f.followup_date_followup, f.encounter_id ) as row_num
                          from mamba_flat_encounter_hei_followup f
                              left join mamba_flat_encounter_hei_followup_1 f1 on f.encounter_id = f1.encounter_id
                                   join mamba_dim_client c on f.client_id = c.client_id
