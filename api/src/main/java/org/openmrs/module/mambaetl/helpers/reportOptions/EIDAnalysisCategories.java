@@ -1,10 +1,10 @@
 package org.openmrs.module.mambaetl.helpers.reportOptions;
 
 public enum EIDAnalysisCategories {
-	DNA_PCR("DNA PCR"),RAPID_ANTIBODY("Rapid Antibody");
-
+	DNA_PCR("DNA PCR"), RAPID_ANTIBODY("Rapid Antibody");
+	
 	private final String sqlValue;
-
+	
 	EIDAnalysisCategories(String sqlValue) {
 		this.sqlValue = sqlValue;
 	}
