@@ -2,6 +2,8 @@ package org.openmrs.module.mambaetl.reports.linelist;
 
 import org.openmrs.module.mambaetl.datasetdefinition.linelist.EIDLineListDatasetDefinition;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
+import org.openmrs.module.mambaetl.helpers.reportOptions.EIDAnalysisCategories;
+import org.openmrs.module.mambaetl.helpers.reportOptions.TxCurrAnalysisCategories;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.report.ReportDesign;
 import org.openmrs.module.reporting.report.ReportRequest;
@@ -10,10 +12,7 @@ import org.openmrs.module.reporting.report.manager.ReportManager;
 import org.openmrs.module.reporting.report.manager.ReportManagerUtil;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 @Component
 public class EIDLineListReport implements ReportManager {
@@ -35,14 +34,22 @@ public class EIDLineListReport implements ReportManager {
 	
 	@Override
     public List<Parameter> getParameters() {
-        List<Parameter> parameters = new ArrayList<>(EthiOhriUtil.getDateRangeParameters(Boolean.TRUE));
+		List<Parameter> parameters = new ArrayList<>(EthiOhriUtil.getDateRangeParameters(Boolean.TRUE));
 
-        Parameter reportTypeParam = new Parameter("reportType", "Report Type", String.class);
-        reportTypeParam.setWidgetConfiguration(
-                EthiOhriUtil.getWidgetConfiguration(Arrays.asList("DNA PCR", "Rapid Antibody")));
-        parameters.add(reportTypeParam);
+		List<String> optionStrings = new ArrayList<>();
+		for (EIDAnalysisCategories category : EIDAnalysisCategories.values()) {
+			String value = category.getSqlValue();
+			optionStrings.add(value);
+		}
+		String codedOptionsValue = String.join(",", optionStrings);
+		Parameter reportType = new Parameter("reportType", "Report Type",
+				String.class);
+		reportType.addToWidgetConfiguration("codedOptions", codedOptionsValue);
+		reportType.setDefaultValue(optionStrings.get(0));
+		reportType.setRequired(true);
 
-        return parameters;
+		parameters.add(reportType);
+		return parameters;
     }
 	
 	@Override
