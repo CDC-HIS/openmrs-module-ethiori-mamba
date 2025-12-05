@@ -33,28 +33,22 @@ public class TxCurrAnalysisLineListReportMamba implements ReportManager {
 	
 	@Override
 	public List<Parameter> getParameters() {
-		Parameter startDate = new Parameter("startDate", "Start Date", Date.class);
-		startDate.setRequired(true);
-		Parameter startDateGC = new Parameter("startDateGC", " ", Date.class);
-		startDateGC.setRequired(false);
-		Parameter endDate = new Parameter("endDate", "End Date", Date.class);
-		endDate.setRequired(true);
-		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
-		endDateGC.setRequired(false);
+		List<Parameter> parameters = new ArrayList<>(EthiOhriUtil.getDateRangeParameters(Boolean.TRUE));
+
 		List<String> optionStrings = new ArrayList<>();
 		for (TxCurrAnalysisCategories category : TxCurrAnalysisCategories.values()) {
-			String value = category.getSqlValue(); // Or category.name() if preferred as backend value
+			String value = category.getSqlValue();
 			optionStrings.add(value);
 		}
 		String codedOptionsValue = String.join(",", optionStrings);
-
 		Parameter txCurrAnalysisCategories = new Parameter("txCurrAnalysisCategories", "Analysis Group",
-				String.class); // Parameter type is the ENUM class
-		txCurrAnalysisCategories.addToWidgetConfiguration("codedOptions", codedOptionsValue); // Use the generated string
+				String.class);
+		txCurrAnalysisCategories.addToWidgetConfiguration("codedOptions", codedOptionsValue);
 		txCurrAnalysisCategories.setDefaultValue(optionStrings.get(0));
-
 		txCurrAnalysisCategories.setRequired(true);
-		return Arrays.asList(startDate, startDateGC, endDate, endDateGC, txCurrAnalysisCategories);
+
+		parameters.add(txCurrAnalysisCategories);
+		return parameters;
 		
 	}
 	
