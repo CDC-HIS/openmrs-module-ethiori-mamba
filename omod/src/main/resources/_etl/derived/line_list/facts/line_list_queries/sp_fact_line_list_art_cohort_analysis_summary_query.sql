@@ -63,6 +63,7 @@ BEGIN
                           SELECT 24
                           UNION ALL
                           SELECT 36),
+
          -- Generate Intervals For Each Client
          PatientIntervals AS (SELECT a.PatientId,
                                      a.art_start_date,

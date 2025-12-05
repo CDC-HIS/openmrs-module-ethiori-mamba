@@ -10,7 +10,7 @@ BEGIN
                                 client.identifier                      as mother_mrn,
                                 h.client_id                            as hei_client_id,
                                 pm.client_id                           as mother_client_id,
-                                pm.operation_triple_zero_enrollment_da as date_of_erollement,
+                                pm.date_of_enrollment_or_booking as date_of_erollement,
                                 h.date_enrolled_in_care                as hei_enrollment_date,
 
                                 h.infant_referred                      as infant_referred,
@@ -32,7 +32,7 @@ BEGIN
                          WHERE (client.identifier is null and (h.date_enrolled_in_care between REPORT_START_DATE
                              and REPORT_END_DATE))
                             or (client.identifier is not null
-                             and (pm.operation_triple_zero_enrollment_da between
+                             and (pm.date_of_enrollment_or_booking between
                                  REPORT_START_DATE and REPORT_END_DATE)
                              and
                                 h.date_enrolled_in_care between REPORT_START_DATE and DATE_ADD(REPORT_START_DATE, INTERVAL 12 MONTH))),
@@ -94,7 +94,7 @@ BEGIN
                                 REPORT_START_DATE and DATE_ADD(REPORT_START_DATE,
                                                                INTERVAL i.interval_month MONTH)),
          PCRTestBelowTwoYear as (select h.hei_client_id
-                                 from mamba_flat_encounter_hei_followup
+                                 from mamba_flat_encounter_hei_hiv_test
                                           as hf
                                           inner join HIEInCohortFiltered as h on h.hei_client_id = hf.client_id
                                           inner join mamba_dim_client as c on c.client_id = h.hei_client_id
@@ -105,7 +105,7 @@ BEGIN
                                      24),
 
          PCRTestAboveTwoYear as (select h.hei_client_id
-                                 from mamba_flat_encounter_hei_followup
+                                 from mamba_flat_encounter_hei_hiv_test
                                           as hf
                                           inner join HIEInCohortFiltered as h on h.hei_client_id = hf.client_id
                                           inner join mamba_dim_client as c on c.client_id = h.hei_client_id
