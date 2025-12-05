@@ -9,6 +9,7 @@
 
 ############################ LINE LIST QUERIES #######################
 facts/line_list_queries/sp_fact_line_list_child_cohort_analysis_summary_query.sql
+facts/line_list_queries/sp_fact_line_list_mother_cohort_analysis_query.sql
 facts/line_list_queries/sp_fact_line_list_mother_cohort_analysis_summary_query.sql
 facts/line_list_queries/sp_fact_line_list_ti_query.sql
 facts/line_list_queries/sp_fact_line_list_to_query.sql
