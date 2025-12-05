@@ -40,7 +40,8 @@ BEGIN
                              date_of_event                       date_hiv_confirmed,
                              weight_text_                     as weight,
                              adherence,
-                             cd4_
+                             cd4_,
+                             cd4_count
                       FROM mamba_flat_encounter_follow_up follow_up
                                LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1
                                          ON follow_up.encounter_id = follow_up_1.encounter_id
@@ -69,8 +70,7 @@ BEGIN
                                      FollowUp.client_id,
                                      FollowUp.viral_load_perform_date,
                                      FollowUp.viral_load_test_status,
-                                     'vl_sent'                                                                                        as vl_type,
-                                     cd4_,
+                                     cd4_count,
                                      follow_up_date,
                                      arv_dispensed_dose,
                                      follow_up_status,
@@ -84,8 +84,7 @@ BEGIN
                               FROM FollowUp
                               WHERE follow_up_status IS NOT NULL
                                 AND art_start_date IS NOT NULL
-                                AND viral_load_sent_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE
-                              GROUP BY client_id, encounter_id),
+                                AND viral_load_sent_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE),
          latest_follow_up_tmp AS (SELECT client_id,
                                          follow_up_date                                                                             AS FollowupDate,
                                          encounter_id,
@@ -111,7 +110,7 @@ BEGIN
                                  TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) as Age,
                                  Sex,
                                  Weight,
-                                 vlsent.cd4_                                         as CD4,
+                                 vlsent.cd4_count                                         as CD4,
                                  art_start_date                                      as `ART Start Date`,
                                  art_start_date                                      as `ART Start Date EC.`,
                                  vlsent.follow_up_date                               as `Follow-up Date`,

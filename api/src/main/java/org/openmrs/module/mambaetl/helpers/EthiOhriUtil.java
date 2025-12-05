@@ -83,18 +83,4 @@ public class EthiOhriUtil {
 		return ethiopianDate == null ? "" : ethiopianDate.getDay() + "/" + ethiopianDate.getMonth() + "/"
 		        + ethiopianDate.getYear();
 	}
-	
-	public static Properties getWidgetConfiguration(List<String> options) {
-		Properties properties = new Properties();
-		properties.setProperty("widgetType", "org.openmrs.module.reporting.web.widget.SelectWidget");
-		StringBuilder optionsString = new StringBuilder();
-		for (String option : options) {
-			if (optionsString.length() > 0) {
-				optionsString.append(",");
-			}
-			optionsString.append(option).append("|").append(option);
-		}
-		properties.setProperty("options", optionsString.toString());
-		return properties;
-	}
 }

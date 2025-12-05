@@ -8,24 +8,20 @@ CREATE PROCEDURE sp_fact_line_list_hei_query(
 )
 BEGIN
 
-    -- HEI Line List Query
-    -- Aggregates data from Enrollment, Follow-up, HIV Testing, and Final Outcome
-
-    SET @row_number = 0;
 
     WITH Enrollment AS (
         SELECT
             e.client_id,
-            e.encounter_datetime as enrollment_date,
+            e.date_enrolled_in_care as enrollment_date,
             e.hei_code,
             e.mothers_name,
             e.mother_status,
             e.arv_prophylaxis as enrollment_arv_prophylaxis,
-            e.weight_text as birth_weight, -- Assuming weight at enrollment is birth weight or close to it
+            e.weight_text as birth_weight,
             e.date_enrolled_in_care,
             e.referring_facility_name
         FROM mamba_flat_encounter_hei_enrollment e
-        WHERE e.encounter_datetime <= REPORT_END_DATE
+        WHERE e.date_enrolled_in_care BETWEEN REPORT_START_DATE AND REPORT_END_DATE
     ),
 
     LatestFollowUp AS (
@@ -40,9 +36,9 @@ BEGIN
 #             f.cotrimoxazole_adherence_level,
 #             f.developmental_milestone_for_children,
             f.next_visit_date,
-            ROW_NUMBER() OVER (PARTITION BY f.client_id ORDER BY f.encounter_datetime DESC) as rn
+            ROW_NUMBER() OVER (PARTITION BY f.client_id ORDER BY f.follow_up_date_followup_ DESC) as rn
         FROM mamba_flat_encounter_hei_followup f
-        WHERE f.encounter_datetime <= REPORT_END_DATE
+        WHERE f.follow_up_date_followup_ <= REPORT_END_DATE
     ),
 
     HIVTesting AS (
@@ -52,13 +48,13 @@ BEGIN
             MAX(CASE WHEN t.test_round = 'Initial test' THEN t.hiv_test_date END) as pcr_1_date,
             MAX(CASE WHEN t.test_round = 'Initial test' THEN t.hiv_test_result END) as pcr_1_result,
             -- PCR 2 (Confirmatory or subsequent)
-            MAX(CASE WHEN t.test_round != 'Initial test' AND t.specimen_type = 'DBS' THEN t.hiv_test_date END) as pcr_2_date, -- Simplification, refine if needed
+            MAX(CASE WHEN t.test_round != 'Initial test' AND t.specimen_type = 'DBS' THEN t.hiv_test_date END) as pcr_2_date,
             MAX(CASE WHEN t.test_round != 'Initial test' AND t.specimen_type = 'DBS' THEN t.hiv_test_result END) as pcr_2_result,
             -- Antibody Test (>= 18 months usually, or rapid)
             MAX(CASE WHEN t.specimen_type != 'DBS' THEN t.hiv_test_date END) as antibody_test_date,
             MAX(CASE WHEN t.specimen_type != 'DBS' THEN t.hiv_test_result END) as antibody_test_result
         FROM mamba_flat_encounter_hei_hiv_test t
-        WHERE t.encounter_datetime <= REPORT_END_DATE
+        WHERE t.dna_pcr_sample_collection_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE
         GROUP BY t.client_id
     ),
 
