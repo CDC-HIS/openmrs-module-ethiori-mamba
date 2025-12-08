@@ -136,8 +136,8 @@ BEGIN
            f_case.pregnancy_status                             as `Pregnant`,
            f_case.next_vist_date                               as `Next Visit Date EC.`,
            f_case.next_vist_date                               as `Next Visit Date G.C.`,
-           f_case.treatment_end_date                           as `Treatment End Date in EC.`,
-           f_case.treatment_end_date                           as `Treatment End Date in G.C.`
+           f_case.treatment_end_date                           as `Last TX_Curr Date EC.`,
+           f_case.treatment_end_date                           as `Last TX_Curr Date G.C.`
 
     FROM art_start_date_before_12_months AS f_case
              INNER JOIN mamba_dim_client client on f_case.client_id = client.client_id
