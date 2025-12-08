@@ -212,8 +212,8 @@ BEGIN
            adherence                                              `Latest Adherence`,
            next_visit_date                                     as `Next Visit Date`,
            next_visit_date                                     as `Next Visit Date EC.`,
-           treatment_end_date                                  as `Treatment End Date`,
-           treatment_end_date                                  as `Treatment End Date EC.`
+           treatment_end_date                                  as `Last TX_Curr Date`,
+           treatment_end_date                                  as `Last TX_Curr Date EC.`
 
     from cx_screened;
 

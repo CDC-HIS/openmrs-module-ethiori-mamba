@@ -87,7 +87,7 @@ BEGIN
                                current_who_hiv_stage,
                                nutritional_screening_result,
                                TB_SreeningResult,
-                               hiv_confirmed_date,
+                               COALESCE(intake_a.date_hiv_confirmed,hiv_confirmed_date) as hiv_confirmed_date ,
                                breast_feeding_status,
                                regimen,
                                ARTDoseDays,
@@ -95,14 +95,15 @@ BEGIN
                                treatment_end_date
                         from latest_follow_up
                                  join first_follow_up on latest_follow_up.client_id = first_follow_up.client_id
+                        left join mamba_flat_encounter_intake_a intake_a on latest_follow_up.client_id = intake_a.client_id
                         where art_start_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE
                           AND (first_follow_up.transferred_in is null or first_follow_up.transferred_in != 'Yes')
                           AND first_follow_up.follow_up_status in ('Alive', 'Restart medication')),
          tx_new as (select tx_new_tmp.client_id,
                            patient_name,
-                           patient_uuid                             ,
+                           patient_uuid,
                            sex,
-                           CAST(mrn AS CHAR(20)) as mrn,
+                           CAST(mrn AS CHAR(20))                                             as mrn,
                            uan,
                            weight,
                            current_who_hiv_stage,
@@ -119,45 +120,36 @@ BEGIN
                            treatment_end_date,
                            mobile_no,
                            TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE)               as age,
-                           (SELECT datim_agegroup
-                            from mamba_dim_agegroup
-                            where age = TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE)) as fine_age_group,
-                           (SELECT normal_agegroup
-                            from mamba_dim_agegroup
-                            where age = TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE)) as coarse_age_group,
-                           cd4_count,
-                           (SELECT datim_age_val
-                            from mamba_dim_agegroup
-                            where age = TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE)) as datim_age_val
+                           cd4_count
                     from tx_new_tmp
                              join mamba_dim_client client on tx_new_tmp.client_id = client.client_id)
-    select patient_name                                                          AS 'Patient Name',
-           patient_uuid                                                       as `UUID`,
-           MRN                                                                AS 'MRN',
-           uan                                                                AS 'UAN',
-           age                                                                AS 'Age',
-           sex                                                                AS 'Sex',
-           weight                                                             AS 'Weight',
-           cd4_count                                                          AS 'CD4',
-           current_who_hiv_stage                                              AS 'WHO Stage',
-           nutritional_screening_result                                       AS 'Nutritional Status',
-           TB_SreeningResult                                                  AS 'TB Screening Result',
-           current_who_hiv_stage                                              AS 'Enrollment Date',
-           current_who_hiv_stage                                              AS 'Enrollment Date EC.',
-           hiv_confirmed_date    AS 'HIV Confirmed Date',
-           hiv_confirmed_date    AS 'HIV Confirmed Date EC.',
-           tx_new.art_start_date AS 'ART Start Date',
-           tx_new.art_start_date AS 'ART Start Date EC.',
-           TIMESTAMPDIFF(DAY, hiv_confirmed_date, tx_new.art_start_date)      AS 'Days Difference',
-           pregnancy_status                                                   AS 'Pregnant?',
-           breast_feeding_status                                              AS 'Breastfeeding?',
-           regimen                                                            AS 'Regimen',
-           ARTDoseDays                                                        AS 'ARV Dose Days',
-           next_visit_date                                                    AS 'Next Visit Date',
-           next_visit_date                                                    AS 'Next Visit Date EC.',
-           treatment_end_date                                                 AS 'Treatment End Date',
-           treatment_end_date                                                 AS 'Treatment End Date EC.',
-           mobile_no                                                          AS 'Mobile No.'
+    select patient_name                                                  AS 'Patient Name',
+           patient_uuid                                                  as `UUID`,
+           MRN                                                           AS 'MRN',
+           uan                                                           AS 'UAN',
+           age                                                           AS 'Age',
+           sex                                                           AS 'Sex',
+           weight                                                        AS 'Weight',
+           cd4_count                                                     AS 'CD4',
+           current_who_hiv_stage                                         AS 'WHO Stage',
+           nutritional_screening_result                                  AS 'Nutritional Status',
+           TB_SreeningResult                                             AS 'TB Screening Result',
+           hiv_confirmed_date                                            AS 'Enrollment Date',
+           hiv_confirmed_date                                            AS 'Enrollment Date EC.',
+           hiv_confirmed_date                                            AS 'HIV Confirmed Date',
+           hiv_confirmed_date                                            AS 'HIV Confirmed Date EC.',
+           tx_new.art_start_date                                         AS 'ART Start Date',
+           tx_new.art_start_date                                         AS 'ART Start Date EC.',
+           TIMESTAMPDIFF(DAY, hiv_confirmed_date, tx_new.art_start_date) AS 'Days Difference',
+           pregnancy_status                                              AS 'Pregnant?',
+           breast_feeding_status                                         AS 'Breastfeeding?',
+           regimen                                                       AS 'Regimen',
+           ARTDoseDays                                                   AS 'ARV Dose Days',
+           next_visit_date                                               AS 'Next Visit Date',
+           next_visit_date                                               AS 'Next Visit Date EC.',
+           treatment_end_date                                            AS 'Last TX_Curr Date',
+           treatment_end_date                                            AS 'Last TX_Curr Date EC.',
+           mobile_no                                                     AS 'Mobile No.'
     FROM tx_new;
 
 END //

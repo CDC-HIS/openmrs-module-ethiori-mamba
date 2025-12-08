@@ -193,13 +193,12 @@ BEGIN
            adherence                                           as Adherance,
            next_visit_date                                     as `Next Visit Date`,
            next_visit_date                                     as `Last Next Visit Date EC.`,
-           latest_follow_up_treatment_end_date                 as `Last Treatment End Date`,
-           latest_follow_up_treatment_end_date                 as `Last Treatment End Date EC.`,
+           latest_follow_up_treatment_end_date                 as `Last TX_Curr Date`,
+           latest_follow_up_treatment_end_date                 as `Last TX_Curr Date EC.`,
            latest_follow_up_date                               as `Last Follow-up Date`,
            latest_follow_up_date                               as `Last Follow-up Date EC.`,
            latest_follow_up_status                             as `Last Follow-up Status`,
-           interrupted_follow_up_follow_up_date                as `Date excluded from TX_CURR`,
-           latest_follow_up_treatment_end_date                 as `Last TX_CURR date`
+           interrupted_follow_up_follow_up_date                as `Date excluded from TX_CURR`
     from tx_rtt;
 END //
 

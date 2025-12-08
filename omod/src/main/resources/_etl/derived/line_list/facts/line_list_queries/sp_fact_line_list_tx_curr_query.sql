@@ -153,6 +153,7 @@ BEGIN
            cd4_count                                                                  as CD4,
            visitect_cd4_result                                                        as `Visit ECT CD4 Result`,
            visitect_cd4_test_date as `Visit ECT CD4 Test Date`,
+           visitect_cd4_test_date as `Visit ECT CD4 Test Date EC.`,
            hiv_confirmed_date            as 'HIV Confirmed Date',
            hiv_confirmed_date            as 'HIV Confirmed Date EC.',
            art_start_date                as 'ART Start Date',
@@ -193,8 +194,8 @@ BEGIN
            vl_performed_date.viral_load_test_status                                   as 'VL Status',
            next_visit_date                                                               'Next Visit Date',
            next_visit_date                                                               'Next Visit Date EC.',
-           tx_curr.treatment_end_date                                                    'Treatment End Date',
-           tx_curr.treatment_end_date                                                    'Treatment End Date EC.',
+           tx_curr.treatment_end_date                                                    'Last TX_Curr Date',
+           tx_curr.treatment_end_date                                                    'Last TX_Curr Date EC.',
            client.mobile_no                                                           as 'Mobile No.'
     from tx_curr
              left join latestDSD on latestDSD.PatientId = tx_curr.PatientId

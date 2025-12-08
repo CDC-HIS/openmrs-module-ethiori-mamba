@@ -113,7 +113,7 @@ BEGIN
                                       vlperfdate.follow_up_date                           as `Follow-up Date EC.`,
                                       vlperfdate.follow_up_status                         as `Follow-up Status`,
                                       vlperfdate.regimen                                  as Regimen,
-                                      vlperfdate.arv_dispensed_dose                          `ARV Dose Days`,
+                                      vlperfdate.arv_dispensed_dose                       as `ARV Dose Days`,
                                       vlperfdate.Adherence,
                                       pregnancy_status                                    as PregnancyStatus,
                                       breastfeeding_status                                as BreastfeedingStatus,
@@ -139,8 +139,8 @@ BEGIN
                                       latest_follow_up.adherence                          as `Latest Adherence`,
                                       latest_follow_up.next_visit_date                    as `Next Visit Date`,
                                       latest_follow_up.next_visit_date                    as `Next Visit Date EC.`,
-                                      latest_follow_up.treatment_end_date                 as `Treatment End Date`,
-                                      latest_follow_up.treatment_end_date                 as `Treatment End Date EC.`,
+                                      latest_follow_up.treatment_end_date                 as `Last TX_Curr Date`,
+                                      latest_follow_up.treatment_end_date                 as `Last TX_Curr Date EC.`,
                                       mobile_no                                           as `Mobile No.`
 
                                FROM FollowUp
