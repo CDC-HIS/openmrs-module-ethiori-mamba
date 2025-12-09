@@ -42,44 +42,32 @@ BEGIN
                                          ON follow_up.encounter_id = follow_up_8.encounter_id
                                LEFT JOIN mamba_flat_encounter_follow_up_9 follow_up_9
                                          ON follow_up.encounter_id = follow_up_9.encounter_id),
-         tmp_latest_follow_up as (SELECT client_id,
-                                         follow_up_date                                                                             AS FollowupDate,
-                                         encounter_id,
-                                         follow_up_status,
-                                         art_start_date,
-                                         cd4_count,
-                                         weight,
-                                         current_who_hiv_stage,
-                                         nutritional_screening_result,
-                                         TB_SreeningResult,
-                                         hiv_confirmed_date,
-                                         breast_feeding_status,
-                                         ARTDoseDays,
-                                         regimen,
-                                         next_visit_date,
-                                         treatment_end_date,
-                                         ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
-                                  FROM FollowUp
-                                  WHERE follow_up_status IS NOT NULL
-                                    AND art_start_date IS NOT NULL
-                                    AND follow_up_date <= REPORT_END_DATE),
-         latest_follow_up as (SELECT *
-                              from tmp_latest_follow_up
-                              where row_num = 1),
          tmp_first_follow_up as (SELECT client_id,
                                         follow_up_date                                                                     AS FollowupDate,
                                         encounter_id,
                                         transferred_in,
                                         pregnancy_status,
                                         follow_up_status,
-                                        ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date , encounter_id ) AS row_num
+                                        ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date , encounter_id ) AS row_num,
+                                        art_start_date,
+                                        cd4_count,
+                                        weight,
+                                        current_who_hiv_stage,
+                                        nutritional_screening_result,
+                                        TB_SreeningResult,
+                                        hiv_confirmed_date,
+                                        breast_feeding_status,
+                                        ARTDoseDays,
+                                        regimen,
+                                        next_visit_date,
+                                        treatment_end_date
                                  FROM FollowUp
                                  WHERE art_start_date IS NOT NULL),
          first_follow_up as (select * from tmp_first_follow_up where row_num = 1),
 
-         tx_new_tmp as (select latest_follow_up.client_id,
-                               latest_follow_up.art_start_date,
-                               latest_follow_up.FollowupDate,
+         tx_new_tmp as (select first_follow_up.client_id,
+                               art_start_date,
+                               FollowupDate,
                                transferred_in,
                                pregnancy_status,
                                cd4_count,
@@ -93,9 +81,8 @@ BEGIN
                                ARTDoseDays,
                                next_visit_date,
                                treatment_end_date
-                        from latest_follow_up
-                                 join first_follow_up on latest_follow_up.client_id = first_follow_up.client_id
-                        left join mamba_flat_encounter_intake_a intake_a on latest_follow_up.client_id = intake_a.client_id
+                        from first_follow_up
+                        left join mamba_flat_encounter_intake_a intake_a on first_follow_up.client_id = intake_a.client_id
                         where art_start_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE
                           AND (first_follow_up.transferred_in is null or first_follow_up.transferred_in != 'Yes')
                           AND first_follow_up.follow_up_status in ('Alive', 'Restart medication')),
