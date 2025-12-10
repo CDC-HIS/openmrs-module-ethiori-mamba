@@ -14,7 +14,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Component
-public class HEILineListReport implements ReportManager {
+public class PMTCTHEILineListReport implements ReportManager {
 	
 	@Override
 	public String getUuid() {
@@ -23,12 +23,12 @@ public class HEILineListReport implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "LINELIST- HEI";
+		return "LINELIST- PMTCT_HEI";
 	}
 	
 	@Override
 	public String getDescription() {
-		return "HEI Line List";
+		return "PMTCT_HEI Line List";
 	}
 	
 	@Override
