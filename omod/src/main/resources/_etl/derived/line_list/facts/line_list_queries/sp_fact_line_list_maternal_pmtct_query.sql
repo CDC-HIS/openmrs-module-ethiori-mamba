@@ -5,23 +5,19 @@ DROP PROCEDURE IF EXISTS sp_fact_line_list_maternal_pmtct_query;
 CREATE PROCEDURE sp_fact_line_list_maternal_pmtct_query(IN REPORT_START_DATE DATE, IN REPORT_END_DATE DATE)
 BEGIN
 
-    WITH Enrollment_tmp as (select client_id,
+    WITH Enrollment as (select client_id,
                                    antenatal_care_provider,
                                    ld_client,
                                    post_natal_care,
                                    art_clinic,
                                    location_of_birth,
-                                   date_of_enrollment_or_booking,
-                                   ROW_NUMBER() over (PARTITION BY client_id ORDER BY date_of_enrollment_or_booking DESC, encounter_id DESC) as row_num
+                                   date_of_enrollment_or_booking
                             from mamba_flat_encounter_pmtct_enrollment
                             where date_of_enrollment_or_booking BETWEEN REPORT_START_DATE AND REPORT_END_DATE),
-         Enrollment as (select * from Enrollment_tmp where row_num = 1),
-         tmp_discharge as (select discharge.*,
-                                  ROW_NUMBER() over (PARTITION BY discharge.client_id ORDER BY discharge_date, encounter_id ) as row_num
+         discharge as (select discharge.*
                            from mamba_flat_encounter_pmtct_discharge discharge
                                     join Enrollment on discharge.client_id = Enrollment.client_id
                            WHERE discharge_date > Enrollment.date_of_enrollment_or_booking),
-         discharge as (select * from tmp_discharge where row_num = 1),
          FollowUp AS (select follow_up.encounter_id,
                              follow_up.client_id                 AS PatientId,
                              follow_up_status,
