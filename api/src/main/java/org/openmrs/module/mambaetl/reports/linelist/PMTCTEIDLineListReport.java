@@ -3,7 +3,6 @@ package org.openmrs.module.mambaetl.reports.linelist;
 import org.openmrs.module.mambaetl.datasetdefinition.linelist.EIDLineListDatasetDefinition;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.mambaetl.helpers.reportOptions.EIDAnalysisCategories;
-import org.openmrs.module.mambaetl.helpers.reportOptions.TxCurrAnalysisCategories;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.report.ReportDesign;
 import org.openmrs.module.reporting.report.ReportRequest;
@@ -15,7 +14,7 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 
 @Component
-public class EIDLineListReport implements ReportManager {
+public class PMTCTEIDLineListReport implements ReportManager {
 	
 	@Override
 	public String getUuid() {
@@ -24,12 +23,12 @@ public class EIDLineListReport implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "LINELIST- EID";
+		return "LINELIST- PMTCT_EID";
 	}
 	
 	@Override
 	public String getDescription() {
-		return "EID Line List (DNA PCR / Rapid Antibody)";
+		return "PMTCT_EID Line List";
 	}
 	
 	@Override

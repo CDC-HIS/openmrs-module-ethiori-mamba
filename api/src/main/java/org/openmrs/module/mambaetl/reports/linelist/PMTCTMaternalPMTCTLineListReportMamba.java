@@ -1,7 +1,6 @@
 package org.openmrs.module.mambaetl.reports.linelist;
 
 import org.openmrs.module.mambaetl.datasetdefinition.linelist.MaternalPMTCTLineListDataSetDefinitionMamba;
-import org.openmrs.module.mambaetl.datasetdefinition.linelist.TXNewLineListDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.report.ReportDesign;
@@ -15,7 +14,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Component
-public class MaternalPMTCTLineListReportMamba implements ReportManager {
+public class PMTCTMaternalPMTCTLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getUuid() {
