@@ -53,6 +53,7 @@ BEGIN
                              date_of_reported_hiv_viral_load     as viral_load_sent_date,
                              date_viral_load_results_received    AS viral_load_perform_date,
                              date_referred_to_pmtct,
+                             dsd_category,
                              next_visit_date,
                              COALESCE(
                                      at_3436_weeks_of_gestation,
@@ -122,7 +123,17 @@ BEGIN
                                                        THEN f.viral_load_perform_date
                                                    ELSE NULL
                                           END DESC
-                                      ) as rn_latest_vl_res
+                                      ) as rn_latest_vl_res,
+                                  ROW_NUMBER() OVER (
+                                      PARTITION BY ew.enrollment_id
+                                      ORDER BY CASE
+                                                   WHEN f.dsd_category IS NOT NULL
+                                                       AND f.follow_up_date BETWEEN ew.start_date AND ew.effective_end_date
+                                                       THEN f.follow_up_date
+                                                   ELSE NULL
+                                          END DESC,
+                                          f.encounter_id DESC
+                                      ) as rn_latest_dsd
                            FROM Episode_Window ew
                                    LEFT JOIN FollowUp f
                                          ON ew.client_id = f.PatientId
@@ -131,8 +142,11 @@ BEGIN
            client.MRN,
            client.UAN,
            TIMESTAMPDIFF(YEAR, client.date_of_birth, REPORT_END_DATE) as `Age`,
-
+           visit.art_start_date as `Art Start Date`,
+           visit.art_start_date as `Art Start Date EC.`,
+           dsd.dsd_category as `DSD`,
            ew.start_date                                              as `PMTCT Booking Date`,
+           ew.start_date                                              as `PMTCT Booking Date EC.`,
            COALESCE(ew.art_clinic, ew.antenatal_care_provider, ew.ld_client,
                     ew.post_natal_care)                               as `Status at Enrollment`,
            ew.discharge_date                                          as `Date of Discharge`,
@@ -140,22 +154,26 @@ BEGIN
            ew.discharge_outcome                                       as `Maternal PMTCT Final Outcome`,
 
            visit.follow_up_date                                       as `Latest Follow-up Date`,
+           visit.follow_up_date                                       as `Latest Follow-up Date EC.`,
            visit.follow_up_status                                     as `Latest Follow-up Status`,
            visit.regimen                                              as `Regimen Dose`,
            visit.AdherenceLevel                                       as `Adherence`,
            visit.nutritional_status_of_adult                          as `Nutritional Status`,
            visit.next_visit_date                                      as `Next Visit Date`,
+           visit.next_visit_date                                      as `Next Visit Date EC.`,
            visit.pregnancy_status                                     as `Pregnant?`,
            visit.breast_feeding_status                                as `Breastfeeding?`,
            visit.date_referred_to_pmtct                               as `Date Referred to PMTCT`,
-           visit.art_start_date                                       as `ART Start Date`,
+           visit.date_referred_to_pmtct                               as `Date Referred to PMTCT EC.`,
 
            vl_s.viral_load_sent_date                                  as `Latest VL Sent Date`,
+           vl_s.viral_load_sent_date                                  as `Latest VL Sent Date EC.`,
            vl_s.cd4_count                                             as `CD4 count`,
            COALESCE(vl_s.routine_viral_load_test_indication,
                     vl_s.targeted_viral_load_test_indication)         as `Latest VL Test Indication`,
 
            vl_r.viral_load_perform_date                               as `Latest VL Received Date`,
+           vl_r.viral_load_perform_date                               as `Latest VL Received Date EC.`,
            vl_r.viral_load_test_status                                as `Latest VL Status`
 
     FROM Episode_Window ew
@@ -165,7 +183,9 @@ BEGIN
              LEFT JOIN Events_Ranked vl_s
                        ON ew.enrollment_id = vl_s.enrollment_id AND vl_s.rn_latest_vl_sent = 1
              LEFT JOIN Events_Ranked vl_r
-                       ON ew.enrollment_id = vl_r.enrollment_id AND vl_r.rn_latest_vl_res = 1;
+                       ON ew.enrollment_id = vl_r.enrollment_id AND vl_r.rn_latest_vl_res = 1
+             LEFT JOIN Events_Ranked dsd
+                       ON ew.enrollment_id= dsd.enrollment_id AND dsd.rn_latest_dsd = 1;
 END //
 
 DELIMITER ;

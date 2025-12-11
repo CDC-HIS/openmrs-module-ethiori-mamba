@@ -90,7 +90,7 @@ BEGIN
                                      inner join HIEInCohortFiltered as h on h.hei_client_id = hf.client_id
                                      cross join IntervalsDef as i
                             where hf.decision in ('Lost to Follow-up', 'TO', 'Dead', 'Died')
-                              and hf.follow_up_date_followup_ between
+                              and hf.followup_date_followup between
                                 REPORT_START_DATE and DATE_ADD(REPORT_START_DATE,
                                                                INTERVAL i.interval_month MONTH)),
          PCRTestBelowTwoYear as (select h.hei_client_id
