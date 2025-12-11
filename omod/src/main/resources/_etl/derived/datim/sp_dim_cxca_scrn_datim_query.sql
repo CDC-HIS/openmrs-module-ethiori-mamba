@@ -30,7 +30,7 @@ BEGIN
         SET cxca_visit_condition = '1=1';
     END IF;
 
-    SET cxca_scrn_query = 'WITH FollowUp as (select follow_up.encounter_id,
+    SET cxca_scrn_query = CONCAT('WITH FollowUp as (select follow_up.encounter_id,
                          follow_up.client_id,
                          cervical_cancer_screening_status          as cx_ca_screening_status,
                          cervical_cancer_screening_method_strategy as screening_method,
@@ -78,7 +78,6 @@ BEGIN
                               FROM FollowUp
                               WHERE follow_up_status IS NOT NULL
                                 AND art_start_date IS NOT NULL
-         --  AND follow_up_date <= ?
      ),
 
      currently_on_art AS (select *
@@ -91,10 +90,10 @@ BEGIN
                                   join currently_on_art on FollowUp.client_id = currently_on_art.client_id
                          where cx_ca_screening_status = ''Cervical cancer screening performed''
                            and is_the_client_screened_in_this_facility = ''Yes''
-                           and ((via_date BETWEEN ? AND ?
-                                    -- AND screening_method != ''Human Papillomavirus test''
+                           and ((via_date BETWEEN ', REPORT_START_DATE, '  AND ', REPORT_END_DATE, '
                                ) OR
-                                (hpv_received_date BETWEEN ? AND ?) OR (cytology_received_date BETWEEN ? AND ?))),
+                                (hpv_received_date BETWEEN ', REPORT_START_DATE, ' AND ', REPORT_END_DATE,
+                                 ' ) OR (cytology_received_date BETWEEN ', REPORT_START_DATE, ' AND ', REPORT_END_DATE, ' ))),
      cx_screened as (select tmp_cx_screened.*,
                             CASE
 
@@ -138,10 +137,10 @@ BEGIN
                             client.date_of_birth,
                             (SELECT datim_agegroup
                              from mamba_dim_agegroup
-                             where TIMESTAMPDIFF(YEAR, date_of_birth, ?) = age) as fine_age_group,
+                             where TIMESTAMPDIFF(YEAR, date_of_birth, ', REPORT_END_DATE, ' ) = age) as fine_age_group,
                             (SELECT normal_agegroup
                              from mamba_dim_agegroup
-                             where TIMESTAMPDIFF(YEAR, date_of_birth, ?) = age) as coarse_age_group
+                             where TIMESTAMPDIFF(YEAR, date_of_birth, ', REPORT_END_DATE, ' ) = age) as coarse_age_group
                      from tmp_cx_screened
                               join mamba_dim_client client
                                    on tmp_cx_screened.client_id = client.client_id
@@ -149,7 +148,7 @@ BEGIN
                        and TIMESTAMPDIFF(YEAR, date_of_birth, follow_up_date) >= 15
                        and not (screening_method = ''Human Papillomavirus test'' and
                                 hpv_dna_screening_result = ''Positive'' and via_screening_result is null)
-     ) ';
+     ) ');
     IF IS_COURSE_AGE_GROUP THEN
         SELECT GROUP_CONCAT(CONCAT('SUM(CASE WHEN coarse_age_group = ''', normal_agegroup,
                                    ''' THEN count ELSE 0 END) AS `',
@@ -159,22 +158,23 @@ BEGIN
         INTO age_group_cols
         FROM (select normal_agegroup
               from mamba_dim_agegroup
-              where mamba_dim_agegroup.datim_age_val > 4 and mamba_dim_agegroup.datim_age_val <= 12
+              where mamba_dim_agegroup.datim_age_val > 4
+                and mamba_dim_agegroup.datim_age_val <= 12
               group by normal_agegroup) as order_query;
     ELSE
         SELECT GROUP_CONCAT(CONCAT('SUM(CASE WHEN fine_age_group ',
                                    CASE
                                        -- If the datim_agegroup is '50-54' or '55-59',
                                        -- aggregate them under the '50+' column.
-                                       WHEN datim_agegroup IN ('50-54', '55-59','60-64','65+') THEN
+                                       WHEN datim_agegroup IN ('50-54', '55-59', '60-64', '65+') THEN
                                            'IN (''50-54'', ''55-59'', ''60-64'', ''65+'')' -- Condition for the aggregated '50+' column
                                        ELSE
-                                           CONCAT(' = ','''', datim_agegroup,'''') -- Condition for all other individual age groups
+                                           CONCAT(' = ', '''', datim_agegroup, '''') -- Condition for all other individual age groups
                                        END,
                                    ' THEN count ELSE 0 END) AS `',
                                    REPLACE(
                                            CASE
-                                               WHEN datim_agegroup IN ('50-54', '55-59','60-64','65+') THEN '50+'
+                                               WHEN datim_agegroup IN ('50-54', '55-59', '60-64', '65+') THEN '50+'
                                                ELSE datim_agegroup
                                                END,
                                            '`', '``'),
@@ -183,7 +183,8 @@ BEGIN
         INTO age_group_cols
         FROM (select datim_agegroup
               from mamba_dim_agegroup
-              where mamba_dim_agegroup.datim_age_val > 4 and mamba_dim_agegroup.datim_age_val <= 12
+              where mamba_dim_agegroup.datim_age_val > 4
+                and mamba_dim_agegroup.datim_age_val <= 12
               group by datim_agegroup) as order_query;
     END IF;
     IF REPORT_TYPE = 'TOTAL' THEN
@@ -217,9 +218,7 @@ BEGIN
     END IF;
     SET @sql = CONCAT(cxca_scrn_query, group_query);
     PREPARE stmt FROM @sql;
-    SET @start_date = REPORT_START_DATE;
-    SET @end_date = REPORT_END_DATE;
-    EXECUTE stmt USING  @start_date, @end_date , @start_date, @end_date , @start_date, @end_date, @end_date, @end_date;
+    EXECUTE stmt;
 
 END //
 
