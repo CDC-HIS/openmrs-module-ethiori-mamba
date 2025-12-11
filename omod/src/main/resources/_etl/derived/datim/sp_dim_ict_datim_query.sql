@@ -22,21 +22,21 @@ BEGIN
     ELSEIF REPORT_TYPE = 'TESTING_ACCEPTED' THEN
         SET filter_condition = ' accepted = ''Yes'' ';
     ELSEIF REPORT_TYPE = 'ELICITED' THEN
-        SET filter_condition = ' elicited_date BETWEEN ? AND ? ';
+        SET filter_condition = CONCAT(' elicited_date BETWEEN ''',REPORT_START_DATE,''' AND ''',REPORT_END_DATE,''' ');
     ELSEIF REPORT_TYPE = 'KNOWN_POSITIVE' THEN
         SET filter_condition =
-                ' prior_hiv_test_result = ''Positive'' and elicited_date between ? AND ? AND hiv_test_result IS NULL ';
+               CONCAT(' prior_hiv_test_result = ''Positive'' and elicited_date between ''',REPORT_START_DATE,''' AND ''',REPORT_END_DATE,''' AND hiv_test_result IS NULL ');
     ELSEIF REPORT_TYPE = 'DOCUMENTED_NEGATIVE' THEN
         SET filter_condition =
-                ' prior_hiv_test_result = ''Negative result'' and hiv_test_result != ''Positive'' and age < 15 and elicited_date BETWEEN ? AND ? ';
+               CONCAT( ' prior_hiv_test_result = ''Negative result'' and hiv_test_result != ''Positive'' and age < 15 and elicited_date BETWEEN ''',REPORT_START_DATE,''' AND ''',REPORT_END_DATE,''' ');
     ELSEIF REPORT_TYPE = 'NEW_POSITIVE' THEN
         SET filter_condition =
-                ' hiv_test_result = ''Positive'' and coalesce(hiv_test_date,date_of_case_closure,elicited_date) BETWEEN ? AND ? ';
+              CONCAT( ' hiv_test_result = ''Positive'' and coalesce(hiv_test_date,date_of_case_closure,elicited_date) BETWEEN ''',REPORT_START_DATE,''' AND ''',REPORT_END_DATE,''' ');
     ELSEIF REPORT_TYPE = 'NEW_NEGATIVE' THEN
         SET filter_condition =
-                ' hiv_test_result = ''Negative result'' and coalesce(hiv_test_date,date_of_case_closure,elicited_date) BETWEEN ? AND ? AND age > 14 ';
+                CONCAT(' hiv_test_result = ''Negative result'' and coalesce(hiv_test_date,date_of_case_closure,elicited_date) BETWEEN ''',REPORT_START_DATE,''' AND ''',REPORT_END_DATE,''' AND age > 14 ');
     ELSEIF REPORT_TYPE = 'ICT_TOTAL' THEN
-        SET filter_condition = ' hiv_test_date BETWEEN ? AND ? and hiv_test_result is not null ';
+        SET filter_condition = CONCAT(' hiv_test_date BETWEEN ''',REPORT_START_DATE,''' AND ''',REPORT_END_DATE,''' and hiv_test_result is not null ');
     ELSE
         SET filter_condition = ' 1=1 ';
     END IF;
@@ -73,16 +73,16 @@ BEGIN
     ELSE
         SET source_cte = ' contact_list ';
     END IF;
-    SET ict_query = ' With offer_list as (select client.client_id,
+    SET ict_query =CONCAT( ' With offer_list as (select client.client_id,
                            client.mrn,
                            client.uan,
                            (SELECT datim_agegroup
                                       from mamba_dim_agegroup
-                                      where TIMESTAMPDIFF(YEAR, date_of_birth, ?) = age) as fine_age_group,
+                                      where TIMESTAMPDIFF(YEAR, date_of_birth, ''',REPORT_END_DATE ,''' ) = age) as fine_age_group,
                                      (SELECT normal_agegroup
                                       from mamba_dim_agegroup
-                                      where TIMESTAMPDIFF(YEAR, date_of_birth, ?) = age) as coarse_age_group,
-                           TIMESTAMPDIFF(YEAR, date_of_birth, ?) as age,
+                                      where TIMESTAMPDIFF(YEAR, date_of_birth, ''',REPORT_END_DATE,''' ) = age) as coarse_age_group,
+                           TIMESTAMPDIFF(YEAR, date_of_birth, ''',REPORT_END_DATE,''' ) as age,
                            client.sex,
                            offer.offered_date,
                            offered,
@@ -98,7 +98,7 @@ BEGIN
                     from mamba_flat_encounter_ict_general ict_general
                              join mamba_flat_encounter_ict_offer offer on ict_general.client_id = offer.client_id
                              join mamba_dim_client client on ict_general.client_id = client.client_id
-                    where offered_date BETWEEN ? AND ?),
+                    where offered_date BETWEEN ''',REPORT_START_DATE,''' AND ''',REPORT_END_DATE ,''' ),
                  offer as (select * from offer_list where row_num = 1),
                       contact_list as (select contact.client_id,
        contact.elicited_date,
@@ -121,11 +121,11 @@ BEGIN
 
        (SELECT datim_agegroup
         from mamba_dim_agegroup
-        where TIMESTAMPDIFF(YEAR, coalesce(contact_birthdate,index_contact.date_of_birth), ?) = age) as fine_age_group,
+        where TIMESTAMPDIFF(YEAR, coalesce(contact_birthdate,index_contact.date_of_birth), ''',REPORT_END_DATE,''' ) = age) as fine_age_group,
        (SELECT normal_agegroup
         from mamba_dim_agegroup
-        where TIMESTAMPDIFF(YEAR, coalesce(contact_birthdate,index_contact.date_of_birth), ?) = age) as coarse_age_group,
-       TIMESTAMPDIFF(YEAR, coalesce(contact_birthdate,index_contact.date_of_birth), ?) as age
+        where TIMESTAMPDIFF(YEAR, coalesce(contact_birthdate,index_contact.date_of_birth), ''',REPORT_END_DATE,''' ) = age) as coarse_age_group,
+       TIMESTAMPDIFF(YEAR, coalesce(contact_birthdate,index_contact.date_of_birth), ''',REPORT_END_DATE,''' ) as age
 from mamba_flat_encounter_index_contact_followup contact
          left join mamba_flat_encounter_index_contact_followup_1 contact_1
                    on contact.encounter_id = contact_1.encounter_id
@@ -133,7 +133,7 @@ from mamba_flat_encounter_index_contact_followup contact
          left join mamba_dim_client index_client on contact.client_id = index_client.client_id
          left join mamba_dim_encounter encounter on contact.encounter_id = encounter.encounter_id
          left join mamba_dim_person_attribute attribute on encounter.uuid = attribute.value
-         left join mamba_dim_client index_contact on attribute.person_id = index_contact.client_id) ';
+         left join mamba_dim_client index_contact on attribute.person_id = index_contact.client_id) ');
 
     IF REPORT_TYPE = 'ICT_TOTAL' THEN
         SET group_query = CONCAT('SELECT COUNT(*) as Numerator FROM contact_list WHERE ', filter_condition);
@@ -179,15 +179,7 @@ from mamba_flat_encounter_index_contact_followup contact
     END IF;
     SET @sql = CONCAT(ict_query, group_query);
     PREPARE stmt FROM @sql;
-    SET @start_date = REPORT_START_DATE;
-    SET @end_date = REPORT_END_DATE;
-    IF REPORT_TYPE = 'TESTING_OFFERED' OR REPORT_TYPE = 'TESTING_ACCEPTED' THEN
-        EXECUTE stmt USING @end_date, @end_date, @end_date, @start_date , @end_date, @end_date, @end_date, @end_date;
-    ELSEIF REPORT_TYPE = 'ELICITED' THEN
-        EXECUTE stmt USING @end_date, @end_date, @end_date, @start_date , @end_date, @end_date, @end_date, @end_date, @start_date , @end_date;
-    ELSE
-        EXECUTE stmt USING @end_date, @end_date, @end_date, @start_date , @end_date, @end_date, @end_date, @end_date, @start_date, @end_date;
-    END IF;
+    EXECUTE stmt;
 
 END //
 DELIMITER ;
