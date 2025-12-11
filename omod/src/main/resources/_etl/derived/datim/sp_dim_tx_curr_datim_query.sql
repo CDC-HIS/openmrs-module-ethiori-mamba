@@ -47,7 +47,7 @@ BEGIN
             INTO age_group_cols
             FROM (select datim_agegroup from mamba_dim_agegroup group by datim_agegroup) as order_query;
     END IF;
-    SET tx_curr_query = 'WITH FollowUp AS (select follow_up.encounter_id,
+    SET tx_curr_query = CONCAT('WITH FollowUp AS (select follow_up.encounter_id,
                              follow_up.client_id           AS PatientId,
                              follow_up_status,
                              follow_up_date_followup_      AS follow_up_date,
@@ -88,14 +88,14 @@ BEGIN
                          FROM FollowUp
                          WHERE follow_up_status IS NOT NULL
                            AND art_start_date IS NOT NULL
-                           AND follow_up_date <= ?
+                           AND follow_up_date <= ''',COALESCE(REPORT_END_DATE,NOW()),'''
                          ),
 
          tx_curr AS (select *
                      from tx_curr_all
                      where row_num = 1
                        AND follow_up_status in (''Alive'', ''Restart medication'')
-                       AND treatment_end_date >= ?),
+                       AND treatment_end_date >= ''',COALESCE(REPORT_END_DATE,NOW()),''' ),
          tx_curr_with_client as (select tx_curr.*,
                                         client.sex,
                                         client.date_of_birth,
@@ -104,11 +104,11 @@ BEGIN
                                         left(regimen, 1) as regimen_line,
                                         client.mrn,
                                         client.uan,
-                                        (SELECT datim_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as fine_age_group,
-                                        (SELECT normal_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as coarse_age_group
+                                        (SELECT datim_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth, ''',COALESCE(REPORT_END_DATE,NOW()),''' )=age) as fine_age_group,
+                                        (SELECT normal_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth, ''',COALESCE(REPORT_END_DATE,NOW()),''' )=age) as coarse_age_group
                                  from FollowUp
                                           inner join tx_curr on FollowUp.encounter_id = tx_curr.encounter_id
-                                          left join mamba_dim_client client on tx_curr.PatientId = client.client_id) ';
+                                          left join mamba_dim_client client on tx_curr.PatientId = client.client_id) ');
 
 IF NUMERATOR THEN
     SET group_query = ' SELECT COUNT(*) AS Subtotal from tx_curr_with_client';
@@ -134,8 +134,7 @@ ELSE
 END IF;
     SET @sql = CONCAT(tx_curr_query,group_query);
     PREPARE stmt FROM @sql;
-    SET @end_date = COALESCE(REPORT_END_DATE,CURDATE());
-    EXECUTE stmt USING @end_date, @end_date, @end_date, @end_date;
+    EXECUTE stmt;
     DEALLOCATE PREPARE stmt;
 
 END //
