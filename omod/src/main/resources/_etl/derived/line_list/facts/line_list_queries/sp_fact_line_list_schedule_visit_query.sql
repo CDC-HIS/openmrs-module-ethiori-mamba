@@ -1,5 +1,4 @@
-DELIMITER
-//
+DELIMITER //
 
 DROP PROCEDURE IF EXISTS sp_fact_line_list_schedule_visit_query;
 
@@ -99,7 +98,6 @@ FROM latest_follow_up AS f_case
          INNER JOIN mamba_dim_client client on f_case.client_id = client.client_id
 ORDER BY client.patient_name;
 
-END
-//
+END //
 
 DELIMITER ;

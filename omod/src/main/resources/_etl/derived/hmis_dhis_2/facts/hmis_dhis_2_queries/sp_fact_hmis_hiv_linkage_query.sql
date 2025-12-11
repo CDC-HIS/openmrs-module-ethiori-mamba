@@ -7,7 +7,7 @@ BEGIN
 
 WITH linkage as (select *
                  from mamba_flat_encounter_positive_tracking
-                 where date_of_hiv_diagnosis BETWEEN REPORT_START_DATE AND REPORT_END_DATE)
+                 where date_enrolled_in_care BETWEEN REPORT_START_DATE AND REPORT_END_DATE)
 -- Linkage outcome of newly identified Hiv positive individuals in the reporting period
 SELECT 'HIV_Linkage_NEW_CT'                                                                   AS S_NO,
        'Linkage outcome of newly identified Hiv positive individuals in the reporting period' as Activity,
