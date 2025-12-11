@@ -1,5 +1,4 @@
-DELIMITER
-//
+DELIMITER //
 
 DROP PROCEDURE IF EXISTS sp_fact_line_list_mother_cohort_analysis_query;
 
@@ -316,7 +315,6 @@ WHERE ai.art_start_date <= COALESCE (REPORT_END_DATE, CURDATE())
 GROUP BY ai.PatientId, dc.patient_name, dc.patient_uuid, dc.mrn, dc.UAN, dc.Sex, dc.date_of_birth, ai.art_start_date
 ORDER BY ai.art_start_date, dc.patient_name;
 
-END
-//
+END //
 
 DELIMITER ;
