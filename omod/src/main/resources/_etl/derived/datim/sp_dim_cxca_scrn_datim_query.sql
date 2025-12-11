@@ -90,10 +90,10 @@ BEGIN
                                   join currently_on_art on FollowUp.client_id = currently_on_art.client_id
                          where cx_ca_screening_status = ''Cervical cancer screening performed''
                            and is_the_client_screened_in_this_facility = ''Yes''
-                           and ((via_date BETWEEN ', REPORT_START_DATE, '  AND ', REPORT_END_DATE, '
+                           and ((via_date BETWEEN ''',REPORT_START_DATE,'''  AND ''',REPORT_END_DATE,'''
                                ) OR
-                                (hpv_received_date BETWEEN ', REPORT_START_DATE, ' AND ', REPORT_END_DATE,
-                                 ' ) OR (cytology_received_date BETWEEN ', REPORT_START_DATE, ' AND ', REPORT_END_DATE, ' ))),
+                                (hpv_received_date BETWEEN ''',REPORT_START_DATE,''' AND ''',REPORT_END_DATE,
+                                 ''' ) OR (cytology_received_date BETWEEN ''',REPORT_START_DATE,''' AND ''',REPORT_END_DATE,''' ))),
      cx_screened as (select tmp_cx_screened.*,
                             CASE
 
@@ -137,10 +137,10 @@ BEGIN
                             client.date_of_birth,
                             (SELECT datim_agegroup
                              from mamba_dim_agegroup
-                             where TIMESTAMPDIFF(YEAR, date_of_birth, ', REPORT_END_DATE, ' ) = age) as fine_age_group,
+                             where TIMESTAMPDIFF(YEAR, date_of_birth, ''',REPORT_END_DATE,''' ) = age) as fine_age_group,
                             (SELECT normal_agegroup
                              from mamba_dim_agegroup
-                             where TIMESTAMPDIFF(YEAR, date_of_birth, ', REPORT_END_DATE, ' ) = age) as coarse_age_group
+                             where TIMESTAMPDIFF(YEAR, date_of_birth, ''',REPORT_END_DATE,''' ) = age) as coarse_age_group
                      from tmp_cx_screened
                               join mamba_dim_client client
                                    on tmp_cx_screened.client_id = client.client_id
