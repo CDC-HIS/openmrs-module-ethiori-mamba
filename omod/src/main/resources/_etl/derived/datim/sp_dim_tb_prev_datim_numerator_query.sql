@@ -34,7 +34,7 @@ BEGIN
         FROM (select datim_agegroup from mamba_dim_agegroup group by datim_agegroup) as order_query;
     END IF;
 
-    SET tb_prev_query = 'WITH FollowUp AS (select follow_up.encounter_id,
+    SET tb_prev_query = CONCAT('WITH FollowUp AS (select follow_up.encounter_id,
                          follow_up.client_id,
                          follow_up_status,
                          follow_up_date_followup_            AS follow_up_date,
@@ -80,12 +80,12 @@ BEGIN
                               art_start_date,
                               ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY tpt_start_date DESC, FollowUp.encounter_id DESC) AS row_num
                        from FollowUp
-                       where tpt_start_date >= fn_ethiopian_to_gregorian_calendar(date_add(fn_gregorian_to_ethiopian_calendar(?, ''Y-M-D''), INTERVAL -6 MONTH)) AND tpt_start_date < ?),
+                       where tpt_start_date >= fn_ethiopian_to_gregorian_calendar(date_add(fn_gregorian_to_ethiopian_calendar( ''',REPORT_START_DATE,''' , ''Y-M-D''), INTERVAL -6 MONTH)) AND tpt_start_date < ''',REPORT_START_DATE,''' ),
      tpt_started as (select tmp_tpt_start.*,
                             sex,
                             date_of_birth,
-                            (SELECT datim_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as fine_age_group,
-                            (SELECT normal_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as coarse_age_group
+                            (SELECT datim_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth, ''',REPORT_END_DATE,''' )=age) as fine_age_group,
+                            (SELECT normal_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth, ''',REPORT_END_DATE,''' )=age) as coarse_age_group
                      from tmp_tpt_start
                               join mamba_dim_client client on client.client_id=tmp_tpt_start.client_id
                      where row_num=1),
@@ -95,19 +95,19 @@ BEGIN
                               art_start_date,
                               ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY tpt_completed_date DESC, FollowUp.encounter_id DESC) AS row_num
                        from FollowUp
-                       where tpt_completed_date >= fn_ethiopian_to_gregorian_calendar(date_add(fn_gregorian_to_ethiopian_calendar(?, ''Y-M-D''), INTERVAL -6 MONTH)) AND tpt_completed_date < ?),
+                       where tpt_completed_date >= fn_ethiopian_to_gregorian_calendar(date_add(fn_gregorian_to_ethiopian_calendar( ''',REPORT_START_DATE,''' , ''Y-M-D''), INTERVAL -6 MONTH)) AND tpt_completed_date < ''',REPORT_END_DATE,''' ),
      tpt_completed as (select tmp_tpt_complete.*,
                               client.sex,
                               client.date_of_birth,
-                            (SELECT datim_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,client.date_of_birth,?)=age) as fine_age_group,
-                            (SELECT normal_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,client.date_of_birth,?)=age) as coarse_age_group
+                            (SELECT datim_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,client.date_of_birth, ''',REPORT_END_DATE,''' )=age) as fine_age_group,
+                            (SELECT normal_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,client.date_of_birth, ''',REPORT_END_DATE,''' )=age) as coarse_age_group
                      from tmp_tpt_complete
                               join mamba_dim_client client on client.client_id=tmp_tpt_complete.client_id
                               join tpt_started on tpt_started.client_id=tmp_tpt_complete.client_id
                      where tmp_tpt_complete.row_num=1),
 
-     new_art_tpt as ( select * from tpt_completed where art_start_date >= fn_ethiopian_to_gregorian_calendar(date_add(fn_gregorian_to_ethiopian_calendar(?, ''Y-M-D''), INTERVAL -6 MONTH)) AND art_start_date < ?),
-     prev_art_tpt as ( select * from tpt_completed where art_start_date < fn_ethiopian_to_gregorian_calendar(date_add(fn_gregorian_to_ethiopian_calendar(?, ''Y-M-D''), INTERVAL -6 MONTH))) ';
+     new_art_tpt as ( select * from tpt_completed where art_start_date >= fn_ethiopian_to_gregorian_calendar(date_add(fn_gregorian_to_ethiopian_calendar( ''',REPORT_START_DATE,''' , ''Y-M-D''), INTERVAL -6 MONTH)) AND art_start_date < ''',REPORT_START_DATE,''' ),
+     prev_art_tpt as ( select * from tpt_completed where art_start_date < fn_ethiopian_to_gregorian_calendar(date_add(fn_gregorian_to_ethiopian_calendar( ''',REPORT_START_DATE,''' , ''Y-M-D''), INTERVAL -6 MONTH))) ');
     IF REPORT_TYPE = 'TOTAL' THEN
         SET group_query = 'SELECT COUNT(*) AS NUMERATOR FROM tpt_completed';
     ELSEIF REPORT_TYPE = 'DEBUG' THEN
@@ -172,9 +172,7 @@ BEGIN
     END IF;
     SET @sql = CONCAT(tb_prev_query, group_query);
     PREPARE stmt FROM @sql;
-    SET @start_date = REPORT_START_DATE;
-    SET @end_date = REPORT_END_DATE;
-    EXECUTE stmt USING  @start_date , @start_date, @end_date, @end_date, @start_date, @end_date, @end_date , @end_date, @start_date,@start_date,@start_date;
+    EXECUTE stmt;
     DEALLOCATE PREPARE stmt;
 END //
 
