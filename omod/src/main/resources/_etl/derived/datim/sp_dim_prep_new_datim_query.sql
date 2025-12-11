@@ -17,7 +17,7 @@ BEGIN
     SET session group_concat_max_len = 20000;
 
 
-    SET prep_query = 'WITH PreExposure AS (select screening.client_id,
+    SET prep_query = CONCAT('WITH PreExposure AS (select screening.client_id,
                             screening.encounter_id,
                             screening.encounter_datetime,
                             screening.sex_worker,
@@ -48,10 +48,10 @@ BEGIN
                                      client.mrn,
                                      (SELECT datim_agegroup
                                       from mamba_dim_agegroup
-                                      where TIMESTAMPDIFF(YEAR, date_of_birth, ?) = age) as fine_age_group, -- Param 1 @end_date
+                                      where TIMESTAMPDIFF(YEAR, date_of_birth, ''',REPORT_END_DATE,''' ) = age) as fine_age_group, -- Param 1 @end_date
                                      (SELECT normal_agegroup
                                       from mamba_dim_agegroup
-                                      where TIMESTAMPDIFF(YEAR, date_of_birth, ?) = age) as coarse_age_group, -- Param 2 @end_date
+                                      where TIMESTAMPDIFF(YEAR, date_of_birth, ''',REPORT_END_DATE,''' ) = age) as coarse_age_group, -- Param 2 @end_date
                                      do_you_have_an_hiv_positive_partner,
                                      sex_worker,
                                      treatment_start_date,
@@ -71,15 +71,15 @@ BEGIN
                                          )                                               AS row_num
                               from PreExposure
                                        join mamba_dim_client client on PreExposure.client_id = client.client_id
-                              where (followup_date_followup_1 <= ? -- Param 3 @end_date
+                              where (followup_date_followup_1 <= ''',REPORT_END_DATE,'''
                                   or followup_date_followup_1 is null)),
      prep_new as (select *
                   from tmp_latest_follow_up
-                  WHERE treatment_start_date BETWEEN ? AND ? -- Param 4 @start_date, Param 5 @end_date
+                  WHERE treatment_start_date BETWEEN ''',REPORT_START_DATE,''' AND ''',REPORT_END_DATE,'''
                     AND type_of_client = ''New client''
                     AND row_num = 1
          -- AND follow_up_status
-     ) ';
+     ) ');
     IF IS_COURSE_AGE_GROUP THEN
         SELECT GROUP_CONCAT(CONCAT('SUM(CASE WHEN coarse_age_group = ''', normal_agegroup,
                                    ''' THEN count ELSE 0 END) AS `',
