@@ -17,10 +17,10 @@ BEGIN
 
     IF REPORT_TYPE = 'ALREADY_ON_ART' THEN
         SET outcome_condition =
-                ' art_start_date < ? ';
+                CONCAT(' art_start_date < ''',REPORT_START_DATE,''' ');
     ELSEIF REPORT_TYPE = 'NEW_ON_ART' THEN
         SET outcome_condition =
-                ' art_start_date between ? AND ? ';
+                CONCAT(' art_start_date between ''',REPORT_START_DATE,''' AND ''',REPORT_END_DATE,''' ');
     ELSE
         SET outcome_condition = '1=1';
     END IF;
@@ -43,7 +43,7 @@ BEGIN
         FROM (select datim_agegroup from mamba_dim_agegroup group by datim_agegroup) as order_query;
     END IF;
 
-    SET tx_tb_query = 'WITH FollowUp AS (select follow_up.encounter_id,
+    SET tx_tb_query = CONCAT('WITH FollowUp AS (select follow_up.encounter_id,
                          follow_up.client_id,
                          follow_up_status,
                          follow_up_date_followup_            AS follow_up_date,
@@ -104,27 +104,27 @@ BEGIN
                               FROM FollowUp
                               WHERE follow_up_status IS NOT NULL
                                 AND art_start_date IS NOT NULL
-                                AND follow_up_date <= ?),
+                                AND follow_up_date <= ''',REPORT_END_DATE,''' ),
      tb_art as (
          select tmp_latest_follow_up.*,
                 sex,
                 date_of_birth,
                 mrn,
                 uan,
-                (SELECT datim_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as fine_age_group,
-                (SELECT normal_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as coarse_age_group
+                (SELECT datim_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth, ''',REPORT_END_DATE,''' )=age) as fine_age_group,
+                (SELECT normal_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth, ''',REPORT_END_DATE,''' )=age) as coarse_age_group
          from tmp_latest_follow_up
                   join mamba_dim_client client on client.client_id=tmp_latest_follow_up.client_id
          where follow_up_status in (''Alive'',''Restart medication'')
            and row_num=1
-           and art_start_date <= ?
-           and (active_tb_diagnosed_date <= ? OR tb_treatment_start_date <= ?)
+           and art_start_date <= ''',REPORT_END_DATE,'''
+           and (active_tb_diagnosed_date <= ''',REPORT_END_DATE,''' OR tb_treatment_start_date <= ''',REPORT_END_DATE,''' )
            and (
-             (date_active_tbrx_dc is null and date_active_tbrx_completed is null and  (DATE_ADD(tb_treatment_start_date, INTERVAL 1 YEAR ) >= ? ))
+             (date_active_tbrx_dc is null and date_active_tbrx_completed is null and  (DATE_ADD(tb_treatment_start_date, INTERVAL 1 YEAR ) >= ''',REPORT_END_DATE,''' ))
                  OR
-             (date_active_tbrx_completed > ? OR date_active_tbrx_dc > ? )
+             (date_active_tbrx_completed > ''',REPORT_END_DATE,''' OR date_active_tbrx_dc > ''',REPORT_END_DATE,''' )
              )
-     ) ';
+     ) ');
     IF REPORT_TYPE = 'TOTAL' THEN
         SET group_query = 'SELECT COUNT(*) AS NUMERATOR FROM tb_art';
     ELSEIF REPORT_TYPE = 'DEBUG' THEN
@@ -151,15 +151,7 @@ BEGIN
     END IF;
     SET @sql = CONCAT(tx_tb_query, group_query);
     PREPARE stmt FROM @sql;
-    SET @start_date = REPORT_START_DATE;
-    SET @end_date = REPORT_END_DATE;
-    IF REPORT_TYPE = 'ALREADY_ON_ART' THEN
-        EXECUTE stmt USING @end_date, @end_date, @end_date, @end_date , @end_date, @end_date , @end_date, @end_date, @end_date, @start_date;
-    ELSEIF REPORT_TYPE = 'NEW_ON_ART' THEN
-        EXECUTE stmt USING @end_date, @end_date, @end_date, @end_date , @end_date, @end_date , @end_date, @end_date, @end_date, @start_date , @end_date;
-    ELSEIF REPORT_TYPE = 'TOTAL' OR REPORT_TYPE = 'DEBUG' THEN
-        EXECUTE stmt USING @end_date, @end_date, @end_date, @end_date , @end_date, @end_date , @end_date, @end_date, @end_date;
-    END IF;
+    EXECUTE stmt;
     DEALLOCATE PREPARE stmt;
 
 END //

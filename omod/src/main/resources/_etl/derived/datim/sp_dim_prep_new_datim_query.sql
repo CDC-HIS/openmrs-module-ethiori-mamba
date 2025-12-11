@@ -143,9 +143,8 @@ BEGIN
     END IF;
     SET @sql = CONCAT(prep_query, group_query);
     PREPARE stmt FROM @sql;
-    SET @start_date = REPORT_START_DATE;
-    SET @end_date = REPORT_END_DATE;
-    EXECUTE stmt USING @end_date, @end_date, @end_date, @start_date, @end_date ;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
 
 END //
 
