@@ -31,7 +31,7 @@ BEGIN
         SET  cxca_visit_condition = '1=1';
     END IF;
 
-    SET cxca_tx_query = 'WITH FollowUp as (select follow_up.encounter_id,
+    SET cxca_tx_query = CONCAT('WITH FollowUp as (select follow_up.encounter_id,
                          follow_up.client_id,
                          cervical_cancer_screening_status          as cx_ca_screening_status,
                          cervical_cancer_screening_method_strategy as screening_type,
@@ -66,16 +66,16 @@ BEGIN
      tmp_cx_rx as (select *,
                           ROW_NUMBER() over (PARTITION BY client_id ORDER BY treatment_start_date DESC, encounter_id DESC) as row_num
                    from FollowUp
-                   where treatment_start_date BETWEEN ? AND ? and art_start_date is not null),
+                   where treatment_start_date BETWEEN ',REPORT_START_DATE,' AND ',REPORT_END_DATE,' and art_start_date is not null),
 
      cx_rx as (select tmp_cx_rx.*,
                       client.date_of_birth,
                       client.sex,
-                      (SELECT datim_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as fine_age_group,
-                      (SELECT normal_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as coarse_age_group
+                      (SELECT datim_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,',REPORT_END_DATE,')=age) as fine_age_group,
+                      (SELECT normal_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,',REPORT_END_DATE,')=age) as coarse_age_group
                from tmp_cx_rx
                         left join mamba_dim_client client on tmp_cx_rx.client_id = client.client_id
-               where row_num = 1 and current_age >= 15 ) ';
+               where row_num = 1 and current_age >= 15 ) ');
     IF IS_COURSE_AGE_GROUP THEN
         SELECT GROUP_CONCAT(CONCAT('SUM(CASE WHEN coarse_age_group = ''', normal_agegroup,
                                    ''' THEN count ELSE 0 END) AS `',
@@ -124,9 +124,7 @@ BEGIN
     END IF;
     SET @sql = CONCAT(cxca_tx_query, group_query);
     PREPARE stmt FROM @sql;
-    SET @start_date = REPORT_START_DATE;
-    SET @end_date = REPORT_END_DATE;
-    EXECUTE stmt USING @start_date , @end_date, @end_date, @end_date;
+    EXECUTE stmt;
 
 END //
 
