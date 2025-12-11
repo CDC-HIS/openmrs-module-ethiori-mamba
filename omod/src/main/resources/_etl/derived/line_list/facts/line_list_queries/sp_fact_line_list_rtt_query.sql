@@ -50,7 +50,7 @@ BEGIN
                                         FROM FollowUp
                                         WHERE follow_up_status IS NOT NULL
                                           AND art_start_date IS NOT NULL
-                                          AND follow_up_date <= REPORT_START_DATE),                         -- Param 1 @start_date
+                                          AND follow_up_date <= DATE_ADD(REPORT_START_DATE, INTERVAL -1 DAY)),                         -- Param 1 @start_date
          latest_follow_up_start as (select *
                                     from tmp_latest_follow_up_start
                                     where row_num = 1),
@@ -58,7 +58,7 @@ BEGIN
                            from tmp_latest_follow_up_start
                            where row_num = 1
                              AND follow_up_status in ('Alive', 'Restart medication')
-                             AND treatment_end_date >= REPORT_START_DATE),                                  -- Param 2 @start_date
+                             AND treatment_end_date >= DATE_ADD(REPORT_START_DATE, INTERVAL -1 DAY)),                                  -- Param 2 @start_date
          interrupted_at_start AS (select latest_follow_up_start.*
                                   from latest_follow_up_start
                                            left join tx_curr_start
@@ -161,7 +161,7 @@ BEGIN
                            interrupted_at_start.treatment_end_date                           as interrupted_follow_up_treatment_end_date,
                            CASE
                                WHEN interrupted_at_start.follow_up_status in ('Alive', 'Restart medication')
-                                   and interrupted_at_start.treatment_end_date <= REPORT_START_DATE
+                                   and interrupted_at_start.treatment_end_date <= DATE_ADD(REPORT_START_DATE, INTERVAL -1 DAY)
                                    THEN -- Param 9 @start_date
                                    TIMESTAMPDIFF(MONTH, interrupted_at_start.treatment_end_date,
                                                  restart_follow_up_end.restart_follow_up_date)

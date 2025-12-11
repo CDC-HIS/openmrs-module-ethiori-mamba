@@ -52,12 +52,12 @@ BEGIN
                                         FROM FollowUp
                                         WHERE follow_up_status IS NOT NULL
                                           AND art_start_date IS NOT NULL
-                                          AND follow_up_date <= REPORT_START_DATE),
+                                          AND follow_up_date <= DATE_ADD(REPORT_START_DATE, INTERVAL -1 DAY)),
          tx_curr_start AS (select *
                            from tmp_latest_follow_up_start
                            where row_num = 1
                              AND follow_up_status in ('Alive', 'Restart medication')
-                             AND treatment_end_date >= REPORT_START_DATE),
+                             AND treatment_end_date >= DATE_ADD(REPORT_START_DATE, INTERVAL -1 DAY)),
          -- TX curr
          tmp_lost_follow_up AS (SELECT client_id,
                                        follow_up_date,

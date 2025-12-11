@@ -10,7 +10,7 @@ CREATE PROCEDURE sp_dim_tx_rtt_datim_query(
 )
 BEGIN
     DECLARE age_group_cols VARCHAR(5000);
-    DECLARE tx_rtt_query VARCHAR(10242);
+    DECLARE tx_rtt_query VARCHAR(10323);
     DECLARE group_query TEXT;
     DECLARE outcome_condition VARCHAR(227);
     SET session group_concat_max_len = 20000;
@@ -121,7 +121,7 @@ BEGIN
                                     FROM FollowUp
                                     WHERE follow_up_status IS NOT NULL
                                       AND art_start_date IS NOT NULL
-                                      AND follow_up_date <= ?),  -- Param 1 @start_date
+                                      AND follow_up_date <= DATE_ADD(?, INTERVAL -1 DAY)),  -- Param 1 @start_date
      tmp_visitect_cd4_result as (SELECT client_id,
                                         encounter_id,
                                         visitect_cd4_result,
@@ -136,7 +136,7 @@ BEGIN
                        from tmp_latest_follow_up_start
                        where row_num = 1
                          AND follow_up_status in (''Alive'', ''Restart medication'')
-                         AND treatment_end_date >= ?), -- Param 2 @start_date
+                         AND treatment_end_date >= DATE_ADD(?, INTERVAL -1 DAY)), -- Param 2 @start_date
      interrupted_at_start AS (select latest_follow_up_start.*
                               from latest_follow_up_start
                                        left join tx_curr_start
@@ -205,7 +205,7 @@ BEGIN
                        interrupted_at_start.treatment_end_date as interrupted_follow_up_treatment_end_date,
                        CASE
                            WHEN interrupted_at_start.follow_up_status in (''Alive'', ''Restart medication'')
-                               and interrupted_at_start.treatment_end_date <= ? THEN   -- Param 9 @start_date
+                               and interrupted_at_start.treatment_end_date <= DATE_ADD(?, INTERVAL -1 DAY) THEN   -- Param 9 @start_date
                                TIMESTAMPDIFF(MONTH, interrupted_at_start.treatment_end_date,
                                              restart_follow_up_end.restart_follow_up_date)
                            ELSE TIMESTAMPDIFF(MONTH, interrupted_at_start.follow_up_date,
