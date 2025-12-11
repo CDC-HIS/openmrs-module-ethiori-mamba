@@ -14,7 +14,7 @@ BEGIN
         TIMESTAMPDIFF(YEAR, mp.birthdate, COALESCE(REPORT_END_DATE, CURDATE())) AS age,
         mpe.followup_date AS phrh_enrollment_date,
         mpe.previously_tested_for_hiv AS previously_tested_for_hiv,
-        followup_date AS phrh_followup_date_ec,
+        mpf.followup_date AS phrh_followup_date_ec,
         mpf.followup_date AS phrh_followup_date,
         CONCAT_WS(',',
 			mpf.history_of_sti,
