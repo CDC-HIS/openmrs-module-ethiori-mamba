@@ -53,7 +53,7 @@ BEGIN
         FROM (select datim_agegroup from mamba_dim_agegroup group by datim_agegroup) as order_query;
     END IF;
 
-    SET tx_ml_query = 'WITH FollowUp AS (SELECT follow_up.encounter_id,
+    SET tx_ml_query = CONCAT('WITH FollowUp AS (SELECT follow_up.encounter_id,
                              follow_up.client_id,
                              follow_up_status,
                              follow_up_date_followup_            AS follow_up_date,
@@ -172,7 +172,7 @@ BEGIN
                                       join mamba_dim_client client on on_art.client_id = client.client_id
                                       join lost_follow_up
                                            on on_art.client_id = lost_follow_up.client_id
-                             where on_art.client_id not in (select client_id from tx_curr_end)) ';
+                             where on_art.client_id not in (select client_id from tx_curr_end)) ');
     IF REPORT_TYPE = 'TOTAL' THEN
         SET group_query = 'SELECT COUNT(*) AS NUMERATOR FROM interrupted_art';
     ELSEIF REPORT_TYPE = 'DEBUG' THEN
@@ -197,7 +197,6 @@ BEGIN
         GROUP BY sex
         ');
     END IF;
-    # SELECT CONCAT(tx_ml_query, group_query);
     SET @sql = CONCAT(tx_ml_query, group_query);
     PREPARE stmt FROM @sql;
     SET @start_date = REPORT_START_DATE;
