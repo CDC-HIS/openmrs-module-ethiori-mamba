@@ -180,6 +180,7 @@ from mamba_flat_encounter_index_contact_followup contact
     SET @sql = CONCAT(ict_query, group_query);
     PREPARE stmt FROM @sql;
     EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
 
 END //
 DELIMITER ;

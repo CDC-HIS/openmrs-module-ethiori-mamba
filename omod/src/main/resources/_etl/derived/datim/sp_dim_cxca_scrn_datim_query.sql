@@ -219,6 +219,7 @@ BEGIN
     SET @sql = CONCAT(cxca_scrn_query, group_query);
     PREPARE stmt FROM @sql;
     EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
 
 END //
 
