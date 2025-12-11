@@ -53,7 +53,7 @@ BEGIN
         FROM (select datim_agegroup from mamba_dim_agegroup group by datim_agegroup) as order_query;
     END IF;
 
-    SET tx_ml_query = 'WITH FollowUp AS (SELECT follow_up.encounter_id,
+    SET tx_ml_query = CONCAT('WITH FollowUp AS (SELECT follow_up.encounter_id,
                              follow_up.client_id,
                              follow_up_status,
                              follow_up_date_followup_            AS follow_up_date,
@@ -100,12 +100,12 @@ BEGIN
                                         FROM FollowUp
                                         WHERE follow_up_status IS NOT NULL
                                           AND art_start_date IS NOT NULL
-                                          AND follow_up_date <= DATE_ADD(?, INTERVAL -1 DAY)),
+                                          AND follow_up_date <= DATE_ADD( ''',REPORT_START_DATE,''' , INTERVAL -1 DAY)),
          tx_curr_start AS (select *
                            from tmp_latest_follow_up_start
                            where row_num = 1
                              AND follow_up_status in (''Alive'', ''Restart medication'')
-                             AND treatment_end_date >= DATE_ADD(?, INTERVAL -1 DAY)),
+                             AND treatment_end_date >= DATE_ADD( ''',REPORT_START_DATE,''' , INTERVAL -1 DAY)),
          -- TX curr
          tmp_lost_follow_up AS (SELECT client_id,
                                        follow_up_date,
@@ -121,7 +121,7 @@ BEGIN
                                 FROM FollowUp
                                 WHERE follow_up_status IS NOT NULL
                                   AND art_start_date IS NOT NULL
-                                  AND follow_up_date <= ?),
+                                  AND follow_up_date <= ''',REPORT_END_DATE,''' ),
          lost_follow_up as (select *
                             from tmp_lost_follow_up
                             where row_num = 1),
@@ -129,7 +129,7 @@ BEGIN
                          from tmp_lost_follow_up
                          where row_num = 1
                            AND follow_up_status in (''Alive'', ''Restart medication'')
-                           AND treatment_end_date >= ?),
+                           AND treatment_end_date >= ''',REPORT_END_DATE,''' ),
 
          tmp_first_follow_up as (SELECT client_id,
                                         follow_up_date,
@@ -145,7 +145,7 @@ BEGIN
          tx_new_tmp as (select tmp_lost_follow_up.*
                         from tmp_lost_follow_up
                                  join first_follow_up on tmp_lost_follow_up.client_id = first_follow_up.client_id
-                        where art_start_date BETWEEN ? AND ?
+                        where art_start_date BETWEEN ''',REPORT_START_DATE,''' AND ''',REPORT_END_DATE,'''
                           AND (first_follow_up.transferred_in is null or first_follow_up.transferred_in != ''Yes'')
                           AND first_follow_up.follow_up_status in (''Alive'', ''Restart medication'')
                           AND tmp_lost_follow_up.row_num = 1),
@@ -164,15 +164,15 @@ BEGIN
                                     lost_follow_up.follow_up_date                                     as lost_follow_up_date,
                                      (SELECT datim_agegroup
                                      from mamba_dim_agegroup
-                                     where TIMESTAMPDIFF(YEAR, date_of_birth, ?) = age) as fine_age_group,
+                                     where TIMESTAMPDIFF(YEAR, date_of_birth, ''',REPORT_END_DATE,''' ) = age) as fine_age_group,
                                     (SELECT normal_agegroup
                                      from mamba_dim_agegroup
-                                     where TIMESTAMPDIFF(YEAR, date_of_birth, ?) = age) as coarse_age_group
+                                     where TIMESTAMPDIFF(YEAR, date_of_birth, ''',REPORT_END_DATE,''' ) = age) as coarse_age_group
                              from on_art
                                       join mamba_dim_client client on on_art.client_id = client.client_id
                                       join lost_follow_up
                                            on on_art.client_id = lost_follow_up.client_id
-                             where on_art.client_id not in (select client_id from tx_curr_end)) ';
+                             where on_art.client_id not in (select client_id from tx_curr_end)) ');
     IF REPORT_TYPE = 'TOTAL' THEN
         SET group_query = 'SELECT COUNT(*) AS NUMERATOR FROM interrupted_art';
     ELSEIF REPORT_TYPE = 'DEBUG' THEN
@@ -197,12 +197,9 @@ BEGIN
         GROUP BY sex
         ');
     END IF;
-    # SELECT CONCAT(tx_ml_query, group_query);
     SET @sql = CONCAT(tx_ml_query, group_query);
     PREPARE stmt FROM @sql;
-    SET @start_date = REPORT_START_DATE;
-    SET @end_date = REPORT_END_DATE;
-    EXECUTE stmt USING @start_date, @start_date, @end_date, @end_date, @start_date, @end_date, @end_date, @end_date;
+    EXECUTE stmt;
     DEALLOCATE PREPARE stmt;
 
 END //
