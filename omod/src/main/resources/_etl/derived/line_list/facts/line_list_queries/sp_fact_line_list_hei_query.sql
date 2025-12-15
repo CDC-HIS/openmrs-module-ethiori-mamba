@@ -27,7 +27,7 @@ BEGIN
     LatestFollowUp AS (
         SELECT
             f.client_id,
-            f.follow_up_date_followup_ as follow_up_date,
+            f.followup_date_followup as follow_up_date,
             f.weight_text as current_weight,
 #             f.infant_feeding_practice_within_the_first_6_months_of_life,
 #             f.infant_feeding_practice_older_than_6_months_of_life,
@@ -36,9 +36,9 @@ BEGIN
 #             f.cotrimoxazole_adherence_level,
 #             f.developmental_milestone_for_children,
             f.next_visit_date,
-            ROW_NUMBER() OVER (PARTITION BY f.client_id ORDER BY f.follow_up_date_followup_ DESC) as rn
+            ROW_NUMBER() OVER (PARTITION BY f.client_id ORDER BY f.followup_date_followup DESC) as rn
         FROM mamba_flat_encounter_hei_followup f
-        WHERE f.follow_up_date_followup_ <= REPORT_END_DATE
+        WHERE f.followup_date_followup <= REPORT_END_DATE
     ),
 
     HIVTesting AS (
