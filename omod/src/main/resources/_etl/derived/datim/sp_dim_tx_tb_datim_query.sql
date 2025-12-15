@@ -18,19 +18,19 @@ BEGIN
 
     IF REPORT_TYPE = 'NEW_ART_POSITIVE' THEN
         SET outcome_condition =
-                ' art_start_date between ? AND ? and screening_result=''Positive'' ';
+                CONCAT(' art_start_date between ''',REPORT_START_DATE,''' AND ''',REPORT_END_DATE,''' and screening_result=''Positive'' ');
         SET source_table = 'tb_screening';
     ELSEIF REPORT_TYPE = 'NEW_ART_NEGATIVE' THEN
         SET outcome_condition =
-                ' art_start_date between ? AND ?  and screening_result != ''Positive''  ';
+                CONCAT(' art_start_date between ''',REPORT_START_DATE,''' AND ''',REPORT_END_DATE,'''  and screening_result != ''Positive''  ');
         SET source_table = 'tb_screening';
     ELSEIF REPORT_TYPE = 'PREV_ART_POSITIVE' THEN
         SET outcome_condition =
-                ' art_start_date < ? and follow_up_status in (''Alive'', ''Restart medication'') and screening_result = ''Positive'' ';
+                CONCAT(' art_start_date < ''',REPORT_END_DATE,''' and follow_up_status in (''Alive'', ''Restart medication'') and screening_result = ''Positive'' ');
         SET source_table = 'tb_screening';
     ELSEIF REPORT_TYPE = 'PREV_ART_NEGATIVE' THEN
         SET outcome_condition =
-                ' art_start_date < ? and follow_up_status in (''Alive'', ''Restart medication'')  and screening_result != ''Positive'' ';
+                CONCAT(' art_start_date < ''',REPORT_END_DATE,''' and follow_up_status in (''Alive'', ''Restart medication'')  and screening_result != ''Positive'' ');
         SET source_table = 'tb_screening';
     ELSEIF REPORT_TYPE = 'SCREEN_TYPE' THEN
         SET outcome_condition = ' 1=1 ';
@@ -45,13 +45,13 @@ BEGIN
         SET outcome_condition = ' 1=1 ';
         SET source_table = 'tb_screening';
     ELSEIF REPORT_TYPE = 'NUMERATOR_NEW' THEN
-        SET outcome_condition = ' art_start_date IS NOT NULL AND art_start_date between ? AND ? and tb_treatment_start_date between ? AND ? ';
+        SET outcome_condition = CONCAT(' art_start_date IS NOT NULL AND art_start_date between ''',REPORT_START_DATE,''' AND ''',REPORT_END_DATE,''' and tb_treatment_start_date between ''',REPORT_START_DATE,''' AND ''',REPORT_END_DATE,''' ');
         SET source_table = 'tb_treatment';
     ELSEIF REPORT_TYPE = 'NUMERATOR_TOTAL' THEN
-        SET outcome_condition = ' art_start_date IS NOT NULL AND tb_treatment_start_date between ? AND ? ';
+        SET outcome_condition = CONCAT(' art_start_date IS NOT NULL AND tb_treatment_start_date between ''',REPORT_START_DATE,''' AND ',REPORT_END_DATE,' ');
         SET source_table = 'tb_treatment';
     ELSEIF REPORT_TYPE = 'NUMERATOR_PREV' THEN
-        SET outcome_condition = ' art_start_date IS NOT NULL AND art_start_date < ? and tb_treatment_start_date between ? AND ? ';
+        SET outcome_condition = CONCAT(' art_start_date IS NOT NULL AND art_start_date < ''',REPORT_START_DATE,''' and tb_treatment_start_date between ''',REPORT_START_DATE,''' AND ''',REPORT_END_DATE,''' ');
         SET source_table = 'tb_treatment';
     ELSE
         SET outcome_condition = '1=1';
@@ -76,7 +76,7 @@ BEGIN
         FROM (select datim_agegroup from mamba_dim_agegroup group by datim_agegroup) as order_query;
     END IF;
 
-    SET tx_tb_query = 'WITH FollowUp AS (select follow_up.encounter_id,
+    SET tx_tb_query = CONCAT('WITH FollowUp AS (select follow_up.encounter_id,
                          follow_up.client_id,
                          follow_up_status,
                          follow_up_date_followup_            AS follow_up_date,
@@ -125,7 +125,7 @@ BEGIN
                                         follow_up_status,
                                         ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
                                  from FollowUp
-                                 where follow_up_date <= ?),
+                                 where follow_up_date <= ''',REPORT_END_DATE,''' ),
                          tmp_latest_screeing_follow_up as (SELECT client_id,
                                                                   follow_up_date                                                                                ,
                                                                   encounter_id,
@@ -145,14 +145,14 @@ BEGIN
                                                            FROM FollowUp
                                                            WHERE follow_up_status IS NOT NULL
                                                              AND tb_screening_date is not null
-                                                             and tb_screening_date between ? AND ?),
+                                                             and tb_screening_date between ''',REPORT_START_DATE,''' AND ''',REPORT_END_DATE,''' ),
                          latest_follow_up as (select * from tmp_latest_follow_up where row_num = 1),
                          latest_screeing_follow_up as (select * from tmp_latest_screeing_follow_up where row_num = 1),
                          tb_screening as (SELECT follow_up.*,
                                                  sex,
                                                  date_of_birth,
-                                                (SELECT datim_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as fine_age_group,
-                                                (SELECT normal_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as coarse_age_group,
+                                                (SELECT datim_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth, ''',REPORT_END_DATE,''' )=age) as fine_age_group,
+                                                (SELECT normal_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth, ''',REPORT_END_DATE,''' )=age) as coarse_age_group,
                                                  mrn,
                                                  uan,
                                                  latest_follow_up.follow_up_status as latest_follow_up_staus
@@ -163,22 +163,22 @@ BEGIN
                                                      ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY tb_treatment_start_date DESC,
                                                          encounter_id DESC) AS row_num
                                               from FollowUp
-                                              WHERE tb_treatment_start_date BETWEEN ? AND ?),
+                                              WHERE tb_treatment_start_date BETWEEN ''',REPORT_START_DATE,''' AND ''',REPORT_END_DATE,''' ),
 
                          tb_treatment AS (SELECT tmp_tb_treatment.*,
                                                  sex,
                                                  date_of_birth,
                                                  (SELECT datim_agegroup
                                                   from mamba_dim_agegroup
-                                                  where TIMESTAMPDIFF(YEAR, date_of_birth, ?) = age) as fine_age_group,
+                                                  where TIMESTAMPDIFF(YEAR, date_of_birth, ''',REPORT_END_DATE,''' ) = age) as fine_age_group,
                                                  (SELECT normal_agegroup
                                                   from mamba_dim_agegroup
-                                                  where TIMESTAMPDIFF(YEAR, date_of_birth, ?) = age) as coarse_age_group,
+                                                  where TIMESTAMPDIFF(YEAR, date_of_birth, ''',REPORT_END_DATE,''' ) = age) as coarse_age_group,
                                                  mrn,
                                                  uan
                                           FROM tmp_tb_treatment
                                           JOIN mamba_dim_client client on client.client_id = tmp_tb_treatment.client_id
-                                          where row_num = 1)';
+                                          where row_num = 1)');
     IF REPORT_TYPE = 'SCREEN_TYPE' THEN
         SET group_query = 'select SUM(CASE WHEN other_diagnostic_test = ''Chest X-Ray'' is not null THEN 1 ELSE 0 END) as `Chest X-Ray` ,
        SUM(CASE WHEN other_diagnostic_test != ''Chest X-Ray'' is null THEN 1 ELSE 0 END) AS ''Symptom Screen Only'',
@@ -224,19 +224,7 @@ from tb_screening where specimen_sent_to_lab=''Yes'' ';
 
     SET @sql = CONCAT(tx_tb_query, group_query);
     PREPARE stmt FROM @sql;
-    SET @start_date = REPORT_START_DATE;
-    SET @end_date = REPORT_END_DATE;
-    IF REPORT_TYPE = 'PREV_ART_POSITIVE' OR REPORT_TYPE = 'PREV_ART_NEGATIVE' THEN
-        EXECUTE stmt USING @end_date, @start_date , @end_date, @end_date, @end_date, @start_date, @end_date, @end_date, @end_date, @end_date;
-    ELSEIF REPORT_TYPE = 'NEW_ART_POSITIVE' OR REPORT_TYPE = 'NEW_ART_NEGATIVE' OR REPORT_TYPE = 'NUMERATOR_TOTAL' THEN
-        EXECUTE stmt USING @end_date, @start_date , @end_date, @end_date, @end_date, @start_date, @end_date, @end_date, @end_date, @start_date ,@end_date;
-    ELSEIF REPORT_TYPE = 'NUMERATOR_PREV' THEN
-        EXECUTE stmt USING @end_date, @start_date , @end_date, @end_date, @end_date, @start_date, @end_date, @end_date, @end_date, @start_date , @start_date, @end_date;
-    ELSEIF REPORT_TYPE = 'NUMERATOR_NEW' THEN
-        EXECUTE stmt USING @end_date, @start_date , @end_date, @end_date, @end_date, @start_date, @end_date, @end_date, @end_date, @start_date ,@end_date, @start_date ,@end_date;
-    ELSE
-        EXECUTE stmt USING @end_date, @start_date , @end_date, @end_date, @end_date, @start_date, @end_date, @end_date, @end_date;
-    END IF;
+    EXECUTE stmt;
     DEALLOCATE PREPARE stmt;
 END //
 
