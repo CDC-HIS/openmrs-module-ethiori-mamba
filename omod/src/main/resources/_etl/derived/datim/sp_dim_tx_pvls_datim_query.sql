@@ -34,7 +34,7 @@ SELECT GROUP_CONCAT(CONCAT('SUM(CASE WHEN fine_age_group = ''', datim_agegroup,
 INTO age_group_cols
 FROM (select datim_agegroup from mamba_dim_agegroup group by datim_agegroup) as order_query;
 END IF;
-    SET pvls_query = 'WITH FollowUp AS (select follow_up.encounter_id,
+    SET pvls_query = CONCAT('WITH FollowUp AS (select follow_up.encounter_id,
                          follow_up.client_id,
                          follow_up_status,
                          follow_up_date_followup_            AS follow_up_date,
@@ -79,7 +79,7 @@ END IF;
                               FROM FollowUp
                               WHERE follow_up_status IS NOT NULL
                                 AND art_start_date IS NOT NULL
-                                AND follow_up_date <= ? ),
+                                AND follow_up_date <= ''',REPORT_END_DATE,''' ),
      latest_follow_up AS (select *
                           from tmp_latest_follow_up
                           where row_num = 1),
@@ -96,8 +96,8 @@ END IF;
                          ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY viral_load_performed_date DESC, encounter_id DESC) AS row_num
                   from FollowUp
                   where viral_load_performed_date is not null
-                    and viral_load_performed_date >= fn_ethiopian_to_gregorian_calendar(date_add(fn_gregorian_to_ethiopian_calendar(?, ''Y-M-D''), INTERVAL -12 MONTH))
-                    AND viral_load_performed_date <= ? ),
+                    and viral_load_performed_date >= fn_ethiopian_to_gregorian_calendar(date_add(fn_gregorian_to_ethiopian_calendar( ''',REPORT_END_DATE,''' , ''Y-M-D''), INTERVAL -12 MONTH))
+                    AND viral_load_performed_date <= ''',REPORT_END_DATE,''' ),
      tmp_pvls_2 as (select * from tmp_pvls where row_num = 1),
      pvls as (select client.client_id,
                      pregnancy_status,
@@ -106,8 +106,8 @@ END IF;
                      viral_load_count,
                      viral_load_test_status,
                      follow_up_date,
-                     (SELECT datim_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as fine_age_group,
-                     (SELECT normal_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as coarse_age_group,
+                     (SELECT datim_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth, ''',REPORT_END_DATE,''' )=age) as fine_age_group,
+                     (SELECT normal_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth, ''',REPORT_END_DATE,''' )=age) as coarse_age_group,
                      breast_feeding_status
               from tmp_pvls_2
                        inner join mamba_dim_client client on tmp_pvls_2.client_id = client.client_id
@@ -116,7 +116,7 @@ END IF;
      pvls_numerator as (select *
                         from pvls
                         where viral_load_count < 1000 or (viral_load_count  is null and viral_load_test_status in (''Suppressed'',''Low-level viremia''))
-                        ) ';
+                        ) ');
     IF REPORT_TYPE = 'NUMERATOR' THEN
         SET disaggregate_query = CONCAT('
         SELECT
@@ -174,8 +174,7 @@ ELSEIF REPORT_TYPE = 'DENOMINATOR' THEN
     END IF;
     SET @sql = CONCAT(pvls_query, disaggregate_query);
     PREPARE stmt FROM @sql;
-    SET @end_date = REPORT_END_DATE;
-    EXECUTE stmt USING @end_date, @end_date, @end_date, @end_date, @end_date;
+    EXECUTE stmt;
     DEALLOCATE PREPARE stmt;
 
 END //
