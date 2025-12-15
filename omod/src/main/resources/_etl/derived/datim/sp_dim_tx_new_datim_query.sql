@@ -72,7 +72,7 @@ BEGIN
             FROM (select datim_agegroup from mamba_dim_agegroup group by datim_agegroup) as order_query;
         END IF;
     END IF;
-    SET tx_new_query = 'WITH FollowUp AS (select follow_up.encounter_id,
+    SET tx_new_query = CONCAT('WITH FollowUp AS (select follow_up.encounter_id,
                          follow_up.client_id,
                          follow_up_status,
                          follow_up_date_followup_            AS follow_up_date,
@@ -117,13 +117,13 @@ BEGIN
                               FROM FollowUp
                               WHERE follow_up_status IS NOT NULL
                                 AND art_start_date IS NOT NULL
-                                AND follow_up_date <= ?),
+                                AND follow_up_date <= ''',REPORT_END_DATE,''' ),
      tmp_visitect_cd4_result as (SELECT client_id,
                                         encounter_id,
                                         visitect_cd4_result,
                                         ROW_NUMBER() over (PARTITION BY client_id ORDER BY visitect_cd4_test_date DESC, encounter_id DESC) AS row_num
                                  FROM FollowUp
-                                 WHERE visitect_cd4_test_date is not null and visitect_cd4_test_date <= ?),
+                                 WHERE visitect_cd4_test_date is not null and visitect_cd4_test_date <= ''',REPORT_END_DATE,''' ),
      visitect_cd4_result as ( select * from tmp_visitect_cd4_result where row_num=1),
      latest_follow_up as (SELECT *
                           from tmp_latest_follow_up
@@ -150,7 +150,7 @@ BEGIN
                     from latest_follow_up
                              join first_follow_up on latest_follow_up.client_id = first_follow_up.client_id
                              LEFT JOIN visitect_cd4_result on latest_follow_up.client_id = visitect_cd4_result.client_id
-                    where art_start_date BETWEEN ? AND ?
+                    where art_start_date BETWEEN ''',REPORT_START_DATE,''' AND ''',REPORT_END_DATE,'''
                       AND (first_follow_up.transferred_in is null or first_follow_up.transferred_in != ''Yes'')
                       AND first_follow_up.follow_up_status in (''Alive'', ''Restart medication'')),
      tx_new as (select tx_new_tmp.client_id,
@@ -158,13 +158,13 @@ BEGIN
                        pregnancy_status,
                        date_of_birth,
                        TIMESTAMPDIFF(YEAR, date_of_birth, FollowupDate)               as age,
-                       (SELECT datim_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as fine_age_group,
-                       (SELECT normal_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth,?)=age) as coarse_age_group,
+                       (SELECT datim_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth, ''',REPORT_END_DATE,''' )=age) as fine_age_group,
+                       (SELECT normal_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth, ''',REPORT_END_DATE,''' )=age) as coarse_age_group,
                        breast_feeding_status,
                        cd4_count,
                        visitect_cd4_result
                 from tx_new_tmp
-                         join mamba_dim_client client on tx_new_tmp.client_id = client.client_id) ';
+                         join mamba_dim_client client on tx_new_tmp.client_id = client.client_id) ');
     IF CD4_COUNT_GROUPAGE = 'numerator' THEN
         SET group_query = 'SELECT COUNT(*) as Numerator FROM tx_new';
     ELSEIF CD4_COUNT_GROUPAGE = 'breast_feeding' THEN
@@ -192,9 +192,7 @@ BEGIN
     END IF;
     SET @sql = CONCAT(tx_new_query,group_query);
     PREPARE stmt FROM @sql;
-    SET @start_date = REPORT_START_DATE;
-    SET @end_date = REPORT_END_DATE;
-    EXECUTE stmt USING @end_date, @end_date, @start_date, @end_date, @end_date, @end_date;
+    EXECUTE stmt;
     DEALLOCATE PREPARE stmt;
 
 END //
