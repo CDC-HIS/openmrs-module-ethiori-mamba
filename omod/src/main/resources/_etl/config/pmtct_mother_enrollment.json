@@ -13,6 +13,10 @@
     "home":"1536AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "health_clinicpost":"1588AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "other":"5622AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "date_of_enrollment_or_booking":"0fe4faee-0717-4dc0-be3d-1cd52923804a"
+    "date_of_enrollment_or_booking":"0fe4faee-0717-4dc0-be3d-1cd52923804a",
+    "followup_date_followup":"5c118396-52dc-4cac-8860-e6d8e4a7f296",
+    "pregnancy_status":"5272AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "currently_breastfeeding_child":"5632AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "date_referred_to_pmtct":"51882d86-f124-4ac0-991d-59cce5b81763"
   }
 }

@@ -11,6 +11,9 @@ BEGIN
                                art_clinic,
                                location_of_birth,
                                date_of_enrollment_or_booking,
+                               currently_breastfeeding_child,
+                               pregnancy_status,
+                               date_referred_to_pmtct,
                                ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY date_of_enrollment_or_booking , encounter_id ) as row_num
                         FROM mamba_flat_encounter_pmtct_enrollment
                         WHERE date_of_enrollment_or_booking BETWEEN REPORT_START_DATE AND REPORT_END_DATE),
@@ -30,6 +33,9 @@ BEGIN
                                    d.discharge_date,
                                    d.reason_for_discharge_from_pmtct,
                                    d.reason_for_discharge_from_pmtct           as discharge_outcome,
+                                   e.currently_breastfeeding_child,
+                                   e.pregnancy_status,
+                                   e.date_referred_to_pmtct,
                                    COALESCE(d.discharge_date, REPORT_END_DATE) as effective_end_date
                             FROM Enrollment e
                                      LEFT JOIN Discharge d
@@ -149,10 +155,14 @@ BEGIN
            ew.start_date                                              as `PMTCT Booking Date EC.`,
            COALESCE(ew.art_clinic, ew.antenatal_care_provider, ew.ld_client,
                     ew.post_natal_care)                               as `Status at Enrollment`,
+           ew.date_referred_to_pmtct 'Date Referred to PMTCT',
+           ew.pregnancy_status 'Pregnant?',
+           ew.currently_breastfeeding_child 'Breastfeeding?',
            ew.discharge_date                                          as `Date of Discharge`,
            ew.reason_for_discharge_from_pmtct                         as `Reason for Discharge`,
            ew.discharge_outcome                                       as `Maternal PMTCT Final Outcome`,
-
+           ew.effective_end_date as `Date of Final Outcome`,
+           ew.effective_end_date as `Date of Final Outcome EC.`,
            visit.follow_up_date                                       as `Latest Follow-up Date`,
            visit.follow_up_date                                       as `Latest Follow-up Date EC.`,
            visit.follow_up_status                                     as `Latest Follow-up Status`,
