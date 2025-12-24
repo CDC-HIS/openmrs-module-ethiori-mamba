@@ -1,8 +1,8 @@
 DELIMITER //
 
-DROP PROCEDURE IF EXISTS sp_fact_mother_cohort_analysis_summary;
+DROP PROCEDURE IF EXISTS sp_fact_line_list_mother_cohort_analysis_summary_query;
 
-CREATE PROCEDURE sp_fact_mother_cohort_analysis_summary(IN REPORT_START_DATE DATE, IN REPORT_END_DATE DATE)
+CREATE PROCEDURE sp_fact_line_list_mother_cohort_analysis_summary_query(IN REPORT_START_DATE DATE, IN REPORT_END_DATE DATE)
 BEGIN
 
     WITH Follow_UP AS (SELECT follow_up.client_id                 as PatientId,
