@@ -1,97 +1,78 @@
 -- $BEGIN
-INSERT INTO mamba_fact_client (client_id,
-                                      encounter_id,
-                                      encounter_datetime,
-                                      weight_in_kg,
-                                      cd4_count,
-                                      current_who_hiv_stage,
-                                      nutritional_status,
-                                      tb_screening_result,
-                                      enrollment_date,
-                                      hiv_confirmed_date,
-                                      art_start_date,
-                                      days_difference,
-                                      followup_date,
-                                      regimen,
-                                      arv_dose_days,
-                                      pregnancy_status,
-                                      breast_feeding_status,
-                                      follow_up_status,
-                                      ti,
-                                      treatment_end_date,
-                                      next_visit_date,
-                                      hiv_viral_load_count,
-                                      hiv_viral_load_status,
-                                      viral_load_test_status,
-                                      on_antiretroviral_therapy,
-                                      viral_load_test_indication,
-                                      antiretroviral_side_effects,
-                                      anitiretroviral_adherence_level,
-                                      date_of_reported_hiv_viral_load,
-                                      date_viral_load_results_received,
-                                      routine_viral_load_test_indication,
-                                      targeted_viral_load_test_indication,
-                                      dsd_category,
-                                      tpt_start_date,
-                                      tpt_completed_date,
-                                      tpt_discontinued_date,
-                                      date_active_tbrx_completed,
-                                      tb_prophylaxis_type,
-                                      cotrimoxazole_prophylaxis_start_dat,
-                                      cotrimoxazole_prophylaxis_stop_date,
-                                      patient_diagnosed_with_active_tuber,
-                                      diagnosis_date,
-                                      tuberculosis_drug_treatment_start_d,
-                                      fluconazole_start_date)
-SELECT follow_up.client_id,
-       follow_up.encounter_id,
-       follow_up.encounter_datetime,
-       weight_text_,
-       cd4_count,
-       current_who_hiv_stage,
-       nutritional_status_of_adult,
-       tb_diagnostic_test_result,
-       date_enrolled_in_care,
-       date_of_event,
-       art_antiretroviral_start_date,
-       DATEDIFF(art_antiretroviral_start_date,date_of_event) as days_difference,
-       follow_up_date_followup_,
-       regimen,
-       antiretroviral_art_dispensed_dose_i,
-       pregnancy_status,
-       currently_breastfeeding_child,
-       follow_up_status,
-       why_eligible_reason_,
-       treatment_end_date,
-       next_visit_date,
-       hiv_viral_load,
-       hiv_viral_load_status,
-       viral_load_test_status,
-       on_antiretroviral_therapy,
-       viral_load_test_indication,
-       antiretroviral_side_effects,
-       adherence,
-       date_of_reported_hiv_viral_load,
-       date_viral_load_results_received,
-       routine_viral_load_test_indication,
-       targeted_viral_load_test_indication,
-       dsd_category,
-       date_started_on_tuberculosis_prophy,
-       date_completed_tuberculosis_prophyl,
-       date_discontinued_tuberculosis_prop,
-       date_active_tbrx_completed,
-       tb_prophylaxis_type,
-       cotrimoxazole_prophylaxis_start_dat,
-       cotrimoxazole_prophylaxis_stop_date,
-       patient_diagnosed_with_active_tuber,
-       diagnosis_date,
-       tuberculosis_drug_treatment_start_d,
-       fluconazole_start_date
-FROM mamba_flat_encounter_follow_up follow_up
-        LEFT JOIN mamba_flat_encounter_follow_up_1 enc_follow_up_1        on enc_follow_up_1.encounter_id = follow_up.encounter_id
-        LEFT JOIN mamba_flat_encounter_follow_up_2 enc_follow_up_2        on enc_follow_up_2.encounter_id = follow_up.encounter_id
-        LEFT JOIN mamba_flat_encounter_follow_up_3 enc_follow_up_3        on enc_follow_up_3.encounter_id = follow_up.encounter_id
-        LEFT JOIN mamba_flat_encounter_follow_up_4 enc_follow_up_4        on enc_follow_up_4.encounter_id = follow_up.encounter_id
-        LEFT JOIN mamba_flat_encounter_intake_a int_a on follow_up.client_id = int_a.client_id
-where art_antiretroviral_start_date is not null;
+INSERT INTO mamba_fact_client
+(client_id, patient_uuid, mrn,
+ patient_name, sex, birthdate, age,
+ art_start_date, current_status, current_regimen, regimen_line,
+ last_visit_date, next_appointment_date, days_overdue,
+ last_vl_date, last_vl_result, is_suppressed)
+WITH
+    -- A. Get Latest Clinical Follow-up
+    LatestFollowUp AS (SELECT client_id,
+                              follow_up_date_followup_                                                                             as visit_date,
+                              next_visit_date,
+                              follow_up_status,
+                              regimen,
+                              treatment_end_date,
+                              ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date_followup_ DESC, encounter_id DESC) as rn
+                       FROM mamba_flat_encounter_follow_up
+                       WHERE follow_up_date_followup_ IS NOT NULL),
+
+    -- B. Get Latest Viral Load
+    LatestLab AS (SELECT client_id,
+                         date_of_reported_hiv_viral_load                                                          as vl_date,
+                         hiv_viral_load                                                                           as vl_result,
+                         ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY date_of_reported_hiv_viral_load DESC) as rn
+                  FROM mamba_flat_encounter_follow_up -- Or your specific Lab table
+                  WHERE hiv_viral_load IS NOT NULL),
+
+    -- C. Get ART Start Date
+    ARTStart AS (SELECT client_id,
+                        MIN(art_antiretroviral_start_date) as start_date
+                 FROM mamba_flat_encounter_follow_up
+                 WHERE art_antiretroviral_start_date IS NOT NULL
+                 GROUP BY client_id)
+
+SELECT c.client_id,
+       c.patient_uuid,
+       c.mrn,
+       c.patient_name,
+       c.sex,
+       c.date_of_birth,
+       TIMESTAMPDIFF(YEAR, c.date_of_birth, CURDATE())                    as age,
+
+       -- ART Start
+       art.start_date,
+
+       -- Calculated Status (Sticky Logic)
+       CASE
+           WHEN lfu.follow_up_status IN ('Dead', 'Died') THEN 'Dead'
+           WHEN lfu.follow_up_status IN ('Transferred out', 'TO') THEN 'Transferred Out'
+           WHEN lfu.treatment_end_date >= CURDATE() THEN 'Active'
+           WHEN lfu.visit_date IS NULL THEN 'No Clinical Contact'
+           ELSE 'Lost to Follow-up'
+           END                                                            as current_status,
+
+       lfu.regimen,
+
+       -- Simple Regimen Line Logic (Customize as needed)
+       CASE
+           WHEN lfu.regimen LIKE '1%' THEN 'First Line'
+           WHEN lfu.regimen LIKE '2%' THEN 'Second Line'
+           ELSE 'Other'
+           END                                                            as regimen_line,
+
+       lfu.visit_date,
+       lfu.next_visit_date,
+
+       -- Days Overdue (Negative means future appointment)
+       DATEDIFF(CURDATE(), COALESCE(lfu.next_visit_date, lfu.visit_date)) as days_overdue,
+
+       lab.vl_date,
+       lab.vl_result,
+       CASE WHEN lab.vl_result < 1000 THEN 1 ELSE 0 END                   as is_suppressed
+
+FROM mamba_dim_client c
+         LEFT JOIN LatestFollowUp lfu ON c.client_id = lfu.client_id AND lfu.rn = 1
+         LEFT JOIN LatestLab lab ON c.client_id = lab.client_id AND lab.rn = 1
+         LEFT JOIN ARTStart art ON c.client_id = art.client_id;
 -- $END
