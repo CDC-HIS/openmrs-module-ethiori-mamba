@@ -72,7 +72,7 @@ public class ChildCohortAnalysisLineListDatasetEvaluatorMamba implements DataSet
         java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date( dataSetDefinitionMamba.getEndDate().getTime()):null ;
         if (dataSetDefinitionMamba.getType().equalsIgnoreCase("LineList")){
             return Collections.singletonList(
-                    new ProcedureCall("{call sp_fact_line_list_child_cohort_analysis_summary_query(?,?)}", statement -> {
+                    new ProcedureCall("{call sp_fact_line_list_child_cohort_analysis_query(?,?)}", statement -> {
                         statement.setDate(1, startDate);
                         statement.setDate(2, endDate);
                     })

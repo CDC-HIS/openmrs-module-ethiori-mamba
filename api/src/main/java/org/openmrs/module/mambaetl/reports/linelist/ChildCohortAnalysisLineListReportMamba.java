@@ -42,12 +42,11 @@ public class ChildCohortAnalysisLineListReportMamba implements ReportManager {
 		endDate.setRequired(true);
 		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
 		endDateGC.setRequired(false);
-		
+
 		Parameter type = new Parameter("type", "Cohort Report Type", String.class);
 		type.setRequired(true);
-		type.addToWidgetConfiguration("codedOptions", "SUMMARY");
-		type.setDefaultValue("SUMMARY");
-		
+		type.addToWidgetConfiguration("codedOptions", "SUMMARY,LineList");
+		type.setDefaultValue("LineList");
 		return Arrays.asList(startDate, startDateGC, endDate, endDateGC, type);
 		
 	}
