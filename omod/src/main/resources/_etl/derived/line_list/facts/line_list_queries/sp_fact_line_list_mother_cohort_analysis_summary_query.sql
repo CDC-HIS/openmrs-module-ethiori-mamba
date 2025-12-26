@@ -178,7 +178,7 @@ BEGIN
     -- Row B: Transfer In (TI)
     SELECT
         'B. Total number of Transfer in (TI) since Month 0' AS Name,
-        COALESCE(MAX(CASE WHEN interval_month = 0 THEN Total_TI ELSE 0 END), 0),
+        0,
         COALESCE(MAX(CASE WHEN interval_month = 3 THEN Total_TI ELSE 0 END), 0),
         COALESCE(MAX(CASE WHEN interval_month = 6 THEN Total_TI ELSE 0 END), 0),
         COALESCE(MAX(CASE WHEN interval_month = 12 THEN Total_TI ELSE 0 END), 0),
@@ -190,7 +190,7 @@ BEGIN
     -- Row C: Transfer Out (TO)
     SELECT
         'C. Total Number of Transfer out (TO) since Month 0' AS Name,
-        COALESCE(MAX(CASE WHEN interval_month = 0 THEN Total_TO ELSE 0 END), 0),
+        0,
         COALESCE(MAX(CASE WHEN interval_month = 3 THEN Total_TO ELSE 0 END), 0),
         COALESCE(MAX(CASE WHEN interval_month = 6 THEN Total_TO ELSE 0 END), 0),
         COALESCE(MAX(CASE WHEN interval_month = 12 THEN Total_TO ELSE 0 END), 0),
@@ -202,7 +202,7 @@ BEGIN
     -- Row D: Net Current Cohort (A + B - C)
     SELECT
         'D. Number of mothers in the current cohort = Net Current Cohort (A+B-C)' AS Name,
-        COALESCE(MAX(CASE WHEN interval_month = 0 THEN (Total_Enrolled_Month0 + Total_TI - Total_TO) ELSE 0 END), 0),
+        0,
         COALESCE(MAX(CASE WHEN interval_month = 3 THEN (Total_Enrolled_Month0 + Total_TI - Total_TO) ELSE 0 END), 0),
         COALESCE(MAX(CASE WHEN interval_month = 6 THEN (Total_Enrolled_Month0 + Total_TI - Total_TO) ELSE 0 END), 0),
         COALESCE(MAX(CASE WHEN interval_month = 12 THEN (Total_Enrolled_Month0 + Total_TI - Total_TO) ELSE 0 END), 0),
