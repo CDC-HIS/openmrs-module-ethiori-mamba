@@ -1,56 +1,83 @@
 -- $BEGIN
 CREATE TABLE IF NOT EXISTS mamba_fact_client
 (
-    id                          INT AUTO_INCREMENT,
-    encounter_datetime         DATE,
-    encounter_id                INT,
-    client_id                   INT NULL,
-    weight_in_kg                DOUBLE,
-    cd4_count                   DOUBLE,
-    current_who_hiv_stage       VARCHAR(255) CHARACTER SET UTF8MB4,
-    nutritional_status          VARCHAR(255) CHARACTER SET UTF8MB4,
-    tb_screening_result         VARCHAR(255) CHARACTER SET UTF8MB4,
-    enrollment_date             DATE,
-    hiv_confirmed_date          DATE,
-    art_start_date              DATE,
-    days_difference             INT,
-    followup_date               DATE,
-    regimen                     VARCHAR(255) CHARACTER SET UTF8MB4,
-    arv_dose_days               VARCHAR(255) CHARACTER SET UTF8MB4,
-    pregnancy_status            VARCHAR(255) CHARACTER SET UTF8MB4,
-    breast_feeding_status       VARCHAR(255) CHARACTER SET UTF8MB4,
-    follow_up_status            VARCHAR(255) CHARACTER SET UTF8MB4,
-    ti                          VARCHAR(255) CHARACTER SET UTF8MB4,
-    treatment_end_date          DATE,
-    next_visit_date             DATE,
-    hiv_viral_load_count              INT,
-    hiv_viral_load_status       VARCHAR(255) CHARACTER SET UTF8MB4,
-    viral_load_test_status      VARCHAR(255) CHARACTER SET UTF8MB4,
-    on_antiretroviral_therapy   VARCHAR(255) CHARACTER SET UTF8MB4,
-    viral_load_test_indication      VARCHAR(255) CHARACTER SET UTF8MB4,
-    antiretroviral_side_effects    VARCHAR(255) CHARACTER SET UTF8MB4,
-    anitiretroviral_adherence_level VARCHAR(255) CHARACTER SET UTF8MB4,
-    date_of_reported_hiv_viral_load VARCHAR(255) CHARACTER SET UTF8MB4,
-    date_viral_load_results_received VARCHAR(255) CHARACTER SET UTF8MB4,
-    routine_viral_load_test_indication VARCHAR(255) CHARACTER SET UTF8MB4,
-    targeted_viral_load_test_indication VARCHAR(255) CHARACTER SET UTF8MB4,
-    dsd_category                        VARCHAR(255) CHARACTER SET UTF8MB4,
-    tpt_start_date                      DATE,
-    tpt_completed_date                  DATE,
-    tpt_discontinued_date               DATE,
-    tuberculosis_treatment_end_date     DATE,
-    tb_prophylaxis_type                 VARCHAR(255) CHARACTER SET UTF8MB4,
-    cotrimoxazole_prophylaxis_start_dat VARCHAR(255) CHARACTER SET UTF8MB4,
-    cotrimoxazole_prophylaxis_stop_date VARCHAR(255) CHARACTER SET UTF8MB4,
-    patient_diagnosed_with_active_tuber VARCHAR(255) CHARACTER SET UTF8MB4,
-    diagnosis_date                      DATE,
-    tuberculosis_drug_treatment_start_d VARCHAR(255) CHARACTER SET UTF8MB4,
-    date_active_tbrx_completed          DATE,
-    fluconazole_start_date              DATE,
-    PRIMARY KEY (id)
+    client_id                      int not null,
+    patient_uuid                   CHAR(38),
+    mrn                            VARCHAR(50),
+
+    -- Demographics
+    patient_name                   VARCHAR(255),
+    sex                            VARCHAR(10),
+    birthdate                      DATE,
+    age                            INT,
+
+    -- Identifiers
+    uan                            VARCHAR(50),
+    phrh_code                      VARCHAR(50),
+    ncd_code                       VARCHAR(50),
+    icd_number                     VARCHAR(50),
+
+    -- Registration
+    registration_date              DATE,
+    hiv_confirmed_date             DATE,
+    transfer_in_date               DATE,
+    months_on_art                  INT,
+
+    -- Address
+    region                         VARCHAR(255),
+    zone                           VARCHAR(255),
+    woreda                         VARCHAR(255),
+    kebele                         VARCHAR(255),
+    house_number                   VARCHAR(255),
+    mobile_phone                   VARCHAR(50),
+    address_completeness           VARCHAR(20),
+
+    -- Clinical Follow-up
+    art_start_date                 DATE,
+    current_status                 VARCHAR(50),
+    current_regimen                VARCHAR(255),
+    regimen_dose                   VARCHAR(255),
+    regimen_line                   VARCHAR(50),
+    tx_curr_end_date               DATE,
+    nutritional_status             VARCHAR(255),
+    pregnancy_status               VARCHAR(50),
+    pmtct_status                   VARCHAR(50),
+    family_planning_method         VARCHAR(255),
+
+    last_visit_date                DATE,
+    next_appointment_date          DATE,
+    days_overdue                   INT,
+
+    -- Viral Load
+    last_vl_date                   DATE,
+    last_vl_result                 NUMERIC(10, 2),
+    is_suppressed                  BOOLEAN,
+    vl_status                      VARCHAR(100),
+    vl_eligibility_date            DATE,
+
+    -- TPT
+    tpt_status                     VARCHAR(50),
+
+    -- TB Treatment
+    active_tb_diagnosis_date       DATE,
+    tb_treatment_start_date        DATE,
+    tb_treatment_discontinued_date DATE,
+    tb_treatment_completed_date    DATE,
+
+    -- Other Statuses
+    dsd_category                   VARCHAR(100),
+    ict_screening_status           VARCHAR(100),
+    ncd_screening_status           VARCHAR(100),
+    cxca_screening_status          VARCHAR(100),
+    target_population              VARCHAR(100),
+
+    -- Metadata
+    last_updated                   TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    -- Indexes for Performance
+    INDEX idx_uuid (patient_uuid),
+    INDEX idx_mrn (mrn),
+    INDEX idx_status (current_status)
 );
-CREATE INDEX mamba_fact_client_art_start_date_index ON mamba_fact_client (art_start_date);
-CREATE INDEX mamba_fact_client_client_id_index ON mamba_fact_client (client_id);
-CREATE INDEX mamba_fact_client_followup_date_index ON mamba_fact_client (followup_date);
-CREATE INDEX mamba_fact_client_regimen_index ON mamba_fact_client (regimen);
+
 -- $END
