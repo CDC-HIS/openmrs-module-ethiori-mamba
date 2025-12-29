@@ -14,7 +14,8 @@ WITH HeiEnrolled AS (SELECT h.encounter_id                         as hei_encoun
                             pm.date_of_enrollment_or_booking       as date_of_erollement,
                             h.date_enrolled_in_care                as hei_enrollment_date,
                             h.infant_referred                      as infant_referred,
-                            ho.hei_pmtct_final_outcome             as final_out_come
+                            ho.hei_pmtct_final_outcome             as final_out_come,
+                            followup_date_followup
                      FROM mamba_flat_encounter_hei_enrollment as h
                               LEFT JOIN mamba_dim_patient_identifier as client
                                         on h.service_delivery_point_number = client.identifier
@@ -122,14 +123,14 @@ WITH HeiEnrolled AS (SELECT h.encounter_id                         as hei_encoun
      PCRInfo AS (
          SELECT h.hei_client_id,
                 -- PCR < 2 Months
-                MAX(CASE WHEN TIMESTAMPDIFF(MONTH, c.date_of_birth, COALESCE(hf.date_sample_collected, hf.date_dbs_result_received, hf.hiv_test_date)) < 2
+                MAX(CASE WHEN TIMESTAMPDIFF(MONTH, c.date_of_birth, COALESCE(hf.dna_pcr_sample_collection_date, hf.date_dbs_result_received, hf.hiv_test_date)) < 2
                              THEN hf.hiv_test_date END) as pcr_date_lt_2m,
-                MAX(CASE WHEN TIMESTAMPDIFF(MONTH, c.date_of_birth, COALESCE(hf.date_sample_collected, hf.date_dbs_result_received, hf.hiv_test_date)) < 2
+                MAX(CASE WHEN TIMESTAMPDIFF(MONTH, c.date_of_birth, COALESCE(hf.dna_pcr_sample_collection_date, hf.date_dbs_result_received, hf.hiv_test_date)) < 2
                              THEN hf.hiv_test_result END) as pcr_result_lt_2m,
                 -- PCR 2-12 Months
-                MAX(CASE WHEN TIMESTAMPDIFF(MONTH, c.date_of_birth, COALESCE(hf.date_sample_collected, hf.date_dbs_result_received, hf.hiv_test_date)) BETWEEN 2 AND 12
+                MAX(CASE WHEN TIMESTAMPDIFF(MONTH, c.date_of_birth, COALESCE(hf.dna_pcr_sample_collection_date, hf.date_dbs_result_received, hf.hiv_test_date)) BETWEEN 2 AND 12
                              THEN hf.hiv_test_date END) as pcr_date_2_12m,
-                MAX(CASE WHEN TIMESTAMPDIFF(MONTH, c.date_of_birth, COALESCE(hf.date_sample_collected, hf.date_dbs_result_received, hf.hiv_test_date)) BETWEEN 2 AND 12
+                MAX(CASE WHEN TIMESTAMPDIFF(MONTH, c.date_of_birth, COALESCE(hf.dna_pcr_sample_collection_date, hf.date_dbs_result_received, hf.hiv_test_date)) BETWEEN 2 AND 12
                              THEN hf.hiv_test_result END) as pcr_result_2_12m
          FROM HIEInCohortFiltered h
                   JOIN mamba_dim_client c ON h.hei_client_id = c.client_id

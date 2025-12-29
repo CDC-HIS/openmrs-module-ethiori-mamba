@@ -55,7 +55,7 @@ BEGIN
                               FROM mamba_flat_encounter_pmtct_enrollment
                               WHERE date_of_enrollment_or_booking IS NOT NULL
                                 and date_of_enrollment_or_booking BETWEEN REPORT_START_DATE AND REPORT_END_DATE
-                              GROUP BY PatientId),
+                              GROUP BY PatientId,pregnancy_status,currently_breastfeeding_child),
 
          IntervalsDef AS (SELECT 0 AS interval_month
                           UNION ALL
