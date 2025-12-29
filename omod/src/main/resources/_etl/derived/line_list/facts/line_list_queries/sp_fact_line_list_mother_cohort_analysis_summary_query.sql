@@ -20,7 +20,6 @@ BEGIN
                               date_viral_load_results_received    AS viral_load_received_date,
                               viral_load_test_status              AS viral_load_result,
                               hiv_viral_load                      as viral_load_count,
-                              transferred_in_check_this_for_all_t,
                               cd4_count,
                               cd4_                                as cd4_percent,
                               current_functional_status,
@@ -58,6 +57,7 @@ BEGIN
                                 and date_of_enrollment_or_booking BETWEEN REPORT_START_DATE AND REPORT_END_DATE
                               GROUP BY PatientId,pregnancy_status),
 
+         -- Defines the cohort analysis intervals in months.
          IntervalsDef AS (SELECT 0 AS interval_month
                           UNION ALL
                           SELECT 3
