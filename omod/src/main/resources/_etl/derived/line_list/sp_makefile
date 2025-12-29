@@ -9,6 +9,7 @@
 
 ############################ LINE LIST QUERIES #######################
 facts/line_list_queries/sp_fact_line_list_child_cohort_analysis_summary_query.sql
+facts/line_list_queries/sp_fact_line_list_child_cohort_analysis_summary_query.sql
 facts/line_list_queries/sp_fact_line_list_mother_cohort_analysis_query.sql
 facts/line_list_queries/sp_fact_line_list_mother_cohort_analysis_summary_query.sql
 facts/line_list_queries/sp_fact_line_list_ti_query.sql
@@ -41,6 +42,7 @@ facts/line_list_queries/sp_fact_line_list_ict_screening_query.sql
 facts/line_list_queries/sp_fact_line_list_maternal_pmtct_query.sql
 facts/line_list_queries/sp_fact_line_list_ncd_screening_and_treatment_query.sql
 facts/line_list_queries/sp_fact_line_list_otz_query.sql
+facts/line_list_queries/sp_fact_line_list_patient_summary_query.sql
 facts/line_list_queries/sp_fact_line_list_pediatric_age_out_query.sql
 facts/line_list_queries/sp_fact_line_list_phrh_service_query.sql
 facts/line_list_queries/sp_fact_line_list_phrh_sns_query.sql
