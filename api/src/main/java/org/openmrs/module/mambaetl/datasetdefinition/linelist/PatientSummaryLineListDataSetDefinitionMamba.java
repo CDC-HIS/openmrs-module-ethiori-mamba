@@ -9,10 +9,8 @@ import java.util.Date;
 @Component
 public class PatientSummaryLineListDataSetDefinitionMamba extends BaseDataSetDefinition {
 	
-
 	@ConfigurationProperty
 	private String patientUUID;
-
 	
 	public String getPatientUUID() {
 		return patientUUID;

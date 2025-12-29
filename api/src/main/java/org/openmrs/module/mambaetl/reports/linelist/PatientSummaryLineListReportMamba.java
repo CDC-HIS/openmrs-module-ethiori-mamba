@@ -35,7 +35,7 @@ public class PatientSummaryLineListReportMamba implements ReportManager {
 	public List<Parameter> getParameters() {
 		Parameter patientUUID = new Parameter("patientUUID", "Patient GUID", String.class);
 		patientUUID.setRequired(false);
-
+		
 		return Collections.singletonList(patientUUID);
 		
 	}
@@ -52,15 +52,13 @@ public class PatientSummaryLineListReportMamba implements ReportManager {
 		PatientSummaryLineListDataSetDefinitionMamba dataSetDefinitionMamba = new PatientSummaryLineListDataSetDefinitionMamba();
 		dataSetDefinitionMamba.addParameters(getParameters());
 		
-		reportDefinition.addDataSetDefinition("Patient Summary",
-		    map(dataSetDefinitionMamba, "patientUUID=${patientUUID}"));
+		reportDefinition.addDataSetDefinition("Patient Summary", map(dataSetDefinitionMamba, "patientUUID=${patientUUID}"));
 		return reportDefinition;
 	}
 	
 	@Override
 	public List<ReportDesign> constructReportDesigns(ReportDefinition reportDefinition) {
-		ReportDesign design = ReportManagerUtil
-		        .createExcelDesign("64098c07-d4d7-40d1-be6d-36ec90e6b915", reportDefinition);
+		ReportDesign design = ReportManagerUtil.createExcelDesign("64098c07-d4d7-40d1-be6d-36ec90e6b915", reportDefinition);
 		
 		return Collections.singletonList(design);
 	}
