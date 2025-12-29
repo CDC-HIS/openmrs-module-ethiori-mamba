@@ -562,7 +562,7 @@ WITH
                                 LEFT JOIN Vl_Events as sub_switch_date
                                           ON sub_switch_date.client_id = f_case.client_id
                                               AND sub_switch_date.rn_switch = 1
-                                              AND sub_switch_date.regimen_change IS NOT NULL),
+                                              AND sub_switch_date.regimen_change IS NOT NULL where f_case.rn=1),
 
     -- 3. ART Start Date
     ARTStart AS (SELECT client_id as client_id, MIN(art_start_date) as start_date
@@ -624,7 +624,7 @@ SELECT c.client_id,
        c.patient_name,
        c.sex,
        c.date_of_birth,
-       TIMESTAMPDIFF(YEAR, c.date_of_birth, CURDATE())               as age,
+       TIMESTAMPDIFF(YEAR, c.date_of_birth, CURDATE())                as age,
 
        -- Identifiers
        c.uan,
@@ -633,22 +633,22 @@ SELECT c.client_id,
        id.icd_number,
 
        -- Registration
-       NULL                                                          as registration_date,
+       NULL                                                           as registration_date,
        lfu.hiv_confirmed_date,
-       NULL                                                          as transfer_in_date,
-       TIMESTAMPDIFF(MONTH, art.start_date, CURDATE())               as months_on_art,
+       NULL                                                           as transfer_in_date,
+       TIMESTAMPDIFF(MONTH, art.start_date, CURDATE())                as months_on_art,
 
        -- Address & Completeness
-       c.state_province                                              as region,
-       c.county_district                                             as zone,
-       c.city_village                                                as woreda,
+       c.state_province                                               as region,
+       c.county_district                                              as zone,
+       c.city_village                                                 as woreda,
        c.kebele,
        c.house_number,
-       c.mobile_no                                                   as mobile_phone,
+       c.mobile_no                                                    as mobile_phone,
        CASE
            WHEN (c.patient_name IS NOT NULL AND c.state_province IS NOT NULL AND c.mobile_no IS NOT NULL) THEN 'GREEN'
            ELSE 'YELLOW'
-           END                                                       as address_completeness,
+           END                                                        as address_completeness,
 
        -- ART Clinical
        art.start_date,
@@ -661,9 +661,9 @@ SELECT c.client_id,
            WHEN lfu.visit_date IS NULL THEN 'No Clinical Contact'
            ELSE lfu.follow_up_status
            END
-                                                                     as current_status,
+                                                                      as current_status,
 
-       lfu.regimen                                                   as current_regimen,
+       lfu.regimen                                                    as current_regimen,
        lfu.regimen_dose,
 
        -- Regimen Line
@@ -672,30 +672,30 @@ SELECT c.client_id,
            WHEN lfu.regimen LIKE '2%' THEN 'Second Line'
            ELSE 'Other'
            END
-                                                                     as regimen_line,
+                                                                      as regimen_line,
 
-       lfu.treatment_end_date                                        as tx_curr_end_date,
-       lfu.nutritional_status_of_adult                               as nutritional_status,
+       lfu.treatment_end_date                                         as tx_curr_end_date,
+       lfu.nutritional_status_of_adult                                as nutritional_status,
        lfu.pregnancy_status,
        CASE
            WHEN (lfu.pregnancy_status = 'Yes' OR lfu.currently_breastfeeding_child = 'Yes') THEN 'On PMTCT'
            ELSE 'Not Applicable'
-           END                                                       as pmtct_status,
+           END                                                        as pmtct_status,
        lfu.method_of_family_planning,
 
-       lfu.visit_date                                                as last_visit_date,
+       lfu.visit_date                                                 as last_visit_date,
        lfu.next_visit_date,
        DATEDIFF(CURDATE(),
-                COALESCE(lfu.next_visit_date, lfu.visit_date))       as days_overdue,
+                COALESCE(lfu.next_visit_date, lfu.visit_date))        as days_overdue,
 
        -- Viral Load
-       lab.viral_load_perform_date                                   as last_vl_date,
-       lab.viral_load_indication                                     as last_vl_result,
-       lab.viral_load_status_inferred                                as is_suppressed,
+       lab.viral_load_perform_date                                    as last_vl_date,
+       lab.viral_load_count                                           as last_vl_result,
+       CASE lab.viral_load_status_inferred WHEN 'S' THEN 1 ELSE 0 END as is_suppressed,
 
-       lab.vl_status_final                                           as vl_status,
+       lab.vl_status_final                                            as vl_status,
 
-       lab.eligiblityDate                                            as vl_eligibility_date,
+       lab.eligiblityDate                                             as vl_eligibility_date,
 
        CASE
            WHEN tpt.tpt_completed_date IS NOT NULL THEN 'Gold (TPT Completed)'
@@ -704,7 +704,7 @@ SELECT c.client_id,
            WHEN tpt.is_contraindicated = 1 THEN 'Contraindicated'
            ELSE 'Not Started'
            END
-                                                                     as tpt_status,
+                                                                      as tpt_status,
 
        -- TB Treatment
        tb.active_tb_diagnosis_date,
@@ -713,13 +713,13 @@ SELECT c.client_id,
        tb.tb_treatment_completed_date,
 
        lfu.dsd_category,
-       COALESCE(ict.ict_status, 'Not Screened')                      as ict_screening_status,
+       COALESCE(ict.ict_status, 'Not Screened')                       as ict_screening_status,
 
        COALESCE(ncd.baseline_diagnosis, CASE
                                             WHEN ncd.client_id IS NOT NULL THEN 'Screened'
-                                            ELSE 'Not Screened' END) as ncd_screening_status,
-       'Not Screened'                                                as cxca_screening_status,
-       c.key_population                                              as target_population
+                                            ELSE 'Not Screened' END)  as ncd_screening_status,
+       'Not Screened'                                                 as cxca_screening_status,
+       c.key_population                                               as target_population
 
 FROM mamba_dim_client c
          LEFT JOIN LatestFollowUp lfu ON c.client_id = lfu.client_id AND lfu.rn = 1
