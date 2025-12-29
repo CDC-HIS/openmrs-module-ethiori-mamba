@@ -262,7 +262,7 @@ BEGIN
                     0)                                                                              AS 'Latest Adherence at 12 Months',
            MAX(CASE WHEN co.interval_month = 12 THEN ai.pregnancy_status ELSE NULL END)              AS 'Pregnant at 12 Months',
            MAX(CASE
-                   WHEN co.interval_month = 12 THEN ai.currently_breastfeeding_child
+                   WHEN co.interval_month = 12 THEN ai.currently_breastfeeding_childchild_cohort
                    ELSE NULL END)                                                                   AS 'Breast Feeding Status at 12 Months',
            MAX(CASE WHEN co.interval_month = 12 THEN co.treatment_end_date ELSE NULL END)            AS 'Last TX_Curr Date at 12 Months',
            MAX(CASE WHEN co.interval_month = 12 THEN co.treatment_end_date ELSE NULL END)            AS 'Last TX_Curr Date at 12 Months EC.',
