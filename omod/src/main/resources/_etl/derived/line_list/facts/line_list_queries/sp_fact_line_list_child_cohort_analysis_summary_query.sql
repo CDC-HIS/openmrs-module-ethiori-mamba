@@ -154,7 +154,7 @@ BEGIN
            CAST(COALESCE(COUNT(DISTINCT CASE WHEN h.interval_month = 12 THEN h.hei_client_id END), 0) AS SIGNED) as 'Maternal Cohort Month 12',
            CAST(COALESCE(COUNT(DISTINCT CASE WHEN h.interval_month = 18 THEN h.hei_client_id END), 0) AS SIGNED) AS 'Maternal Cohort Month  18',
            CAST(COALESCE(COUNT(DISTINCT CASE WHEN h.interval_month = 24 THEN h.hei_client_id END), 0) AS SIGNED) AS 'Maternal Cohort Month 24',
-           CAST(COALESCE(COUNT(DISTINCT CASE WHEN h.interval_month = 30 THEN h.hei_client_id END), 0) AS SIGNED) AS 'Maternal Cohort Month 30'
+           0 AS 'Maternal Cohort Month 30'
     from LostToFollowUp as h
 
     union all
@@ -162,7 +162,7 @@ BEGIN
     -- E. PCR < 2 Months
     select 'E. HEI with DNA PCR collected by 2 months of age' as name,
            CAST(COALESCE(count(h.hei_client_id), 0) AS SIGNED)                as 'Maternal Cohort Month 12',
-           CAST(COALESCE(count(h.hei_client_id), 0) AS SIGNED)                AS 'Maternal Cohort Month18',
+           CAST(COALESCE(count(h.hei_client_id), 0) AS SIGNED)                AS 'Maternal Cohort Month 18',
            CAST(COALESCE(count(h.hei_client_id), 0) AS SIGNED)                AS 'Maternal Cohort Month 24',
            CAST(COALESCE(count(h.hei_client_id), 0) AS SIGNED)                AS 'Maternal Cohort Month 30'
     from PCRTestBelowTwoYear as h
@@ -181,9 +181,9 @@ BEGIN
 
     -- G. Discharged Negative
     select 'G. HEI discharged negative (DN)' as name,
-           CAST(COALESCE(SUM(CASE WHEN h.interval_month = 12 THEN 1 ELSE 0 END), 0) AS SIGNED) as 'Maternal Cohort Month 12',
-           CAST(COALESCE(SUM(CASE WHEN h.interval_month = 18 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Maternal Cohort Month 18',
-           CAST(COALESCE(SUM(CASE WHEN h.interval_month = 24 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Maternal Cohort Month 24',
+           0,
+           0,
+           0,
            CAST(COALESCE(SUM(CASE WHEN h.interval_month = 30 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Maternal Cohort Month 30'
     from FinalOutcomeIntervals as h
     where h.hei_pmtct_final_outcome = 'Discharged Negative'
@@ -192,9 +192,9 @@ BEGIN
 
     -- H. Diagnosed Positive
     select 'H. HEI diagnosed positive (p)' as name,
-           CAST(COALESCE(SUM(CASE WHEN h.interval_month = 12 THEN 1 ELSE 0 END), 0) AS SIGNED) as 'Maternal Cohort Month 12',
-           CAST(COALESCE(SUM(CASE WHEN h.interval_month = 18 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Maternal Cohort Month 18',
-           CAST(COALESCE(SUM(CASE WHEN h.interval_month = 24 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Maternal Cohort Month 24',
+           0,
+           0,
+           0,
            CAST(COALESCE(SUM(CASE WHEN h.interval_month = 30 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Maternal Cohort Month 30'
     from FinalOutcomeIntervals as h
     where h.hei_pmtct_final_outcome = 'Positive'
@@ -203,9 +203,9 @@ BEGIN
 
     -- I. Final Lost to F/U
     select 'I. Final HEI Lost to F/U' as name,
-           CAST(COALESCE(SUM(CASE WHEN h.interval_month = 12 THEN 1 ELSE 0 END), 0) AS SIGNED) as 'Maternal Cohort Month 12',
-           CAST(COALESCE(SUM(CASE WHEN h.interval_month = 18 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Maternal Cohort Month 18',
-           CAST(COALESCE(SUM(CASE WHEN h.interval_month = 24 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Maternal Cohort Month 24',
+           0,
+           0,
+           0,
            CAST(COALESCE(SUM(CASE WHEN h.interval_month = 30 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Maternal Cohort Month 30'
     from FinalOutcomeIntervals as h
     where h.hei_pmtct_final_outcome = 'Lost to Follow-up'
@@ -214,9 +214,9 @@ BEGIN
 
     -- J. Still Exposed/Breastfeeding
     select 'J. HEI still exposed /breastfeeding (CPT)' as name,
-           CAST(COALESCE(SUM(CASE WHEN h.interval_month = 12 THEN 1 ELSE 0 END), 0) AS SIGNED) as 'Maternal Cohort Month 12',
-           CAST(COALESCE(SUM(CASE WHEN h.interval_month = 18 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Maternal Cohort Month 18',
-           CAST(COALESCE(SUM(CASE WHEN h.interval_month = 24 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Maternal Cohort Month 24',
+           0,
+           0,
+           0,
            CAST(COALESCE(SUM(CASE WHEN h.interval_month = 30 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Maternal Cohort Month 30'
     from FinalOutcomeIntervals as h
     where h.hei_pmtct_final_outcome = 'Still on BF/Exposed'
@@ -225,9 +225,9 @@ BEGIN
 
     -- K. Known Dead
     select 'k. HEI known dead' as name,
-           CAST(COALESCE(SUM(CASE WHEN h.interval_month = 12 THEN 1 ELSE 0 END), 0) AS SIGNED) as 'Maternal Cohort Month 12',
-           CAST(COALESCE(SUM(CASE WHEN h.interval_month = 18 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Maternal Cohort Month 18',
-           CAST(COALESCE(SUM(CASE WHEN h.interval_month = 24 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Maternal Cohort Month 24',
+           0,
+           0,
+           0,
            CAST(COALESCE(SUM(CASE WHEN h.interval_month = 30 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Maternal Cohort Month 30'
     from FinalOutcomeIntervals as h
     where h.hei_pmtct_final_outcome = 'Died'
@@ -236,9 +236,9 @@ BEGIN
 
     -- L. Transferred Out
     select 'L. HEI transferred out (TO to another facility-NOT to ART clinic) ' as name,
-           CAST(COALESCE(SUM(CASE WHEN h.interval_month = 12 THEN 1 ELSE 0 END), 0) AS SIGNED) as 'Maternal Cohort Month 12',
-           CAST(COALESCE(SUM(CASE WHEN h.interval_month = 18 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Maternal Cohort Month 18',
-           CAST(COALESCE(SUM(CASE WHEN h.interval_month = 24 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Maternal Cohort Month 24',
+           0,
+           0,
+           0,
            CAST(COALESCE(SUM(CASE WHEN h.interval_month = 30 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Maternal Cohort Month 30'
     from FinalOutcomeIntervals as h
     where h.hei_pmtct_final_outcome = 'TO';
