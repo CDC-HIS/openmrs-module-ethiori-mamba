@@ -7,9 +7,9 @@ CREATE PROCEDURE sp_fact_line_list_phrh_service_query(IN REPORT_START_DATE DATE,
 BEGIN
     WITH enrollment AS (SELECT mpe.client_id                                                                                         AS client_id,
                                ROW_NUMBER() OVER (PARTITION BY mpe.client_id ORDER BY mpf.followup_date DESC, mpf.encounter_id DESC) AS row_num,
-                               client.mrn                                                                                        AS mrn,
-                               client.patient_name                                                                                  AS full_name,
-                               client.sex                                                                                             AS gender,
+                               client.mrn                                                                                            AS mrn,
+                               client.patient_name                                                                                   AS full_name,
+                               client.sex                                                                                            AS gender,
                                TIMESTAMPDIFF(YEAR, client.date_of_birth,
                                              COALESCE(REPORT_END_DATE, CURDATE()))                                                   AS age,
                                mpe.followup_date                                                                                     AS phrh_enrollment_date,
@@ -60,9 +60,9 @@ BEGIN
                         FROM mamba_flat_encounter_phrh_enrollment mpe
                                  LEFT JOIN mamba_flat_encounter_phrh_followup mpf
                                            ON mpe.client_id = mpf.client_id
-                                 INNER JOIN mamba_flat_encounter_phrh_followup_1 mpf1
+                                 LEFT JOIN mamba_flat_encounter_phrh_followup_1 mpf1
                                             ON mpf.encounter_id = mpf1.encounter_id
-                                 INNER JOIN mamba_dim_client client
+                                 LEFT JOIN mamba_dim_client client
                                             ON mpe.client_id = client.client_id
                         WHERE REPORT_START_DATE is not null and REPORT_END_DATE is not null and
                               (mpf.followup_date BETWEEN REPORT_START_DATE and REPORT_END_DATE)
