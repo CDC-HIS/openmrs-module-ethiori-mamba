@@ -46,33 +46,39 @@ BEGIN
                                 ROW_NUMBER() OVER (PARTITION BY hiv_test.client_id ORDER BY hiv_test.dna_pcr_sample_collection_date DESC) as rn
                          from mamba_flat_encounter_hei_hiv_test hiv_test
                                   join mamba_dim_client client on hiv_test.client_id = client.client_id
-                         where test_type = 'HIV DNA polymerase chain reaction, dried blood spot (DBS)'
-                           and dna_pcr_sample_collection_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE),
+                         where dna_pcr_sample_collection_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE),
          hei_test as (select * from DNAPCRTests where rn = 1)
 
 
     SELECT c.patient_name                                         as `Full Name`,
            c.sex                                                  as `Sex`,
            c.date_of_birth                                        as `DOB`,
+           c.date_of_birth                                        as `DOB EC.`,
            TIMESTAMPDIFF(MONTH, c.date_of_birth, REPORT_END_DATE) as `Age (in months)`,
            c.mrn                                                  as `MRN`,
            e.hei_code                                             as `HEI Code`,
            f.follow_up_date                                       as `Follow-up Date`,
+           f.follow_up_date                                       as `Follow-up Date EC.`,
            f.feeding_practice                                     as `Infant on BF?`,
            e.enrollment_arv_prophylaxis                           as `ARV Prophylaxis`,
            t.maternal_art_status                                  as `Maternal ART Status`,
            t.initial_test                                         as `Test Indication`,
            t.specimen_type                                        as `Specimen Type`,
-           t.dna_pcr_sample_collection_date                       as `Date of Sample Collection (E.C)`,
+           t.dna_pcr_sample_collection_date                       as `Date of Sample Collection`,
+           t.dna_pcr_sample_collection_date                       as `Date of Sample Collection EC.`,
            t.dna_pcr_result                                       as `DNA PCR Result`,
-           t.date_dbs_result_received                             as `Date of Result Received by H.F (E.C)`,
+           t.date_dbs_result_received                             as `Date of Result Received by H.F`,
+           t.date_dbs_result_received                             as `Date of Result Received by H.F EC.`,
            t.tat                                                  as `TAT (in days)`,
-           t.specimen_received_date                               as `Date of DBS referral to regional lab (E.C)`,
+           t.specimen_received_date                               as `Date of DBS referral to regional lab`,
+           t.specimen_received_date                               as `Date of DBS referral to regional lab EC.`,
            t.laboratory_name                                      as `Name of Testing Lab`,
            t.specimen_received_date                               as `Date of sample received by Lab`,
+           t.specimen_received_date                               as `Date of sample received by Lab EC.`,
            t.sample_quality                                       as `Sample Quality`,
            t.reason_sample_rejected_or_test_not_done              as `Reason for Sample rejection/test not done`,
            t.date_test_performed                                  as `Date test performed by Lab`,
+           t.date_test_performed                                  as `Date test performed by Lab EC.`,
            t.platform_used                                        as `Platform used`,
            t.mothers_phone_no                                     as `Mother's Phone No.`
 
