@@ -562,7 +562,8 @@ WITH
                                 LEFT JOIN Vl_Events as sub_switch_date
                                           ON sub_switch_date.client_id = f_case.client_id
                                               AND sub_switch_date.rn_switch = 1
-                                              AND sub_switch_date.regimen_change IS NOT NULL where f_case.rn=1),
+                                              AND sub_switch_date.regimen_change IS NOT NULL
+                       where f_case.rn = 1),
 
     -- 3. ART Start Date
     ARTStart AS (SELECT client_id as client_id, MIN(art_start_date) as start_date
@@ -693,7 +694,15 @@ SELECT c.client_id,
        lab.viral_load_count                                           as last_vl_result,
        CASE lab.viral_load_status_inferred WHEN 'S' THEN 1 ELSE 0 END as is_suppressed,
 
-       lab.vl_status_final                                            as vl_status,
+       case
+
+           when lab.vl_status_final = 'N/A' THEN 'Not Applicable'
+           when lab.eligiblityDate <= CURDATE()
+               THEN 'Eligible for Viral Load'
+           when lab.eligiblityDate > CURDATE()
+               THEN 'Viral Load Done (Currently not Eligible)'
+           when lab.art_start_date is NULL and lab.follow_up_status is null THEN 'Not Started ART'
+           end                                                        as vl_status,
 
        lab.eligiblityDate                                             as vl_eligibility_date,
 
