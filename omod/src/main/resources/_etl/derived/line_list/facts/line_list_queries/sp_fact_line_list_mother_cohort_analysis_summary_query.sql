@@ -5,49 +5,45 @@ DROP PROCEDURE IF EXISTS sp_fact_line_list_mother_cohort_analysis_summary_query;
 CREATE PROCEDURE sp_fact_line_list_mother_cohort_analysis_summary_query(IN REPORT_START_DATE DATE, IN REPORT_END_DATE DATE)
 BEGIN
 
-    WITH Follow_UP AS (
-        -- (Same as your original block)
-        SELECT follow_up.client_id                 as PatientId,
-               follow_up_status,
-               follow_up_date_followup_            AS follow_up_date,
-               art_antiretroviral_start_date       AS art_start_date,
-               treatment_end_date,
-               regimen,
-               follow_up.encounter_id,
-               antiretroviral_art_dispensed_dose_i AS ARTDoseDays,
-               anitiretroviral_adherence_level     AS AdherenceLevel,
-               transferred_in_check_this_for_all_t,
-               pregnancy_status,
-               next_visit_date,
-               date_of_reported_hiv_viral_load     AS viral_load_sent_date,
-               date_viral_load_results_received    AS viral_load_received_date,
-               viral_load_test_status              AS viral_load_result,
-               hiv_viral_load                      as viral_load_count,
-               cd4_count,
-               cd4_                                as cd4_percent,
-               current_functional_status,
-               visitect_cd4_result,
-               visitect_cd4_test_date
-        FROM mamba_flat_encounter_follow_up follow_up
-                 LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1 ON follow_up.encounter_id = follow_up_1.encounter_id
-                 LEFT JOIN mamba_flat_encounter_follow_up_2 follow_up_2 ON follow_up.encounter_id = follow_up_2.encounter_id
-                 LEFT JOIN mamba_flat_encounter_follow_up_3 follow_up_3 ON follow_up.encounter_id = follow_up_3.encounter_id
-                 LEFT JOIN mamba_flat_encounter_follow_up_4 follow_up_4 ON follow_up.encounter_id = follow_up_4.encounter_id
-                 LEFT JOIN mamba_flat_encounter_follow_up_5 follow_up_5 ON follow_up.encounter_id = follow_up_5.encounter_id
-                 LEFT JOIN mamba_flat_encounter_follow_up_6 follow_up_6 ON follow_up.encounter_id = follow_up_6.encounter_id
-                 LEFT JOIN mamba_flat_encounter_follow_up_7 follow_up_7 ON follow_up.encounter_id = follow_up_7.encounter_id
-                 LEFT JOIN mamba_flat_encounter_follow_up_8 follow_up_8 ON follow_up.encounter_id = follow_up_8.encounter_id
-                 LEFT JOIN mamba_flat_encounter_follow_up_9 follow_up_9 ON follow_up.encounter_id = follow_up_9.encounter_id
-        WHERE follow_up.client_id IS NOT NULL
-          AND follow_up_date_followup_ IS NOT NULL
-          AND follow_up_status IS NOT NULL
+    WITH Cohort_List AS (
+        SELECT client_id
+        FROM mamba_flat_encounter_pmtct_enrollment
+        WHERE date_of_enrollment_or_booking BETWEEN REPORT_START_DATE AND REPORT_END_DATE
     ),
 
-         -- 1. FIX: Identify TI patients from the main Follow_UP CTE (covers all encounters 1-9)
+         Follow_UP AS (
+             SELECT follow_up.client_id                 as PatientId,
+                    follow_up_status,
+                    follow_up_date_followup_            AS follow_up_date,
+                    treatment_end_date,
+                    regimen,
+                    follow_up.encounter_id,
+                    antiretroviral_art_dispensed_dose_i AS ARTDoseDays,
+                    anitiretroviral_adherence_level     AS AdherenceLevel,
+                    transferred_in_check_this_for_all_t,
+                    pregnancy_status,
+                    next_visit_date,
+                    current_functional_status
+             FROM mamba_flat_encounter_follow_up follow_up
+                      -- JOINING HERE FILTERS THE HUGE TABLE DOWN TO ONLY RELEVANT PATIENTS
+                      INNER JOIN Cohort_List cl ON follow_up.client_id = cl.client_id
+                      LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1 ON follow_up.encounter_id = follow_up_1.encounter_id
+                      LEFT JOIN mamba_flat_encounter_follow_up_2 follow_up_2 ON follow_up.encounter_id = follow_up_2.encounter_id
+                      LEFT JOIN mamba_flat_encounter_follow_up_3 follow_up_3 ON follow_up.encounter_id = follow_up_3.encounter_id
+                      LEFT JOIN mamba_flat_encounter_follow_up_4 follow_up_4 ON follow_up.encounter_id = follow_up_4.encounter_id
+                      LEFT JOIN mamba_flat_encounter_follow_up_5 follow_up_5 ON follow_up.encounter_id = follow_up_5.encounter_id
+                      LEFT JOIN mamba_flat_encounter_follow_up_6 follow_up_6 ON follow_up.encounter_id = follow_up_6.encounter_id
+                      LEFT JOIN mamba_flat_encounter_follow_up_7 follow_up_7 ON follow_up.encounter_id = follow_up_7.encounter_id
+                      LEFT JOIN mamba_flat_encounter_follow_up_8 follow_up_8 ON follow_up.encounter_id = follow_up_8.encounter_id
+                      LEFT JOIN mamba_flat_encounter_follow_up_9 follow_up_9 ON follow_up.encounter_id = follow_up_9.encounter_id
+             WHERE follow_up_date_followup_ IS NOT NULL
+               AND follow_up_status IS NOT NULL
+         ),
+
          TI_Patients AS (
              SELECT DISTINCT PatientId
              FROM Follow_UP
-             WHERE transferred_in_check_this_for_all_t = 1
+             WHERE transferred_in_check_this_for_all_t = 'Yes'
          ),
 
          PMTCT_ENROLLMENT AS (SELECT enrollment.client_id                          as PatientId,
@@ -61,7 +57,7 @@ BEGIN
                                        LEFT JOIN TI_Patients ON TI_Patients.PatientId = enrollment.client_id
                               WHERE date_of_enrollment_or_booking IS NOT NULL
                                 and date_of_enrollment_or_booking BETWEEN REPORT_START_DATE AND REPORT_END_DATE
-                              GROUP BY PatientId, pregnancy_status,ever_ti),
+                              GROUP BY enrollment.client_id, pregnancy_status, ever_ti),
 
          IntervalsDef AS (SELECT 0 AS interval_month
                           UNION ALL SELECT 4
