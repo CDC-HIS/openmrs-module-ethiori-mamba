@@ -48,11 +48,10 @@ BEGIN
                          FROM Follow_UP
                          WHERE transferred_in_check_this_for_all_t = 'Yes'
                            and follow_up_date BETWEEN REPORT_START_DATE AND fn_ethiopian_to_gregorian_calendar(DATE_ADD(
-                                 fn_ethiopian_to_gregorian_calendar(REPORT_START_DATE, 'Y-M-D'), INTERVAL 25 MONTH))),
+                                 fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'), INTERVAL 25 MONTH))),
 
          PMTCT_ENROLLMENT AS (SELECT enrollment.client_id                          as PatientId,
                                      MAX(enrollment.date_of_enrollment_or_booking) AS date_of_enrollment_or_booking,
-                                     enrollment.pregnancy_status,
                                      CASE
                                          WHEN TI_Patients.PatientId IS NOT NULL THEN 1
                                          ELSE 0
@@ -61,7 +60,7 @@ BEGIN
                                        LEFT JOIN TI_Patients ON TI_Patients.PatientId = enrollment.client_id
                               WHERE date_of_enrollment_or_booking IS NOT NULL
                                 and date_of_enrollment_or_booking BETWEEN REPORT_START_DATE AND REPORT_END_DATE
-                              GROUP BY enrollment.client_id, pregnancy_status, ever_ti),
+                              GROUP BY enrollment.client_id, ever_ti),
 
          IntervalsDef AS (SELECT 0 AS interval_month
                           UNION ALL
@@ -76,6 +75,7 @@ BEGIN
          PatientIntervals AS (SELECT a.PatientId,
                                      a.date_of_enrollment_or_booking,
                                      i.interval_month,
+                                     a.ever_ti,
                                      CASE
                                          WHEN i.interval_month = 0 THEN a.date_of_enrollment_or_booking
                                          ELSE fn_ethiopian_to_gregorian_calendar(DATE_ADD(
@@ -98,12 +98,15 @@ BEGIN
                                              pi.interval_month,
                                              pi.interval_end_date,
                                              pi.interval_start_date,
+                                             pi.ever_ti,
                                              f.follow_up_status,
                                              f.follow_up_date,
                                              f.treatment_end_date,
                                              f.regimen,
                                              f.ARTDoseDays,
                                              f.transferred_in_check_this_for_all_t,
+                                             MAX(f.transferred_in_check_this_for_all_t)
+                                                 OVER (PARTITION BY pi.PatientId, pi.interval_month)  as interval_ti,
                                              f.AdherenceLevel,
                                              f.pregnancy_status,
                                              f.next_visit_date,
@@ -131,7 +134,8 @@ BEGIN
                                   lfu.interval_end_date,
                                   lfu.interval_start_date,
                                   lfu.interval_month,
-
+                                  lfu.ever_ti,
+                                  lfu.interval_ti,
                                   CASE CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(
                                                                     fn_gregorian_to_ethiopian_calendar(lfu.interval_end_date, 'Y-M-D'),
                                                                     '-', 2), '-', -1) AS UNSIGNED)
@@ -177,7 +181,8 @@ BEGIN
                                       END AS ethiopian_month,
 
                                   CASE
-                                      WHEN lfu.treatment_end_date >= lfu.interval_end_date THEN 'Active'
+                                      WHEN lfu.treatment_end_date >= lfu.interval_end_date AND
+                                           lfu.follow_up_status in ('Alive', 'Restart medication') THEN 'Active'
                                       WHEN meaningful.follow_up_status IN
                                            ('Dead', 'Transferred out', 'Stop all', 'Ran away')
                                           THEN meaningful.follow_up_status
@@ -203,17 +208,17 @@ BEGIN
          SummaryCounts AS (SELECT co.interval_month,
                                   co.ethiopian_month,
 
-                                  COUNT(DISTINCT CASE WHEN ai.ever_ti = 0 THEN ai.PatientId END)                   AS Total_Facility_Enrolled,
-                                  COUNT(DISTINCT CASE WHEN ai.ever_ti = 1 THEN ai.PatientId END)                   AS Total_TI,
+                                  COUNT(DISTINCT CASE WHEN ever_ti = 0 THEN PatientId END)                       AS Total_Facility_Enrolled,
+                                  COUNT(DISTINCT CASE WHEN interval_ti = 'Yes' THEN PatientId END)               AS Total_TI,
 
-                                  SUM(CASE WHEN co.outcome IN ('Transferred out', 'Stop all') THEN 1 ELSE 0 END)   AS Total_TO,
-                                  SUM(CASE WHEN co.outcome = 'Active' THEN 1 ELSE 0 END)                           AS Total_Active,
+                                  SUM(CASE WHEN co.outcome IN ('Transferred out', 'Stop all') THEN 1 ELSE 0 END) AS Total_TO,
+                                  SUM(CASE WHEN co.outcome = 'Active' THEN 1 ELSE 0 END)                         AS Total_Active,
                                   SUM(CASE
                                           WHEN co.outcome IN ('Lost to follow-up', 'Ran away') THEN 1
-                                          ELSE 0 END)                                                              AS Total_LTFU,
-                                  SUM(CASE WHEN co.outcome = 'Dead' THEN 1 ELSE 0 END)                             AS Total_Dead
-                           FROM PMTCT_ENROLLMENT ai
-                                    LEFT JOIN CohortDetails co ON ai.PatientId = co.PatientId
+                                          ELSE 0 END)                                                            AS Total_LTFU,
+                                  SUM(CASE WHEN co.outcome = 'Dead' THEN 1 ELSE 0 END)                           AS Total_Dead
+
+                           FROM CohortDetails co
                            GROUP BY co.interval_month, ethiopian_month)
 
     SELECT ''                                                                 AS Name,
@@ -226,15 +231,15 @@ BEGIN
     FROM SummaryCounts
     UNION ALL
     SELECT 'A. Enrolled in PMTCT in this facility during this month and year (Month 0)' AS Name,
-           COALESCE(SUM(CASE WHEN interval_month = 0 AND Total_TI = 0 THEN Total_Facility_Enrolled ELSE 0 END),
+           COALESCE(SUM(CASE WHEN interval_month = 0 THEN Total_Facility_Enrolled ELSE 0 END),
                     0),
-           COALESCE(SUM(CASE WHEN interval_month = 0 AND Total_TI = 0 THEN Total_Facility_Enrolled ELSE 0 END),
+           COALESCE(SUM(CASE WHEN interval_month = 0 THEN Total_Facility_Enrolled ELSE 0 END),
                     0),
-           COALESCE(SUM(CASE WHEN interval_month = 0 AND Total_TI = 0 THEN Total_Facility_Enrolled ELSE 0 END),
+           COALESCE(SUM(CASE WHEN interval_month = 0 THEN Total_Facility_Enrolled ELSE 0 END),
                     0),
-           COALESCE(SUM(CASE WHEN interval_month = 0 AND Total_TI = 0 THEN Total_Facility_Enrolled ELSE 0 END),
+           COALESCE(SUM(CASE WHEN interval_month = 0 THEN Total_Facility_Enrolled ELSE 0 END),
                     0),
-           COALESCE(SUM(CASE WHEN interval_month = 0 AND Total_TI = 0 THEN Total_Facility_Enrolled ELSE 0 END),
+           COALESCE(SUM(CASE WHEN interval_month = 0 THEN Total_Facility_Enrolled ELSE 0 END),
                     0)
     FROM SummaryCounts
 
