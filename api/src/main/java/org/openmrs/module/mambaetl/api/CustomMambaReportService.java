@@ -12,13 +12,13 @@ package org.openmrs.module.mambaetl.api;
 
 import org.openmrs.annotation.Authorized;
 import org.openmrs.api.OpenmrsService;
-import org.openmrs.module.mambacore.api.model.MambaReportItem;
-import org.openmrs.module.mambacore.api.parameter.MambaReportCriteria;
+import org.openmrs.module.mambaetl.api.criteria.CustomMambaReportCriteria;
+import org.openmrs.module.mambaetl.api.model.CustomMambaReportItem;
 
 import java.util.List;
 
 /**
- * This interface defines an API of interacting with {@link MambaReportItem} objects
+ * This interface defines an API of interacting with {@link CustomMambaReportItem} objects
  */
 public interface CustomMambaReportService extends OpenmrsService {
 	
@@ -29,7 +29,7 @@ public interface CustomMambaReportService extends OpenmrsService {
 	 * @return the MambaReport with given report id, or null if none exists
 	 */
 	@Authorized({ CustomMambaReportsConstants.VIEW_MAMBA_REPORT })
-	List<MambaReportItem> getMambaReport(String mambaReportId);
+	List<CustomMambaReportItem> getMambaReport(String mambaReportId);
 	
 	/**
 	 * Gets all MambaReport results that match the given criteria
@@ -38,8 +38,8 @@ public interface CustomMambaReportService extends OpenmrsService {
 	 * @return a list of MambaReport
 	 */
 	@Authorized({ CustomMambaReportsConstants.VIEW_MAMBA_REPORT })
-	List<MambaReportItem> getMambaReportByCriteria(MambaReportCriteria criteria);
+	List<CustomMambaReportItem> getMambaReportByCriteria(CustomMambaReportCriteria criteria);
 	
 	@Authorized({ CustomMambaReportsConstants.VIEW_MAMBA_REPORT })
-	Integer getMambaReportSize(MambaReportCriteria criteria);
+	Integer getMambaReportSize(CustomMambaReportCriteria criteria);
 }

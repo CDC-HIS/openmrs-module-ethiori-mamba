@@ -1,25 +1,16 @@
 package org.openmrs.module.mambaetl.api.dao.impl;
-/**
- * This Source Code Form is subject to the terms of the Mozilla Public License,
- * v. 2.0. If a copy of the MPL was not distributed with this file, You can
- * obtain one at http://mozilla.org/MPL/2.0/. OpenMRS is also distributed under
- * the terms of the Healthcare Disclaimer located at http://openmrs.org/license.
- * <p>
- * Copyright (C) OpenMRS Inc. OpenMRS is a registered trademark and the OpenMRS
- * graphic logo is a trademark of OpenMRS Inc.
- */
-
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.openmrs.module.mambaetl.api.dao.CustomMambaReportItemDao;
+import org.openmrs.module.mambaetl.api.model.CustomMambaReportItem;
+import org.openmrs.module.mambaetl.api.model.CustomMambaReportItemColumn;
 import org.openmrs.module.mambaetl.helpers.CustomConnectionPoolManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.sql.*;
-        import java.util.ArrayList;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class JdbcCustomMambaReportItemDao implements CustomMambaReportItemDao {
@@ -27,146 +18,47 @@ public class JdbcCustomMambaReportItemDao implements CustomMambaReportItemDao {
     private static final Logger log = LoggerFactory.getLogger(JdbcCustomMambaReportItemDao.class);
 
     @Override
-    public List<MambaReportItem> getMambaReport(String mambaReportId) {
-        return getMambaReport(new MambaReportCriteria(mambaReportId));
+    public List<CustomMambaReportItem> getClientByUuid(String patientUuid) {
+        // Define your specific query here
+        String sql = "SELECT * FROM mamba_dim_client WHERE patient_uuid = ?";
+        return executeSqlQuery(sql, Collections.singletonList(patientUuid));
     }
 
     @Override
-    public List<MambaReportItem> getMambaReport(MambaReportCriteria criteria) {
-
-        Integer pageNumber = criteria.getPageNumber();
-        Integer pageSize = criteria.getPageSize();
-
-        String argumentsJson = "";
-        try {
-
-            ObjectMapper objectMapper = new ObjectMapper();
-
-            criteria.getSearchFields().add(new MambaReportSearchField("page_number", String.valueOf(pageNumber)));
-            criteria.getSearchFields().add(new MambaReportSearchField("page_size", String.valueOf(pageSize)));
-
-            argumentsJson = objectMapper.writeValueAsString(criteria.getSearchFields());
-            log.debug("Query arguments {}", argumentsJson);
-
-        } catch (Exception exc) {
-            log.error("Failed to get MambaReport", exc);
-        }
-
-        List<MambaReportItem> mambaReportItems = new ArrayList<>();
-        List<String> columnNames = new ArrayList<>();
-
-        DataSource dataSource = CustomConnectionPoolManager
-                .getInstance()
-                .getEtlDataSource();
-
+    public List<CustomMambaReportItem> executeSqlQuery(String sql, List<Object> params) {
+        List<CustomMambaReportItem> mambaReportItems = new ArrayList<>();
+        DataSource dataSource = CustomConnectionPoolManager.getInstance().getDataSource();
 
         try (Connection connection = dataSource.getConnection();
-             CallableStatement statement = connection.prepareCall("{CALL sp_mamba_get_report_column_names(?)}")) {
+             PreparedStatement statement = connection.prepareStatement(sql)) {
 
-            statement.setString("report_identifier", criteria.getReportId());
+            // Bind parameters
+            if (params != null) {
+                for (int i = 0; i < params.size(); i++) {
+                    statement.setObject(i + 1, params.get(i));
+                }
+            }
 
-            boolean hasResults = statement.execute();
-            log.debug("hasResults {}", hasResults);
-            while (hasResults) {
+            try (ResultSet resultSet = statement.executeQuery()) {
+                ResultSetMetaData metaData = resultSet.getMetaData();
+                int columnCount = metaData.getColumnCount();
+                int serialId = 1;
 
-                ResultSet resultSet = statement.getResultSet();
                 while (resultSet.next()) {
-                    columnNames.add(resultSet.getString(1));
-                }
-                hasResults = statement.getMoreResults();
-            }
-        } catch (SQLException e) {
-            log.error("Failed to get MambaReport", e);
-        }
+                    CustomMambaReportItem reportItem = new CustomMambaReportItem();
+                    reportItem.setSerialId(serialId++);
 
-        try (Connection connection = dataSource.getConnection();
-             CallableStatement statement = connection.prepareCall("{CALL sp_mamba_generate_report_wrapper(?, ?, ?)}")) {
-
-            System.out.println("Query arguments here: " + argumentsJson);
-
-            statement.setInt("generate_columns_flag", 0);
-            statement.setString("report_identifier", criteria.getReportId());
-            statement.setString("parameter_list", argumentsJson);
-
-            boolean hasResults = statement.execute();
-
-            if (!hasResults) {
-
-                MambaReportItem reportItem = new MambaReportItem();
-                reportItem.setSerialId(1);
-                mambaReportItems.add(reportItem);
-                for (String columnName : columnNames) {
-                    reportItem.getRecord().add(new MambaReportItemColumn(columnName, null));
-                }
-
-            } else {
-
-                do {
-
-                    ResultSet resultSet = statement.getResultSet();
-                    ResultSetMetaData metaData = resultSet.getMetaData();
-                    int columnCount = metaData.getColumnCount();
-
-                    int serialId = 1;
-                    while (resultSet.next()) {
-
-                        MambaReportItem reportItem = new MambaReportItem();
-                        reportItem.setSerialId(serialId);
-                        mambaReportItems.add(reportItem);
-                        for (int i = 1; i <= columnCount; i++) {
-
-                            String columnName = metaData.getColumnName(i);
-                            Object columnValue = resultSet.getObject(i);
-                            reportItem.getRecord().add(new MambaReportItemColumn(columnName, columnValue));
-                            log.debug("Column (metadata..) {} : {}", columnName, columnValue);
-                        }
-                        serialId++;
+                    for (int i = 1; i <= columnCount; i++) {
+                        String columnName = metaData.getColumnName(i);
+                        Object columnValue = resultSet.getObject(i);
+                        reportItem.getRecord().add(new CustomMambaReportItemColumn(columnName, columnValue));
                     }
+                    mambaReportItems.add(reportItem);
                 }
-                while (statement.getMoreResults());
             }
         } catch (SQLException e) {
-            log.error("Failed to get MambaReport", e);
+            log.error("Failed to execute direct SQL query: " + sql, e);
         }
         return mambaReportItems;
-    }
-
-    @Override
-    public Integer getMambaReportSize(MambaReportCriteria criteria) {
-        String argumentsJson = "";
-        try {
-
-            ObjectMapper objectMapper = new ObjectMapper();
-
-            argumentsJson = objectMapper.writeValueAsString(criteria.getSearchFields());
-            log.debug("Query arguments {}", argumentsJson);
-
-        } catch (Exception exc) {
-            log.error("Failed to get MambaReport", exc);
-        }
-
-        DataSource dataSource = CustomConnectionPoolManager
-                .getInstance()
-                .getDataSource();
-
-        try (Connection connection = dataSource.getConnection();
-             CallableStatement statement = connection.prepareCall("{CALL sp_mamba_generate_report_size_sp_wrapper(?, ?)}")) {
-
-            statement.setString("report_identifier", criteria.getReportId());
-            statement.setString("parameter_list", argumentsJson);
-
-            System.out.println("Query report_identifier: " + criteria.getReportId());
-            System.out.println("Query arguments: " + argumentsJson);
-
-            if (statement.execute()) {
-                ResultSet resultSet = statement.getResultSet();
-                if (resultSet.next()) {  // Move to the first row
-                    return resultSet.getInt(1);
-                }
-            }
-        } catch (SQLException e) {
-            log.error("Failed to get MambaReport size there: ", e);
-        }
-        return 0;
     }
 }
