@@ -2,7 +2,7 @@ package org.openmrs.module.mambaetl.datasetevaluator.datim;
 
 import org.openmrs.annotation.Handler;
 import org.openmrs.module.mambaetl.datasetdefinition.datim.KeyPopulationDataSetDefinitionMamba;
-import org.openmrs.module.mambaetl.helpers.ConnectionPoolManager;
+import org.openmrs.module.mambaetl.helpers.CustomConnectionPoolManager;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
 import org.openmrs.module.reporting.dataset.DataSet;
 import org.openmrs.module.reporting.dataset.SimpleDataSet;
@@ -43,6 +43,6 @@ public class KeyPopulationTypeEvaluatorMamba implements DataSetEvaluator {
     }
 	
 	private DataSource getDataSource() {
-		return ConnectionPoolManager.getInstance().getDataSource();
+		return CustomConnectionPoolManager.getInstance().getDataSource();
 	}
 }

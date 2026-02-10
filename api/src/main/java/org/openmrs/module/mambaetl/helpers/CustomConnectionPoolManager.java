@@ -14,13 +14,13 @@ import org.openmrs.api.context.Context;
 
 import java.util.Properties;
 
-public class ConnectionPoolManager {
+public class CustomConnectionPoolManager {
 	
-	private static ConnectionPoolManager instance = null;
+	private static CustomConnectionPoolManager instance = null;
 	
 	private static final BasicDataSource dataSource = new BasicDataSource();
 	
-	private ConnectionPoolManager() {
+	private CustomConnectionPoolManager() {
 		
 		Properties properties = Context.getRuntimeProperties();
 		
@@ -39,9 +39,9 @@ public class ConnectionPoolManager {
 		dataSource.setMaxTotal(20);
 	}
 	
-	public static ConnectionPoolManager getInstance() {
+	public static CustomConnectionPoolManager getInstance() {
 		if (instance == null) {
-			instance = new ConnectionPoolManager();
+			instance = new CustomConnectionPoolManager();
 		}
 		return instance;
 	}

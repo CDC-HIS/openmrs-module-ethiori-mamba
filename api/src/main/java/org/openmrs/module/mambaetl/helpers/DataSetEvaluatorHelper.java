@@ -17,7 +17,7 @@ import java.util.List;
 public class DataSetEvaluatorHelper {
 	
 	public static DataSource getDataSource() {
-		return ConnectionPoolManager.getInstance().getDataSource();
+		return CustomConnectionPoolManager.getInstance().getDataSource();
 	}
 	
 	public static void rollbackAndThrowException(Connection connection, String message, SQLException e, Log log)
