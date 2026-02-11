@@ -1,4 +1,4 @@
-package org.openmrs.module.mambaetl.web;
+package org.openmrs.module.mambaetl.web.resource;
 
 import org.openmrs.api.context.Context;
 import org.openmrs.module.mambaetl.api.PatientSummaryService;
@@ -9,11 +9,9 @@ import org.openmrs.module.webservices.rest.web.annotation.Resource;
 import org.openmrs.module.webservices.rest.web.resource.api.Searchable;
 import org.openmrs.module.webservices.rest.web.resource.impl.EmptySearchResult;
 import org.openmrs.module.webservices.rest.web.response.ResponseException;
-import java.util.Arrays;
 import java.util.Map;
 
-// URL will be: /openmrs/ws/rest/v1/ethiohri/patientsummary
-@Resource(name = RestConstants.VERSION_1 + "/ethiohri/patientsummary", supportedClass = Object.class, supportedOpenmrsVersions = { "2.0 - 9.*" })
+@Resource(name = RestConstants.VERSION_1 + "/ethiohri-mamba/patientsummary", supportedClass = Object.class, supportedOpenmrsVersions = { "2.0 - 9.*" })
 public class PatientSummaryResource implements Searchable {
 	
 	private PatientSummaryService getService() {
@@ -35,7 +33,9 @@ public class PatientSummaryResource implements Searchable {
 				return new EmptySearchResult().toSimpleObject(null);
 			}
 			
-			return new SimpleObject().add("results", Arrays.asList(summary));
+			SimpleObject result = new SimpleObject();
+			result.putAll(summary);
+			return result;
 			
 		}
 		catch (IllegalArgumentException e) {

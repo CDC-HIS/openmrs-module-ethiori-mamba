@@ -1,7 +1,5 @@
 package org.openmrs.module.mambaetl.api.impl;
 
-import org.openmrs.Patient;
-import org.openmrs.api.context.Context;
 import org.openmrs.api.impl.BaseOpenmrsService;
 import org.openmrs.module.mambaetl.api.PatientSummaryService;
 import org.openmrs.module.mambaetl.api.db.PatientSummaryDao;
