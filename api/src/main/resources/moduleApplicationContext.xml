@@ -23,4 +23,29 @@
   		    http://www.springframework.org/schema/util
   		    http://www.springframework.org/schema/util/spring-util-3.0.xsd">
     <context:component-scan base-package="org.openmrs.module.mambaetl" />
+	<bean id="mambaetl.PatientSummaryDao" 
+          class="org.openmrs.module.mambaetl.api.db.impl.jdbcPatientSummaryDao">
+    </bean>
+
+    <bean id="mambaetl.PatientSummaryService" 
+          class="org.openmrs.module.mambaetl.api.impl.PatientSummaryServiceImpl">
+        <property name="dao" ref="mambaetl.PatientSummaryDao"/>
+    </bean>
+
+    <bean parent="serviceContext">
+        <property name="moduleService">
+            <list>
+                <value>org.openmrs.module.mambaetl.api.PatientSummaryService</value>
+                <bean class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+                    <property name="transactionManager" ref="transactionManager"/>
+                    <property name="target" ref="mambaetl.PatientSummaryService"/>
+                    <property name="transactionAttributes">
+                        <props>
+                            <prop key="*">PROPAGATION_REQUIRED,readOnly</prop>
+                        </props>
+                    </property>
+                </bean>
+            </list>
+        </property>
+    </bean>
 </beans>
