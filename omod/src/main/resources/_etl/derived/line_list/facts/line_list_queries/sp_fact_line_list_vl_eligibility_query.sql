@@ -63,9 +63,7 @@ BEGIN
                                LEFT JOIN mamba_flat_encounter_follow_up_9 follow_up_9
                                          ON follow_up.encounter_id = follow_up_9.encounter_id
                                LEFT JOIN mamba_flat_encounter_follow_up_10 follow_up_10
-                                         ON follow_up.encounter_id = follow_up_10.encounter_id
-
-                      ),
+                                         ON follow_up.encounter_id = follow_up_10.encounter_id),
 
 
          tmp_all_art_follow_ups as (SELECT encounter_id,
@@ -533,8 +531,6 @@ BEGIN
                                 Weight,
                                 client.phone_no                                  as PNumber,
                                 client.mobile_no                                 as Mobile,
-                                CAST(eligiblityDate AS DATE)                     as `Eligiblity Date`,
-                                CAST(eligiblityDate AS DATE)                     as `Eligiblity Date EC.`,
                                 art_start_date                                   as `ART Start Date`,
                                 art_start_date                                   as `ART Start Date EC.`,
                                 FollowUpDate                                     as `Follow Up Date`,
@@ -563,32 +559,34 @@ BEGIN
                                 date_hiv_confirmed                               as `Hiv Confirmed Date EC`,
                                 date_hiv_confirmed                               as `Hiv Confirmed Date EC.`,
                                 t.arv_dispensed_dose                             as ARTDoseDays,
-                                case
-
-                                    when t.VL_STATUS_COVERAGE = 'N/A' THEN 'Not Applicable'
-                                    when t.eligiblityDateReceived <= COALESCE(REPORT_END_DATE, CURDATE())
-                                        THEN 'Eligible for Viral Load'
-                                    when t.eligiblityDateReceived > COALESCE(REPORT_END_DATE, CURDATE())
-                                        THEN 'Viral Load Done (Currently not Eligible)'  -- 'Viral Load Done'
-                                    when t.art_start_date is NULL and t.follow_up_status is null THEN 'Not Started ART'
-                                    end                                          as `Viral Load Status Coverage`,
-
-#                                 CASE
-#                                     WHEN t.eligiblityDate > COALESCE(REPORT_END_DATE, CURDATE()) THEN 'N/A'
-#                                     ELSE VL_STATUS_COVERAGE END                                        as `Viral Load Status Coverage`,
-                                CASE
-
-                                    WHEN t.eligiblityDate > COALESCE(REPORT_END_DATE, CURDATE()) THEN 'N/A'
-                                    ELSE vl_status_final END                     as `Reason for Viral Load Eligibility`,
+                                CAST(eligiblityDate AS DATE)                     as `Eligiblity Date`,
+                                CAST(eligiblityDate AS DATE)                     as `Eligiblity Date EC.`,
                                 case
 
                                     when t.vl_status_final = 'N/A' THEN 'Not Applicable'
                                     when t.eligiblityDate <= COALESCE(REPORT_END_DATE, CURDATE())
                                         THEN 'Eligible for Viral Load'
                                     when t.eligiblityDate > COALESCE(REPORT_END_DATE, CURDATE())
-                                        THEN 'Viral Load Done (Currently not Eligible)'  -- 'Viral Load Done'
+                                        THEN 'Viral Load Done (Currently not Eligible)' -- 'Viral Load Done'
                                     when t.art_start_date is NULL and t.follow_up_status is null THEN 'Not Started ART'
-                                    end                                          as `Viral Load Eligibility Status`
+                                    end                                          as `Viral Load Eligibility Status`,
+                                CASE
+
+                                    WHEN t.eligiblityDate > COALESCE(REPORT_END_DATE, CURDATE()) THEN 'N/A'
+                                    ELSE vl_status_final END                     as `Reason for Viral Load Eligibility`,
+                                eligiblityDateReceived                           as 'Viral Load Coverage Eligibility Date',
+                                eligiblityDateReceived                           as 'Viral Load Coverage Eligibility Date EC.',
+                                case
+
+                                    when t.VL_STATUS_COVERAGE = 'N/A' THEN 'Not Applicable'
+                                    when t.eligiblityDateReceived <= COALESCE(REPORT_END_DATE, CURDATE())
+                                        THEN 'Eligible for Viral Load'
+                                    when t.eligiblityDateReceived > COALESCE(REPORT_END_DATE, CURDATE())
+                                        THEN 'Viral Load Done (Currently not Eligible)' -- 'Viral Load Done'
+                                    when t.art_start_date is NULL and t.follow_up_status is null THEN 'Not Started ART'
+                                    end                                          as `Viral Load Test Coverage`
+
+
                          from vl_eligibility t
                                   join mamba_dim_client client on t.PatientId = client_id)
     select *
