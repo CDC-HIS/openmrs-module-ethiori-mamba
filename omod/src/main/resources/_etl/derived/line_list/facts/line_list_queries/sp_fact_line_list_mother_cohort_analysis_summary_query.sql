@@ -1,4 +1,5 @@
-DELIMITER //
+DELIMITER
+//
 
 DROP PROCEDURE IF EXISTS sp_fact_line_list_mother_cohort_analysis_summary_query;
 
@@ -113,18 +114,7 @@ BEGIN
                                              f.current_functional_status,
 
                                              ROW_NUMBER() OVER (PARTITION BY pi.PatientId, pi.interval_month
-                                                 ORDER BY f.follow_up_date DESC, f.encounter_id DESC) as rn,
-
-                                             ROW_NUMBER() OVER (PARTITION BY pi.PatientId, pi.interval_month
-                                                 ORDER BY
-                                                     CASE
-                                                         WHEN f.follow_up_status IN
-                                                              ('Dead', 'Transferred out', 'Stop all', 'Ran away') THEN 2
-                                                         WHEN f.ARTDoseDays > 0 THEN 1
-                                                         ELSE 0
-                                                         END DESC,
-                                                     f.follow_up_date DESC
-                                                 )                                                    as rn_meaningful
+                                                 ORDER BY f.follow_up_date DESC, f.encounter_id DESC) as rn
 
                                       FROM PatientIntervals pi
                                                LEFT JOIN Follow_UP f ON pi.PatientId = f.PatientId
@@ -181,11 +171,16 @@ BEGIN
                                       END AS ethiopian_month,
 
                                   CASE
-                                      WHEN lfu.treatment_end_date >= lfu.interval_end_date AND
-                                           lfu.follow_up_status in ('Alive', 'Restart medication') THEN 'Active'
-                                      WHEN meaningful.follow_up_status IN
-                                           ('Dead', 'Transferred out', 'Stop all', 'Ran away')
-                                          THEN meaningful.follow_up_status
+                                      -- 1. Explicit Terminal States (Persist forever once they happen)
+                                      WHEN lfu.follow_up_status IN ('Dead', 'Transferred out', 'Stop all', 'Ran away')
+                                          THEN lfu.follow_up_status
+
+                                      -- 2. Active Logic (Must be Alive + Meds covering report date)
+                                      WHEN lfu.follow_up_status IN ('Alive', 'Restart medication')
+                                          AND lfu.treatment_end_date >= lfu.interval_end_date
+                                          THEN 'Active'
+
+                                      -- 3. Default (Alive but meds expired = LTFU)
                                       ELSE 'Lost to follow-up'
                                       END AS outcome,
 
@@ -199,11 +194,8 @@ BEGIN
                                   lfu.next_visit_date,
                                   lfu.current_functional_status
                            FROM (SELECT * FROM LatestFollowUpInInterval WHERE rn = 1) lfu
-                                    LEFT JOIN (SELECT * FROM LatestFollowUpInInterval WHERE rn_meaningful = 1) meaningful
-                                              ON lfu.PatientId = meaningful.PatientId AND
-                                                 lfu.interval_month = meaningful.interval_month
                                     JOIN mamba_dim_client client
-                                         ON lfu.PatientId = client.client_id AND client.sex = 'FEMALE'),
+                                         ON lfu.PatientId = client.client_id),
 
          SummaryCounts AS (SELECT co.interval_month,
                                   co.ethiopian_month,
@@ -222,30 +214,27 @@ BEGIN
                            GROUP BY co.interval_month, ethiopian_month)
 
     SELECT ''                                                                 AS Name,
-
            MAX(CASE WHEN interval_month = 0 THEN ethiopian_month ELSE 0 END)  AS 'Maternal Cohort Month 0',
            MAX(CASE WHEN interval_month = 4 THEN ethiopian_month ELSE 0 END)  AS 'Maternal Cohort Month 3',
            MAX(CASE WHEN interval_month = 7 THEN ethiopian_month ELSE 0 END)  AS 'Maternal Cohort Month 6',
            MAX(CASE WHEN interval_month = 13 THEN ethiopian_month ELSE 0 END) AS 'Maternal Cohort Month 12',
            MAX(CASE WHEN interval_month = 25 THEN ethiopian_month ELSE 0 END) AS 'Maternal Cohort Month 24'
     FROM SummaryCounts
+
     UNION ALL
+
+-- Row A: Enrolled in PMTCT (Baseline)
     SELECT 'A. Enrolled in PMTCT in this facility during this month and year (Month 0)' AS Name,
-           COALESCE(SUM(CASE WHEN interval_month = 0 THEN Total_Facility_Enrolled ELSE 0 END),
-                    0),
-           COALESCE(SUM(CASE WHEN interval_month = 0 THEN Total_Facility_Enrolled ELSE 0 END),
-                    0),
-           COALESCE(SUM(CASE WHEN interval_month = 0 THEN Total_Facility_Enrolled ELSE 0 END),
-                    0),
-           COALESCE(SUM(CASE WHEN interval_month = 0 THEN Total_Facility_Enrolled ELSE 0 END),
-                    0),
-           COALESCE(SUM(CASE WHEN interval_month = 0 THEN Total_Facility_Enrolled ELSE 0 END),
-                    0)
+           COALESCE(SUM(CASE WHEN interval_month = 0 THEN Total_Facility_Enrolled ELSE 0 END), 0),
+           COALESCE(SUM(CASE WHEN interval_month = 0 THEN Total_Facility_Enrolled ELSE 0 END), 0),
+           COALESCE(SUM(CASE WHEN interval_month = 0 THEN Total_Facility_Enrolled ELSE 0 END), 0),
+           COALESCE(SUM(CASE WHEN interval_month = 0 THEN Total_Facility_Enrolled ELSE 0 END), 0),
+           COALESCE(SUM(CASE WHEN interval_month = 0 THEN Total_Facility_Enrolled ELSE 0 END), 0)
     FROM SummaryCounts
 
     UNION ALL
 
-    -- Row B: Transfer In (TI)
+-- Row B: Transfer In (TI)
     SELECT 'B. Total number of Transfer in (TI) since Month 0' AS Name,
            0,
            COALESCE(SUM(CASE WHEN interval_month = 4 THEN Total_TI ELSE 0 END), 0),
@@ -256,7 +245,7 @@ BEGIN
 
     UNION ALL
 
-    -- Row C: Transfer Out (TO)
+-- Row C: Transfer Out (TO)
     SELECT 'C. Total Number of Transfer out (TO) since Month 0' AS Name,
            0,
            COALESCE(SUM(CASE WHEN interval_month = 4 THEN Total_TO ELSE 0 END), 0),
@@ -267,7 +256,7 @@ BEGIN
 
     UNION ALL
 
-    -- Row D: Net Current Cohort (A + B - C)
+-- Row D: Net Current Cohort (A + B - C)
     SELECT 'D. Number of mothers in the current cohort = Net Current Cohort (A+B-C)' AS Name,
            0,
            COALESCE(SUM(CASE WHEN interval_month = 4 THEN (Total_Facility_Enrolled + Total_TI - Total_TO) ELSE 0 END),
@@ -282,7 +271,7 @@ BEGIN
 
     UNION ALL
 
-    -- Row E: Mothers Alive and on ART
+-- Row E: Mothers Alive and on ART
     SELECT 'E. Mothers Alive and on ART' AS Name,
            0,
            COALESCE(SUM(CASE WHEN interval_month = 4 THEN Total_Active ELSE 0 END), 0),
@@ -293,7 +282,7 @@ BEGIN
 
     UNION ALL
 
-    -- Row F: Lost to F/U
+-- Row F: Lost to F/U
     SELECT 'F. Lost to F/U (not seen>1 month after scheduled appointment)' AS Name,
            0,
            COALESCE(SUM(CASE WHEN interval_month = 4 THEN Total_LTFU ELSE 0 END), 0),
@@ -304,7 +293,7 @@ BEGIN
 
     UNION ALL
 
-    -- Row G: Known Dead
+-- Row G: Known Dead
     SELECT 'G. Known Dead' AS Name,
            0,
            COALESCE(SUM(CASE WHEN interval_month = 4 THEN Total_Dead ELSE 0 END), 0),
@@ -315,7 +304,7 @@ BEGIN
 
     UNION ALL
 
-    -- Row H: % Alive and on ART (E/D * 100)
+-- Row H: % Alive and on ART (E/D * 100)
     SELECT 'H. % of mothers in net current cohort Alive and on ART [(E/D)x100%]' AS Name,
            0,
            COALESCE(SUM(CASE
@@ -346,35 +335,32 @@ BEGIN
 
     UNION ALL
 
-    -- Row I: % Lost to F/U (F/D * 100)
+-- Row I: % Lost to F/U (F/D * 100)
     SELECT 'I. % of mothers in net current cohort Lost to F/U [(F/D)x100%]' AS Name,
            0,
            COALESCE(SUM(CASE
-                            WHEN interval_month = 4 THEN CONCAT(
-                                    ROUND((Total_LTFU / NULLIF((Total_Facility_Enrolled + Total_TI - Total_TO), 0)) *
-                                          100,
-                                          1), ' %')
+                            WHEN interval_month = 4 THEN CONCAT(ROUND(
+                                                                        (Total_LTFU / NULLIF((Total_Facility_Enrolled + Total_TI - Total_TO), 0)) *
+                                                                        100, 1), ' %')
                             ELSE '0.0 %' END), '0.0 %'),
            COALESCE(SUM(CASE
-                            WHEN interval_month = 7 THEN CONCAT(
-                                    ROUND((Total_LTFU / NULLIF((Total_Facility_Enrolled + Total_TI - Total_TO), 0)) *
-                                          100,
-                                          1), ' %')
+                            WHEN interval_month = 7 THEN CONCAT(ROUND(
+                                                                        (Total_LTFU / NULLIF((Total_Facility_Enrolled + Total_TI - Total_TO), 0)) *
+                                                                        100, 1), ' %')
                             ELSE '0.0 %' END), '0.0 %'),
            COALESCE(SUM(CASE
-                            WHEN interval_month = 13 THEN CONCAT(
-                                    ROUND((Total_LTFU / NULLIF((Total_Facility_Enrolled + Total_TI - Total_TO), 0)) *
-                                          100,
-                                          1), ' %')
+                            WHEN interval_month = 13 THEN CONCAT(ROUND(
+                                                                         (Total_LTFU / NULLIF((Total_Facility_Enrolled + Total_TI - Total_TO), 0)) *
+                                                                         100, 1), ' %')
                             ELSE '0.0 %' END), '0.0 %'),
            COALESCE(SUM(CASE
-                            WHEN interval_month = 25 THEN CONCAT(
-                                    ROUND((Total_LTFU / NULLIF((Total_Facility_Enrolled + Total_TI - Total_TO), 0)) *
-                                          100,
-                                          1), ' %')
+                            WHEN interval_month = 25 THEN CONCAT(ROUND(
+                                                                         (Total_LTFU / NULLIF((Total_Facility_Enrolled + Total_TI - Total_TO), 0)) *
+                                                                         100, 1), ' %')
                             ELSE '0.0 %' END), '0.0 %')
     FROM SummaryCounts;
 
-END //
+END
+//
 
 DELIMITER ;

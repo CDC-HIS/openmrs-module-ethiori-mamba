@@ -51,14 +51,15 @@ BEGIN
 
          PMTCT_ENROLLMENT AS (SELECT enrollment.client_id                          as PatientId,
                                      MAX(enrollment.date_of_enrollment_or_booking) AS date_of_enrollment_or_booking,
-                                     f4.pregnancy_status,
-                                     f7.currently_breastfeeding_child
+                                     MAX(f4.pregnancy_status)                      AS pregnancy_status,
+                                     MAX(f7.currently_breastfeeding_child)         AS currently_breastfeeding_child
                               FROM mamba_flat_encounter_pmtct_enrollment enrollment
                               LEFT JOIN mamba_flat_encounter_follow_up_4 f4 ON enrollment.client_id = f4.client_id
                               LEFT JOIN mamba_flat_encounter_follow_up_7 f7 ON enrollment.client_id = f4.client_id
                               WHERE date_of_enrollment_or_booking IS NOT NULL
                                 and date_of_enrollment_or_booking BETWEEN REPORT_START_DATE AND REPORT_END_DATE
-                              GROUP BY PatientId,pregnancy_status,currently_breastfeeding_child),
+                              GROUP BY enrollment.client_id
+                           ),
 
          IntervalsDef AS (SELECT 0 AS interval_month
                           UNION ALL
@@ -111,59 +112,105 @@ BEGIN
                                                LEFT JOIN Follow_UP f ON pi.PatientId = f.PatientId
                                           AND f.follow_up_date <= pi.interval_end_date),
 
-         CohortDetails AS (SELECT lfu.PatientId,
-                                  client.patient_name,
-                                  client.patient_uuid,
-                                  client.mrn,
-                                  client.UAN,
-                                  client.Sex,
-                                  client.date_of_birth,
-                                  lfu.interval_start_date,
-                                  lfu.currently_breastfeeding_child,
-                                  lfu.pregnancy_status,
-                                  lfu.interval_end_date,
-                                  lfu.interval_month,
-                                  CASE
-                                      WHEN lfu.follow_up_status IN
-                                           ('Dead', 'Transferred out', 'Stop all', 'Loss to follow-up (LTFU)',
-                                            'Ran away') THEN lfu.follow_up_status
-                                      WHEN lfu.follow_up_status IN ('Alive', 'Restart medication') AND
-                                           lfu.treatment_end_date >= lfu.interval_end_date THEN 'Active'
-                                      ELSE 'Lost to follow-up'
-                                      END AS outcome,
-                                  lfu.follow_up_date,
-                                  lfu.regimen,
-                                  lfu.ARTDoseDays,
-                                  lfu.follow_up_status,
-                                  lfu.AdherenceLevel,
-                                  lfu.treatment_end_date,
-                                  lfu.next_visit_date,
-                                  lfu.current_functional_status,
-                                  CASE
-                                      WHEN TIMESTAMPDIFF(YEAR, client.date_of_birth, lfu.interval_end_date) < 15 AND
-                                           lfu.regimen LIKE '4%' THEN 'On Original 1st Line Regimen'
-                                      WHEN TIMESTAMPDIFF(YEAR, client.date_of_birth, lfu.interval_end_date) >= 15 AND
-                                           lfu.regimen LIKE '1%' THEN 'On Original 1st Line Regimen'
+         CohortDetails AS (
+             SELECT lfu.PatientId,
+                    client.patient_name,
+                    client.patient_uuid,
+                    client.mrn,
+                    client.UAN,
+                    client.Sex,
+                    client.date_of_birth,
+                    lfu.interval_start_date,
+                    lfu.interval_end_date,
+                    lfu.interval_month,
+                    lfu.follow_up_date,
+                    CASE
+                        WHEN lfu.follow_up_status IN ('Dead', 'Transferred out', 'Stop all', 'Ran away')
+                            THEN lfu.follow_up_status
+                        WHEN lfu.follow_up_status IN ('Alive', 'Restart medication')
+                            AND lfu.treatment_end_date >= lfu.interval_end_date
+                            THEN 'Active'
+                        ELSE 'Lost to follow-up'
+                        END AS outcome,
 
-                                      WHEN TIMESTAMPDIFF(YEAR, client.date_of_birth, lfu.interval_end_date) < 15 AND
-                                           lfu.regimen LIKE '1%' THEN 'On Alternate 1st Line Regimen (Substituted)'
-                                      WHEN TIMESTAMPDIFF(YEAR, client.date_of_birth, lfu.interval_end_date) >= 15 AND
-                                           lfu.regimen LIKE '4%' THEN 'On Alternate 1st Line Regimen (Substituted)'
+                    CASE
+                        WHEN lfu.follow_up_date >= lfu.interval_start_date THEN lfu.follow_up_date
+                        ELSE NULL
+                        END AS follow_up_date_visit,
 
-                                      WHEN TIMESTAMPDIFF(YEAR, client.date_of_birth, lfu.interval_end_date) < 15 AND
-                                           lfu.regimen LIKE '5%' THEN 'On 2nd Line Regimen (Switched)'
-                                      WHEN TIMESTAMPDIFF(YEAR, client.date_of_birth, lfu.interval_end_date) >= 15 AND
-                                           lfu.regimen LIKE '2%' THEN 'On 2nd Line Regimen (Switched)'
+                    CASE
+                        WHEN lfu.follow_up_date >= lfu.interval_start_date THEN lfu.regimen
+                        ELSE NULL
+                        END AS regimen,
 
-                                      WHEN TIMESTAMPDIFF(YEAR, client.date_of_birth, lfu.interval_end_date) < 15 AND
-                                           lfu.regimen LIKE '6%' THEN 'On 3rd Line Regimen (Switched)'
-                                      WHEN TIMESTAMPDIFF(YEAR, client.date_of_birth, lfu.interval_end_date) >= 15 AND
-                                           lfu.regimen LIKE '3%' THEN 'On 3rd Line Regimen (Switched)'
-                                      ELSE NULL
-                                      END AS regimen_line_category
-                           FROM (SELECT * FROM LatestFollowUpInInterval WHERE rn = 1) lfu
-                                    JOIN mamba_dim_client client
-                                         ON lfu.PatientId = client.client_id)
+                    CASE
+                        WHEN lfu.follow_up_date >= lfu.interval_start_date THEN lfu.ARTDoseDays
+                        ELSE NULL
+                        END AS ARTDoseDays,
+
+                    CASE
+                        WHEN lfu.follow_up_date >= lfu.interval_start_date THEN lfu.follow_up_status
+                        ELSE NULL
+                        END AS follow_up_status_visit,
+
+                    CASE
+                        WHEN lfu.follow_up_date >= lfu.interval_start_date THEN lfu.AdherenceLevel
+                        ELSE NULL
+                        END AS AdherenceLevel,
+
+                    CASE
+                        WHEN lfu.follow_up_date >= lfu.interval_start_date THEN lfu.treatment_end_date
+                        ELSE NULL
+                        END AS treatment_end_date_visit,
+
+                    CASE
+                        WHEN lfu.follow_up_date >= lfu.interval_start_date THEN lfu.pregnancy_status
+                        ELSE NULL
+                        END AS pregnancy_status,
+
+                    CASE
+                        WHEN lfu.follow_up_date >= lfu.interval_start_date THEN lfu.currently_breastfeeding_child
+                        ELSE NULL
+                        END AS currently_breastfeeding_child,
+
+                    CASE
+                        WHEN lfu.follow_up_date >= lfu.interval_start_date THEN lfu.current_functional_status
+                        ELSE NULL
+                        END AS current_functional_status,
+
+                    CASE
+                        WHEN lfu.follow_up_date >= lfu.interval_start_date THEN lfu.next_visit_date
+                        ELSE NULL
+                        END AS next_visit_date,
+
+
+                    CASE
+
+                        WHEN lfu.follow_up_date < lfu.interval_start_date THEN NULL
+
+
+                        WHEN TIMESTAMPDIFF(YEAR, client.date_of_birth, lfu.interval_end_date) < 15 THEN
+                            CASE
+                                WHEN lfu.regimen LIKE '4%' THEN 'On Original 1st Line Regimen'
+                                WHEN lfu.regimen LIKE '1%' THEN 'On Alternate 1st Line Regimen (Substituted)'
+                                WHEN lfu.regimen LIKE '5%' THEN 'On 2nd Line Regimen (Switched)'
+                                WHEN lfu.regimen LIKE '6%' THEN 'On 3rd Line Regimen (Switched)'
+                                ELSE NULL
+                                END
+
+                        ELSE
+                            CASE
+                                WHEN lfu.regimen LIKE '1%' THEN 'On Original 1st Line Regimen'
+                                WHEN lfu.regimen LIKE '4%' THEN 'On Alternate 1st Line Regimen (Substituted)'
+                                WHEN lfu.regimen LIKE '2%' THEN 'On 2nd Line Regimen (Switched)'
+                                WHEN lfu.regimen LIKE '3%' THEN 'On 3rd Line Regimen (Switched)'
+                                ELSE NULL
+                                END
+                        END AS regimen_line_category
+
+             FROM (SELECT * FROM LatestFollowUpInInterval WHERE rn = 1) lfu
+                      JOIN mamba_dim_client client ON lfu.PatientId = client.client_id
+         )
 
     SELECT co.patient_name                                                                          AS 'Patient Name',
            co.patient_uuid                                                                          AS 'UUID',
@@ -187,15 +234,15 @@ BEGIN
            MAX(CASE WHEN co.interval_month = 0 THEN co.regimen ELSE NULL END)                       AS 'Latest Regimen at Zero Months',
            COALESCE(MAX(CASE WHEN co.interval_month = 0 THEN co.ARTDoseDays ELSE NULL END),
                     0)                                                                              AS 'Latest Regimen Dose Days at Zero Months',
-           MAX(CASE WHEN co.interval_month = 0 THEN co.follow_up_status ELSE NULL END)              AS 'Latest Follow-up Status at Zero Months',
+           MAX(CASE WHEN co.interval_month = 0 THEN co.follow_up_status_visit ELSE NULL END)              AS 'Latest Follow-up Status at Zero Months',
            COALESCE(MAX(CASE WHEN co.interval_month = 0 THEN co.AdherenceLevel ELSE NULL END),
                     0)                                                                              AS 'Latest Adherence at Zero Months',
            MAX(CASE WHEN co.interval_month = 0 THEN ai.pregnancy_status ELSE NULL END)              AS 'Pregnancy Status at Month Zero',
            MAX(CASE
                    WHEN co.interval_month = 0 THEN ai.currently_breastfeeding_child
                    ELSE NULL END)                                                                   AS 'Breast Feeding Status at Month Zero',
-           MAX(CASE WHEN co.interval_month = 0 THEN co.treatment_end_date ELSE NULL END)            AS 'Last TX_Curr Date at Zero Months',
-           MAX(CASE WHEN co.interval_month = 0 THEN co.treatment_end_date ELSE NULL END)            AS 'Last TX_Curr Date at Zero Months EC.',
+           MAX(CASE WHEN co.interval_month = 0 THEN co.treatment_end_date_visit ELSE NULL END)            AS 'Last TX_Curr Date at Zero Months',
+           MAX(CASE WHEN co.interval_month = 0 THEN co.treatment_end_date_visit ELSE NULL END)            AS 'Last TX_Curr Date at Zero Months EC.',
            MAX(CASE WHEN co.interval_month = 0 THEN co.next_visit_date ELSE NULL END)               AS 'Next Visit date at Zero Months',
            MAX(CASE WHEN co.interval_month = 0 THEN co.next_visit_date ELSE NULL END)               AS 'Next Visit date at Zero Months EC.',
 
@@ -215,15 +262,15 @@ BEGIN
            MAX(CASE WHEN co.interval_month = 4 THEN co.regimen ELSE NULL END)                       AS 'Latest Regimen at 3 Months',
            COALESCE(MAX(CASE WHEN co.interval_month = 4 THEN co.ARTDoseDays ELSE NULL END),
                     0)                                                                              AS 'Latest Regimen Dose Days at 3 Months',
-           MAX(CASE WHEN co.interval_month = 4 THEN co.follow_up_status ELSE NULL END)              AS 'Latest Follow-up Status at 3 Months',
+           MAX(CASE WHEN co.interval_month = 4 THEN co.follow_up_status_visit ELSE NULL END)              AS 'Latest Follow-up Status at 3 Months',
            COALESCE(MAX(CASE WHEN co.interval_month = 4 THEN co.AdherenceLevel ELSE NULL END),
                     0)                                                                              AS 'Latest Adherence at 3 Months',
            MAX(CASE WHEN co.interval_month = 4 THEN co.pregnancy_status ELSE NULL END)              AS 'Pregnant at 3 Months',
            MAX(CASE
                    WHEN co.interval_month = 4 THEN co.currently_breastfeeding_child
                    ELSE NULL END)                                                                   AS 'Breast Feeding Status at 3 Months',
-           MAX(CASE WHEN co.interval_month = 4 THEN co.treatment_end_date ELSE NULL END)            AS 'Last TX_Curr Date at 3 Months',
-           MAX(CASE WHEN co.interval_month = 4 THEN co.treatment_end_date ELSE NULL END)            AS 'Last TX_Curr Date at 3 Months EC.',
+           MAX(CASE WHEN co.interval_month = 4 THEN co.treatment_end_date_visit ELSE NULL END)            AS 'Last TX_Curr Date at 3 Months',
+           MAX(CASE WHEN co.interval_month = 4 THEN co.treatment_end_date_visit ELSE NULL END)            AS 'Last TX_Curr Date at 3 Months EC.',
            MAX(CASE WHEN co.interval_month = 4 THEN co.next_visit_date ELSE NULL END)               AS 'Next Visit date at 3 Months',
            MAX(CASE WHEN co.interval_month = 4 THEN co.next_visit_date ELSE NULL END)               AS 'Next Visit date at 3 Months EC.',
 
@@ -243,15 +290,15 @@ BEGIN
            MAX(CASE WHEN co.interval_month = 7 THEN co.regimen ELSE NULL END)                       AS 'Latest Regimen at 6 Months',
            COALESCE(MAX(CASE WHEN co.interval_month = 7 THEN co.ARTDoseDays ELSE NULL END),
                     0)                                                                              AS 'Latest Regimen Dose Days at 6 Months',
-           MAX(CASE WHEN co.interval_month = 7 THEN co.follow_up_status ELSE NULL END)              AS 'Latest Follow-up Status at 6 Months',
+           MAX(CASE WHEN co.interval_month = 7 THEN co.follow_up_status_visit ELSE NULL END)              AS 'Latest Follow-up Status at 6 Months',
            COALESCE(MAX(CASE WHEN co.interval_month = 7 THEN co.AdherenceLevel ELSE NULL END),
                     0)                                                                              AS 'Latest Adherence at 6 Months',
            MAX(CASE WHEN co.interval_month = 7 THEN co.pregnancy_status ELSE NULL END)              AS 'Pregnant at 6 Months',
            MAX(CASE
                    WHEN co.interval_month = 7 THEN co.currently_breastfeeding_child
                    ELSE NULL END)                                                                   AS 'Breast Feeding Status at 6 Months',
-           MAX(CASE WHEN co.interval_month = 7 THEN co.treatment_end_date ELSE NULL END)            AS 'Last TX_Curr Date at 6 Months',
-           MAX(CASE WHEN co.interval_month = 7 THEN co.treatment_end_date ELSE NULL END)            AS 'Last TX_Curr Date at 6 Months EC.',
+           MAX(CASE WHEN co.interval_month = 7 THEN co.treatment_end_date_visit ELSE NULL END)            AS 'Last TX_Curr Date at 6 Months',
+           MAX(CASE WHEN co.interval_month = 7 THEN co.treatment_end_date_visit ELSE NULL END)            AS 'Last TX_Curr Date at 6 Months EC.',
            MAX(CASE WHEN co.interval_month = 7 THEN co.next_visit_date ELSE NULL END)               AS 'Next Visit date at 6 Months',
            MAX(CASE WHEN co.interval_month = 7 THEN co.next_visit_date ELSE NULL END)               AS 'Next Visit date at 6 Months EC.',
 
@@ -270,15 +317,15 @@ BEGIN
            MAX(CASE WHEN co.interval_month = 13 THEN co.regimen ELSE NULL END)                       AS 'Latest Regimen at 12 Months',
            COALESCE(MAX(CASE WHEN co.interval_month = 13 THEN co.ARTDoseDays ELSE NULL END),
                     0)                                                                              AS 'Latest Regimen Dose Days at 12 Months',
-           MAX(CASE WHEN co.interval_month = 13 THEN co.follow_up_status ELSE NULL END)              AS 'Latest Follow-up Status at 12 Months',
+           MAX(CASE WHEN co.interval_month = 13 THEN co.follow_up_status_visit ELSE NULL END)              AS 'Latest Follow-up Status at 12 Months',
            COALESCE(MAX(CASE WHEN co.interval_month = 13 THEN co.AdherenceLevel ELSE NULL END),
                     0)                                                                              AS 'Latest Adherence at 12 Months',
            MAX(CASE WHEN co.interval_month = 13 THEN co.pregnancy_status ELSE NULL END)              AS 'Pregnant at 12 Months',
            MAX(CASE
                    WHEN co.interval_month = 13 THEN co.currently_breastfeeding_child
                    ELSE NULL END)                                                                   AS 'Breast Feeding Status at 12 Months',
-           MAX(CASE WHEN co.interval_month = 13 THEN co.treatment_end_date ELSE NULL END)            AS 'Last TX_Curr Date at 12 Months',
-           MAX(CASE WHEN co.interval_month = 13 THEN co.treatment_end_date ELSE NULL END)            AS 'Last TX_Curr Date at 12 Months EC.',
+           MAX(CASE WHEN co.interval_month = 13 THEN co.treatment_end_date_visit ELSE NULL END)            AS 'Last TX_Curr Date at 12 Months',
+           MAX(CASE WHEN co.interval_month = 13 THEN co.treatment_end_date_visit ELSE NULL END)            AS 'Last TX_Curr Date at 12 Months EC.',
            MAX(CASE WHEN co.interval_month = 13 THEN co.next_visit_date ELSE NULL END)               AS 'Next Visit date at 12 Months',
            MAX(CASE WHEN co.interval_month = 13 THEN co.next_visit_date ELSE NULL END)               AS 'Next Visit date at 12 Months EC.',
 
@@ -297,15 +344,15 @@ BEGIN
            MAX(CASE WHEN co.interval_month = 25 THEN co.regimen ELSE NULL END)                       AS 'Latest Regimen at 24 Months',
            COALESCE(MAX(CASE WHEN co.interval_month = 25 THEN co.ARTDoseDays ELSE NULL END),
                     0)                                                                              AS 'Latest Regimen Dose Days at 24 Months',
-           MAX(CASE WHEN co.interval_month = 25 THEN co.follow_up_status ELSE NULL END)              AS 'Latest Follow-up Status at 24 Months',
+           MAX(CASE WHEN co.interval_month = 25 THEN co.follow_up_status_visit ELSE NULL END)              AS 'Latest Follow-up Status at 24 Months',
            COALESCE(MAX(CASE WHEN co.interval_month = 25 THEN co.AdherenceLevel ELSE NULL END),
                     0)                                                                              AS 'Latest Adherence at 24 Months',
            MAX(CASE WHEN co.interval_month = 25 THEN co.pregnancy_status ELSE NULL END)              AS 'Pregnant at 24 Months',
            MAX(CASE
                    WHEN co.interval_month = 25 THEN co.currently_breastfeeding_child
                    ELSE NULL END)                                                                   AS 'Breast Feeding Status at 24 Months',
-           MAX(CASE WHEN co.interval_month = 25 THEN co.treatment_end_date ELSE NULL END)            AS 'Last TX_Curr Date at 24 Months',
-           MAX(CASE WHEN co.interval_month = 25 THEN co.treatment_end_date ELSE NULL END)            AS 'Last TX_Curr Date at 24 Months EC.',
+           MAX(CASE WHEN co.interval_month = 25 THEN co.treatment_end_date_visit ELSE NULL END)            AS 'Last TX_Curr Date at 24 Months',
+           MAX(CASE WHEN co.interval_month = 25 THEN co.treatment_end_date_visit ELSE NULL END)            AS 'Last TX_Curr Date at 24 Months EC.',
            MAX(CASE WHEN co.interval_month = 25 THEN co.next_visit_date ELSE NULL END)               AS 'Next Visit date at 24 Months',
            MAX(CASE WHEN co.interval_month = 25 THEN co.next_visit_date ELSE NULL END)               AS 'Next Visit date at 24 Months EC.'
 
@@ -315,8 +362,8 @@ BEGIN
              LEFT JOIN
          CohortDetails co ON ai.PatientId = co.PatientId
     GROUP BY ai.PatientId,
-             ai.date_of_enrollment_or_booking,co.patient_name
-    ORDER BY ai.date_of_enrollment_or_booking, co.patient_name;
+             ai.date_of_enrollment_or_booking
+    ORDER BY ai.date_of_enrollment_or_booking;
 
 END //
 
