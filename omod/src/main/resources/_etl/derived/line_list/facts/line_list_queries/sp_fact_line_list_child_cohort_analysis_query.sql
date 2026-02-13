@@ -5,7 +5,6 @@ DROP PROCEDURE IF EXISTS sp_fact_line_list_child_cohort_analysis_query;
 CREATE PROCEDURE sp_fact_line_list_child_cohort_analysis_query(IN REPORT_START_DATE DATE, IN REPORT_END_DATE DATE)
 BEGIN
 
-    -- 1. Base Cohort: HEI born to HIV+ mothers enrolled in PMTCT
 WITH HeiEnrolled AS (SELECT h.encounter_id                         as hei_encounter_id,
                             pm.encounter_id                        as mother_encounter_id,
                             client.identifier                      as mother_mrn,
