@@ -83,17 +83,17 @@ BEGIN
                                        pi.interval_month,
                                        pi.interval_end_date,
 
-                                       f.follow_up_status                                 AS strict_status,
-                                       f.treatment_end_date                               AS strict_tx_end_date,
-                                       f.regimen                                          AS strict_regimen,
-                                       f.current_functional_status,
-                                       f.cd4_count,
-                                       f.cd4_percent,
-                                       f.visitect_cd4_result,
-                                       f.visitect_cd4_test_date,
-                                       f.viral_load_received_date,
-                                       f.viral_load_count,
-                                       f.is_ti_visit,
+                                       MAX(f.follow_up_status)                            AS strict_status,
+                                       MAX(f.treatment_end_date)                          AS strict_tx_end_date,
+                                       MAX(f.regimen)                                     AS strict_regimen,
+                                       MAX(f.current_functional_status)                   AS current_functional_status,
+                                       MAX(f.cd4_count)                                   AS cd4_count,
+                                       MAX(f.cd4_percent)                                 AS cd4_percent,
+                                       MAX(f.visitect_cd4_result)                         AS visitect_cd4_result,
+                                       MAX(f.visitect_cd4_test_date)                      AS visitect_cd4_test_date,
+                                       MAX(f.viral_load_received_date)                    AS viral_load_received_date,
+                                       MAX(f.viral_load_count)                            AS viral_load_count,
+                                       MAX(f.is_ti_visit)                                 AS is_ti_visit,
 
                                        MAX(CASE WHEN f.is_ti_visit = 1 THEN 1 ELSE 0 END) as ti_in_this_interval
 
