@@ -3,8 +3,7 @@ package org.openmrs.module.mambaetl.datasetevaluator.linelist;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.mambaetl.datasetdefinition.linelist.NCDLineListDataSetDefinitionMamba;
-import org.openmrs.module.mambaetl.datasetdefinition.linelist.PHRHServiceLineListDataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.datasetdefinition.linelist.NCDScreeningLineListDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
 import org.openmrs.module.reporting.dataset.DataSet;
@@ -23,10 +22,10 @@ import java.util.List;
 import static org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper.*;
 import static org.openmrs.module.mambaetl.helpers.ValidationHelper.ValidateDates;
 
-@Handler(supports = { NCDLineListDataSetDefinitionMamba.class })
-public class NCDLineListDataSetEvaluatorMamba implements DataSetEvaluator {
+@Handler(supports = { NCDScreeningLineListDataSetDefinitionMamba.class })
+public class NCDScreeningLineListDataSetEvaluatorMamba implements DataSetEvaluator {
 	
-	private static final Log log = LogFactory.getLog(NCDLineListDataSetEvaluatorMamba.class);
+	private static final Log log = LogFactory.getLog(NCDScreeningLineListDataSetEvaluatorMamba.class);
 	
 	private static final String ERROR_PROCESSING_RESULT_SET = "Error processing ResultSet: ";
 	
@@ -36,7 +35,7 @@ public class NCDLineListDataSetEvaluatorMamba implements DataSetEvaluator {
 	public DataSet evaluate(DataSetDefinition dataSetDefinition, EvaluationContext evalContext)
 			throws EvaluationException {
 
-		NCDLineListDataSetDefinitionMamba ncdLineListDataSetDefinitionMamba = (NCDLineListDataSetDefinitionMamba) dataSetDefinition;
+		NCDScreeningLineListDataSetDefinitionMamba ncdLineListDataSetDefinitionMamba = (NCDScreeningLineListDataSetDefinitionMamba) dataSetDefinition;
 		SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
 		ResultSetMapper resultSetMapper = new ResultSetMapper();
 		ValidateDates(data, ncdLineListDataSetDefinitionMamba.getStartDate(), ncdLineListDataSetDefinitionMamba.getEndDate());
@@ -66,12 +65,12 @@ public class NCDLineListDataSetEvaluatorMamba implements DataSetEvaluator {
 		return null;
 	}
 	
-	private List<ProcedureCall> createProcedureCalls(NCDLineListDataSetDefinitionMamba ncdLineListDataSetDefinitionMamba) {
+	private List<ProcedureCall> createProcedureCalls(NCDScreeningLineListDataSetDefinitionMamba ncdLineListDataSetDefinitionMamba) {
 		java.sql.Date startDate = ncdLineListDataSetDefinitionMamba.getStartDate() != null ? new java.sql.Date(ncdLineListDataSetDefinitionMamba.getStartDate().getTime()):null ;
 		java.sql.Date endDate = ncdLineListDataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date( ncdLineListDataSetDefinitionMamba.getEndDate().getTime()):null ;
 
 		return Collections.singletonList(
-                new ProcedureCall("{call sp_fact_line_list_ncd_screening_and_treatment_query(?,?)}", statement -> {
+                new ProcedureCall("{call sp_fact_line_list_ncd_screening_query(?,?)}", statement -> {
                     statement.setDate(1, startDate);
 					statement.setDate(2, endDate);
                 })

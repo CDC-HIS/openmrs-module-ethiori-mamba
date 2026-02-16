@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import java.util.Date;
 
 @Component
-public class NCDLineListDataSetDefinitionMamba extends BaseDataSetDefinition {
+public class NCDScreeningLineListDataSetDefinitionMamba extends BaseDataSetDefinition {
 	
 	@ConfigurationProperty
 	private Date startDate;

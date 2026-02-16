@@ -1,5 +1,4 @@
-DELIMITER
-//
+DELIMITER //
 
 DROP PROCEDURE IF EXISTS sp_fact_line_list_mother_cohort_analysis_summary_query;
 
@@ -360,7 +359,6 @@ BEGIN
                             ELSE '0.0 %' END), '0.0 %')
     FROM SummaryCounts;
 
-END
-//
+END //
 
 DELIMITER ;
