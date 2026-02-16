@@ -132,7 +132,9 @@ BEGIN
            dc.UAN,
            dc.Sex,
            dc.date_of_birth                                                                 AS 'Date of Birth',
+           dc.date_of_birth                                                                 AS 'Date of Birth EC.',
            ai.art_start_date                                                                AS 'ART Start Date',
+           ai.art_start_date                                                                AS 'ART Start Date EC.',
            YEAR(ai.art_start_date)                                                          AS 'ART Start Year',
            QUARTER(ai.art_start_date)                                                       AS 'ART Start Quarter',
 
@@ -150,6 +152,7 @@ BEGIN
 
            MAX(CASE WHEN co.interval_month = 0 THEN co.final_cohort_outcome ELSE NULL END)  AS 'Outcome at Zero Months',
            MAX(CASE WHEN co.interval_month = 0 THEN co.follow_up_date ELSE NULL END)        AS 'Latest Follow-Up Date at Zero Months',
+           MAX(CASE WHEN co.interval_month = 0 THEN co.follow_up_date ELSE NULL END)        AS 'Latest Follow-Up Date at Zero Months EC.',
            MAX(CASE WHEN co.interval_month = 0 THEN co.regimen ELSE NULL END)               AS 'Latest Regimen at Zero Months', -- STRICT
            MAX(CASE WHEN co.interval_month = 0 THEN co.ARTDoseDays ELSE NULL END)           AS 'Latest Regimen Dose Days at Zero Months',
            MAX(CASE WHEN co.interval_month = 0 THEN co.strict_status ELSE NULL END)         AS 'Latest Follow-up Status at Zero Months',
@@ -171,7 +174,8 @@ BEGIN
 
            MAX(CASE WHEN co.interval_month = 6 THEN co.final_cohort_outcome ELSE NULL END)  AS 'Outcome at 6 Months',
            MAX(CASE WHEN co.interval_month = 6 THEN co.follow_up_date ELSE NULL END)        AS 'Latest Follow-Up Date at 6 Months',
-           MAX(CASE WHEN co.interval_month = 6 THEN co.regimen ELSE NULL END)               AS 'Latest Regimen at 6 Months', -- STRICT
+           MAX(CASE WHEN co.interval_month = 6 THEN co.follow_up_date ELSE NULL END)        AS 'Latest Follow-Up Date at 6 Months EC.',
+           MAX(CASE WHEN co.interval_month = 6 THEN co.regimen ELSE NULL END)               AS 'Latest Regimen at 6 Months',
            MAX(CASE WHEN co.interval_month = 6 THEN co.ARTDoseDays ELSE NULL END)           AS 'Latest Regimen Dose Days at 6 Months',
            MAX(CASE WHEN co.interval_month = 6 THEN co.strict_status ELSE NULL END)         AS 'Latest Follow-up Status at 6 Months',
            MAX(CASE WHEN co.interval_month = 6 THEN co.AdherenceLevel ELSE NULL END)        AS 'Latest Adherence at 6 Months',
@@ -192,7 +196,8 @@ BEGIN
 
            MAX(CASE WHEN co.interval_month = 12 THEN co.final_cohort_outcome ELSE NULL END) AS 'Outcome at 12 Months',
            MAX(CASE WHEN co.interval_month = 12 THEN co.follow_up_date ELSE NULL END)       AS 'Latest Follow-Up Date at 12 Months',
-           MAX(CASE WHEN co.interval_month = 12 THEN co.regimen ELSE NULL END)              AS 'Latest Regimen at 12 Months', -- STRICT
+           MAX(CASE WHEN co.interval_month = 12 THEN co.follow_up_date ELSE NULL END)       AS 'Latest Follow-Up Date at 12 Months EC.',
+           MAX(CASE WHEN co.interval_month = 12 THEN co.regimen ELSE NULL END)              AS 'Latest Regimen at 12 Months',
            MAX(CASE WHEN co.interval_month = 12 THEN co.ARTDoseDays ELSE NULL END)          AS 'Latest Regimen Dose Days at 12 Months',
            MAX(CASE WHEN co.interval_month = 12 THEN co.strict_status ELSE NULL END)        AS 'Latest Follow-up Status at 12 Months',
            MAX(CASE WHEN co.interval_month = 12 THEN co.AdherenceLevel ELSE NULL END)       AS 'Latest Adherence at 12 Months',
@@ -213,7 +218,8 @@ BEGIN
 
            MAX(CASE WHEN co.interval_month = 24 THEN co.final_cohort_outcome ELSE NULL END) AS 'Outcome at 24 Months',
            MAX(CASE WHEN co.interval_month = 24 THEN co.follow_up_date ELSE NULL END)       AS 'Latest Follow-Up Date at 24 Months',
-           MAX(CASE WHEN co.interval_month = 24 THEN co.regimen ELSE NULL END)              AS 'Latest Regimen at 24 Months', -- STRICT
+           MAX(CASE WHEN co.interval_month = 24 THEN co.follow_up_date ELSE NULL END)       AS 'Latest Follow-Up Date at 24 Months EC.',
+           MAX(CASE WHEN co.interval_month = 24 THEN co.regimen ELSE NULL END)              AS 'Latest Regimen at 24 Months',
            MAX(CASE WHEN co.interval_month = 24 THEN co.ARTDoseDays ELSE NULL END)          AS 'Latest Regimen Dose Days at 24 Months',
            MAX(CASE WHEN co.interval_month = 24 THEN co.strict_status ELSE NULL END)        AS 'Latest Follow-up Status at 24 Months',
            MAX(CASE WHEN co.interval_month = 24 THEN co.AdherenceLevel ELSE NULL END)       AS 'Latest Adherence at 24 Months',
@@ -234,7 +240,8 @@ BEGIN
 
            MAX(CASE WHEN co.interval_month = 36 THEN co.final_cohort_outcome ELSE NULL END) AS 'Outcome at 36 Months',
            MAX(CASE WHEN co.interval_month = 36 THEN co.follow_up_date ELSE NULL END)       AS 'Latest Follow-Up Date at 36 Months',
-           MAX(CASE WHEN co.interval_month = 36 THEN co.regimen ELSE NULL END)              AS 'Latest Regimen at 36 Months', -- STRICT
+           MAX(CASE WHEN co.interval_month = 36 THEN co.follow_up_date ELSE NULL END)       AS 'Latest Follow-Up Date at 36 Months EC.',
+           MAX(CASE WHEN co.interval_month = 36 THEN co.regimen ELSE NULL END)              AS 'Latest Regimen at 36 Months',
            MAX(CASE WHEN co.interval_month = 36 THEN co.ARTDoseDays ELSE NULL END)          AS 'Latest Regimen Dose Days at 36 Months',
            MAX(CASE WHEN co.interval_month = 36 THEN co.strict_status ELSE NULL END)        AS 'Latest Follow-up Status at 36 Months',
            MAX(CASE WHEN co.interval_month = 36 THEN co.AdherenceLevel ELSE NULL END)       AS 'Latest Adherence at 36 Months',
