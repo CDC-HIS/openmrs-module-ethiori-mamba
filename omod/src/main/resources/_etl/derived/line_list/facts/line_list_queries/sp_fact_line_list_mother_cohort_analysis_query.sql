@@ -65,11 +65,7 @@ WITH FollowUpEncounters AS (
                     END AS interval_end_date,
                 CASE
                     WHEN i.interval_month = 0 THEN REPORT_START_DATE
-                    ELSE COALESCE(
-                            LAG(fn_ethiopian_to_gregorian_calendar(DATE_ADD(fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'), INTERVAL i.interval_month MONTH)))
-                            OVER (PARTITION BY a.PatientId ORDER BY i.interval_month),
-                            REPORT_START_DATE
-                         )
+                    ELSE COALESCE(LAG(fn_ethiopian_to_gregorian_calendar(DATE_ADD(fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'), INTERVAL i.interval_month MONTH))) OVER (PARTITION BY a.PatientId ORDER BY i.interval_month), REPORT_START_DATE)
                     END AS interval_start_date
          FROM PMTCT_ENROLLMENT a
                   CROSS JOIN IntervalsDef i
