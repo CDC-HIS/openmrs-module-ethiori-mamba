@@ -1,7 +1,6 @@
 package org.openmrs.module.mambaetl.reports.linelist;
 
-import org.openmrs.module.mambaetl.datasetdefinition.linelist.NCDLineListDataSetDefinitionMamba;
-import org.openmrs.module.mambaetl.datasetdefinition.linelist.PHRHServiceLineListDataSetDefinitionMamba;
+import org.openmrs.module.mambaetl.datasetdefinition.linelist.NCDTreatmentLineListDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.report.ReportDesign;
@@ -15,21 +14,21 @@ import java.util.Collections;
 import java.util.List;
 
 @Component
-public class NCDLineListReportMamba implements ReportManager {
+public class NCDTreatmentLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getUuid() {
-		return "3e066051-38f4-46c9-9036-45ab23b61632";
+		return "3c8e0548-f7bd-4763-800c-dd0e46368ec5";
 	}
 	
 	@Override
 	public String getName() {
-		return "LINELIST- NCD Screening & Treatment";
+		return "LINELIST- NCD Treatment ";
 	}
 	
 	@Override
 	public String getDescription() {
-		return "NCD Screening & Treatment Line List Report";
+		return "NCD Treatment Line List Report";
 	}
 	
 	@Override
@@ -46,10 +45,10 @@ public class NCDLineListReportMamba implements ReportManager {
 		reportDefinition.setDescription(getDescription());
 		reportDefinition.setParameters(getParameters());
 		
-		NCDLineListDataSetDefinitionMamba ncdLineListDataSetDefinitionMamba = new NCDLineListDataSetDefinitionMamba();
-		ncdLineListDataSetDefinitionMamba.addParameters(getParameters());
-		reportDefinition.addDataSetDefinition("NCD Screening & Treatment Line List Report",
-		    EthiOhriUtil.map(ncdLineListDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		NCDTreatmentLineListDataSetDefinitionMamba ncdTreatmentLineListDataSetDefinitionMamba = new NCDTreatmentLineListDataSetDefinitionMamba();
+		ncdTreatmentLineListDataSetDefinitionMamba.addParameters(getParameters());
+		reportDefinition.addDataSetDefinition("NCD Treatment Line List Report",
+		    EthiOhriUtil.map(ncdTreatmentLineListDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
 		
 		return reportDefinition;
 	}
@@ -57,7 +56,7 @@ public class NCDLineListReportMamba implements ReportManager {
 	@Override
 	public List<ReportDesign> constructReportDesigns(ReportDefinition reportDefinition) {
 		
-		ReportDesign design = ReportManagerUtil.createExcelDesign("e208b318-e8df-4d86-adaa-1349f40e48cf", reportDefinition);
+		ReportDesign design = ReportManagerUtil.createExcelDesign("17f76b6b-3c6d-4961-8e08-186a3dd41c99", reportDefinition);
 		design.setReportDefinition(reportDefinition);
 		
 		return Collections.singletonList(design);

@@ -1,8 +1,8 @@
 DELIMITER //
 
-DROP PROCEDURE IF EXISTS sp_fact_line_list_ncd_screening_and_treatment_query;
+DROP PROCEDURE IF EXISTS sp_fact_line_list_ncd_treatment_query;
 
-CREATE PROCEDURE sp_fact_line_list_ncd_screening_and_treatment_query(IN REPORT_START_DATE DATE, IN REPORT_END_DATE DATE)
+CREATE PROCEDURE sp_fact_line_list_ncd_treatment_query(IN REPORT_START_DATE DATE, IN REPORT_END_DATE DATE)
 BEGIN
 
     -- 1. Get the latest ART/HIV history for each client
