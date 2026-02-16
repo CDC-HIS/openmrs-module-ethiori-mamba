@@ -15,7 +15,7 @@ BEGIN
     DECLARE age_group_cols VARCHAR(5000);
     DECLARE art_start_date_start DATE;
     DECLARE art_start_date_end DATE;
-    DECLARE tx_new_query VARCHAR(6384);
+    DECLARE tx_new_query TEXT;
     DECLARE group_query VARCHAR(5000);
 
     SET art_start_date_start = REPORT_START_DATE;
