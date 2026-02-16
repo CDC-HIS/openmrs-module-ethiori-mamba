@@ -177,8 +177,8 @@ BEGIN
            visit.nutritional_status_of_adult                          as `Nutritional Status`,
            visit.next_visit_date                                      as `Next Visit Date`,
            visit.next_visit_date                                      as `Next Visit Date EC.`,
-           visit.pregnancy_status                                     as `Pregnant?`,
-           visit.breast_feeding_status                                as `Breastfeeding?`,
+           ew.pregnancy_status                                     as `Pregnant?`,
+           ew.currently_breastfeeding_child                                as `Breastfeeding?`,
            visit.date_referred_to_pmtct                               as `Date Referred to PMTCT`,
            visit.date_referred_to_pmtct                               as `Date Referred to PMTCT EC.`,
 
