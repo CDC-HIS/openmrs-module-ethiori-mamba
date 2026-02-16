@@ -134,35 +134,41 @@ BEGIN
                                       PARTITION BY ew.enrollment_id
                                       ORDER BY CASE
                                                    WHEN f.dsd_category IS NOT NULL
-                                                       AND f.follow_up_date BETWEEN ew.start_date AND ew.effective_end_date
+                                                       AND
+                                                        f.follow_up_date BETWEEN ew.start_date AND ew.effective_end_date
                                                        THEN f.follow_up_date
                                                    ELSE NULL
                                           END DESC,
                                           f.encounter_id DESC
                                       ) as rn_latest_dsd
                            FROM Episode_Window ew
-                                   LEFT JOIN FollowUp f
-                                         ON ew.client_id = f.PatientId
-                          )
+                                    LEFT JOIN FollowUp f
+                                              ON ew.client_id = f.PatientId)
     SELECT client.patient_name                                        as `Patient Name`,
            client.MRN,
            client.UAN,
            TIMESTAMPDIFF(YEAR, client.date_of_birth, REPORT_END_DATE) as `Age`,
-           visit.art_start_date as `Art Start Date`,
-           visit.art_start_date as `Art Start Date EC.`,
-           dsd.dsd_category as `DSD`,
+           visit.art_start_date                                       as `Art Start Date`,
+           visit.art_start_date                                       as `Art Start Date EC.`,
+           dsd.dsd_category                                           as `DSD`,
            ew.start_date                                              as `PMTCT Booking Date`,
            ew.start_date                                              as `PMTCT Booking Date EC.`,
-           COALESCE(ew.art_clinic, ew.antenatal_care_provider, ew.ld_client,
-                    ew.post_natal_care)                               as `Status at Enrollment`,
-           ew.date_referred_to_pmtct 'Date Referred to PMTCT',
-           ew.pregnancy_status 'Pregnant?',
-           ew.currently_breastfeeding_child 'Breastfeeding?',
+           CASE COALESCE(ew.art_clinic, ew.antenatal_care_provider, ew.ld_client,
+                         ew.post_natal_care)
+               WHEN ew.art_clinic is not null THEN 'Known +ve - on ART at Entry'
+               WHEN ew.antenatal_care_provider is not null THEN 'New from ANC'
+               WHEN ew.ld_client is not null THEN 'New from L&D'
+               WHEN ew.post_natal_care is not null THEN 'New from PNC'
+               ELSE COALESCE(ew.art_clinic, ew.antenatal_care_provider, ew.ld_client,
+                             ew.post_natal_care) END                  as `Status at Enrollment`,
+           ew.date_referred_to_pmtct                                     'Date Referred to PMTCT',
+           ew.pregnancy_status                                           'Pregnant?',
+           ew.currently_breastfeeding_child                              'Breastfeeding?',
            ew.discharge_date                                          as `Date of Discharge`,
            ew.reason_for_discharge_from_pmtct                         as `Reason for Discharge`,
            ew.discharge_outcome                                       as `Maternal PMTCT Final Outcome`,
-           ew.effective_end_date as `Date of Final Outcome`,
-           ew.effective_end_date as `Date of Final Outcome EC.`,
+           ew.effective_end_date                                      as `Date of Final Outcome`,
+           ew.effective_end_date                                      as `Date of Final Outcome EC.`,
            visit.follow_up_date                                       as `Latest Follow-up Date`,
            visit.follow_up_date                                       as `Latest Follow-up Date EC.`,
            visit.follow_up_status                                     as `Latest Follow-up Status`,
@@ -195,7 +201,7 @@ BEGIN
              LEFT JOIN Events_Ranked vl_r
                        ON ew.enrollment_id = vl_r.enrollment_id AND vl_r.rn_latest_vl_res = 1
              LEFT JOIN Events_Ranked dsd
-                       ON ew.enrollment_id= dsd.enrollment_id AND dsd.rn_latest_dsd = 1;
+                       ON ew.enrollment_id = dsd.enrollment_id AND dsd.rn_latest_dsd = 1;
 END //
 
 DELIMITER ;
