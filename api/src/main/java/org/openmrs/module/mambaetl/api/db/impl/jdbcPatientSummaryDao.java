@@ -17,7 +17,8 @@ public class jdbcPatientSummaryDao implements PatientSummaryDao {
 	@Override
     public Map<String, Object> getPatientSummary(String patientUuid) {
 
-        DataSource dataSource = ConnectionPoolManager.getInstance().getDefaultDataSource();
+        DataSource dataSource = ConnectionPoolManager
+                .getInstance().getEtlDataSource();
 
         String sql = "SELECT " +
                 "  * " +
