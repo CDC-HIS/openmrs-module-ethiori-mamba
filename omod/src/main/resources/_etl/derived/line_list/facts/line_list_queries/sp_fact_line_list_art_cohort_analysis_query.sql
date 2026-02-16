@@ -56,9 +56,14 @@ BEGIN
              SELECT a.PatientId,
                     a.art_start_date,
                     i.interval_month,
-                    fn_ethiopian_to_gregorian_calendar(DATE_ADD(fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'), INTERVAL i.interval_month MONTH)) AS interval_end_date,
-                    LAG(fn_ethiopian_to_gregorian_calendar(DATE_ADD(fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'), INTERVAL i.interval_month MONTH)), 1, REPORT_START_DATE)
-                        OVER (PARTITION BY a.PatientId ORDER BY i.interval_month) AS interval_start_date
+                    CASE
+                        WHEN i.interval_month = 0 THEN a.art_start_date
+                        ELSE fn_ethiopian_to_gregorian_calendar(DATE_ADD(fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'), INTERVAL i.interval_month MONTH))
+                        END AS interval_end_date,
+                    CASE
+                        WHEN i.interval_month = 0 THEN REPORT_START_DATE
+                        ELSE COALESCE(LAG(fn_ethiopian_to_gregorian_calendar(DATE_ADD(fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'), INTERVAL i.interval_month MONTH))) OVER (PARTITION BY a.PatientId ORDER BY i.interval_month), REPORT_START_DATE)
+                        END AS interval_start_date
              FROM ART_Initiation a
                       CROSS JOIN IntervalsDef i
          ),
