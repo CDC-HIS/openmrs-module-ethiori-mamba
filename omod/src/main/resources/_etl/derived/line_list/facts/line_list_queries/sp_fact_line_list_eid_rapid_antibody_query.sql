@@ -32,7 +32,7 @@ BEGIN
                                   ROW_NUMBER() OVER (PARTITION BY t.client_id ORDER BY t.followup_date_followup_1 DESC) as rn
                            FROM mamba_flat_encounter_hei_hiv_test t
                            WHERE t.followup_date_followup_1 BETWEEN REPORT_START_DATE AND REPORT_END_DATE
-                             AND t.test_type = 'Rapid test for HIV')
+                             AND (t.test_type = 'Rapid test for HIV' OR confirmatory_test_done = 'Yes'))
 
     SELECT c.patient_name                                         as `Full Name`,
            c.sex                                                  as `Sex`,
