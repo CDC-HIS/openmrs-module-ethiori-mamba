@@ -8,7 +8,6 @@ CREATE PROCEDURE sp_fact_line_list_eid_dna_pcr_query(
 )
 BEGIN
 
-    -- EID DNA PCR Line List Query
 
     WITH Enrollment AS (SELECT e.client_id,
                                e.hei_code,
@@ -46,7 +45,9 @@ BEGIN
                                 ROW_NUMBER() OVER (PARTITION BY hiv_test.client_id ORDER BY hiv_test.dna_pcr_sample_collection_date DESC) as rn
                          from mamba_flat_encounter_hei_hiv_test hiv_test
                                   join mamba_dim_client client on hiv_test.client_id = client.client_id
-                         where dna_pcr_sample_collection_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE),
+                         where dna_pcr_sample_collection_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE
+                         -- test_type = 'HIV DNA polymerase chain reaction, dried blood spot (DBS)'
+                         ),
          hei_test as (select * from DNAPCRTests where rn = 1)
 
 
