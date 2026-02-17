@@ -6,30 +6,30 @@ CREATE PROCEDURE sp_fact_line_list_child_cohort_analysis_summary_query(IN REPORT
 BEGIN
 
     -- 1. Base Cohort: HEI born to HIV+ mothers enrolled in PMTCT
-    WITH HeiEnrolled AS (SELECT h.encounter_id                         as hei_encounter_id,
-                                pm.encounter_id                        as mother_encounter_id,
-                                client.identifier                      as mother_mrn,
-                                h.client_id                            as hei_client_id,
-                                pm.client_id                           as mother_client_id,
-                                pm.date_of_enrollment_or_booking       as date_of_erollement,
-                                h.date_enrolled_in_care                as hei_enrollment_date,
-                                h.infant_referred                      as infant_referred,
-                                ho.hei_pmtct_final_outcome             as final_out_come
-                         FROM mamba_flat_encounter_hei_enrollment as h
-                                  LEFT JOIN mamba_dim_patient_identifier as client
-                                            on h.service_delivery_point_number = client.identifier
-                                                and client.identifier_type = 'MRN'
-                                  LEFT JOIN mamba_flat_encounter_pmtct_enrollment as pm
-                                            on pm.client_id = client.patient_id
-                                  LEFT JOIN mamba_flat_encounter_hei_final_outcome as ho
-                                            on h.client_id = ho.client_id
-                         WHERE (client.identifier is null and (h.date_enrolled_in_care between REPORT_START_DATE
+    WITH HeiEnrolled AS (SELECT hei_enrollment.encounter_id                         as hei_encounter_id,
+                                maternal_enrollment.encounter_id                        as mother_encounter_id,
+                                linked_mother.identifier                      as mother_mrn,
+                                hei_enrollment.client_id                            as hei_client_id,
+                                maternal_enrollment.client_id                           as mother_client_id,
+                                maternal_enrollment.date_of_enrollment_or_booking       as date_of_erollement,
+                                hei_enrollment.date_enrolled_in_care                as hei_enrollment_date,
+                                hei_enrollment.infant_referred                      as infant_referred,
+                                final_outcome.hei_pmtct_final_outcome             as final_out_come
+                         FROM mamba_flat_encounter_hei_enrollment as hei_enrollment
+                                  LEFT JOIN mamba_dim_patient_identifier as linked_mother
+                                            on hei_enrollment.service_delivery_point_number = linked_mother.identifier
+                                                and linked_mother.identifier_type = 'MRN'
+                                  LEFT JOIN mamba_flat_encounter_pmtct_enrollment as maternal_enrollment
+                                            on maternal_enrollment.client_id = linked_mother.patient_id
+                                  LEFT JOIN mamba_flat_encounter_hei_final_outcome as final_outcome
+                                            on hei_enrollment.client_id = final_outcome.client_id
+                         WHERE (linked_mother.identifier is null and (hei_enrollment.date_enrolled_in_care between REPORT_START_DATE
                              and REPORT_END_DATE))
-                            or (client.identifier is not null
-                             and (pm.date_of_enrollment_or_booking between
+                            or (linked_mother.identifier is not null
+                             and (maternal_enrollment.date_of_enrollment_or_booking between
                                  REPORT_START_DATE and REPORT_END_DATE)
                              and
-                                h.date_enrolled_in_care between REPORT_START_DATE and DATE_ADD(REPORT_START_DATE, INTERVAL 12 MONTH))),
+                                hei_enrollment.date_enrolled_in_care between REPORT_START_DATE and DATE_ADD(REPORT_START_DATE, INTERVAL 12 MONTH))),
 
          -- Deduplicate HEI in Cohort
          HIEInCohort AS (SELECT a.*
