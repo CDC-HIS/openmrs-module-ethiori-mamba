@@ -25,7 +25,6 @@ BEGIN
                                        visitect_cd4_result,
                                        visitect_cd4_test_date,
                                        transferred_in_check_this_for_all_t,
-                                       -- Standardize TI Flag
                                        CASE WHEN transferred_in_check_this_for_all_t = 'Yes' THEN 1 ELSE 0 END as is_ti_visit
                                 FROM mamba_flat_encounter_follow_up follow_up
                                          LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1
@@ -71,11 +70,17 @@ BEGIN
                                      i.interval_month,
                                      CASE
                                          WHEN i.interval_month = 0 THEN a.art_start_date
-                                         ELSE fn_ethiopian_to_gregorian_calendar(DATE_ADD(fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'), INTERVAL i.interval_month MONTH))
+                                         ELSE fn_ethiopian_to_gregorian_calendar(DATE_ADD(
+                                                 fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'),
+                                                 INTERVAL i.interval_month MONTH))
                                          END AS interval_end_date,
                                      CASE
                                          WHEN i.interval_month = 0 THEN REPORT_START_DATE
-                                         ELSE COALESCE(LAG(fn_ethiopian_to_gregorian_calendar(DATE_ADD(fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'), INTERVAL i.interval_month MONTH))) OVER (PARTITION BY a.PatientId ORDER BY i.interval_month), REPORT_START_DATE)
+                                         ELSE COALESCE(LAG(fn_ethiopian_to_gregorian_calendar(DATE_ADD(
+                                                 fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'),
+                                                 INTERVAL i.interval_month MONTH)))
+                                                           OVER (PARTITION BY a.PatientId ORDER BY i.interval_month),
+                                                       REPORT_START_DATE)
                                          END AS interval_start_date
                               FROM ART_Initiation a
                                        CROSS JOIN IntervalsDef i),
@@ -83,7 +88,6 @@ BEGIN
          StrictIntervalData AS (SELECT pi.PatientId,
                                        pi.interval_month,
                                        pi.interval_end_date,
-
                                        MAX(f.follow_up_status)                            AS strict_status,
                                        MAX(f.treatment_end_date)                          AS strict_tx_end_date,
                                        MAX(f.regimen)                                     AS strict_regimen,
@@ -95,9 +99,7 @@ BEGIN
                                        MAX(f.viral_load_received_date)                    AS viral_load_received_date,
                                        MAX(f.viral_load_count)                            AS viral_load_count,
                                        MAX(f.is_ti_visit)                                 AS is_ti_visit,
-
                                        MAX(CASE WHEN f.is_ti_visit = 1 THEN 1 ELSE 0 END) as ti_in_this_interval
-
                                 FROM PatientIntervals pi
                                          LEFT JOIN FollowUpEncounters f ON pi.PatientId = f.PatientId
                                     AND f.follow_up_date BETWEEN pi.interval_start_date AND pi.interval_end_date
@@ -108,30 +110,24 @@ BEGIN
                                 GROUP BY pi.PatientId, pi.interval_month, pi.interval_end_date),
 
          StateCalculation AS (SELECT sid.*,
-
                                      MAX(ti_in_this_interval)
                                          OVER (PARTITION BY PatientId ORDER BY interval_month ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) as is_cumulative_ti,
-
                                      MAX(CASE
                                              WHEN strict_status IN ('Dead', 'Transferred out', 'Stop all', 'Ran away')
                                                  THEN 1
                                              ELSE 0 END)
                                          OVER (PARTITION BY PatientId ORDER BY interval_month ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) as has_terminal_event,
-
                                      MAX(CASE
                                              WHEN strict_status IN ('Dead', 'Transferred out', 'Stop all', 'Ran away')
                                                  THEN strict_status
                                              ELSE NULL END)
                                          OVER (PARTITION BY PatientId ORDER BY interval_month ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) as specific_terminal_event,
-
                                      MAX(strict_tx_end_date)
                                          OVER (PARTITION BY PatientId ORDER BY interval_month ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) as max_tx_end_date_so_far
-
                               FROM StrictIntervalData sid),
 
          CohortDetails AS (SELECT sc.*,
                                   client.date_of_birth,
-
                                   CASE
                                       WHEN has_terminal_event = 1 THEN specific_terminal_event
                                       WHEN strict_status IS NOT NULL THEN 'Active'
@@ -139,520 +135,249 @@ BEGIN
                                           THEN 'Active - Carry Forward Rx'
                                       ELSE 'Loss to follow-up (LTFU)'
                                       END AS final_cohort_outcome
-
                            FROM StateCalculation sc
                                     JOIN mamba_dim_client client ON sc.PatientId = client.client_id),
 
-         EthHeaders AS (SELECT MAX(CASE
-                                       WHEN interval_month = 0 THEN CONCAT(CASE CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(
-                                                                                                             fn_gregorian_to_ethiopian_calendar(interval_end_date, 'Y-M-D'),
-                                                                                                             '-', 2),
-                                                                                                     '-',
-                                                                                                     -1) AS UNSIGNED)
-                                                                               WHEN 1 THEN 'Meskerem'
-                                                                               WHEN 2 THEN 'Tikimt'
-                                                                               WHEN 3 THEN 'Hidar'
-                                                                               WHEN 4 THEN 'Tahsas'
-                                                                               WHEN 5 THEN 'Tir'
-                                                                               WHEN 6 THEN 'Yekatit'
-                                                                               WHEN 7 THEN 'Megabit'
-                                                                               WHEN 8 THEN 'Miyazia'
-                                                                               WHEN 9 THEN 'Ginbot'
-                                                                               WHEN 10 THEN 'Sene'
-                                                                               WHEN 11 THEN 'Hamle'
-                                                                               WHEN 12 THEN 'Nehase'
-                                                                               WHEN 13 THEN 'Pagume' END, ' ',
-                                                                           SUBSTRING_INDEX(
-                                                                                   fn_gregorian_to_ethiopian_calendar(interval_end_date, 'Y-M-D'),
-                                                                                   '-', 1))
-                                       ELSE '' END) as m0_header,
-                               MAX(CASE
-                                       WHEN interval_month = 6 THEN CONCAT(CASE CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(
-                                                                                                             fn_gregorian_to_ethiopian_calendar(interval_end_date, 'Y-M-D'),
-                                                                                                             '-', 2),
-                                                                                                     '-',
-                                                                                                     -1) AS UNSIGNED)
-                                                                               WHEN 1 THEN 'Meskerem'
-                                                                               WHEN 2 THEN 'Tikimt'
-                                                                               WHEN 3 THEN 'Hidar'
-                                                                               WHEN 4 THEN 'Tahsas'
-                                                                               WHEN 5 THEN 'Tir'
-                                                                               WHEN 6 THEN 'Yekatit'
-                                                                               WHEN 7 THEN 'Megabit'
-                                                                               WHEN 8 THEN 'Miyazia'
-                                                                               WHEN 9 THEN 'Ginbot'
-                                                                               WHEN 10 THEN 'Sene'
-                                                                               WHEN 11 THEN 'Hamle'
-                                                                               WHEN 12 THEN 'Nehase'
-                                                                               WHEN 13 THEN 'Pagume' END, ' ',
-                                                                           SUBSTRING_INDEX(
-                                                                                   fn_gregorian_to_ethiopian_calendar(interval_end_date, 'Y-M-D'),
-                                                                                   '-', 1))
-                                       ELSE '' END) as m6_header,
-                               MAX(CASE
-                                       WHEN interval_month = 12 THEN CONCAT(CASE CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(
-                                                                                                              fn_gregorian_to_ethiopian_calendar(interval_end_date, 'Y-M-D'),
-                                                                                                              '-', 2),
-                                                                                                      '-',
-                                                                                                      -1) AS UNSIGNED)
-                                                                                WHEN 1 THEN 'Meskerem'
-                                                                                WHEN 2 THEN 'Tikimt'
-                                                                                WHEN 3 THEN 'Hidar'
-                                                                                WHEN 4 THEN 'Tahsas'
-                                                                                WHEN 5 THEN 'Tir'
-                                                                                WHEN 6 THEN 'Yekatit'
-                                                                                WHEN 7 THEN 'Megabit'
-                                                                                WHEN 8 THEN 'Miyazia'
-                                                                                WHEN 9 THEN 'Ginbot'
-                                                                                WHEN 10 THEN 'Sene'
-                                                                                WHEN 11 THEN 'Hamle'
-                                                                                WHEN 12 THEN 'Nehase'
-                                                                                WHEN 13 THEN 'Pagume' END, ' ',
-                                                                            SUBSTRING_INDEX(
-                                                                                    fn_gregorian_to_ethiopian_calendar(interval_end_date, 'Y-M-D'),
-                                                                                    '-', 1))
-                                       ELSE '' END) as m12_header,
-                               MAX(CASE
-                                       WHEN interval_month = 24 THEN CONCAT(CASE CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(
-                                                                                                              fn_gregorian_to_ethiopian_calendar(interval_end_date, 'Y-M-D'),
-                                                                                                              '-', 2),
-                                                                                                      '-',
-                                                                                                      -1) AS UNSIGNED)
-                                                                                WHEN 1 THEN 'Meskerem'
-                                                                                WHEN 2 THEN 'Tikimt'
-                                                                                WHEN 3 THEN 'Hidar'
-                                                                                WHEN 4 THEN 'Tahsas'
-                                                                                WHEN 5 THEN 'Tir'
-                                                                                WHEN 6 THEN 'Yekatit'
-                                                                                WHEN 7 THEN 'Megabit'
-                                                                                WHEN 8 THEN 'Miyazia'
-                                                                                WHEN 9 THEN 'Ginbot'
-                                                                                WHEN 10 THEN 'Sene'
-                                                                                WHEN 11 THEN 'Hamle'
-                                                                                WHEN 12 THEN 'Nehase'
-                                                                                WHEN 13 THEN 'Pagume' END, ' ',
-                                                                            SUBSTRING_INDEX(
-                                                                                    fn_gregorian_to_ethiopian_calendar(interval_end_date, 'Y-M-D'),
-                                                                                    '-', 1))
-                                       ELSE '' END) as m24_header,
-                               MAX(CASE
-                                       WHEN interval_month = 36 THEN CONCAT(CASE CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(
-                                                                                                              fn_gregorian_to_ethiopian_calendar(interval_end_date, 'Y-M-D'),
-                                                                                                              '-', 2),
-                                                                                                      '-',
-                                                                                                      -1) AS UNSIGNED)
-                                                                                WHEN 1 THEN 'Meskerem'
-                                                                                WHEN 2 THEN 'Tikimt'
-                                                                                WHEN 3 THEN 'Hidar'
-                                                                                WHEN 4 THEN 'Tahsas'
-                                                                                WHEN 5 THEN 'Tir'
-                                                                                WHEN 6 THEN 'Yekatit'
-                                                                                WHEN 7 THEN 'Megabit'
-                                                                                WHEN 8 THEN 'Miyazia'
-                                                                                WHEN 9 THEN 'Ginbot'
-                                                                                WHEN 10 THEN 'Sene'
-                                                                                WHEN 11 THEN 'Hamle'
-                                                                                WHEN 12 THEN 'Nehase'
-                                                                                WHEN 13 THEN 'Pagume' END, ' ',
-                                                                            SUBSTRING_INDEX(
-                                                                                    fn_gregorian_to_ethiopian_calendar(interval_end_date, 'Y-M-D'),
-                                                                                    '-', 1))
-                                       ELSE '' END) as m36_header
-                        FROM CohortDetails)
+         CohortHeaderCalc AS (SELECT interval_month,
+                                     CASE CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(
+                                                                       fn_gregorian_to_ethiopian_calendar(MAX(interval_end_date), 'Y-M-D'),
+                                                                       '-', 2), '-', -1) AS UNSIGNED)
+                                         WHEN 1 THEN 'Meskerem'
+                                         WHEN 2 THEN 'Tikimt'
+                                         WHEN 3 THEN 'Hidar'
+                                         WHEN 4 THEN 'Tahsas'
+                                         WHEN 5 THEN 'Tir'
+                                         WHEN 6 THEN 'Yekatit'
+                                         WHEN 7 THEN 'Megabit'
+                                         WHEN 8 THEN 'Miyazia'
+                                         WHEN 9 THEN 'Ginbot'
+                                         WHEN 10 THEN 'Sene'
+                                         WHEN 11 THEN 'Hamle'
+                                         WHEN 12 THEN 'Nehase'
+                                         WHEN 13 THEN 'Pagume'
+                                         END             AS et_month,
+                                     CAST(SUBSTRING_INDEX(
+                                             fn_gregorian_to_ethiopian_calendar(MAX(interval_end_date), 'Y-M-D'), '-',
+                                             1) AS CHAR) as et_year
+                              FROM CohortDetails
+                              WHERE interval_month IN (0, 6, 12, 24, 36)
+                              GROUP BY interval_month),
 
-    SELECT 'Cohort Intervals (Ethiopian Calendar)' AS Name,
-           m0_header                               AS 'Month 0',
-           m6_header                               AS 'Month 6',
-           m12_header                              AS 'Month 12',
-           m24_header                              AS 'Month 24',
-           m36_header                              AS 'Month 36'
-    FROM EthHeaders
+         CohortEnriched AS (SELECT interval_month,
+                                   is_cumulative_ti,
+                                   final_cohort_outcome,
+                                   cd4_percent,
+
+                                   CASE
+                                       WHEN final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') THEN 1
+                                       ELSE 0 END                                                   AS is_active,
+                                   CASE
+                                       WHEN TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 THEN 'PEDS'
+                                       ELSE 'ADULT' END                                             AS age_group,
+                                   LEFT(strict_regimen, 1)                                          as reg_prefix,
+
+                                   CASE WHEN viral_load_received_date IS NOT NULL THEN 1 ELSE 0 END AS has_vl_test,
+                                   CASE WHEN viral_load_count < 50 THEN 1 ELSE 0 END                AS is_suppressed
+                            FROM CohortDetails),
+
+         MonthlyStats AS (SELECT interval_month,
+                                 SUM(CASE WHEN is_cumulative_ti = 0 THEN 1 ELSE 0 END)                     AS count_base,
+                                 SUM(CASE WHEN is_cumulative_ti = 1 THEN 1 ELSE 0 END)                     AS count_ti,
+                                 SUM(CASE WHEN final_cohort_outcome = 'Transferred out' THEN 1 ELSE 0 END) AS count_to,
+
+                                 SUM(CASE WHEN final_cohort_outcome = 'Stop all' THEN 1 ELSE 0 END)        AS count_stop,
+                                 SUM(CASE WHEN final_cohort_outcome = 'Dead' THEN 1 ELSE 0 END)            AS count_dead,
+                                 SUM(CASE
+                                         WHEN final_cohort_outcome IN ('Ran away', 'Loss to follow-up (LTFU)') THEN 1
+                                         ELSE 0 END)                                                       AS count_ltfu,
+
+                                 SUM(CASE WHEN is_cumulative_ti = 0 AND is_active = 1 THEN 1 ELSE 0 END)   as count_orig_active,
+                                 SUM(CASE
+                                         WHEN is_cumulative_ti = 0 AND final_cohort_outcome = 'Transferred out' THEN 1
+                                         ELSE 0 END)                                                       as count_orig_to,
+
+                                 SUM(CASE
+                                         WHEN is_active = 1 AND ((age_group = 'ADULT' AND reg_prefix = '1') OR
+                                                                 (age_group = 'PEDS' AND reg_prefix = '4')) THEN 1
+                                         ELSE 0 END)                                                       AS reg_orig,
+                                 SUM(CASE
+                                         WHEN is_active = 1 AND ((age_group = 'ADULT' AND reg_prefix = '4') OR
+                                                                 (age_group = 'PEDS' AND reg_prefix = '1')) THEN 1
+                                         ELSE 0 END)                                                       AS reg_alt,
+                                 SUM(CASE
+                                         WHEN is_active = 1 AND (
+                                             (age_group = 'ADULT' AND reg_prefix = '2') OR
+                                             (age_group = 'PEDS' AND ((interval_month < 36 AND reg_prefix = '5') OR
+                                                                      (interval_month = 36 AND reg_prefix = '6')))
+                                             ) THEN 1
+                                         ELSE 0 END)                                                       AS reg_2nd,
+
+                                 AVG(CASE WHEN age_group = 'PEDS' THEN cd4_percent ELSE NULL END)          as avg_peds_cd4_pct,
+                                 SUM(CASE WHEN is_active = 1 AND has_vl_test = 1 THEN 1 ELSE 0 END)        as count_vl_tested,
+                                 SUM(CASE WHEN is_active = 1 AND is_suppressed = 1 THEN 1 ELSE 0 END)      as count_vl_suppressed
+
+                          FROM CohortEnriched
+                          GROUP BY interval_month)
+
+    SELECT 'Cohort Intervals (Ethiopian Calendar)'                                            AS Name,
+           MAX(CASE WHEN interval_month = 0 THEN CONCAT(et_month, ' ', et_year) ELSE '' END)  AS 'Month 0',
+           MAX(CASE WHEN interval_month = 6 THEN CONCAT(et_month, ' ', et_year) ELSE '' END)  AS 'Month 6',
+           MAX(CASE WHEN interval_month = 12 THEN CONCAT(et_month, ' ', et_year) ELSE '' END) AS 'Month 12',
+           MAX(CASE WHEN interval_month = 24 THEN CONCAT(et_month, ' ', et_year) ELSE '' END) AS 'Month 24',
+           MAX(CASE WHEN interval_month = 36 THEN CONCAT(et_month, ' ', et_year) ELSE '' END) AS 'Month 36'
+    FROM CohortHeaderCalc
 
     UNION ALL
 
     SELECT 'A. Started on ART in this clinic: original cohort',
-           CAST(IFNULL(SUM(CASE WHEN interval_month = 0 AND is_cumulative_ti = 0 THEN 1 ELSE 0 END), 0) AS SIGNED),
-           CAST(IFNULL(SUM(CASE WHEN interval_month = 0 AND is_cumulative_ti = 0 THEN 1 ELSE 0 END), 0) AS SIGNED),
-           CAST(IFNULL(SUM(CASE WHEN interval_month = 0 AND is_cumulative_ti = 0 THEN 1 ELSE 0 END), 0) AS SIGNED),
-           CAST(IFNULL(SUM(CASE WHEN interval_month = 0 AND is_cumulative_ti = 0 THEN 1 ELSE 0 END), 0) AS SIGNED),
-           CAST(IFNULL(SUM(CASE WHEN interval_month = 0 AND is_cumulative_ti = 0 THEN 1 ELSE 0 END), 0) AS SIGNED)
-    FROM CohortDetails
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 0 THEN count_base END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 0 THEN count_base END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 0 THEN count_base END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 0 THEN count_base END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 0 THEN count_base END), 0) AS SIGNED)
+    FROM MonthlyStats
 
     UNION ALL
 
     SELECT 'B. Transfer in Add+',
-           CAST(IFNULL(SUM(CASE WHEN interval_month = 0 AND is_cumulative_ti = 1 THEN 1 ELSE 0 END), 0) AS SIGNED),
-           CAST(IFNULL(SUM(CASE WHEN interval_month = 6 AND is_cumulative_ti = 1 THEN 1 ELSE 0 END), 0) AS SIGNED),
-           CAST(IFNULL(SUM(CASE WHEN interval_month = 12 AND is_cumulative_ti = 1 THEN 1 ELSE 0 END), 0) AS SIGNED),
-           CAST(IFNULL(SUM(CASE WHEN interval_month = 24 AND is_cumulative_ti = 1 THEN 1 ELSE 0 END), 0) AS SIGNED),
-           CAST(IFNULL(SUM(CASE WHEN interval_month = 36 AND is_cumulative_ti = 1 THEN 1 ELSE 0 END), 0) AS SIGNED)
-    FROM CohortDetails
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 0 THEN count_ti END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 6 THEN count_ti END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 12 THEN count_ti END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 24 THEN count_ti END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 36 THEN count_ti END), 0) AS SIGNED)
+    FROM MonthlyStats
 
     UNION ALL
 
     SELECT 'C. Transfers Out Subtract -',
            0,
-           CAST(IFNULL(SUM(CASE WHEN interval_month = 6 AND final_cohort_outcome = 'Transferred out' THEN 1 ELSE 0 END),
-                       0) AS SIGNED),
-           CAST(IFNULL(
-                   SUM(CASE WHEN interval_month = 12 AND final_cohort_outcome = 'Transferred out' THEN 1 ELSE 0 END),
-                   0) AS SIGNED),
-           CAST(IFNULL(
-                   SUM(CASE WHEN interval_month = 24 AND final_cohort_outcome = 'Transferred out' THEN 1 ELSE 0 END),
-                   0) AS SIGNED),
-           CAST(IFNULL(
-                   SUM(CASE WHEN interval_month = 36 AND final_cohort_outcome = 'Transferred out' THEN 1 ELSE 0 END),
-                   0) AS SIGNED)
-    FROM CohortDetails
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 6 THEN count_to END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 12 THEN count_to END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 24 THEN count_to END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 36 THEN count_to END), 0) AS SIGNED)
+    FROM MonthlyStats
 
     UNION ALL
 
     SELECT 'D. Net current cohort (A + B - C)',
-           CAST(IFNULL(SUM(CASE WHEN interval_month = 0 THEN 1 ELSE 0 END), 0) AS SIGNED),
-
-           CAST(GREATEST(0, (
-               SUM(CASE WHEN interval_month = 6 AND is_cumulative_ti = 0 THEN 1 ELSE 0 END) +
-               SUM(CASE WHEN interval_month = 6 AND is_cumulative_ti = 1 THEN 1 ELSE 0 END) -
-               SUM(CASE WHEN interval_month = 6 AND final_cohort_outcome = 'Transferred out' THEN 1 ELSE 0 END)
-               )) AS SIGNED),
-           CAST(GREATEST(0, (
-               SUM(CASE WHEN interval_month = 12 AND is_cumulative_ti = 0 THEN 1 ELSE 0 END) +
-               SUM(CASE WHEN interval_month = 12 AND is_cumulative_ti = 1 THEN 1 ELSE 0 END) -
-               SUM(CASE WHEN interval_month = 12 AND final_cohort_outcome = 'Transferred out' THEN 1 ELSE 0 END)
-               )) AS SIGNED),
-           CAST(GREATEST(0, (
-               SUM(CASE WHEN interval_month = 24 AND is_cumulative_ti = 0 THEN 1 ELSE 0 END) +
-               SUM(CASE WHEN interval_month = 24 AND is_cumulative_ti = 1 THEN 1 ELSE 0 END) -
-               SUM(CASE WHEN interval_month = 24 AND final_cohort_outcome = 'Transferred out' THEN 1 ELSE 0 END)
-               )) AS SIGNED),
-           CAST(GREATEST(0, (
-               SUM(CASE WHEN interval_month = 36 AND is_cumulative_ti = 0 THEN 1 ELSE 0 END) +
-               SUM(CASE WHEN interval_month = 36 AND is_cumulative_ti = 1 THEN 1 ELSE 0 END) -
-               SUM(CASE WHEN interval_month = 36 AND final_cohort_outcome = 'Transferred out' THEN 1 ELSE 0 END)
-               )) AS SIGNED)
-    FROM CohortDetails
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 0 THEN count_base + count_ti END), 0) AS SIGNED),
+           CAST(GREATEST(0, IFNULL(MAX(CASE WHEN interval_month = 6 THEN (count_base + count_ti) - count_to END),
+                                   0)) AS SIGNED),
+           CAST(GREATEST(0, IFNULL(MAX(CASE WHEN interval_month = 12 THEN (count_base + count_ti) - count_to END),
+                                   0)) AS SIGNED),
+           CAST(GREATEST(0, IFNULL(MAX(CASE WHEN interval_month = 24 THEN (count_base + count_ti) - count_to END),
+                                   0)) AS SIGNED),
+           CAST(GREATEST(0, IFNULL(MAX(CASE WHEN interval_month = 36 THEN (count_base + count_ti) - count_to END),
+                                   0)) AS SIGNED)
+    FROM MonthlyStats
 
     UNION ALL
 
     SELECT 'E. On Original 1st Line Regimen',
            0,
-           CAST(IFNULL(SUM(CASE
-                               WHEN interval_month = 6 AND
-                                    ((TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND
-                                      strict_regimen LIKE '4%') OR
-                                     (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND
-                                      strict_regimen LIKE '1%'))
-                                   AND final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') THEN 1
-                               ELSE 0 END), 0) AS SIGNED),
-           CAST(IFNULL(SUM(CASE
-                               WHEN interval_month = 12 AND
-                                    ((TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND
-                                      strict_regimen LIKE '4%') OR
-                                     (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND
-                                      strict_regimen LIKE '1%'))
-                                   AND final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') THEN 1
-                               ELSE 0 END), 0) AS SIGNED),
-           CAST(IFNULL(SUM(CASE
-                               WHEN interval_month = 24 AND
-                                    ((TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND
-                                      strict_regimen LIKE '4%') OR
-                                     (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND
-                                      strict_regimen LIKE '1%'))
-                                   AND final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') THEN 1
-                               ELSE 0 END), 0) AS SIGNED),
-           CAST(IFNULL(SUM(CASE
-                               WHEN interval_month = 36 AND
-                                    ((TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND
-                                      strict_regimen LIKE '4%') OR
-                                     (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND
-                                      strict_regimen LIKE '1%'))
-                                   AND final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') THEN 1
-                               ELSE 0 END), 0) AS SIGNED)
-    FROM CohortDetails
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 6 THEN reg_orig END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 12 THEN reg_orig END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 24 THEN reg_orig END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 36 THEN reg_orig END), 0) AS SIGNED)
+    FROM MonthlyStats
 
     UNION ALL
 
     SELECT 'F. On Alternate 1st Line Regimen (Substituted)',
            0,
-           CAST(IFNULL(SUM(CASE
-                               WHEN interval_month = 6 AND
-                                    ((TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND
-                                      strict_regimen LIKE '1%') OR
-                                     (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND
-                                      strict_regimen LIKE '4%'))
-                                   AND final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') THEN 1
-                               ELSE 0 END), 0) AS SIGNED),
-           CAST(IFNULL(SUM(CASE
-                               WHEN interval_month = 12 AND
-                                    ((TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND
-                                      strict_regimen LIKE '1%') OR
-                                     (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND
-                                      strict_regimen LIKE '4%'))
-                                   AND final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') THEN 1
-                               ELSE 0 END), 0) AS SIGNED),
-           CAST(IFNULL(SUM(CASE
-                               WHEN interval_month = 24 AND
-                                    ((TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND
-                                      strict_regimen LIKE '1%') OR
-                                     (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND
-                                      strict_regimen LIKE '4%'))
-                                   AND final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') THEN 1
-                               ELSE 0 END), 0) AS SIGNED),
-           CAST(IFNULL(SUM(CASE
-                               WHEN interval_month = 36 AND
-                                    ((TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND
-                                      strict_regimen LIKE '1%') OR
-                                     (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND
-                                      strict_regimen LIKE '4%'))
-                                   AND final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') THEN 1
-                               ELSE 0 END), 0) AS SIGNED)
-    FROM CohortDetails
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 6 THEN reg_alt END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 12 THEN reg_alt END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 24 THEN reg_alt END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 36 THEN reg_alt END), 0) AS SIGNED)
+    FROM MonthlyStats
 
     UNION ALL
 
     SELECT 'G. On 2nd Line Regimen (Switched)',
            0,
-           CAST(IFNULL(SUM(CASE
-                               WHEN interval_month = 6 AND
-                                    ((TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND
-                                      strict_regimen LIKE '5%') OR
-                                     (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND
-                                      strict_regimen LIKE '2%'))
-                                   AND final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') THEN 1
-                               ELSE 0 END), 0) AS SIGNED),
-           CAST(IFNULL(SUM(CASE
-                               WHEN interval_month = 12 AND
-                                    ((TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND
-                                      strict_regimen LIKE '5%') OR
-                                     (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND
-                                      strict_regimen LIKE '2%'))
-                                   AND final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') THEN 1
-                               ELSE 0 END), 0) AS SIGNED),
-           CAST(IFNULL(SUM(CASE
-                               WHEN interval_month = 24 AND
-                                    ((TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND
-                                      strict_regimen LIKE '5%') OR
-                                     (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND
-                                      strict_regimen LIKE '2%'))
-                                   AND final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') THEN 1
-                               ELSE 0 END), 0) AS SIGNED),
-           CAST(IFNULL(SUM(CASE
-                               WHEN interval_month = 36 AND
-                                    ((TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 AND
-                                      strict_regimen LIKE '6%') OR
-                                     (TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) >= 15 AND
-                                      strict_regimen LIKE '2%'))
-                                   AND final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') THEN 1
-                               ELSE 0 END), 0) AS SIGNED)
-    FROM CohortDetails
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 6 THEN reg_2nd END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 12 THEN reg_2nd END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 24 THEN reg_2nd END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 36 THEN reg_2nd END), 0) AS SIGNED)
+    FROM MonthlyStats
 
     UNION ALL
 
     SELECT 'I. Stopped',
            0,
-           CAST(IFNULL(SUM(CASE WHEN interval_month = 6 AND final_cohort_outcome = 'Stop all' THEN 1 ELSE 0 END),
-                       0) AS SIGNED),
-           CAST(IFNULL(SUM(CASE WHEN interval_month = 12 AND final_cohort_outcome = 'Stop all' THEN 1 ELSE 0 END),
-                       0) AS SIGNED),
-           CAST(IFNULL(SUM(CASE WHEN interval_month = 24 AND final_cohort_outcome = 'Stop all' THEN 1 ELSE 0 END),
-                       0) AS SIGNED),
-           CAST(IFNULL(SUM(CASE WHEN interval_month = 36 AND final_cohort_outcome = 'Stop all' THEN 1 ELSE 0 END),
-                       0) AS SIGNED)
-    FROM CohortDetails
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 6 THEN count_stop END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 12 THEN count_stop END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 24 THEN count_stop END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 36 THEN count_stop END), 0) AS SIGNED)
+    FROM MonthlyStats
 
     UNION ALL
 
     SELECT 'J. Died',
            0,
-           CAST(IFNULL(SUM(CASE WHEN interval_month = 6 AND final_cohort_outcome = 'Dead' THEN 1 ELSE 0 END),
-                       0) AS SIGNED),
-           CAST(IFNULL(SUM(CASE WHEN interval_month = 12 AND final_cohort_outcome = 'Dead' THEN 1 ELSE 0 END),
-                       0) AS SIGNED),
-           CAST(IFNULL(SUM(CASE WHEN interval_month = 24 AND final_cohort_outcome = 'Dead' THEN 1 ELSE 0 END),
-                       0) AS SIGNED),
-           CAST(IFNULL(SUM(CASE WHEN interval_month = 36 AND final_cohort_outcome = 'Dead' THEN 1 ELSE 0 END),
-                       0) AS SIGNED)
-    FROM CohortDetails
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 6 THEN count_dead END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 12 THEN count_dead END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 24 THEN count_dead END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 36 THEN count_dead END), 0) AS SIGNED)
+    FROM MonthlyStats
 
     UNION ALL
 
     SELECT 'K. Lost to Follow-up (DROP)',
            0,
-           CAST(IFNULL(SUM(CASE
-                               WHEN interval_month = 6 AND
-                                    final_cohort_outcome IN ('Ran away', 'Loss to follow-up (LTFU)') THEN 1
-                               ELSE 0 END), 0) AS SIGNED),
-           CAST(IFNULL(SUM(CASE
-                               WHEN interval_month = 12 AND
-                                    final_cohort_outcome IN ('Ran away', 'Loss to follow-up (LTFU)') THEN 1
-                               ELSE 0 END), 0) AS SIGNED),
-           CAST(IFNULL(SUM(CASE
-                               WHEN interval_month = 24 AND
-                                    final_cohort_outcome IN ('Ran away', 'Loss to follow-up (LTFU)') THEN 1
-                               ELSE 0 END), 0) AS SIGNED),
-           CAST(IFNULL(SUM(CASE
-                               WHEN interval_month = 36 AND
-                                    final_cohort_outcome IN ('Ran away', 'Loss to follow-up (LTFU)') THEN 1
-                               ELSE 0 END), 0) AS SIGNED)
-    FROM CohortDetails
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 6 THEN count_ltfu END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 12 THEN count_ltfu END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 24 THEN count_ltfu END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 36 THEN count_ltfu END), 0) AS SIGNED)
+    FROM MonthlyStats
 
     UNION ALL
 
     SELECT 'Percent of Net Facility Cohort Alive and on ART',
            '100%',
-           -- Month 6
-           CONCAT(ROUND(
-                      -- NUMERATOR: Active patients who are NOT TI
-                          (SUM(CASE
-                                   WHEN interval_month = 6
-                                       AND final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx')
-                                       AND is_cumulative_ti = 0 -- <--- FILTER ADDED
-                                       THEN 1
-                                   ELSE 0 END) * 100.0)
-                              /
-                          NULLIF(
-                              -- DENOMINATOR: Original Cohort - Transfers Out (of Original Cohort only)
-                                  (
-                                      SUM(CASE WHEN interval_month = 0 AND is_cumulative_ti = 0 THEN 1 ELSE 0 END) -- Original Cohort
-                                          -
-                                      SUM(CASE
-                                              WHEN interval_month = 6
-                                                  AND final_cohort_outcome = 'Transferred out'
-                                                  AND is_cumulative_ti =
-                                                      0 -- <--- FILTER ADDED (Only subtract TO if they were facility patients)
-                                                  THEN 1
-                                              ELSE 0 END)
-                                      ), 0), 0), '%'),
-
-           -- Month 12
-           CONCAT(ROUND(
-                          (SUM(CASE
-                                   WHEN interval_month = 12
-                                       AND final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx')
-                                       AND is_cumulative_ti = 0
-                                       THEN 1
-                                   ELSE 0 END) * 100.0)
-                              /
-                          NULLIF(
-                                  (
-                                      SUM(CASE WHEN interval_month = 0 AND is_cumulative_ti = 0 THEN 1 ELSE 0 END)
-                                          -
-                                      SUM(CASE
-                                              WHEN interval_month = 12
-                                                  AND final_cohort_outcome = 'Transferred out'
-                                                  AND is_cumulative_ti = 0
-                                                  THEN 1
-                                              ELSE 0 END)
-                                      ), 0), 0), '%'),
-
-           -- Month 24
-           CONCAT(ROUND(
-                          (SUM(CASE
-                                   WHEN interval_month = 24
-                                       AND final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx')
-                                       AND is_cumulative_ti = 0
-                                       THEN 1
-                                   ELSE 0 END) * 100.0)
-                              /
-                          NULLIF(
-                                  (
-                                      SUM(CASE WHEN interval_month = 0 AND is_cumulative_ti = 0 THEN 1 ELSE 0 END)
-                                          -
-                                      SUM(CASE
-                                              WHEN interval_month = 24
-                                                  AND final_cohort_outcome = 'Transferred out'
-                                                  AND is_cumulative_ti = 0
-                                                  THEN 1
-                                              ELSE 0 END)
-                                      ), 0), 0), '%'),
-
-           -- Month 36
-           CONCAT(ROUND(
-                          (SUM(CASE
-                                   WHEN interval_month = 36
-                                       AND final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx')
-                                       AND is_cumulative_ti = 0
-                                       THEN 1
-                                   ELSE 0 END) * 100.0)
-                              /
-                          NULLIF(
-                                  (
-                                      SUM(CASE WHEN interval_month = 0 AND is_cumulative_ti = 0 THEN 1 ELSE 0 END)
-                                          -
-                                      SUM(CASE
-                                              WHEN interval_month = 36
-                                                  AND final_cohort_outcome = 'Transferred out'
-                                                  AND is_cumulative_ti = 0
-                                                  THEN 1
-                                              ELSE 0 END)
-                                      ), 0), 0), '%')
-    FROM CohortDetails
+           CONCAT(ROUND(IFNULL((MAX(CASE WHEN interval_month = 6 THEN count_orig_active END) * 100.0) / NULLIF(
+                   MAX(CASE WHEN interval_month = 0 THEN count_base END) -
+                   MAX(CASE WHEN interval_month = 6 THEN count_orig_to END), 0), 0), 0), '%'),
+           CONCAT(ROUND(IFNULL((MAX(CASE WHEN interval_month = 12 THEN count_orig_active END) * 100.0) / NULLIF(
+                   MAX(CASE WHEN interval_month = 0 THEN count_base END) -
+                   MAX(CASE WHEN interval_month = 12 THEN count_orig_to END), 0), 0), 0), '%'),
+           CONCAT(ROUND(IFNULL((MAX(CASE WHEN interval_month = 24 THEN count_orig_active END) * 100.0) / NULLIF(
+                   MAX(CASE WHEN interval_month = 0 THEN count_base END) -
+                   MAX(CASE WHEN interval_month = 24 THEN count_orig_to END), 0), 0), 0), '%'),
+           CONCAT(ROUND(IFNULL((MAX(CASE WHEN interval_month = 36 THEN count_orig_active END) * 100.0) / NULLIF(
+                   MAX(CASE WHEN interval_month = 0 THEN count_base END) -
+                   MAX(CASE WHEN interval_month = 36 THEN count_orig_to END), 0), 0), 0), '%')
+    FROM MonthlyStats
 
     UNION ALL
 
     SELECT 'L. Mean CD4 % (for children)',
            0,
-           CAST(ROUND(IFNULL(AVG(CASE
-                                     WHEN interval_month = 6 AND
-                                          TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 THEN cd4_percent
-                                     ELSE NULL END), 0)) AS SIGNED),
-           CAST(ROUND(IFNULL(AVG(CASE
-                                     WHEN interval_month = 12 AND
-                                          TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 THEN cd4_percent
-                                     ELSE NULL END), 0)) AS SIGNED),
-           CAST(ROUND(IFNULL(AVG(CASE
-                                     WHEN interval_month = 24 AND
-                                          TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 THEN cd4_percent
-                                     ELSE NULL END), 0)) AS SIGNED),
-           CAST(ROUND(IFNULL(AVG(CASE
-                                     WHEN interval_month = 36 AND
-                                          TIMESTAMPDIFF(YEAR, date_of_birth, interval_end_date) < 15 THEN cd4_percent
-                                     ELSE NULL END), 0)) AS SIGNED)
-    FROM CohortDetails
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 6 THEN avg_peds_cd4_pct END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 12 THEN avg_peds_cd4_pct END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 24 THEN avg_peds_cd4_pct END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 36 THEN avg_peds_cd4_pct END), 0) AS SIGNED)
+    FROM MonthlyStats
 
     UNION ALL
 
     SELECT 'N. Viral Load tested',
            0,
-           CAST(IFNULL(SUM(CASE
-                               WHEN interval_month = 6 AND viral_load_received_date IS NOT NULL AND
-                                    final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') THEN 1
-                               ELSE 0 END), 0) AS SIGNED),
-           CAST(IFNULL(SUM(CASE
-                               WHEN interval_month = 12 AND viral_load_received_date IS NOT NULL AND
-                                    final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') THEN 1
-                               ELSE 0 END), 0) AS SIGNED),
-           CAST(IFNULL(SUM(CASE
-                               WHEN interval_month = 24 AND viral_load_received_date IS NOT NULL AND
-                                    final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') THEN 1
-                               ELSE 0 END), 0) AS SIGNED),
-           CAST(IFNULL(SUM(CASE
-                               WHEN interval_month = 36 AND viral_load_received_date IS NOT NULL AND
-                                    final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') THEN 1
-                               ELSE 0 END), 0) AS SIGNED)
-    FROM CohortDetails
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 6 THEN count_vl_tested END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 12 THEN count_vl_tested END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 24 THEN count_vl_tested END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 36 THEN count_vl_tested END), 0) AS SIGNED)
+    FROM MonthlyStats
 
     UNION ALL
 
     SELECT 'O. Viral load Suppressed ( < 50 copies/ml)',
            0,
-           CAST(IFNULL(SUM(CASE
-                               WHEN interval_month = 6 AND viral_load_count < 50 AND
-                                    final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') THEN 1
-                               ELSE 0 END), 0) AS SIGNED),
-           CAST(IFNULL(SUM(CASE
-                               WHEN interval_month = 12 AND viral_load_count < 50 AND
-                                    final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') THEN 1
-                               ELSE 0 END), 0) AS SIGNED),
-           CAST(IFNULL(SUM(CASE
-                               WHEN interval_month = 24 AND viral_load_count < 50 AND
-                                    final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') THEN 1
-                               ELSE 0 END), 0) AS SIGNED),
-           CAST(IFNULL(SUM(CASE
-                               WHEN interval_month = 36 AND viral_load_count < 50 AND
-                                    final_cohort_outcome IN ('Active', 'Active - Carry Forward Rx') THEN 1
-                               ELSE 0 END), 0) AS SIGNED)
-    FROM CohortDetails;
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 6 THEN count_vl_suppressed END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 12 THEN count_vl_suppressed END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 24 THEN count_vl_suppressed END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 36 THEN count_vl_suppressed END), 0) AS SIGNED)
+    FROM MonthlyStats;
 END //
 
 DELIMITER ;

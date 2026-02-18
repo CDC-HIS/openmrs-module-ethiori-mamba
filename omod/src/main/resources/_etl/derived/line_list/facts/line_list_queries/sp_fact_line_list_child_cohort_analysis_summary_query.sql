@@ -5,20 +5,31 @@ CREATE PROCEDURE sp_fact_line_list_child_cohort_analysis_summary_query(IN REPORT
     DATE)
 BEGIN
 
-    WITH HeiEnrolled AS (SELECT hei_enrollment.encounter_id                         as hei_encounter_id,
-                                maternal_enrollment.encounter_id                        as mother_encounter_id,
-                                linked_mother.identifier                      as mother_mrn,
-                                hei_enrollment.client_id                            as hei_client_id,
-                                maternal_enrollment.client_id                           as mother_client_id,
-                                maternal_enrollment.date_of_enrollment_or_booking       as date_of_erollement,
-                                hei_enrollment.date_enrolled_in_care                as hei_enrollment_date,
-                                hei_enrollment.infant_referred                      as infant_referred,
+    WITH IntervalsDef AS (SELECT 12 AS interval_month
+                          UNION ALL
+                          SELECT 18
+                          UNION ALL
+                          SELECT 24
+                          UNION ALL
+                          SELECT 30),
+
+         HIEInCohort AS (SELECT hei_enrollment.encounter_id                                                                                  as hei_encounter_id,
+                                maternal_enrollment.encounter_id                                                                             as mother_encounter_id,
+                                linked_mother.identifier                                                                                     as mother_mrn,
+                                hei_enrollment.client_id                                                                                     as hei_client_id,
+                                maternal_enrollment.client_id                                                                                as mother_client_id,
+
                                 CASE
                                     WHEN maternal_enrollment.date_of_enrollment_or_booking BETWEEN REPORT_START_DATE AND REPORT_END_DATE
                                         THEN maternal_enrollment.date_of_enrollment_or_booking
                                     ELSE hei_enrollment.date_enrolled_in_care
-                                    END AS effective_enrollment_date,
-                                final_outcome.hei_pmtct_final_outcome             as final_out_come
+                                    END                                                                                                      AS effective_enrollment_date,
+
+                                hei_enrollment.date_enrolled_in_care                                                                         as hei_enrollment_date,
+
+
+                                ROW_NUMBER() OVER (PARTITION BY hei_enrollment.client_id ORDER BY hei_enrollment.date_enrolled_in_care DESC) AS row_num
+
                          FROM mamba_flat_encounter_hei_enrollment as hei_enrollment
                                   LEFT JOIN mamba_dim_patient_identifier as linked_mother
                                             on hei_enrollment.service_delivery_point_number = linked_mother.identifier
@@ -27,222 +38,226 @@ BEGIN
                                             on maternal_enrollment.client_id = linked_mother.patient_id
                                   LEFT JOIN mamba_flat_encounter_hei_final_outcome as final_outcome
                                             on hei_enrollment.client_id = final_outcome.client_id
-                         WHERE
-                             (maternal_enrollment.date_of_enrollment_or_booking BETWEEN REPORT_START_DATE AND REPORT_END_DATE )
-
-                            OR   (hei_enrollment.date_enrolled_in_care BETWEEN REPORT_START_DATE AND REPORT_END_DATE
-                             AND  ( maternal_enrollment.date_of_enrollment_or_booking IS NULL
+                         WHERE (maternal_enrollment.date_of_enrollment_or_booking BETWEEN REPORT_START_DATE AND REPORT_END_DATE)
+                            OR (hei_enrollment.date_enrolled_in_care BETWEEN REPORT_START_DATE AND REPORT_END_DATE
+                             AND (maternal_enrollment.date_of_enrollment_or_booking IS NULL
                                  OR
-                                    maternal_enrollment.date_of_enrollment_or_booking NOT BETWEEN REPORT_START_DATE AND REPORT_END_DATE)
-                             )
-                             -- hei_enrollment.date_enrolled_in_care between REPORT_START_DATE and DATE_ADD(REPORT_START_DATE, INTERVAL 12 MONTH)
-                         ),
-
-
-         HIEInCohort AS (SELECT a.*
-                              , ROW_NUMBER() OVER (PARTITION BY a.hei_client_id ORDER BY a.hei_enrollment_date DESC) AS row_num
-                         FROM HeiEnrolled a
-                         WHERE hei_enrollment_date is not null),
+                                  maternal_enrollment.date_of_enrollment_or_booking NOT BETWEEN REPORT_START_DATE AND REPORT_END_DATE))),
 
          HIEInCohortFiltered AS (SELECT * FROM HIEInCohort WHERE row_num = 1),
 
-         IntervalsDef AS (SELECT 12 AS interval_month
-                          UNION ALL
-                          SELECT 18
-                          UNION ALL
-                          SELECT 24
-                          UNION ALL
-                          SELECT 30),
+         HeiIntervals AS (SELECT h.hei_client_id,
+                                 h.mother_client_id,
+                                 h.effective_enrollment_date,
+                                 h.hei_enrollment_date,
+                                 i.interval_month,
+                                 DATE_ADD(h.effective_enrollment_date, INTERVAL i.interval_month
+                                          MONTH) as interval_end_date
+                          FROM HIEInCohortFiltered h
+                                   CROSS JOIN IntervalsDef i),
 
-         TransferedInHEI AS (SELECT a.hei_client_id,
-                                    a.date_of_erollement,
-                                    i.interval_month,
-                                    fn_get_ti_status(a.mother_client_id, a.date_of_erollement,
-                                                     DATE_ADD(a.hei_enrollment_date,
-                                                              INTERVAL i.interval_month MONTH)
-                                    )                                   as ti_status,
-                                    DATE_ADD(a.hei_enrollment_date,
-                                             INTERVAL i
-                                                 .interval_month MONTH) as interval_end_date
-                             FROM HIEInCohortFiltered a
-                                      CROSS JOIN IntervalsDef i),
+         CohortHeaderCalc AS (SELECT interval_month,
+                                     CASE CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(
+                                                                       fn_gregorian_to_ethiopian_calendar(MAX(interval_end_date), 'Y-M-D'),
+                                                                       '-', 2), '-', -1) AS UNSIGNED)
+                                         WHEN 1 THEN 'Meskerem'
+                                         WHEN 2 THEN 'Tikimt'
+                                         WHEN 3 THEN 'Hidar'
+                                         WHEN 4 THEN 'Tahsas'
+                                         WHEN 5 THEN 'Tir'
+                                         WHEN 6 THEN 'Yekatit'
+                                         WHEN 7 THEN 'Megabit'
+                                         WHEN 8 THEN 'Miyazia'
+                                         WHEN 9 THEN 'Ginbot'
+                                         WHEN 10 THEN 'Sene'
+                                         WHEN 11 THEN 'Hamle'
+                                         WHEN 12 THEN 'Nehase'
+                                         WHEN 13 THEN 'Pagume'
+                                         END             AS et_month,
+                                     CAST(SUBSTRING_INDEX(
+                                             fn_gregorian_to_ethiopian_calendar(MAX(interval_end_date), 'Y-M-D'), '-',
+                                             1) AS CHAR) as et_year
+                              FROM HeiIntervals
+                              GROUP BY interval_month),
 
-         LostToFollowUp AS (select h.hei_client_id, h.mother_client_id, i.interval_month
-                            from mamba_flat_encounter_follow_up_4 as f
-                                     inner join HIEInCohortFiltered as h on f.client_id = h.mother_client_id
-                                     inner join mamba_flat_encounter_follow_up_6 as f6
-                                                on f6.encounter_id = f.encounter_id
-                                     cross join IntervalsDef as i
-                            where f.follow_up_status in ('Dead', 'Transferred out',
-                                                         'Stop all', 'Loss to follow-up (LTFU)',
-                                                         'Ran away')
-                              and f6.follow_up_date_followup_ between
-                                h.hei_enrollment_date and DATE_ADD(h.hei_enrollment_date,
-                                                                   INTERVAL i.interval_month MONTH)
+         HeiCohortEnriched AS (SELECT hi.hei_client_id,
+                                      hi.interval_month,
 
-                            union all
+                                      fn_get_ti_status(hi.mother_client_id, hi.effective_enrollment_date,
+                                                       hi.interval_end_date)    as ti_status,
 
-                            SELECT h.hei_client_id, h.mother_client_id, i.interval_month
-                            from mamba_flat_encounter_hei_followup
-                                     as hf
-                                     inner join HIEInCohortFiltered as h on h.hei_client_id = hf.client_id
-                                     cross join IntervalsDef as i
-                            where hf.decision in ('Lost to Follow-up', 'TO', 'Dead', 'Died')
-                              and hf.followup_date_followup between
-                                h.hei_enrollment_date and DATE_ADD(h.hei_enrollment_date,
-                                                                   INTERVAL i.interval_month MONTH)),
+                                      CASE
+                                          WHEN EXISTS (SELECT 1
+                                                       FROM mamba_flat_encounter_follow_up_4 f4
+                                                                JOIN mamba_flat_encounter_follow_up_6 f6 ON f4.encounter_id = f6.encounter_id
+                                                       WHERE f4.client_id = hi.mother_client_id
+                                                         AND f4.follow_up_status IN
+                                                             ('Dead', 'Transferred out', 'Stop all',
+                                                              'Loss to follow-up (LTFU)', 'Ran away')
+                                                         AND f6.follow_up_date_followup_ BETWEEN hi.hei_enrollment_date AND hi.interval_end_date) OR
+                                               EXISTS (SELECT 1
+                                                       FROM mamba_flat_encounter_hei_followup hf
+                                                       WHERE hf.client_id = hi.hei_client_id
+                                                         AND hf.decision IN ('Lost to Follow-up', 'TO', 'Dead', 'Died')
+                                                         AND hf.followup_date_followup BETWEEN hi.hei_enrollment_date AND hi.interval_end_date)
+                                              THEN 1
+                                          ELSE 0
+                                          END                                   AS is_ltfu,
 
-         PCRTestBelowTwoYear as (select distinct h.hei_client_id
-                                 from mamba_flat_encounter_hei_hiv_test
-                                          as hf
-                                          inner join HIEInCohortFiltered as h on h.hei_client_id = hf.client_id
-                                          inner join mamba_dim_client as c on c.client_id = h.hei_client_id
-                                 where hf.hiv_test_performed is not null
-                                   and TIMESTAMPDIFF(MONTH, c.date_of_birth,
-                                                     COALESCE(hf.dna_pcr_sample_collection_date, hf.date_dbs_result_received, hf.hiv_test_date)) < 2),
+                                      (SELECT MIN(TIMESTAMPDIFF(MONTH, c.date_of_birth,
+                                                                COALESCE(hf.dna_pcr_sample_collection_date,
+                                                                         hf.date_dbs_result_received,
+                                                                         hf.hiv_test_date)))
+                                       FROM mamba_flat_encounter_hei_hiv_test hf
+                                                JOIN mamba_dim_client c ON c.client_id = hi.hei_client_id
+                                       WHERE hf.client_id = hi.hei_client_id
+                                         AND hf.hiv_test_performed IS NOT NULL) as age_at_pcr_test,
 
-         PCRTestAboveTwoYear as (select distinct h.hei_client_id
-                                 from mamba_flat_encounter_hei_hiv_test
-                                          as hf
-                                          inner join HIEInCohortFiltered as h on h.hei_client_id = hf.client_id
-                                          inner join mamba_dim_client as c on c.client_id = h.hei_client_id
-                                 where hf.hiv_test_performed is not null
-                                   and TIMESTAMPDIFF(MONTH, c.date_of_birth,
-                                                     COALESCE(hf.dna_pcr_sample_collection_date, hf.date_dbs_result_received, hf.hiv_test_date)) BETWEEN 2 AND 12),
+                                      (SELECT ho.hei_pmtct_final_outcome
+                                       FROM mamba_flat_encounter_hei_final_outcome ho
+                                       WHERE ho.client_id = hi.hei_client_id
+                                         AND ho.date_when_final_outcome_was_known <= hi.interval_end_date
+                                       ORDER BY ho.date_when_final_outcome_was_known DESC
+                                       LIMIT 1)                                 as final_outcome_val
 
-         FinalOutcomeIntervals AS (
-             SELECT h.hei_client_id, ho.hei_pmtct_final_outcome, i.interval_month
-             FROM HIEInCohortFiltered h
-                      JOIN mamba_flat_encounter_hei_final_outcome ho ON h.hei_client_id = ho.client_id
-                      CROSS JOIN IntervalsDef i
-             WHERE ho.hei_pmtct_final_outcome IS NOT NULL
-               AND ho.date_when_final_outcome_was_known <= DATE_ADD(h.hei_enrollment_date, INTERVAL i.interval_month MONTH)
-         )
+                               FROM HeiIntervals hi),
 
+         MonthlyStats AS (SELECT interval_month,
 
-    -- A. Number of HEI born to HIV+mothers who enrolled in PMTCT
-    select 'A. Number of HEI born to HIV+mothers who enrolled in PMTCT during this cohort month/year:' as name,
-           CAST(COALESCE(count(h.hei_client_id), 0) AS SIGNED)                                         as ' Maternal Cohort Month 12',
-           CAST(COALESCE(count(h.hei_client_id), 0) AS SIGNED)                                         AS 'Maternal Cohort Month18',
-           CAST(COALESCE(count(h.hei_client_id), 0) AS SIGNED)                                         AS 'Maternal Cohort Month 24',
-           CAST(COALESCE(count(h.hei_client_id), 0) AS SIGNED)                                         AS 'Maternal Cohort Month 30'
-    from HIEInCohortFiltered as h
+                                 SUM(CASE WHEN ti_status != 'TI' OR ti_status IS NULL THEN 1 ELSE 0 END)    as count_base,
 
-    union all
+                                 SUM(CASE WHEN ti_status = 'TI' THEN 1 ELSE 0 END)                          as count_ti,
 
-    -- B. Transfer In
-    select 'B. Total number of HEI Transfer in (TI) since Month 0:' as name,
-           CAST(COALESCE(SUM(CASE WHEN h.interval_month = 12 and h.ti_status = 'TI' THEN 1 ELSE 0 END), 0) AS SIGNED) as ' Maternal Cohort Month 12',
-           CAST(COALESCE(SUM(CASE WHEN h.interval_month = 18 and h.ti_status = 'TI' THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Maternal Cohort Month  18',
-           CAST(COALESCE(SUM(CASE WHEN h.interval_month = 24 and h.ti_status = 'TI' THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Maternal Cohort Month 24',
-           CAST(COALESCE(SUM(CASE WHEN h.interval_month = 30 and h.ti_status = 'TI' THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Maternal Cohort Month 30'
-    from TransferedInHEI as h
+                                 SUM(is_ltfu)                                                               as count_ltfu,
 
-    UNION all
+                                 SUM(CASE WHEN age_at_pcr_test < 2 THEN 1 ELSE 0 END)                       as count_pcr_lt_2,
 
-    -- C. Current Cohort (A+B)
-    select 'C. Number of HEI in the current cohort (A+B):'     as name,
-           CAST(COALESCE(SUM(CASE WHEN h.interval_month = 12 and h.ti_status = 'TI' THEN 1 ELSE 0 END), 0) AS SIGNED) + (SELECT COUNT(*) FROM HIEInCohortFiltered) as ' Maternal Cohort Month 12',
-           CAST(COALESCE(SUM(CASE WHEN h.interval_month = 18 and h.ti_status = 'TI' THEN 1 ELSE 0 END), 0) AS SIGNED) + (SELECT COUNT(*) FROM HIEInCohortFiltered) AS 'Maternal Cohort Month  18',
-           CAST(COALESCE(SUM(CASE WHEN h.interval_month = 24 and h.ti_status = 'TI' THEN 1 ELSE 0 END), 0) AS SIGNED) + (SELECT COUNT(*) FROM HIEInCohortFiltered) AS 'Maternal Cohort Month 24',
-           CAST(COALESCE(SUM(CASE WHEN h.interval_month = 30 and h.ti_status = 'TI' THEN 1 ELSE 0 END), 0) AS SIGNED) + (SELECT COUNT(*) FROM HIEInCohortFiltered) AS 'Maternal Cohort Month 30'
-    from TransferedInHEI as h
+                                 SUM(CASE WHEN age_at_pcr_test BETWEEN 2 AND 12 THEN 1 ELSE 0 END)          as count_pcr_2_12,
 
-    union all
+                                 SUM(CASE WHEN final_outcome_val = 'Discharged Negative' THEN 1 ELSE 0 END) as count_out_neg,
+                                 SUM(CASE WHEN final_outcome_val = 'Positive' THEN 1 ELSE 0 END)            as count_out_pos,
+                                 SUM(CASE WHEN final_outcome_val = 'Lost to Follow-up' THEN 1 ELSE 0 END)   as count_out_ltfu,
+                                 SUM(CASE WHEN final_outcome_val = 'Still on BF/Exposed' THEN 1 ELSE 0 END) as count_out_bf,
+                                 SUM(CASE WHEN final_outcome_val IN ('Died', 'Dead') THEN 1 ELSE 0 END)     as count_out_died,
+                                 SUM(CASE WHEN final_outcome_val = 'TO' THEN 1 ELSE 0 END)                  as count_out_to
 
-    -- D. Lost to F/U (Using COUNT DISTINCT to avoid double counting from UNION ALL)
-    select 'D. HEI Lost to F/U (not seen > 1 month after scheduled appointment)' as name,
-           CAST(COALESCE(COUNT(DISTINCT CASE WHEN h.interval_month = 12 THEN h.hei_client_id END), 0) AS SIGNED) as 'Maternal Cohort Month 12',
-           CAST(COALESCE(COUNT(DISTINCT CASE WHEN h.interval_month = 18 THEN h.hei_client_id END), 0) AS SIGNED) AS 'Maternal Cohort Month  18',
-           CAST(COALESCE(COUNT(DISTINCT CASE WHEN h.interval_month = 24 THEN h.hei_client_id END), 0) AS SIGNED) AS 'Maternal Cohort Month 24',
-           0 AS 'Maternal Cohort Month 30'
-    from LostToFollowUp as h
+                          FROM HeiCohortEnriched
+                          GROUP BY interval_month)
 
-    union all
+    SELECT 'Maternal Cohort Intervals (Ethiopian Calendar)'                                   AS Name,
+           MAX(CASE WHEN interval_month = 12 THEN CONCAT(et_month, ' ', et_year) ELSE '' END) AS 'Month 12',
+           MAX(CASE WHEN interval_month = 18 THEN CONCAT(et_month, ' ', et_year) ELSE '' END) AS 'Month 18',
+           MAX(CASE WHEN interval_month = 24 THEN CONCAT(et_month, ' ', et_year) ELSE '' END) AS 'Month 24',
+           MAX(CASE WHEN interval_month = 30 THEN CONCAT(et_month, ' ', et_year) ELSE '' END) AS 'Month 30'
+    FROM CohortHeaderCalc
 
-    -- E. PCR < 2 Months
-    select 'E. HEI with DNA PCR collected by 2 months of age' as name,
-           CAST(COALESCE(count(h.hei_client_id), 0) AS SIGNED)                as 'Maternal Cohort Month 12',
-           CAST(COALESCE(count(h.hei_client_id), 0) AS SIGNED)                AS 'Maternal Cohort Month 18',
-           CAST(COALESCE(count(h.hei_client_id), 0) AS SIGNED)                AS 'Maternal Cohort Month 24',
-           CAST(COALESCE(count(h.hei_client_id), 0) AS SIGNED)                AS 'Maternal Cohort Month 30'
-    from PCRTestBelowTwoYear as h
+    UNION ALL
 
-    union all
+    SELECT 'A. Number of HEI born to HIV+mothers who enrolled in PMTCT',
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 12 THEN count_base END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 18 THEN count_base END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 24 THEN count_base END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 30 THEN count_base END), 0) AS SIGNED)
+    FROM MonthlyStats
 
-    -- F. PCR 2-12 Months
-    select 'F. HEI with DNA PCR collected between 2 and 12 months of age' as name,
-           CAST(COALESCE(count(h.hei_client_id), 0) AS SIGNED)                as 'Maternal Cohort Month 12',
-           CAST(COALESCE(count(h.hei_client_id), 0) AS SIGNED)                AS 'Maternal Cohort Month 18',
-           CAST(COALESCE(count(h.hei_client_id), 0) AS SIGNED)                AS 'Maternal Cohort Month 24',
-           CAST(COALESCE(count(h.hei_client_id), 0) AS SIGNED)                AS 'Maternal Cohort Month 30'
-    from PCRTestAboveTwoYear as h
+    UNION ALL
 
-    union all
+    SELECT 'B. Total number of HEI Transfer in (TI) since Month 0',
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 12 THEN count_ti END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 18 THEN count_ti END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 24 THEN count_ti END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 30 THEN count_ti END), 0) AS SIGNED)
+    FROM MonthlyStats
 
-    -- G. Discharged Negative
-    select 'G. HEI discharged negative (DN)' as name,
+    UNION ALL
+
+    SELECT 'C. Number of HEI in the current cohort (A+B)',
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 12 THEN count_base + count_ti END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 18 THEN count_base + count_ti END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 24 THEN count_base + count_ti END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 30 THEN count_base + count_ti END), 0) AS SIGNED)
+    FROM MonthlyStats
+
+    UNION ALL
+
+    SELECT 'D. HEI Lost to F/U (not seen > 1 month after scheduled appointment)',
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 12 THEN count_ltfu END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 18 THEN count_ltfu END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 24 THEN count_ltfu END), 0) AS SIGNED),
+           0
+    FROM MonthlyStats
+
+    UNION ALL
+
+    SELECT 'E. HEI with DNA PCR collected by 2 months of age',
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 12 THEN count_pcr_lt_2 END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 18 THEN count_pcr_lt_2 END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 24 THEN count_pcr_lt_2 END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 30 THEN count_pcr_lt_2 END), 0) AS SIGNED)
+    FROM MonthlyStats
+
+    UNION ALL
+
+    SELECT 'F. HEI with DNA PCR collected between 2 and 12 months of age',
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 12 THEN count_pcr_2_12 END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 18 THEN count_pcr_2_12 END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 24 THEN count_pcr_2_12 END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 30 THEN count_pcr_2_12 END), 0) AS SIGNED)
+    FROM MonthlyStats
+
+    UNION ALL
+
+    SELECT 'G. HEI discharged negative (DN)',
            0,
            0,
            0,
-           CAST(COALESCE(SUM(CASE WHEN h.interval_month = 30 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Maternal Cohort Month 30'
-    from FinalOutcomeIntervals as h
-    where h.hei_pmtct_final_outcome = 'Discharged Negative'
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 30 THEN count_out_neg END), 0) AS SIGNED)
+    FROM MonthlyStats
 
-    union all
+    UNION ALL
 
-    -- H. Diagnosed Positive
-    select 'H. HEI diagnosed positive (p)' as name,
+    SELECT 'H. HEI diagnosed positive (p)',
            0,
            0,
            0,
-           CAST(COALESCE(SUM(CASE WHEN h.interval_month = 30 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Maternal Cohort Month 30'
-    from FinalOutcomeIntervals as h
-    where h.hei_pmtct_final_outcome = 'Positive'
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 30 THEN count_out_pos END), 0) AS SIGNED)
+    FROM MonthlyStats
 
-    union all
+    UNION ALL
 
-    -- I. Final Lost to F/U
-    select 'I. Final HEI Lost to F/U' as name,
+    SELECT 'I. Final HEI Lost to F/U',
            0,
            0,
            0,
-           CAST(COALESCE(SUM(CASE WHEN h.interval_month = 30 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Maternal Cohort Month 30'
-    from FinalOutcomeIntervals as h
-    where h.hei_pmtct_final_outcome = 'Lost to Follow-up'
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 30 THEN count_out_ltfu END), 0) AS SIGNED)
+    FROM MonthlyStats
 
-    union all
+    UNION ALL
 
-    -- J. Still Exposed/Breastfeeding
-    select 'J. HEI still exposed /breastfeeding (CPT)' as name,
+    SELECT 'J. HEI still exposed /breastfeeding (CPT)',
            0,
            0,
            0,
-           CAST(COALESCE(SUM(CASE WHEN h.interval_month = 30 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Maternal Cohort Month 30'
-    from FinalOutcomeIntervals as h
-    where h.hei_pmtct_final_outcome = 'Still on BF/Exposed'
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 30 THEN count_out_bf END), 0) AS SIGNED)
+    FROM MonthlyStats
 
-    union all
+    UNION ALL
 
-    -- K. Known Dead
-    select 'k. HEI known dead' as name,
+    SELECT 'K. HEI known dead',
            0,
            0,
            0,
-           CAST(COALESCE(SUM(CASE WHEN h.interval_month = 30 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Maternal Cohort Month 30'
-    from FinalOutcomeIntervals as h
-    where h.hei_pmtct_final_outcome = 'Died'
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 30 THEN count_out_died END), 0) AS SIGNED)
+    FROM MonthlyStats
 
-    union all
+    UNION ALL
 
-    -- L. Transferred Out
-    select 'L. HEI transferred out (TO to another facility-NOT to ART clinic) ' as name,
+    SELECT 'L. HEI transferred out (TO to another facility)',
            0,
            0,
            0,
-           CAST(COALESCE(SUM(CASE WHEN h.interval_month = 30 THEN 1 ELSE 0 END), 0) AS SIGNED) AS 'Maternal Cohort Month 30'
-    from FinalOutcomeIntervals as h
-    where h.hei_pmtct_final_outcome = 'TO';
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 30 THEN count_out_to END), 0) AS SIGNED)
+    FROM MonthlyStats;
 
 END //
 DELIMITER ;
