@@ -158,7 +158,7 @@ BEGIN
            MAX(CASE WHEN co.interval_month = 0 THEN co.final_cohort_outcome ELSE NULL END)  AS 'Outcome at Zero Months',
            MAX(CASE WHEN co.interval_month = 0 THEN co.follow_up_date ELSE NULL END)        AS 'Latest Follow-Up Date at Zero Months',
            MAX(CASE WHEN co.interval_month = 0 THEN co.follow_up_date ELSE NULL END)        AS 'Latest Follow-Up Date at Zero Months EC.',
-           MAX(CASE WHEN co.interval_month = 0 THEN co.regimen ELSE NULL END)               AS 'Latest Regimen at Zero Months', -- STRICT
+           MAX(CASE WHEN co.interval_month = 0 THEN co.regimen ELSE NULL END)               AS 'Latest Regimen at Zero Months',
            MAX(CASE WHEN co.interval_month = 0 THEN co.ARTDoseDays ELSE NULL END)           AS 'Latest Regimen Dose Days at Zero Months',
            MAX(CASE WHEN co.interval_month = 0 THEN co.strict_status ELSE NULL END)         AS 'Latest Follow-up Status at Zero Months',
            MAX(CASE WHEN co.interval_month = 0 THEN co.AdherenceLevel ELSE NULL END)        AS 'Latest Adherence at Zero Months',
