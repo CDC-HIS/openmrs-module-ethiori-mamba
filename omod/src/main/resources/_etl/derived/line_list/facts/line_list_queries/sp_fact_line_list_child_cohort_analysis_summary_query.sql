@@ -5,7 +5,6 @@ CREATE PROCEDURE sp_fact_line_list_child_cohort_analysis_summary_query(IN REPORT
     DATE)
 BEGIN
 
-    -- 1. Base Cohort: HEI born to HIV+ mothers enrolled in PMTCT
     WITH HeiEnrolled AS (SELECT hei_enrollment.encounter_id                         as hei_encounter_id,
                                 maternal_enrollment.encounter_id                        as mother_encounter_id,
                                 linked_mother.identifier                      as mother_mrn,
@@ -14,6 +13,11 @@ BEGIN
                                 maternal_enrollment.date_of_enrollment_or_booking       as date_of_erollement,
                                 hei_enrollment.date_enrolled_in_care                as hei_enrollment_date,
                                 hei_enrollment.infant_referred                      as infant_referred,
+                                CASE
+                                    WHEN maternal_enrollment.date_of_enrollment_or_booking BETWEEN REPORT_START_DATE AND REPORT_END_DATE
+                                        THEN maternal_enrollment.date_of_enrollment_or_booking
+                                    ELSE hei_enrollment.date_enrolled_in_care
+                                    END AS effective_enrollment_date,
                                 final_outcome.hei_pmtct_final_outcome             as final_out_come
                          FROM mamba_flat_encounter_hei_enrollment as hei_enrollment
                                   LEFT JOIN mamba_dim_patient_identifier as linked_mother
@@ -23,15 +27,18 @@ BEGIN
                                             on maternal_enrollment.client_id = linked_mother.patient_id
                                   LEFT JOIN mamba_flat_encounter_hei_final_outcome as final_outcome
                                             on hei_enrollment.client_id = final_outcome.client_id
-                         WHERE (linked_mother.identifier is null and (hei_enrollment.date_enrolled_in_care between REPORT_START_DATE
-                             and REPORT_END_DATE))
-                            or (linked_mother.identifier is not null
-                             and (maternal_enrollment.date_of_enrollment_or_booking between
-                                 REPORT_START_DATE and REPORT_END_DATE)
-                             and
-                                hei_enrollment.date_enrolled_in_care between REPORT_START_DATE and DATE_ADD(REPORT_START_DATE, INTERVAL 12 MONTH))),
+                         WHERE
+                             (maternal_enrollment.date_of_enrollment_or_booking BETWEEN REPORT_START_DATE AND REPORT_END_DATE )
 
-         -- Deduplicate HEI in Cohort
+                            OR   (hei_enrollment.date_enrolled_in_care BETWEEN REPORT_START_DATE AND REPORT_END_DATE
+                             AND  ( maternal_enrollment.date_of_enrollment_or_booking IS NULL
+                                 OR
+                                    maternal_enrollment.date_of_enrollment_or_booking NOT BETWEEN REPORT_START_DATE AND REPORT_END_DATE)
+                             )
+                             -- hei_enrollment.date_enrolled_in_care between REPORT_START_DATE and DATE_ADD(REPORT_START_DATE, INTERVAL 12 MONTH)
+                         ),
+
+
          HIEInCohort AS (SELECT a.*
                               , ROW_NUMBER() OVER (PARTITION BY a.hei_client_id ORDER BY a.hei_enrollment_date DESC) AS row_num
                          FROM HeiEnrolled a
@@ -39,7 +46,6 @@ BEGIN
 
          HIEInCohortFiltered AS (SELECT * FROM HIEInCohort WHERE row_num = 1),
 
-         -- 2. Define Intervals (12, 18, 24, 30 Months)
          IntervalsDef AS (SELECT 12 AS interval_month
                           UNION ALL
                           SELECT 18
@@ -48,7 +54,6 @@ BEGIN
                           UNION ALL
                           SELECT 30),
 
-         -- 3. Transfer In (TI) Logic (Relative to HEI Enrollment)
          TransferedInHEI AS (SELECT a.hei_client_id,
                                     a.date_of_erollement,
                                     i.interval_month,
@@ -62,7 +67,6 @@ BEGIN
                              FROM HIEInCohortFiltered a
                                       CROSS JOIN IntervalsDef i),
 
-         -- 4. Lost to Follow Up Logic (Relative to HEI Enrollment)
          LostToFollowUp AS (select h.hei_client_id, h.mother_client_id, i.interval_month
                             from mamba_flat_encounter_follow_up_4 as f
                                      inner join HIEInCohortFiltered as h on f.client_id = h.mother_client_id
@@ -88,7 +92,6 @@ BEGIN
                                 h.hei_enrollment_date and DATE_ADD(h.hei_enrollment_date,
                                                                    INTERVAL i.interval_month MONTH)),
 
-         -- 5. PCR Logic: Age < 2 months
          PCRTestBelowTwoYear as (select distinct h.hei_client_id
                                  from mamba_flat_encounter_hei_hiv_test
                                           as hf
@@ -98,7 +101,6 @@ BEGIN
                                    and TIMESTAMPDIFF(MONTH, c.date_of_birth,
                                                      COALESCE(hf.dna_pcr_sample_collection_date, hf.date_dbs_result_received, hf.hiv_test_date)) < 2),
 
-         -- 6. PCR Logic: Age between 2 and 12 months
          PCRTestAboveTwoYear as (select distinct h.hei_client_id
                                  from mamba_flat_encounter_hei_hiv_test
                                           as hf
@@ -108,7 +110,6 @@ BEGIN
                                    and TIMESTAMPDIFF(MONTH, c.date_of_birth,
                                                      COALESCE(hf.dna_pcr_sample_collection_date, hf.date_dbs_result_received, hf.hiv_test_date)) BETWEEN 2 AND 12),
 
-         -- 7. Final Outcomes with Interval Logic
          FinalOutcomeIntervals AS (
              SELECT h.hei_client_id, ho.hei_pmtct_final_outcome, i.interval_month
              FROM HIEInCohortFiltered h
