@@ -29,12 +29,12 @@ BEGIN
             f.client_id,
             f.followup_date_followup as follow_up_date,
             f.weight_text as current_weight,
-#             f.infant_feeding_practice_within_the_first_6_months_of_life,
-#             f.infant_feeding_practice_older_than_6_months_of_life,
-#             COALESCE(f.infant_feeding_practice_within_the_first_6_months_of_life, f.infant_feeding_practice_older_than_6_months_of_life) as feeding_practice,
-#             f.cotrimoxazole_prophylaxis_dose,
-#             f.cotrimoxazole_adherence_level,
-#             f.developmental_milestone_for_children,
+             f.infant_feeding_practice_within_the_first_6_months_of_life,
+            f.infant_feeding_practice_older_than_6_months_of_life,
+             COALESCE(f.infant_feeding_practice_within_the_first_6_months_of_life, f.infant_feeding_practice_older_than_6_months_of_life) as feeding_practice,
+             f.cotrimoxazole_prophylaxis_dose,
+             f.cotrimoxazole_adherence_level,
+             f.developmental_milestone_for_children,
             f.next_visit_date,
             ROW_NUMBER() OVER (PARTITION BY f.client_id ORDER BY f.followup_date_followup DESC) as rn
         FROM mamba_flat_encounter_hei_followup f
@@ -94,9 +94,9 @@ BEGIN
         -- Follow Up
         f.follow_up_date as `Latest Follow-up Date`,
         f.current_weight as `Current Weight`,
-#         f.feeding_practice as `Feeding Practice`,
-#         f.cotrimoxazole_prophylaxis_dose as `CPT Dose`,
-#         f.developmental_milestone_for_children as `Developmental Milestones`,
+         f.feeding_practice as `Feeding Practice`,
+         f.cotrimoxazole_prophylaxis_dose as `CPT Dose`,
+         f.developmental_milestone_for_children as `Developmental Milestones`,
         f.next_visit_date as `Next Visit Date`,
         
         -- Final Outcome
