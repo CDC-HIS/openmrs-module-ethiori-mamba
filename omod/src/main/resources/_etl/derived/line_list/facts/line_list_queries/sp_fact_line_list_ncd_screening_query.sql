@@ -38,24 +38,16 @@ BEGIN
          -- 2. Get NCD Screening Events in the date range
          ncd_screening AS (SELECT mpn.client_id,
                                   mpn.screening_date,
-                                  'Screening' AS visit_type,
-                                  NULL        AS diagnosis_type,
-                                  NULL        AS diagnosis,
-                                  NULL        AS outcome,
-                                  NULL        AS next_appointment_date,
-                                  NULL        AS ncd_follow_up_date,
-                                  NULL        AS risk_factors,
-                                  NULL        AS dm_symptoms,
-                                  NULL        AS hypertension_symptoms,
-                                  NULL        AS bp1,
-                                  NULL        AS bp2,
-                                  NULL        AS bmi,
-                                  NULL        AS fbs,
-                                  NULL        AS fundoscopy,
-                                  NULL        AS dm_complications,
-                                  NULL        AS htn_complications,
-                                  NULL        AS adherence,
-                                  NULL        AS lifestyle_changes
+                                  risk_factors_present,
+                                  past_complication,
+                                  past_medication,
+                                  weight_text_,
+                                  bmi_text_,
+                                  diastolic_blood_pressure,
+                                  fasting_blood_glucose_measurement_m,
+                                  baseline_diagnosis,
+                                  diagnosed_previously,
+                                  'Screening' AS visit_type
                            FROM mamba_flat_encounter_ncd_screening mpn
                            WHERE (REPORT_START_DATE IS NULL OR mpn.screening_date >= REPORT_START_DATE)
                              AND (REPORT_END_DATE IS NULL OR mpn.screening_date <= REPORT_END_DATE))
@@ -71,17 +63,17 @@ BEGIN
            art.art_start_date                                AS 'ART Start Date EC.',
            art.art_start_date                                AS 'ART Start Date (GC)',
 
-#         Last Follow-Up Status
+           art_followup_status                               as `Last Follow-Up Status`,
            e.screening_date                                  AS 'NCD Screening Date ',
-#         Risk Factors
-#         Past Diagnosis
-#         Past Complication
-#         Past Medication
-#         Weight
-#             BMI
-#         Blood Pressure
-#         FBS (mg/dl)
-# Baseline Diagnosis
+           risk_factors_present                                 `Risk Factors`,
+           diagnosed_previously                              as `Past Diagnosis`,
+           past_complication                                 as `Past Complication`,
+           past_medication                                   as `Past Medication`,
+           weight_text_                                      as `Weight`,
+           bmi_text_                                         as `BMI`,
+           diastolic_blood_pressure                          as `Blood Pressure`,
+           fasting_blood_glucose_measurement_m               as `FBS (mg/dl)`,
+           baseline_diagnosis                                as `Baseline Diagnosis`,
 # UNCD #
 
 
