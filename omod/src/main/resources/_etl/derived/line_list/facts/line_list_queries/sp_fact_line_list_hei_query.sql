@@ -84,26 +84,32 @@ BEGIN
         e.referring_facility_name as `Referring Facility Name`,
         e.mother_s_pmtct_interventions as `Mother''s PMTCT Intervention`,
         TIMESTAMPDIFF(MONTH, c.date_of_birth, REPORT_END_DATE) as `Age (Months)`,
-        c.date_of_birth as `DOB`,
+        c.date_of_birth as `Date of birth`,
+        c.date_of_birth as `Date of birth EC.`,
         c.sex as `Sex`,
         
         -- Enrollment Info
         e.enrollment_date as `Enrollment Date`,
+        e.enrollment_date as `Enrollment Date EC.`,
         e.mothers_name as `Mother's Name`,
         e.mother_status as `Mother's Status`,
         e.enrollment_arv_prophylaxis as `ARV Prophylaxis at Enrollment`,
         e.birth_weight as `Birth Weight (in gram)`,
         
         -- HIV Testing
-        t.pcr_1_date as `DNA-PCR Sample Collection Date1`,
+        t.pcr_1_date as `DNA-PCR Sample Collection Date 1`,
+        t.pcr_1_date as `DNA-PCR Sample Collection Date 1 EC.`,
         t.pcr_1_result as `DNA-PCR Result 1`,
         t.pcr_2_date as `DNA-PCR Sample Collection Date 2`,
+        t.pcr_2_date as `DNA-PCR Sample Collection Date 2 EC.`,
         t.pcr_2_result as `DNA-PCR Result 2`,
         t.antibody_test_date as `Antibody Test Date`,
+        t.antibody_test_date as `Antibody Test Date EC.`,
         t.antibody_test_result as `Antibody Test Result`,
         
         -- Follow Up
         f.follow_up_date as `Latest Follow-up Date`,
+        f.follow_up_date as `Latest Follow-up Date EC.`,
         f.current_weight as `Current Weight`,
         f.growth_pattern as `Growth Pattern`,
         f.reason_for_growth_failure as `Reason for Growth Failure`,
@@ -113,10 +119,12 @@ BEGIN
          f.developmental_milestone_for_children as `Development Milestone`,
          f.reason_for_red_flag as `Reason for Red Flag`,
         f.next_visit_date as `Next Visit Date`,
+        f.next_visit_date as `Next Visit Date EC.`,
         
         -- Final Outcome
         fo.hei_pmtct_final_outcome as `Final Outcome`,
-        fo.date_when_final_outcome_was_known as `Final Outcome Date`
+        fo.date_when_final_outcome_was_known as `Final Outcome Date`,
+        fo.date_when_final_outcome_was_known as `Final Outcome Date EC.`
 
     FROM Enrollment e
     JOIN mamba_dim_client c ON e.client_id = c.client_id
