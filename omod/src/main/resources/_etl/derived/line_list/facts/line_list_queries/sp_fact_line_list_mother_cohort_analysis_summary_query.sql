@@ -149,7 +149,7 @@ BEGIN
     UNION ALL
 
     SELECT 'A. Enrolled in PMTCT in this facility (Month 0)',
-           MAX(CASE WHEN interval_month = 0 THEN Total_Base ELSE 0 END),
+           0,
            MAX(CASE WHEN interval_month = 0 THEN Total_Base ELSE 0 END),
            MAX(CASE WHEN interval_month = 0 THEN Total_Base ELSE 0 END),
            MAX(CASE WHEN interval_month = 0 THEN Total_Base ELSE 0 END),
@@ -179,7 +179,7 @@ BEGIN
     UNION ALL
 
     SELECT 'D. Net Current Cohort (A + B - C)',
-           MAX(CASE WHEN interval_month = 0 THEN Total_Base ELSE 0 END),
+           0,
            MAX(CASE WHEN interval_month = 4 THEN (Total_Base + Total_TI - Total_TO) ELSE 0 END),
            MAX(CASE WHEN interval_month = 7 THEN (Total_Base + Total_TI - Total_TO) ELSE 0 END),
            MAX(CASE WHEN interval_month = 13 THEN (Total_Base + Total_TI - Total_TO) ELSE 0 END),
@@ -189,7 +189,7 @@ BEGIN
     UNION ALL
 
     SELECT 'E. Mothers Alive and on ART',
-           MAX(CASE WHEN interval_month = 0 THEN Total_Active ELSE 0 END),
+           0,
            MAX(CASE WHEN interval_month = 4 THEN Total_Active ELSE 0 END),
            MAX(CASE WHEN interval_month = 7 THEN Total_Active ELSE 0 END),
            MAX(CASE WHEN interval_month = 13 THEN Total_Active ELSE 0 END),
@@ -219,7 +219,7 @@ BEGIN
     UNION ALL
 
     SELECT 'H. % Alive and on ART (E/D)',
-           CONCAT(ROUND((MAX(CASE WHEN interval_month = 0 THEN Total_Active ELSE 0 END) / NULLIF(MAX(CASE WHEN interval_month = 0 THEN Total_Base ELSE 0 END),0))*100, 1), '%'),
+           0,
            CONCAT(ROUND((MAX(CASE WHEN interval_month = 4 THEN Total_Active ELSE 0 END) / NULLIF(MAX(CASE WHEN interval_month = 4 THEN (Total_Base + Total_TI - Total_TO) ELSE 0 END),0))*100, 1), '%'),
            CONCAT(ROUND((MAX(CASE WHEN interval_month = 7 THEN Total_Active ELSE 0 END) / NULLIF(MAX(CASE WHEN interval_month = 7 THEN (Total_Base + Total_TI - Total_TO) ELSE 0 END),0))*100, 1), '%'),
            CONCAT(ROUND((MAX(CASE WHEN interval_month = 13 THEN Total_Active ELSE 0 END) / NULLIF(MAX(CASE WHEN interval_month = 13 THEN (Total_Base + Total_TI - Total_TO) ELSE 0 END),0))*100, 1), '%'),
