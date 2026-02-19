@@ -23,12 +23,12 @@ public class NCDScreeningLineListReportMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "LINELIST- NCD Screening ";
+		return "LINELIST- NCD Screening & Diagnosis";
 	}
 	
 	@Override
 	public String getDescription() {
-		return "NCD Screening Line List Report";
+		return "NCD Screening & Diagnosis Line List Report";
 	}
 	
 	@Override
@@ -47,7 +47,7 @@ public class NCDScreeningLineListReportMamba implements ReportManager {
 		
 		NCDScreeningLineListDataSetDefinitionMamba ncdLineListDataSetDefinitionMamba = new NCDScreeningLineListDataSetDefinitionMamba();
 		ncdLineListDataSetDefinitionMamba.addParameters(getParameters());
-		reportDefinition.addDataSetDefinition("NCD Screening Line List Report",
+		reportDefinition.addDataSetDefinition("NCD Screening & Diagnosis Line List Report",
 		    EthiOhriUtil.map(ncdLineListDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
 		
 		return reportDefinition;
