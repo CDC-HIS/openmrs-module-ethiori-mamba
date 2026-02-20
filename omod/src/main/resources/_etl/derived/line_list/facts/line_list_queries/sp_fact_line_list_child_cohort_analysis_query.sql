@@ -18,7 +18,7 @@ BEGIN
                                     WHEN maternal_enrollment.date_of_enrollment_or_booking BETWEEN REPORT_START_DATE AND REPORT_END_DATE
                                         THEN maternal_enrollment.date_of_enrollment_or_booking
                                     ELSE hei_enrollment.date_enrolled_in_care
-                                    END AS effective_enrollment_date,
+                                    END                                           AS effective_enrollment_date,
                                 followup_date_followup
                          FROM mamba_flat_encounter_hei_enrollment as hei_enrollment
                                   LEFT JOIN mamba_dim_patient_identifier as linked_mother
@@ -60,45 +60,45 @@ BEGIN
                               FROM HIEInCohortFiltered h
                                        CROSS JOIN IntervalsDef i),
 
-         AllEvents AS (
-             SELECT h.hei_client_id,
-                    f.follow_up_date_followup_ as event_date,
-                    CASE
-                        WHEN f.follow_up_status IN ('Dead', 'Died') THEN 'Dead'
-                        WHEN f.follow_up_status IN ('Transferred out', 'TO') THEN 'Transferred out'
-                        WHEN f.follow_up_status IN ('Stop all', 'Loss to follow-up (LTFU)', 'Ran away')
-                            THEN 'Lost to follow-up'
-                        ELSE 'Active'
-                        END                    as status,
-                    1                          as priority
-             FROM HIEInCohortFiltered h
-                      JOIN mamba_flat_encounter_follow_up f ON h.mother_client_id = f.client_id
-             WHERE f.follow_up_date_followup_ IS NOT NULL
+         AllEvents AS (SELECT h.hei_client_id,
+                              f6.follow_up_date_followup_ as event_date,
+                              CASE
+                                  WHEN f7.follow_up_status IN ('Dead', 'Died') THEN 'Dead'
+                                  WHEN f7.follow_up_status IN ('Transferred out', 'TO') THEN 'Transferred out'
+                                  WHEN f7.follow_up_status IN ('Stop all', 'Loss to follow-up (LTFU)', 'Ran away')
+                                      THEN 'Lost to follow-up'
+                                  ELSE 'Active'
+                                  END                    as status,
+                              1                          as priority
+                       FROM HIEInCohortFiltered h
+                                JOIN mamba_flat_encounter_follow_up_6 f6 ON h.mother_client_id = f6.client_id
+                                LEFT JOIN mamba_flat_encounter_follow_up_4 f7 ON h.mother_client_id = f6.client_id
+                       WHERE f6.follow_up_date_followup_ IS NOT NULL
 
-             UNION ALL
+                       UNION ALL
 
-             SELECT h.hei_client_id,
-                    hf.followup_date_followup as event_date,
-                    CASE
-                        WHEN hf.decision IN ('Dead', 'Died') THEN 'Dead'
-                        WHEN hf.decision IN ('TO', 'Transferred out') THEN 'Transferred out'
-                        WHEN hf.decision IN ('Lost to Follow-up') THEN 'Lost to follow-up'
-                        ELSE 'Active'
-                        END                   as status,
-                    2                         as priority
-             FROM HIEInCohortFiltered h
-                      JOIN mamba_flat_encounter_hei_followup hf ON h.hei_client_id = hf.client_id
-             WHERE hf.followup_date_followup IS NOT NULL
+                       SELECT h.hei_client_id,
+                              hf.followup_date_followup as event_date,
+                              CASE
+                                  WHEN hf.decision IN ('Dead', 'Died') THEN 'Dead'
+                                  WHEN hf.decision IN ('TO', 'Transferred out') THEN 'Transferred out'
+                                  WHEN hf.decision IN ('Lost to Follow-up') THEN 'Lost to follow-up'
+                                  ELSE 'Active'
+                                  END                   as status,
+                              2                         as priority
+                       FROM HIEInCohortFiltered h
+                                JOIN mamba_flat_encounter_hei_followup hf ON h.hei_client_id = hf.client_id
+                       WHERE hf.followup_date_followup IS NOT NULL
 
-             UNION ALL
+                       UNION ALL
 
-             SELECT h.hei_client_id,
-                    ho.date_when_final_outcome_was_known as event_date,
-                    ho.hei_pmtct_final_outcome           as status,
-                    3                                    as priority
-             FROM HIEInCohortFiltered h
-                      JOIN mamba_flat_encounter_hei_final_outcome ho ON h.hei_client_id = ho.client_id
-             WHERE ho.date_when_final_outcome_was_known IS NOT NULL),
+                       SELECT h.hei_client_id,
+                              ho.date_when_final_outcome_was_known as event_date,
+                              ho.hei_pmtct_final_outcome           as status,
+                              3                                    as priority
+                       FROM HIEInCohortFiltered h
+                                JOIN mamba_flat_encounter_hei_final_outcome ho ON h.hei_client_id = ho.client_id
+                       WHERE ho.date_when_final_outcome_was_known IS NOT NULL),
 
          LatestStatus AS (SELECT pi.hei_client_id,
                                  pi.interval_month,
