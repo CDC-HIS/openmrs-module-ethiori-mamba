@@ -30,7 +30,7 @@ BEGIN
     ELSEIF CD4_COUNT_GROUPAGE = '<200' THEN
         SET cd4_count_condition = ' (visitect_cd4_result is null and cd4_count < 200 AND (age >= 5 or age is null)) or (visitect_cd4_result=''VISITECT <200 copies/ml'') ';
     ELSEIF CD4_COUNT_GROUPAGE = 'unknown' THEN
-        SET cd4_count_condition = 'cd4_count IS NULL OR age < 5';
+        SET cd4_count_condition = ' (cd4_count IS NULL OR age < 5) and (visitect_cd4_result is null)';
     ELSE
         SET cd4_count_condition = '1=1';
     END IF;
