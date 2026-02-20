@@ -17,12 +17,12 @@ BEGIN
 
     IF REPORT_TYPE = 'CD4_LESS_THAN_200' THEN
         SET outcome_condition =
-                ' (restart_visitect_cd4_result is null and restart_cd4_count < 200) or (restart_visitect_cd4_result = ''VISITECT <200 copies/ml'') ';
+                ' (restart_visitect_cd4_result is null and restart_cd4_count < 200) or (restart_visitect_cd4_result = ''VISITECT <=200 copies/ml'' or restart_visitect_cd4_result = ''VISITECT <200 copies/ml'') ';
     ELSEIF REPORT_TYPE = 'CD4_GREATER_THAN_200' THEN
         SET outcome_condition =
-                ' (restart_visitect_cd4_result is null and restart_cd4_count >= 200) or (restart_visitect_cd4_result = ''VISITECT <=200 copies/ml'' or restart_visitect_cd4_result = ''VISITECT >200 copies/ml'') ';
+                ' (restart_visitect_cd4_result is null and restart_cd4_count >= 200) or (restart_visitect_cd4_result = ''VISITECT >200 copies/ml'') ';
     ELSEIF REPORT_TYPE = 'CD4_UNKNOWN' THEN
-        SET outcome_condition = ' restart_cd4_count is null and interrupted_months >= 6';
+        SET outcome_condition = ' (restart_cd4_count is null and interrupted_months >= 6) AND (restart_visitect_cd4_result is null and interrupted_months >= 6)';
     ELSEIF REPORT_TYPE = 'CD4_NOT_ELIGIBLE' THEN
         SET outcome_condition = 'interrupted_months < 6';
     ELSE
