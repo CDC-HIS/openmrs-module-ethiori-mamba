@@ -57,13 +57,13 @@ BEGIN
 
          IntervalsDef AS (SELECT 0 AS interval_month
                           UNION ALL
-                          SELECT 6
+                          SELECT 7
                           UNION ALL
-                          SELECT 12
+                          SELECT 13
                           UNION ALL
-                          SELECT 24
+                          SELECT 25
                           UNION ALL
-                          SELECT 36),
+                          SELECT 37),
 
          PatientIntervals AS (SELECT a.PatientId,
                                      a.art_start_date,
@@ -207,8 +207,8 @@ BEGIN
                                  SUM(CASE
                                          WHEN is_active = 1 AND (
                                              (age_group = 'ADULT' AND reg_prefix = '2') OR
-                                             (age_group = 'PEDS' AND ((interval_month < 36 AND reg_prefix = '5') OR
-                                                                      (interval_month = 36 AND reg_prefix = '6')))
+                                             (age_group = 'PEDS' AND ((interval_month < 37 AND reg_prefix = '5') OR
+                                                                      (interval_month = 37 AND reg_prefix = '6')))
                                              ) THEN 1
                                          ELSE 0 END)                                                       AS reg_2nd,
 
@@ -221,10 +221,10 @@ BEGIN
 
     SELECT 'Cohort Intervals (Ethiopian Calendar)'                                            AS Name,
            MAX(CASE WHEN interval_month = 0 THEN CONCAT(et_month, ' ', et_year) ELSE '' END)  AS 'Month 0',
-           MAX(CASE WHEN interval_month = 6 THEN CONCAT(et_month, ' ', et_year) ELSE '' END)  AS 'Month 6',
-           MAX(CASE WHEN interval_month = 12 THEN CONCAT(et_month, ' ', et_year) ELSE '' END) AS 'Month 12',
-           MAX(CASE WHEN interval_month = 24 THEN CONCAT(et_month, ' ', et_year) ELSE '' END) AS 'Month 24',
-           MAX(CASE WHEN interval_month = 36 THEN CONCAT(et_month, ' ', et_year) ELSE '' END) AS 'Month 36'
+           MAX(CASE WHEN interval_month = 7 THEN CONCAT(et_month, ' ', et_year) ELSE '' END)  AS 'Month 6',
+           MAX(CASE WHEN interval_month = 13 THEN CONCAT(et_month, ' ', et_year) ELSE '' END) AS 'Month 12',
+           MAX(CASE WHEN interval_month = 25 THEN CONCAT(et_month, ' ', et_year) ELSE '' END) AS 'Month 24',
+           MAX(CASE WHEN interval_month = 37 THEN CONCAT(et_month, ' ', et_year) ELSE '' END) AS 'Month 36'
     FROM CohortHeaderCalc
 
     UNION ALL
@@ -241,33 +241,33 @@ BEGIN
 
     SELECT 'B. Transfer in Add+',
            0,
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 6 THEN count_ti END), 0) AS SIGNED),
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 12 THEN count_ti END), 0) AS SIGNED),
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 24 THEN count_ti END), 0) AS SIGNED),
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 36 THEN count_ti END), 0) AS SIGNED)
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 7 THEN count_ti END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 13 THEN count_ti END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 25 THEN count_ti END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 37 THEN count_ti END), 0) AS SIGNED)
     FROM MonthlyStats
 
     UNION ALL
 
     SELECT 'C. Transfers Out Subtract -',
            0,
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 6 THEN count_to END), 0) AS SIGNED),
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 12 THEN count_to END), 0) AS SIGNED),
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 24 THEN count_to END), 0) AS SIGNED),
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 36 THEN count_to END), 0) AS SIGNED)
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 7 THEN count_to END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 13 THEN count_to END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 25 THEN count_to END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 37 THEN count_to END), 0) AS SIGNED)
     FROM MonthlyStats
 
     UNION ALL
 
     SELECT 'D. Net current cohort (A + B - C)',
            0,
-           CAST(GREATEST(0, IFNULL(MAX(CASE WHEN interval_month = 6 THEN (count_base + count_ti) - count_to END),
+           CAST(GREATEST(0, IFNULL(MAX(CASE WHEN interval_month = 7 THEN (count_base + count_ti) - count_to END),
                                    0)) AS SIGNED),
-           CAST(GREATEST(0, IFNULL(MAX(CASE WHEN interval_month = 12 THEN (count_base + count_ti) - count_to END),
+           CAST(GREATEST(0, IFNULL(MAX(CASE WHEN interval_month = 13 THEN (count_base + count_ti) - count_to END),
                                    0)) AS SIGNED),
-           CAST(GREATEST(0, IFNULL(MAX(CASE WHEN interval_month = 24 THEN (count_base + count_ti) - count_to END),
+           CAST(GREATEST(0, IFNULL(MAX(CASE WHEN interval_month = 25 THEN (count_base + count_ti) - count_to END),
                                    0)) AS SIGNED),
-           CAST(GREATEST(0, IFNULL(MAX(CASE WHEN interval_month = 36 THEN (count_base + count_ti) - count_to END),
+           CAST(GREATEST(0, IFNULL(MAX(CASE WHEN interval_month = 37 THEN (count_base + count_ti) - count_to END),
                                    0)) AS SIGNED)
     FROM MonthlyStats
 
@@ -275,108 +275,108 @@ BEGIN
 
     SELECT 'E. On Original 1st Line Regimen',
            0,
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 6 THEN reg_orig END), 0) AS SIGNED),
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 12 THEN reg_orig END), 0) AS SIGNED),
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 24 THEN reg_orig END), 0) AS SIGNED),
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 36 THEN reg_orig END), 0) AS SIGNED)
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 7 THEN reg_orig END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 13 THEN reg_orig END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 25 THEN reg_orig END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 37 THEN reg_orig END), 0) AS SIGNED)
     FROM MonthlyStats
 
     UNION ALL
 
     SELECT 'F. On Alternate 1st Line Regimen (Substituted)',
            0,
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 6 THEN reg_alt END), 0) AS SIGNED),
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 12 THEN reg_alt END), 0) AS SIGNED),
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 24 THEN reg_alt END), 0) AS SIGNED),
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 36 THEN reg_alt END), 0) AS SIGNED)
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 7 THEN reg_alt END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 13 THEN reg_alt END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 25 THEN reg_alt END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 37 THEN reg_alt END), 0) AS SIGNED)
     FROM MonthlyStats
 
     UNION ALL
 
     SELECT 'G. On 2nd Line Regimen (Switched)',
            0,
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 6 THEN reg_2nd END), 0) AS SIGNED),
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 12 THEN reg_2nd END), 0) AS SIGNED),
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 24 THEN reg_2nd END), 0) AS SIGNED),
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 36 THEN reg_2nd END), 0) AS SIGNED)
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 7 THEN reg_2nd END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 13 THEN reg_2nd END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 25 THEN reg_2nd END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 37 THEN reg_2nd END), 0) AS SIGNED)
     FROM MonthlyStats
 
     UNION ALL
 
     SELECT 'I. Stopped',
            0,
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 6 THEN count_stop END), 0) AS SIGNED),
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 12 THEN count_stop END), 0) AS SIGNED),
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 24 THEN count_stop END), 0) AS SIGNED),
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 36 THEN count_stop END), 0) AS SIGNED)
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 7 THEN count_stop END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 13 THEN count_stop END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 25 THEN count_stop END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 37 THEN count_stop END), 0) AS SIGNED)
     FROM MonthlyStats
 
     UNION ALL
 
     SELECT 'J. Died',
            0,
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 6 THEN count_dead END), 0) AS SIGNED),
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 12 THEN count_dead END), 0) AS SIGNED),
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 24 THEN count_dead END), 0) AS SIGNED),
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 36 THEN count_dead END), 0) AS SIGNED)
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 7 THEN count_dead END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 13 THEN count_dead END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 25 THEN count_dead END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 37 THEN count_dead END), 0) AS SIGNED)
     FROM MonthlyStats
 
     UNION ALL
 
     SELECT 'K. Lost to Follow-up (DROP)',
            0,
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 6 THEN count_ltfu END), 0) AS SIGNED),
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 12 THEN count_ltfu END), 0) AS SIGNED),
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 24 THEN count_ltfu END), 0) AS SIGNED),
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 36 THEN count_ltfu END), 0) AS SIGNED)
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 7 THEN count_ltfu END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 13 THEN count_ltfu END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 25 THEN count_ltfu END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 37 THEN count_ltfu END), 0) AS SIGNED)
     FROM MonthlyStats
 
     UNION ALL
 
     SELECT 'Percent of Net Facility Cohort Alive and on ART',
            '100%',
-           CONCAT(ROUND(IFNULL((MAX(CASE WHEN interval_month = 6 THEN count_orig_active END) * 100.0) / NULLIF(
+           CONCAT(ROUND(IFNULL((MAX(CASE WHEN interval_month = 7 THEN count_orig_active END) * 100.0) / NULLIF(
                    MAX(CASE WHEN interval_month = 0 THEN count_base END) -
-                   MAX(CASE WHEN interval_month = 6 THEN count_orig_to END), 0), 0), 0), '%'),
-           CONCAT(ROUND(IFNULL((MAX(CASE WHEN interval_month = 12 THEN count_orig_active END) * 100.0) / NULLIF(
+                   MAX(CASE WHEN interval_month = 7 THEN count_orig_to END), 0), 0), 0), '%'),
+           CONCAT(ROUND(IFNULL((MAX(CASE WHEN interval_month = 13 THEN count_orig_active END) * 100.0) / NULLIF(
                    MAX(CASE WHEN interval_month = 0 THEN count_base END) -
-                   MAX(CASE WHEN interval_month = 12 THEN count_orig_to END), 0), 0), 0), '%'),
-           CONCAT(ROUND(IFNULL((MAX(CASE WHEN interval_month = 24 THEN count_orig_active END) * 100.0) / NULLIF(
+                   MAX(CASE WHEN interval_month = 13 THEN count_orig_to END), 0), 0), 0), '%'),
+           CONCAT(ROUND(IFNULL((MAX(CASE WHEN interval_month = 25 THEN count_orig_active END) * 100.0) / NULLIF(
                    MAX(CASE WHEN interval_month = 0 THEN count_base END) -
-                   MAX(CASE WHEN interval_month = 24 THEN count_orig_to END), 0), 0), 0), '%'),
-           CONCAT(ROUND(IFNULL((MAX(CASE WHEN interval_month = 36 THEN count_orig_active END) * 100.0) / NULLIF(
+                   MAX(CASE WHEN interval_month = 25 THEN count_orig_to END), 0), 0), 0), '%'),
+           CONCAT(ROUND(IFNULL((MAX(CASE WHEN interval_month = 37 THEN count_orig_active END) * 100.0) / NULLIF(
                    MAX(CASE WHEN interval_month = 0 THEN count_base END) -
-                   MAX(CASE WHEN interval_month = 36 THEN count_orig_to END), 0), 0), 0), '%')
+                   MAX(CASE WHEN interval_month = 37 THEN count_orig_to END), 0), 0), 0), '%')
     FROM MonthlyStats
 
     UNION ALL
 
     SELECT 'L. Mean CD4 % (for children)',
            0,
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 6 THEN avg_peds_cd4_pct END), 0) AS SIGNED),
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 12 THEN avg_peds_cd4_pct END), 0) AS SIGNED),
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 24 THEN avg_peds_cd4_pct END), 0) AS SIGNED),
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 36 THEN avg_peds_cd4_pct END), 0) AS SIGNED)
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 7 THEN avg_peds_cd4_pct END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 13 THEN avg_peds_cd4_pct END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 25 THEN avg_peds_cd4_pct END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 37 THEN avg_peds_cd4_pct END), 0) AS SIGNED)
     FROM MonthlyStats
 
     UNION ALL
 
     SELECT 'N. Viral Load tested',
            0,
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 6 THEN count_vl_tested END), 0) AS SIGNED),
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 12 THEN count_vl_tested END), 0) AS SIGNED),
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 24 THEN count_vl_tested END), 0) AS SIGNED),
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 36 THEN count_vl_tested END), 0) AS SIGNED)
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 7 THEN count_vl_tested END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 13 THEN count_vl_tested END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 25 THEN count_vl_tested END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 37 THEN count_vl_tested END), 0) AS SIGNED)
     FROM MonthlyStats
 
     UNION ALL
 
     SELECT 'O. Viral load Suppressed ( < 50 copies/ml)',
            0,
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 6 THEN count_vl_suppressed END), 0) AS SIGNED),
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 12 THEN count_vl_suppressed END), 0) AS SIGNED),
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 24 THEN count_vl_suppressed END), 0) AS SIGNED),
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 36 THEN count_vl_suppressed END), 0) AS SIGNED)
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 7 THEN count_vl_suppressed END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 13 THEN count_vl_suppressed END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 25 THEN count_vl_suppressed END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 37 THEN count_vl_suppressed END), 0) AS SIGNED)
     FROM MonthlyStats;
 END //
 
