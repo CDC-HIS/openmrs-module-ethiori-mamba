@@ -106,12 +106,12 @@ BEGIN
         p.coupon_id AS 'Coupon ID',
         s.date_provided_ec AS 'Date Provided EC.',
         s.date_provided AS 'Date Provided (GC)',
-        p.conventional_result AS 'Con Result Provided Coupon',
+        p.conventional_result AS 'Contact Result Provided Coupon',
         p.phrh_code_returning_coupon AS 'PHRH Code Returning Coupon',
         p.date_returned_ec AS 'Date Returned EC.',
         p.date_returned AS 'Date Returned (GC)',
         p.etb_paid_for_recruiter AS 'ETB paid for Recruiter',
-        p.conventional_result_returning AS 'Con Test Result Returning Coupon'
+        p.conventional_result_returning AS 'Contact Test Result Returning Coupon'
     FROM provided_and_retuned p
     JOIN sns s ON p.client_id = s.client_id;
 END //

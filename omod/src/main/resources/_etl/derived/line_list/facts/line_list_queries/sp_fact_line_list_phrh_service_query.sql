@@ -34,12 +34,14 @@ BEGIN
                                    END
                                                                                                                                      AS target_population,
                                mpf.modality_used_to_reach                                                                            AS modality,
+                               art_start_date,
                                mpf.hiv_self_test_performed                                                                           AS hiv_self_test_kit,
                                mpf.hivst_result                                                                                      AS self_test_result,
                                mpf.final_hiv_test_result                                                                             AS conventional_result,
                                mpf.on_antiretroviral_therapy                                                                         AS art_started,
                                mpf.unique_art_number                                                                                 AS unique_art_number,
                                mpf.pmtct_linkage_date                                                                                AS date_linked_to_pmtct,
+                               condoms_given_during_the_visit,
                                mpf1.prep_pre_exposure_prophylaxis_eligi                                                              AS eligible_for_prep,
                                mpf.discharge_date                                                                                    AS prep_discharge_date_ec,
                                mpf.discharge_date                                                                                    as prep_discharge_date,
@@ -87,6 +89,7 @@ BEGIN
            en.gender                    AS 'Sex',
            en.age                       AS 'Age',
            en.phrh_enrollment_date      AS 'PHRH Enrollment Date',
+           en.phrh_enrollment_date      AS 'PHRH Enrollment Date EC.',
            en.previously_tested_for_hiv AS 'Previously Tested for HIV',
            en.phrh_followup_date_ec     AS 'FU Date (PHRH) EC.',
            en.phrh_followup_date        AS 'FU Date (PHRH) (GC)',
@@ -99,7 +102,11 @@ BEGIN
            en.art_started               AS 'Start ART',
            en.unique_art_number         AS 'Unique ART #',
            en.date_linked_to_pmtct      AS 'Date Linked to PMTCT',
+           en.date_linked_to_pmtct      AS 'Date Linked to PMTCT EC.',
+           art_start_date as `Art Start Date`,
+           art_start_date as `Art Start Date EC.`,
            en.eligible_for_prep         AS 'Eligible for PrEP',
+           condoms_given_during_the_visit AS `# Condoms Provided?`,
            en.prep_started              AS 'PrEP Started',
            en.prep_discharge_date_ec    AS 'Date Discharged PrEP EC.',
            en.prep_discharge_date       AS 'Date Discharged PrEP(GC)',
@@ -114,7 +121,7 @@ BEGIN
            en.fp_counseling             AS 'FP Counseling',
            en.eligible_for_cxca_screen  AS 'Eligible for CXCA Screen',
            en.counseled_and_linked_cxca AS 'Counseled & linked CXCA',
-           en.last_follow_up_outcome    AS 'Last FU Outcome',
+           en.last_follow_up_outcome    AS 'Last FU Outcome (PHRH)',
            en.final_decision            AS 'Final Decision'
     FROM enrollment en
              JOIN phrhs p on en.client_id = p.client_id
