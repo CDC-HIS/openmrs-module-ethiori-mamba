@@ -20,6 +20,7 @@ BEGIN
                                        date_viral_load_results_received    AS viral_load_received_date,
                                        viral_load_test_status              AS viral_load_result,
                                        hiv_viral_load                      AS viral_load_count,
+                                       CASE transferred_in_check_this_for_all_t WHEN 'Yes' THEN 1 ELSE 0 END as is_ti_visit,
                                        cd4_count,
                                        cd4_                                AS cd4_percent,
                                        current_functional_status,
