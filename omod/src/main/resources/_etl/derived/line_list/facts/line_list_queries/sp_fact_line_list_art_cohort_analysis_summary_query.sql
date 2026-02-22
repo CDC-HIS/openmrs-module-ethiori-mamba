@@ -240,7 +240,7 @@ BEGIN
     UNION ALL
 
     SELECT 'B. Transfer in Add+',
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 0 THEN count_ti END), 0) AS SIGNED),
+           0,
            CAST(IFNULL(MAX(CASE WHEN interval_month = 6 THEN count_ti END), 0) AS SIGNED),
            CAST(IFNULL(MAX(CASE WHEN interval_month = 12 THEN count_ti END), 0) AS SIGNED),
            CAST(IFNULL(MAX(CASE WHEN interval_month = 24 THEN count_ti END), 0) AS SIGNED),
@@ -260,7 +260,7 @@ BEGIN
     UNION ALL
 
     SELECT 'D. Net current cohort (A + B - C)',
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 0 THEN count_base + count_ti END), 0) AS SIGNED),
+           0,
            CAST(GREATEST(0, IFNULL(MAX(CASE WHEN interval_month = 6 THEN (count_base + count_ti) - count_to END),
                                    0)) AS SIGNED),
            CAST(GREATEST(0, IFNULL(MAX(CASE WHEN interval_month = 12 THEN (count_base + count_ti) - count_to END),
