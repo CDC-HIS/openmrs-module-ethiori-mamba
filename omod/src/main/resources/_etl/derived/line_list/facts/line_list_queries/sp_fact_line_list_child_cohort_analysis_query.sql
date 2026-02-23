@@ -45,18 +45,33 @@ BEGIN
                                        WHERE hei_enrollment_date is not null) t
                                  WHERE row_num = 1),
 
-         IntervalsDef AS (SELECT 12 AS interval_month
+         IntervalsDef AS (SELECT 0 AS interval_month
                           UNION ALL
-                          SELECT 18
+                          SELECT 13
                           UNION ALL
-                          SELECT 24
+                          SELECT 19
                           UNION ALL
-                          SELECT 30),
+                          SELECT 25
+                          UNION ALL
+                          SELECT 31),
 
          PatientIntervals AS (SELECT h.hei_client_id,
                                      h.hei_enrollment_date,
                                      i.interval_month,
-                                     DATE_ADD(h.hei_enrollment_date, INTERVAL i.interval_month MONTH) as interval_end_date
+                                     CASE
+                                         WHEN i.interval_month = 0 THEN h.hei_enrollment_date
+                                         ELSE fn_ethiopian_to_gregorian_calendar(DATE_ADD(
+                                                 fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'),
+                                                 INTERVAL i.interval_month MONTH))
+                                         END AS interval_end_date,
+                                     CASE
+                                         WHEN i.interval_month = 0 THEN REPORT_START_DATE
+                                         ELSE COALESCE(LAG(fn_ethiopian_to_gregorian_calendar(DATE_ADD(
+                                                 fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'),
+                                                 INTERVAL i.interval_month MONTH)))
+                                                           OVER (PARTITION BY h.hei_client_id ORDER BY i.interval_month),
+                                                       REPORT_START_DATE)
+                                         END AS interval_start_date
                               FROM HIEInCohortFiltered h
                                        CROSS JOIN IntervalsDef i),
 
@@ -166,24 +181,24 @@ BEGIN
            pcr.pcr_result_2_12m                                                   AS 'PCR Result (2-12 Months)',
 
            -- 12 Months
-           MAX(CASE WHEN cs.interval_month = 12 THEN cs.status ELSE NULL END)     AS 'Status at 12 Months',
-           MAX(CASE WHEN cs.interval_month = 12 THEN cs.event_date ELSE NULL END) AS 'Latest Event Date at 12 Months',
-           MAX(CASE WHEN cs.interval_month = 12 THEN cs.event_date ELSE NULL END) AS 'Latest Event Date at 12 Months EC.',
+           MAX(CASE WHEN cs.interval_month = 13 THEN cs.status ELSE NULL END)     AS 'Status at 12 Months',
+           MAX(CASE WHEN cs.interval_month = 13 THEN cs.event_date ELSE NULL END) AS 'Latest Event Date at 12 Months',
+           MAX(CASE WHEN cs.interval_month = 13 THEN cs.event_date ELSE NULL END) AS 'Latest Event Date at 12 Months EC.',
 
            -- 18 Months
-           MAX(CASE WHEN cs.interval_month = 18 THEN cs.status ELSE NULL END)     AS 'Status at 18 Months',
-           MAX(CASE WHEN cs.interval_month = 18 THEN cs.event_date ELSE NULL END) AS 'Latest Event Date at 18 Months',
-           MAX(CASE WHEN cs.interval_month = 18 THEN cs.event_date ELSE NULL END) AS 'Latest Event Date at 18 Months EC.',
+           MAX(CASE WHEN cs.interval_month = 19 THEN cs.status ELSE NULL END)     AS 'Status at 18 Months',
+           MAX(CASE WHEN cs.interval_month = 19 THEN cs.event_date ELSE NULL END) AS 'Latest Event Date at 18 Months',
+           MAX(CASE WHEN cs.interval_month = 19 THEN cs.event_date ELSE NULL END) AS 'Latest Event Date at 18 Months EC.',
 
            -- 24 Months
-           MAX(CASE WHEN cs.interval_month = 24 THEN cs.status ELSE NULL END)     AS 'Status at 24 Months',
-           MAX(CASE WHEN cs.interval_month = 24 THEN cs.event_date ELSE NULL END) AS 'Latest Event Date at 24 Months',
-           MAX(CASE WHEN cs.interval_month = 24 THEN cs.event_date ELSE NULL END) AS 'Latest Event Date at 24 Months EC.',
+           MAX(CASE WHEN cs.interval_month = 25 THEN cs.status ELSE NULL END)     AS 'Status at 24 Months',
+           MAX(CASE WHEN cs.interval_month = 25 THEN cs.event_date ELSE NULL END) AS 'Latest Event Date at 24 Months',
+           MAX(CASE WHEN cs.interval_month = 25 THEN cs.event_date ELSE NULL END) AS 'Latest Event Date at 24 Months EC.',
 
            -- 30 Months
-           MAX(CASE WHEN cs.interval_month = 30 THEN cs.status ELSE NULL END)     AS 'Status at 30 Months',
-           MAX(CASE WHEN cs.interval_month = 30 THEN cs.event_date ELSE NULL END) AS 'Latest Event Date at 30 Months',
-           MAX(CASE WHEN cs.interval_month = 30 THEN cs.event_date ELSE NULL END) AS 'Latest Event Date at 30 Months EC.'
+           MAX(CASE WHEN cs.interval_month = 31 THEN cs.status ELSE NULL END)     AS 'Status at 30 Months',
+           MAX(CASE WHEN cs.interval_month = 31 THEN cs.event_date ELSE NULL END) AS 'Latest Event Date at 30 Months',
+           MAX(CASE WHEN cs.interval_month = 31 THEN cs.event_date ELSE NULL END) AS 'Latest Event Date at 30 Months EC.'
 
     FROM HIEInCohortFiltered h
              JOIN mamba_dim_client c ON h.hei_client_id = c.client_id
