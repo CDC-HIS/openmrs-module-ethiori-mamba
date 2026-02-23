@@ -85,33 +85,58 @@ BEGIN
                               FROM ART_Initiation a
                                        CROSS JOIN IntervalsDef i),
 
-         StrictIntervalData AS (SELECT pi.PatientId,
+         RankedIntervalData AS (SELECT pi.PatientId,
                                        pi.interval_month,
                                        pi.interval_end_date,
-                                       MAX(f.follow_up_status)                            AS strict_status,
-                                       MAX(f.treatment_end_date)                          AS strict_tx_end_date,
-                                       MAX(f.regimen)                                     AS strict_regimen,
-                                       MAX(f.current_functional_status)                   AS current_functional_status,
-                                       MAX(f.cd4_count)                                   AS cd4_count,
-                                       MAX(f.cd4_percent)                                 AS cd4_percent,
-                                       MAX(f.visitect_cd4_result)                         AS visitect_cd4_result,
-                                       MAX(f.visitect_cd4_test_date)                      AS visitect_cd4_test_date,
-                                       MAX(f.viral_load_received_date)                    AS viral_load_received_date,
-                                       MAX(f.viral_load_count)                            AS viral_load_count,
-                                       MAX(f.is_ti_visit)                                 AS is_ti_visit,
-                                       MAX(CASE WHEN f.is_ti_visit = 1 THEN 1 ELSE 0 END) as ti_in_this_interval
+                                       pi.interval_start_date,
+                                       f.follow_up_status                            AS strict_status,
+                                       f.treatment_end_date                          AS strict_tx_end_date,
+                                       f.regimen                                     AS strict_regimen,
+                                       f.current_functional_status,
+                                       f.cd4_count,
+                                       f.cd4_percent,
+                                       f.visitect_cd4_result,
+                                       f.visitect_cd4_test_date,
+                                       f.viral_load_received_date,
+                                       f.viral_load_count,
+                                       f.is_ti_visit,
+                                       CASE WHEN f.is_ti_visit = 1 THEN 1 ELSE 0 END AS ti_in_this_interval,
+                                       ROW_NUMBER() OVER (
+                                           PARTITION BY pi.PatientId, pi.interval_month
+                                           ORDER BY f.follow_up_date DESC
+                                           )                                         AS rn
                                 FROM PatientIntervals pi
-                                         LEFT JOIN FollowUpEncounters f ON pi.PatientId = f.PatientId
-                                    AND f.follow_up_date BETWEEN pi.interval_start_date AND pi.interval_end_date
-                                    AND f.follow_up_date = (SELECT MAX(sub_f.follow_up_date)
-                                                            FROM FollowUpEncounters sub_f
-                                                            WHERE sub_f.PatientId = pi.PatientId
-                                                              AND sub_f.follow_up_date BETWEEN pi.interval_start_date AND pi.interval_end_date)
-                                GROUP BY pi.PatientId, pi.interval_month, pi.interval_end_date),
+                                         LEFT JOIN FollowUpEncounters f
+                                                   ON pi.PatientId = f.PatientId
+                                                       AND
+                                                      f.follow_up_date BETWEEN pi.interval_start_date AND pi.interval_end_date),
+         StrictIntervalData AS (SELECT PatientId,
+                                       interval_month,
+                                       interval_end_date,
+                                       interval_start_date,
+                                       strict_status,
+                                       strict_tx_end_date,
+                                       strict_regimen,
+                                       current_functional_status,
+
+                                       cd4_count,
+                                       cd4_percent,
+                                       visitect_cd4_result,
+                                       visitect_cd4_test_date,
+                                       viral_load_received_date,
+                                       viral_load_count,
+                                       is_ti_visit,
+                                       ti_in_this_interval
+                                FROM RankedIntervalData
+                                WHERE rn = 1),
 
          StateCalculation AS (SELECT sid.*,
                                      MAX(ti_in_this_interval)
                                          OVER (PARTITION BY PatientId ORDER BY interval_month ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) as is_cumulative_ti,
+
+                                     MAX(ti_in_this_interval)
+                                         OVER (PARTITION BY PatientId)                                                                          as ever_ti,
+
                                      MAX(CASE
                                              WHEN strict_status IN ('Dead', 'Transferred out', 'Stop all', 'Ran away')
                                                  THEN 1
@@ -165,6 +190,9 @@ BEGIN
 
          CohortEnriched AS (SELECT interval_month,
                                    is_cumulative_ti,
+                                   ever_ti,
+                                   strict_status,
+                                   ti_in_this_interval,
                                    final_cohort_outcome,
                                    cd4_percent,
 
@@ -181,9 +209,12 @@ BEGIN
                             FROM CohortDetails),
 
          MonthlyStats AS (SELECT interval_month,
-                                 SUM(CASE WHEN is_cumulative_ti = 0 THEN 1 ELSE 0 END)                     AS count_base,
-                                 SUM(CASE WHEN is_cumulative_ti = 1 THEN 1 ELSE 0 END)                     AS count_ti,
+                                 SUM(CASE WHEN ever_ti = 0 THEN 1 ELSE 0 END)                              AS count_base,
+                                 SUM(CASE WHEN is_cumulative_ti = 1 THEN 1 ELSE 0 END)                     AS cumulative_ti,
+                                 SUM(CASE WHEN ever_ti = 1 THEN 1 ELSE 0 END)                              AS ever_ti,
+                                 SUM(CASE WHEN ti_in_this_interval = 1 THEN 1 ELSE 0 END)                  AS count_ti_this_interval,
                                  SUM(CASE WHEN final_cohort_outcome = 'Transferred out' THEN 1 ELSE 0 END) AS count_to,
+                                 SUM(CASE WHEN strict_status = 'Transferred out' THEN 1 ELSE 0 END) AS count_interval_to,
 
                                  SUM(CASE WHEN final_cohort_outcome = 'Stop all' THEN 1 ELSE 0 END)        AS count_stop,
                                  SUM(CASE WHEN final_cohort_outcome = 'Dead' THEN 1 ELSE 0 END)            AS count_dead,
@@ -241,10 +272,10 @@ BEGIN
 
     SELECT 'B. Transfer in Add+',
            0,
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 7 THEN count_ti END), 0) AS SIGNED),
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 13 THEN count_ti END), 0) AS SIGNED),
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 25 THEN count_ti END), 0) AS SIGNED),
-           CAST(IFNULL(MAX(CASE WHEN interval_month = 37 THEN count_ti END), 0) AS SIGNED)
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 7 THEN cumulative_ti END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 13 THEN cumulative_ti END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 25 THEN cumulative_ti END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 37 THEN cumulative_ti END), 0) AS SIGNED)
     FROM MonthlyStats
 
     UNION ALL
@@ -261,13 +292,13 @@ BEGIN
 
     SELECT 'D. Net current cohort (A + B - C)',
            0,
-           CAST(GREATEST(0, IFNULL(MAX(CASE WHEN interval_month = 7 THEN (count_base + count_ti) - count_to END),
+           CAST(GREATEST(0, IFNULL(MAX(CASE WHEN interval_month = 7 THEN (count_base + count_ti_this_interval) - count_interval_to END),
                                    0)) AS SIGNED),
-           CAST(GREATEST(0, IFNULL(MAX(CASE WHEN interval_month = 13 THEN (count_base + count_ti) - count_to END),
+           CAST(GREATEST(0, IFNULL(MAX(CASE WHEN interval_month = 13 THEN (count_base + count_ti_this_interval) - count_interval_to END),
                                    0)) AS SIGNED),
-           CAST(GREATEST(0, IFNULL(MAX(CASE WHEN interval_month = 25 THEN (count_base + count_ti) - count_to END),
+           CAST(GREATEST(0, IFNULL(MAX(CASE WHEN interval_month = 25 THEN (count_base + count_ti_this_interval) - count_interval_to END),
                                    0)) AS SIGNED),
-           CAST(GREATEST(0, IFNULL(MAX(CASE WHEN interval_month = 37 THEN (count_base + count_ti) - count_to END),
+           CAST(GREATEST(0, IFNULL(MAX(CASE WHEN interval_month = 37 THEN (count_base + count_ti_this_interval) - count_interval_to END),
                                    0)) AS SIGNED)
     FROM MonthlyStats
 
