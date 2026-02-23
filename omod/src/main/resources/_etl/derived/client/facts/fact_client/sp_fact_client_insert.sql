@@ -243,7 +243,7 @@ WITH
     NCD_Screening_Events AS (SELECT *
                              FROM (SELECT client_id,
                                           baseline_diagnosis,
-                                          next_visit_date as next_screening_date,
+                                          NULL as next_screening_date,
                                           ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY screening_date DESC) as rn
                                    FROM mamba_flat_encounter_ncd_screening
                                    WHERE screening_date IS NOT NULL) ranked
@@ -275,7 +275,8 @@ SELECT c.client_id,
        COALESCE(c.patient_name, '-')                                                                                 as patient_name,
        c.sex,
        c.date_of_birth                                                                            as birthdate,
-       COALESCE(CAST(TIMESTAMPDIFF(YEAR, c.date_of_birth, CURDATE()) AS CHAR), '-')                                  as age,
+       -- Fix: Removed Coalesce to '-' to match INT type
+       TIMESTAMPDIFF(YEAR, c.date_of_birth, CURDATE())                                            as age,
 
        -- Identifiers (ICT Added)
        COALESCE(c.uan, '-')                                                                                          as uan,
@@ -285,12 +286,13 @@ SELECT c.client_id,
        COALESCE(id.ict_number, '-')                                                                                  as ict_number,
 
        -- Registration & One-Time Data Header Info
-       NULL                                                                             as registration_date,
+       NULL                                                                                       as registration_date,
        art.start_date                                                                             as art_start_date,
-       COALESCE(CAST(TIMESTAMPDIFF(MONTH, art.start_date, CURDATE()) AS CHAR), '-')                                  as months_on_art,
+       -- Fix: Removed Coalesce to '-' to match INT type
+       TIMESTAMPDIFF(MONTH, art.start_date, CURDATE())                                            as months_on_art,
        lfu.next_visit_date                                                                        as next_appointment_date,
 
-       lfu.hiv_confirmed_date                                                                    as hiv_confirmed_date,
+       lfu.hiv_confirmed_date                                                                     as hiv_confirmed_date,
        ti.transfer_in_date                                                                        as transfer_in_date,
 
        -- Address & Completeness (With Fallbacks)
@@ -329,11 +331,13 @@ SELECT c.client_id,
        COALESCE(lfu.method_of_family_planning, '-')                                                                  as family_planning_method,
 
        lfu.visit_date                                                                             as last_visit_date,
-       COALESCE(CAST(DATEDIFF(CURDATE(), COALESCE(lfu.next_visit_date, lfu.visit_date)) AS CHAR), '-')               as days_overdue,
+       -- Fix: Removed Coalesce to '-' to match INT type
+       DATEDIFF(CURDATE(), COALESCE(lfu.next_visit_date, lfu.visit_date))                         as days_overdue,
 
        -- Viral Load
        lab.viral_load_perform_date                                                                as last_vl_date,
-       COALESCE(CAST(lab.viral_load_count AS CHAR), '-')                                                             as last_vl_result,
+       -- Fix: Removed Coalesce to '-' to match NUMERIC type
+       lab.viral_load_count                                                                       as last_vl_result,
        CASE lab.viral_load_status_inferred WHEN 'S' THEN 1 ELSE 0 END                                                as is_suppressed,
 
        -- Viral Load Status Logic (Handling Registered-Only Clients)
