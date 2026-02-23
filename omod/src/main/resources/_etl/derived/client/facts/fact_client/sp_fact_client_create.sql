@@ -1,7 +1,7 @@
 -- $BEGIN
 CREATE TABLE IF NOT EXISTS mamba_fact_client
 (
-    client_id                      int not null,
+    client_id                      INT NOT NULL,
     patient_uuid                   CHAR(38),
     mrn                            VARCHAR(50),
 
@@ -16,12 +16,15 @@ CREATE TABLE IF NOT EXISTS mamba_fact_client
     phrh_code                      VARCHAR(50),
     ncd_code                       VARCHAR(50),
     icd_number                     VARCHAR(50),
+    ict_number                     VARCHAR(50),  -- Added
 
-    -- Registration
+-- Registration & Follow-up Dates
     registration_date              DATE,
+    art_start_date                 DATE,         -- Reordered
+    months_on_art                  INT,          -- Reordered
+    next_appointment_date          DATE,         -- Reordered
     hiv_confirmed_date             DATE,
     transfer_in_date               DATE,
-    months_on_art                  INT,
 
     -- Address
     region                         VARCHAR(255),
@@ -33,7 +36,6 @@ CREATE TABLE IF NOT EXISTS mamba_fact_client
     address_completeness           VARCHAR(20),
 
     -- Clinical Follow-up
-    art_start_date                 DATE,
     current_status                 VARCHAR(50),
     current_regimen                VARCHAR(255),
     regimen_dose                   VARCHAR(255),
@@ -45,7 +47,6 @@ CREATE TABLE IF NOT EXISTS mamba_fact_client
     family_planning_method         VARCHAR(255),
 
     last_visit_date                DATE,
-    next_appointment_date          DATE,
     days_overdue                   INT,
 
     -- Viral Load
@@ -57,8 +58,11 @@ CREATE TABLE IF NOT EXISTS mamba_fact_client
 
     -- TPT
     tpt_status                     VARCHAR(50),
+    tpt_start_date                 DATE,         -- Added
+    tpt_completed_date             DATE,         -- Added
+    tpt_discontinued_date          DATE,         -- Added
 
-    -- TB Treatment
+-- TB Treatment
     active_tb_diagnosis_date       DATE,
     tb_treatment_start_date        DATE,
     tb_treatment_discontinued_date DATE,
@@ -68,6 +72,7 @@ CREATE TABLE IF NOT EXISTS mamba_fact_client
     dsd_category                   VARCHAR(100),
     ict_screening_status           VARCHAR(100),
     ncd_screening_status           VARCHAR(100),
+    next_ncd_screening_date        DATE,         -- Added
     cxca_screening_status          VARCHAR(100),
     target_population              VARCHAR(100),
 
@@ -78,6 +83,6 @@ CREATE TABLE IF NOT EXISTS mamba_fact_client
     INDEX idx_uuid (patient_uuid),
     INDEX idx_mrn (mrn),
     INDEX idx_status (current_status)
-);
+    );
 
 -- $END
