@@ -338,7 +338,11 @@ SELECT c.client_id,
        lab.viral_load_perform_date                                                                as last_vl_date,
        -- Fix: Removed Coalesce to '-' to match NUMERIC type
        lab.viral_load_count                                                                       as last_vl_result,
-       CASE lab.viral_load_status_inferred WHEN 'S' THEN 1 ELSE 0 END                                                as is_suppressed,
+       CASE
+           WHEN lab.viral_load_status_inferred = 'S' THEN 1
+           WHEN lab.viral_load_status_inferred = 'U' THEN 0
+           ELSE NULL
+           END                                                as is_suppressed,
 
        -- Viral Load Status Logic (Handling Registered-Only Clients)
        CASE
