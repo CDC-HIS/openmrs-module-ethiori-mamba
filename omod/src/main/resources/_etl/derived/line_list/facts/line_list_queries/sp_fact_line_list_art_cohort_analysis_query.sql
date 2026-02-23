@@ -84,43 +84,73 @@ BEGIN
                               FROM ART_Initiation a
                                        CROSS JOIN IntervalsDef i),
 
-         StrictIntervalData AS (SELECT pi.PatientId,
+         RankedIntervalData AS (SELECT pi.PatientId,
                                        pi.interval_month,
                                        pi.interval_end_date,
-
-                                       MAX(f.follow_up_status)                            AS strict_status,
-                                       MAX(f.treatment_end_date)                          AS strict_tx_end_date,
-                                       MAX(f.regimen)                                     AS strict_regimen,
-                                       MAX(f.ARTDoseDays)                                 AS ARTDoseDays,
-                                       MAX(f.AdherenceLevel)                              AS AdherenceLevel,
-                                       MAX(f.follow_up_date)                              AS latest_follow_up_date,
-
-                                       MAX(f.viral_load_count)                            AS viral_load_count,
-
-                                       MAX(CASE WHEN f.is_ti_visit = 1 THEN 1 ELSE 0 END) as ti_in_this_interval
-
+                                       f.ARTDoseDays,
+                                       pi.interval_start_date,
+                                       f.follow_up_status                            AS strict_status,
+                                       f.treatment_end_date                          AS strict_tx_end_date,
+                                       f.regimen                                     AS strict_regimen,
+                                       f.current_functional_status,
+                                       f.AdherenceLevel,
+                                       f.cd4_count,
+                                       f.cd4_percent,
+                                       f.visitect_cd4_result,
+                                       f.visitect_cd4_test_date,
+                                       f.viral_load_received_date,
+                                       f.viral_load_count,
+                                       f.is_ti_visit,
+                                       f.follow_up_date as latest_follow_up_date,
+                                       CASE WHEN f.is_ti_visit = 1 THEN 1 ELSE 0 END AS ti_in_this_interval,
+                                       ROW_NUMBER() OVER (
+                                           PARTITION BY pi.PatientId, pi.interval_month
+                                           ORDER BY f.follow_up_date DESC
+                                           )                                         AS rn
                                 FROM PatientIntervals pi
-                                         LEFT JOIN FollowUpEncounters f ON pi.PatientId = f.PatientId
-                                    AND f.follow_up_date BETWEEN pi.interval_start_date AND pi.interval_end_date
-                                    AND f.follow_up_date = (SELECT MAX(sub_f.follow_up_date)
-                                                            FROM FollowUpEncounters sub_f
-                                                            WHERE sub_f.PatientId = pi.PatientId
-                                                              AND sub_f.follow_up_date BETWEEN pi.interval_start_date AND pi.interval_end_date)
-                                GROUP BY pi.PatientId, pi.interval_month, pi.interval_end_date),
+                                         LEFT JOIN FollowUpEncounters f
+                                                   ON pi.PatientId = f.PatientId
+                                                       AND
+                                                      f.follow_up_date BETWEEN pi.interval_start_date AND pi.interval_end_date),
+         StrictIntervalData AS (SELECT PatientId,
+                                       interval_month,
+                                       interval_end_date,
+                                       interval_start_date,
+                                       strict_status,
+                                       latest_follow_up_date,
+                                       strict_tx_end_date,
+                                       strict_regimen,
+                                       current_functional_status,
+                                       ARTDoseDays,
+                                       AdherenceLevel,
+                                       cd4_count,
+                                       cd4_percent,
+                                       visitect_cd4_result,
+                                       visitect_cd4_test_date,
+                                       viral_load_received_date,
+                                       viral_load_count,
+                                       is_ti_visit,
+                                       ti_in_this_interval
+                                FROM RankedIntervalData
+                                WHERE rn = 1),
 
          StateCalculation AS (SELECT sid.*,
+                                     MAX(ti_in_this_interval)
+                                         OVER (PARTITION BY PatientId ORDER BY interval_month ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) as is_cumulative_ti,
+
+                                     MAX(ti_in_this_interval)
+                                         OVER (PARTITION BY PatientId)                                                                          as ever_ti,
+
                                      MAX(CASE
                                              WHEN strict_status IN ('Dead', 'Transferred out', 'Stop all', 'Ran away')
                                                  THEN 1
                                              ELSE 0 END)
                                          OVER (PARTITION BY PatientId ORDER BY interval_month ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) as has_terminal_event,
-
                                      MAX(CASE
                                              WHEN strict_status IN ('Dead', 'Transferred out', 'Stop all', 'Ran away')
                                                  THEN strict_status
                                              ELSE NULL END)
                                          OVER (PARTITION BY PatientId ORDER BY interval_month ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) as specific_terminal_event,
-
                                      MAX(strict_tx_end_date)
                                          OVER (PARTITION BY PatientId ORDER BY interval_month ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) as max_tx_end_date_so_far
                               FROM StrictIntervalData sid),
