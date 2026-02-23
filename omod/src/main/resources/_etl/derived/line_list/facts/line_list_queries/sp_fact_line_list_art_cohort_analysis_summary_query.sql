@@ -160,7 +160,7 @@ BEGIN
                                              fn_gregorian_to_ethiopian_calendar(MAX(interval_end_date), 'Y-M-D'), '-',
                                              1) AS CHAR) as et_year
                               FROM CohortDetails
-                              WHERE interval_month IN (0, 6, 12, 24, 36)
+                              WHERE interval_month IN (0, 7, 13, 25, 37)
                               GROUP BY interval_month),
 
          CohortEnriched AS (SELECT interval_month,
@@ -334,7 +334,7 @@ BEGIN
     UNION ALL
 
     SELECT 'Percent of Net Facility Cohort Alive and on ART',
-           '100%',
+           0,
            CONCAT(ROUND(IFNULL((MAX(CASE WHEN interval_month = 7 THEN count_orig_active END) * 100.0) / NULLIF(
                    MAX(CASE WHEN interval_month = 0 THEN count_base END) -
                    MAX(CASE WHEN interval_month = 7 THEN count_orig_to END), 0), 0), 0), '%'),
