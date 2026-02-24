@@ -75,25 +75,27 @@ WITH
                           LEFT JOIN mamba_flat_encounter_follow_up_10 USING (encounter_id)),
 
     -- 2. Isolate the absolute latest follow-up for baseline stats
-    LatestFollowUp AS (SELECT client_id,
-                              follow_up_date_followup_                                                                             as visit_date,
-                              next_visit_date,
-                              follow_up_status,
-                              regimen,
-                              antiretroviral_art_dispensed_dose_i                                                                  as regimen_dose,
-                              treatment_end_date,
-                              nutritional_status_of_adult,
-                              pregnancy_status,
-                              art_start_date,
-                              currently_breastfeeding_child,
-                              weight,
-                              method_of_family_planning,
-                              dsd_category,
-                              date_of_event                                                                                        as hiv_confirmed_date,
-                              transfer_in,
-                              ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date_followup_ DESC, encounter_id DESC) as rn
-                       FROM FollowUp
-                       WHERE follow_up_date_followup_ IS NOT NULL),
+    LatestFollowUp AS (SELECT *
+                       FROM (SELECT client_id,
+                                    follow_up_date_followup_                                                                             as visit_date,
+                                    next_visit_date,
+                                    follow_up_status,
+                                    regimen,
+                                    antiretroviral_art_dispensed_dose_i                                                                  as regimen_dose,
+                                    treatment_end_date,
+                                    nutritional_status_of_adult,
+                                    pregnancy_status,
+                                    art_start_date,
+                                    currently_breastfeeding_child,
+                                    weight,
+                                    method_of_family_planning,
+                                    dsd_category,
+                                    date_of_event                                                                                        as hiv_confirmed_date,
+                                    transfer_in,
+                                    ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date_followup_ DESC, encounter_id DESC) as rn
+                             FROM FollowUp
+                             WHERE follow_up_date_followup_ IS NOT NULL) ranked
+                       WHERE rn = 1),
 
     -- 3. Transfer In Logic (Gets the very first date they were marked as Transfer In)
     TransferIn AS (SELECT client_id,
@@ -266,7 +268,20 @@ WITH
                                  ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY COALESCE(via_date, hpv_received_date, cytology_received_date, follow_up_date_followup_) DESC, encounter_id DESC) as rn
                           FROM FollowUp
                           WHERE cx_ca_screening_status = 'Cervical cancer screening performed') ranked
-                    WHERE rn = 1)
+                    WHERE rn = 1),
+
+    -- 15. PMTCT Logic
+    PMTCT_CTE AS (SELECT client_id,
+                         MAX(date_of_enrollment_or_booking) as pmtct_start_date
+                  FROM mamba_flat_encounter_pmtct_enrollment
+                  WHERE date_of_enrollment_or_booking IS NOT NULL
+                  GROUP BY client_id),
+
+    PMTCT_Discharge_CTE AS (SELECT client_id,
+                                   MAX(discharge_date) as pmtct_discharge_date
+                            FROM mamba_flat_encounter_pmtct_discharge
+                            WHERE discharge_date IS NOT NULL
+                            GROUP BY client_id)
 
 
 SELECT c.client_id,
@@ -327,7 +342,10 @@ SELECT c.client_id,
        lfu.treatment_end_date                                                                     as tx_curr_end_date,
        COALESCE(lfu.nutritional_status_of_adult, '-')                                                                as nutritional_status,
        COALESCE(lfu.pregnancy_status, '-')                                                                           as pregnancy_status,
-       CASE WHEN (lfu.pregnancy_status = 'Yes' OR lfu.currently_breastfeeding_child = 'Yes') THEN 'On PMTCT' ELSE 'Not Applicable' END as pmtct_status,
+       CASE
+           WHEN (pmtct.pmtct_start_date IS NOT NULL AND (pmtct_dis.pmtct_discharge_date IS NULL OR pmtct_dis.pmtct_discharge_date < pmtct.pmtct_start_date)) THEN 'Currently on PMTCT'
+           ELSE 'Not Applicable'
+           END                                                                                                           as pmtct_status,
        COALESCE(lfu.method_of_family_planning, '-')                                                                  as family_planning_method,
 
        lfu.visit_date                                                                             as last_visit_date,
@@ -396,5 +414,7 @@ FROM mamba_dim_client c
          LEFT JOIN TB_Events tb ON c.client_id = tb.client_id
          LEFT JOIN ICT_Events ict ON c.client_id = ict.client_id
          LEFT JOIN NCD_Screening_Events ncd ON c.client_id = ncd.client_id
-         LEFT JOIN CXCA_Events cxca ON c.client_id = cxca.client_id;
+         LEFT JOIN CXCA_Events cxca ON c.client_id = cxca.client_id
+         LEFT JOIN PMTCT_CTE pmtct ON c.client_id = pmtct.client_id
+         LEFT JOIN PMTCT_Discharge_CTE pmtct_dis ON c.client_id = pmtct_dis.client_id;
 -- $END
