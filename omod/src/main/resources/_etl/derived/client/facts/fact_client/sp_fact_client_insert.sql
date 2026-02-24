@@ -20,6 +20,8 @@ WITH
                         antiretroviral_art_dispensed_dose_i,
                         treatment_end_date,
                         nutritional_status_of_adult,
+                        nutritional_status_of_older_child_a,
+                        mid_upper_arm_circumference,
                         hiv_viral_load                                                 AS viral_load_count,
                         pregnancy_status,
                         currently_breastfeeding_child,
@@ -84,6 +86,8 @@ WITH
                                     antiretroviral_art_dispensed_dose_i                                                                  as regimen_dose,
                                     treatment_end_date,
                                     nutritional_status_of_adult,
+                                    nutritional_status_of_older_child_a,
+                                    mid_upper_arm_circumference,
                                     pregnancy_status,
                                     art_start_date,
                                     currently_breastfeeding_child,
@@ -128,7 +132,7 @@ WITH
                             vl_sent.viral_load_sent_date AS VL_Sent_Date,
                             CASE WHEN vl_perf.viral_load_perform_date < vl_sent.viral_load_sent_date THEN NULL ELSE vl_perf.viral_load_perform_date END AS viral_load_perform_date,
                             CASE WHEN vl_perf.viral_load_perform_date < vl_sent.viral_load_sent_date THEN NULL ELSE vl_perf.viral_load_test_status END AS viral_load_status,
-                            CASE WHEN vl_perf.viral_load_count > 0 AND vl_perf.viral_load_perform_date >= vl_sent.viral_load_sent_date THEN CAST(vl_perf.viral_load_count AS DECIMAL(12, 2)) ELSE NULL END AS viral_load_count,
+                            CASE WHEN vl_perf.viral_load_count >= 0 AND vl_perf.viral_load_perform_date >= vl_sent.viral_load_sent_date THEN CAST(vl_perf.viral_load_count AS DECIMAL(12, 2)) ELSE NULL END AS viral_load_count,
                             CASE
                                 WHEN vl_perf.viral_load_test_status IS NULL AND vl_perf.viral_load_perform_date >= vl_sent.viral_load_sent_date THEN NULL
                                 WHEN vl_perf.viral_load_perform_date >= vl_sent.viral_load_sent_date AND (vl_perf.viral_load_test_status LIKE 'Det%' OR vl_perf.viral_load_test_status LIKE 'Uns%' OR vl_perf.viral_load_test_status LIKE 'High VL%' OR vl_perf.viral_load_test_status LIKE 'Low Level Viremia%') THEN 'U'
@@ -340,7 +344,7 @@ SELECT c.client_id,
            END                                                                                                           as regimen_line,
 
        lfu.treatment_end_date                                                                     as tx_curr_end_date,
-       COALESCE(lfu.nutritional_status_of_adult, '-')                                                                as nutritional_status,
+       COALESCE(lfu.nutritional_status_of_adult, lfu.nutritional_status_of_older_child_a, CONCAT('MUAC: ', lfu.mid_upper_arm_circumference), '-') as nutritional_status,
        COALESCE(lfu.pregnancy_status, '-')                                                                           as pregnancy_status,
        CASE
            WHEN (pmtct.pmtct_start_date IS NOT NULL AND (pmtct_dis.pmtct_discharge_date IS NULL OR pmtct_dis.pmtct_discharge_date < pmtct.pmtct_start_date)) THEN 'Currently on PMTCT'
