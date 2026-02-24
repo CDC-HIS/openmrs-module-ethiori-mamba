@@ -138,12 +138,12 @@ BEGIN
                                          OVER (PARTITION BY PatientId)                                                                          as ever_ti,
 
                                      MAX(CASE
-                                             WHEN strict_status IN ('Dead', 'Transferred out', 'Stop all', 'Ran away')
+                                             WHEN strict_status IN ('Dead', 'Transferred out', 'Stop all', 'Ran away', 'Loss to follow-up', 'LTFU', 'Loss to follow-up (LTFU)')
                                                  THEN 1
                                              ELSE 0 END)
                                          OVER (PARTITION BY PatientId ORDER BY interval_month ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) as has_terminal_event,
                                      MAX(CASE
-                                             WHEN strict_status IN ('Dead', 'Transferred out', 'Stop all', 'Ran away')
+                                             WHEN strict_status IN ('Dead', 'Transferred out', 'Stop all', 'Ran away', 'Loss to follow-up', 'LTFU', 'Loss to follow-up (LTFU)')
                                                  THEN strict_status
                                              ELSE NULL END)
                                          OVER (PARTITION BY PatientId ORDER BY interval_month ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) as specific_terminal_event,
@@ -155,9 +155,8 @@ BEGIN
                                   client.date_of_birth,
                                   CASE
                                       WHEN has_terminal_event = 1 THEN specific_terminal_event
-                                      WHEN strict_status IS NOT NULL THEN 'Active'
-                                      WHEN strict_status IS NULL AND max_tx_end_date_so_far >= interval_end_date
-                                          THEN 'Active - Carry Forward Rx'
+                                      WHEN max_tx_end_date_so_far >= interval_end_date THEN
+                                          CASE WHEN strict_status IS NOT NULL THEN 'Active' ELSE 'Active - Carry Forward Rx' END
                                       ELSE 'Loss to follow-up (LTFU)'
                                       END AS final_cohort_outcome
                            FROM StateCalculation sc
