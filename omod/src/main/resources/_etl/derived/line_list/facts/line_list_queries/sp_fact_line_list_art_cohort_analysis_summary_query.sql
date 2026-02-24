@@ -9,7 +9,7 @@ BEGIN
                                        follow_up_status,
                                        follow_up_date_followup_                                                AS follow_up_date,
                                        art_antiretroviral_start_date                                           AS art_start_date,
-                                       treatment_end_date,
+                                       COALESCE(treatment_end_date, DATE_ADD(follow_up_date_followup_, INTERVAL CAST(antiretroviral_art_dispensed_dose_i AS UNSIGNED) DAY)) as treatment_end_date,
                                        regimen,
                                        antiretroviral_art_dispensed_dose_i                                     AS ARTDoseDays,
                                        anitiretroviral_adherence_level                                         AS AdherenceLevel,
