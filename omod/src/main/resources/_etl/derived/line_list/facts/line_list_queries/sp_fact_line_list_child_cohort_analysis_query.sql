@@ -22,8 +22,8 @@ BEGIN
                                 followup_date_followup
                          FROM mamba_flat_encounter_hei_enrollment as hei_enrollment
                                   LEFT JOIN mamba_dim_patient_identifier as linked_mother
-                                            on hei_enrollment.service_delivery_point_number = linked_mother.identifier
-                                                and linked_mother.identifier_type = 'MRN'
+                                            on hei_enrollment.contact_mrn = linked_mother.identifier
+                                                and linked_mother.identifier_type = 5
                                   LEFT JOIN mamba_flat_encounter_pmtct_enrollment as maternal_enrollment
                                             on maternal_enrollment.client_id = linked_mother.patient_id
                                   LEFT JOIN mamba_flat_encounter_hei_final_outcome as final_outcome
