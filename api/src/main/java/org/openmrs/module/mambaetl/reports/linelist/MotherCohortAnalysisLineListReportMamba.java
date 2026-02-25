@@ -45,7 +45,7 @@ public class MotherCohortAnalysisLineListReportMamba implements ReportManager {
 		Parameter type = new Parameter("type", "Cohort Report Type", String.class);
 		type.setRequired(true);
 		type.addToWidgetConfiguration("codedOptions", "SUMMARY,LineList");
-		type.setDefaultValue("LineList");
+		type.setDefaultValue("SUMMARY");
 		return Arrays.asList(startDate, startDateGC, endDate, endDateGC, type);
 		
 	}
