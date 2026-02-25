@@ -162,9 +162,17 @@ BEGIN
                            FROM StateCalculation sc
                                     JOIN mamba_dim_client client ON sc.PatientId = client.client_id),
 
+         CohortHeaderDates AS (SELECT interval_month,
+                                      CASE
+                                          WHEN interval_month = 0 THEN REPORT_START_DATE
+                                          ELSE fn_ethiopian_to_gregorian_calendar(DATE_ADD(
+                                                  fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'),
+                                                  INTERVAL interval_month MONTH))
+                                          END AS header_gregorian_date
+                               FROM IntervalsDef),
          CohortHeaderCalc AS (SELECT interval_month,
                                      CASE CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(
-                                                                       fn_gregorian_to_ethiopian_calendar(MAX(interval_end_date), 'Y-M-D'),
+                                                                       fn_gregorian_to_ethiopian_calendar(header_gregorian_date, 'Y-M-D'),
                                                                        '-', 2), '-', -1) AS UNSIGNED)
                                          WHEN 1 THEN 'Meskerem'
                                          WHEN 2 THEN 'Tikimt'
@@ -181,11 +189,9 @@ BEGIN
                                          WHEN 13 THEN 'Pagume'
                                          END             AS et_month,
                                      CAST(SUBSTRING_INDEX(
-                                             fn_gregorian_to_ethiopian_calendar(MAX(interval_end_date), 'Y-M-D'), '-',
+                                             fn_gregorian_to_ethiopian_calendar(header_gregorian_date, 'Y-M-D'), '-',
                                              1) AS CHAR) as et_year
-                              FROM CohortDetails
-                              WHERE interval_month IN (0, 7, 13, 25, 37)
-                              GROUP BY interval_month),
+                              FROM CohortHeaderDates),
 
          CohortEnriched AS (SELECT interval_month,
                                    is_cumulative_ti,
