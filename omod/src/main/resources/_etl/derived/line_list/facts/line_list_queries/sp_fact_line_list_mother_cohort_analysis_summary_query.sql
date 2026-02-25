@@ -117,113 +117,156 @@ BEGIN
              FROM FilledState fs
          ),
 
+         CohortHeaderDates AS (
+             SELECT interval_month,
+                    CASE
+                        WHEN interval_month = 0 THEN REPORT_START_DATE
+                        ELSE fn_ethiopian_to_gregorian_calendar(DATE_ADD(
+                                fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'),
+                                INTERVAL interval_month MONTH))
+                        END AS header_gregorian_date
+             FROM IntervalsDef
+         ),
+
+         -- 2. Translate the generated Gregorian dates to Ethiopian Calendar strings
+         CohortHeaderCalc AS (
+             SELECT interval_month,
+                    CASE CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(fn_gregorian_to_ethiopian_calendar(header_gregorian_date, 'Y-M-D'), '-', 2), '-', -1) AS UNSIGNED)
+                        WHEN 1 THEN 'Meskerem' WHEN 2 THEN 'Tikimt' WHEN 3 THEN 'Hidar' WHEN 4 THEN 'Tahsas'
+                        WHEN 5 THEN 'Tir' WHEN 6 THEN 'Yekatit' WHEN 7 THEN 'Megabit' WHEN 8 THEN 'Miyazia'
+                        WHEN 9 THEN 'Ginbot' WHEN 10 THEN 'Sene' WHEN 11 THEN 'Hamle' WHEN 12 THEN 'Nehase' WHEN 13 THEN 'Pagume'
+                        END AS ethiopian_month_name,
+                    CAST(SUBSTRING_INDEX(fn_gregorian_to_ethiopian_calendar(header_gregorian_date, 'Y-M-D'), '-', 1) AS CHAR) as ethiopian_year
+             FROM CohortHeaderDates
+         ),
+
+         -- 3. Isolate the data aggregation (stripped of date calculations)
          SummaryCounts AS (
              SELECT
                  interval_month,
-                 CASE CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(fn_gregorian_to_ethiopian_calendar(MAX(interval_end_date), 'Y-M-D'),'-', 2), '-', -1) AS UNSIGNED)
-                     WHEN 1 THEN 'Meskerem' WHEN 2 THEN 'Tikimt' WHEN 3 THEN 'Hidar' WHEN 4 THEN 'Tahsas'
-                     WHEN 5 THEN 'Tir' WHEN 6 THEN 'Yekatit' WHEN 7 THEN 'Megabit' WHEN 8 THEN 'Miyazia'
-                     WHEN 9 THEN 'Ginbot' WHEN 10 THEN 'Sene' WHEN 11 THEN 'Hamle' WHEN 12 THEN 'Nehase' WHEN 13 THEN 'Pagume'
-                     END AS ethiopian_month_name,
-                 CAST(SUBSTRING_INDEX(fn_gregorian_to_ethiopian_calendar(MAX(interval_end_date), 'Y-M-D'), '-', 1) AS CHAR) as ethiopian_year,
-
                  COUNT(DISTINCT PatientId) AS Total_Base,
                  SUM(CASE WHEN is_cumulative_ti = 1 THEN 1 ELSE 0 END) AS Total_TI,
                  SUM(CASE WHEN final_outcome IN ('Transferred out', 'Stop all') THEN 1 ELSE 0 END) AS Total_TO,
                  SUM(CASE WHEN final_outcome = 'Active' THEN 1 ELSE 0 END) AS Total_Active,
                  SUM(CASE WHEN final_outcome IN ('Lost to follow-up', 'Ran away') THEN 1 ELSE 0 END) AS Total_LTFU,
                  SUM(CASE WHEN final_outcome = 'Dead' THEN 1 ELSE 0 END) AS Total_Dead
-
              FROM CohortDetails
              GROUP BY interval_month
          )
 
+-- 4. Final output explicitly calling CohortHeaderCalc
     SELECT '' AS Name,
            MAX(CASE WHEN interval_month = 0 THEN CONCAT(ethiopian_month_name, ' ', ethiopian_year) ELSE '-' END) AS 'Maternal Cohort Month 0',
            MAX(CASE WHEN interval_month = 4 THEN CONCAT(ethiopian_month_name, ' ', ethiopian_year) ELSE '-' END) AS 'Maternal Cohort Month 3',
            MAX(CASE WHEN interval_month = 7 THEN CONCAT(ethiopian_month_name, ' ', ethiopian_year) ELSE '-' END) AS 'Maternal Cohort Month 6',
            MAX(CASE WHEN interval_month = 13 THEN CONCAT(ethiopian_month_name, ' ', ethiopian_year) ELSE '-' END) AS 'Maternal Cohort Month 12',
            MAX(CASE WHEN interval_month = 25 THEN CONCAT(ethiopian_month_name, ' ', ethiopian_year) ELSE '-' END) AS 'Maternal Cohort Month 24'
-    FROM SummaryCounts
+    FROM CohortHeaderCalc
 
     UNION ALL
 
-    SELECT 'A. Enrolled in PMTCT in this facility (Month 0)',
-           0,
-           MAX(CASE WHEN interval_month = 0 THEN Total_Base ELSE 0 END),
-           MAX(CASE WHEN interval_month = 0 THEN Total_Base ELSE 0 END),
-           MAX(CASE WHEN interval_month = 0 THEN Total_Base ELSE 0 END),
-           MAX(CASE WHEN interval_month = 0 THEN Total_Base ELSE 0 END)
+    SELECT 'A. Enrolled in PMTCT in this facility (Month 0)' AS Name,
+           0 AS 'Month 0',
+           COALESCE(MAX(CASE WHEN interval_month = 0 THEN Total_Base END), 0) AS 'Month 3',
+           COALESCE(MAX(CASE WHEN interval_month = 0 THEN Total_Base END), 0) AS 'Month 6',
+           COALESCE(MAX(CASE WHEN interval_month = 0 THEN Total_Base END), 0) AS 'Month 12',
+           COALESCE(MAX(CASE WHEN interval_month = 0 THEN Total_Base END), 0) AS 'Month 24'
     FROM SummaryCounts
 
     UNION ALL
 
     SELECT 'B. Total number of Transfer in (TI) Cumulative',
            0,
-           MAX(CASE WHEN interval_month = 4 THEN Total_TI ELSE 0 END),
-           MAX(CASE WHEN interval_month = 7 THEN Total_TI ELSE 0 END),
-           MAX(CASE WHEN interval_month = 13 THEN Total_TI ELSE 0 END),
-           MAX(CASE WHEN interval_month = 25 THEN Total_TI ELSE 0 END)
+           COALESCE(MAX(CASE WHEN interval_month = 4 THEN Total_TI END), 0),
+           COALESCE(MAX(CASE WHEN interval_month = 7 THEN Total_TI END), 0),
+           COALESCE(MAX(CASE WHEN interval_month = 13 THEN Total_TI END), 0),
+           COALESCE(MAX(CASE WHEN interval_month = 25 THEN Total_TI END), 0)
     FROM SummaryCounts
 
     UNION ALL
 
     SELECT 'C. Total Number of Transfer out (TO) Cumulative',
            0,
-           MAX(CASE WHEN interval_month = 4 THEN Total_TO ELSE 0 END),
-           MAX(CASE WHEN interval_month = 7 THEN Total_TO ELSE 0 END),
-           MAX(CASE WHEN interval_month = 13 THEN Total_TO ELSE 0 END),
-           MAX(CASE WHEN interval_month = 25 THEN Total_TO ELSE 0 END)
+           COALESCE(MAX(CASE WHEN interval_month = 4 THEN Total_TO END), 0),
+           COALESCE(MAX(CASE WHEN interval_month = 7 THEN Total_TO END), 0),
+           COALESCE(MAX(CASE WHEN interval_month = 13 THEN Total_TO END), 0),
+           COALESCE(MAX(CASE WHEN interval_month = 25 THEN Total_TO END), 0)
     FROM SummaryCounts
 
     UNION ALL
 
-    SELECT 'D. Net Current Cohort (A + B - C)',
-           0,
-           MAX(CASE WHEN interval_month = 4 THEN (Total_Base + Total_TI - Total_TO) ELSE 0 END),
-           MAX(CASE WHEN interval_month = 7 THEN (Total_Base + Total_TI - Total_TO) ELSE 0 END),
-           MAX(CASE WHEN interval_month = 13 THEN (Total_Base + Total_TI - Total_TO) ELSE 0 END),
-           MAX(CASE WHEN interval_month = 25 THEN (Total_Base + Total_TI - Total_TO) ELSE 0 END)
+    SELECT 'D. Net Current Cohort (A + B - C)' AS Name,
+           0 AS 'Month 0',
+           (COALESCE(MAX(CASE WHEN interval_month = 0 THEN Total_Base END), 0) +
+            COALESCE(MAX(CASE WHEN interval_month = 4 THEN Total_TI END), 0) -
+            COALESCE(MAX(CASE WHEN interval_month = 4 THEN Total_TO END), 0)),
+
+           (COALESCE(MAX(CASE WHEN interval_month = 0 THEN Total_Base END), 0) +
+            COALESCE(MAX(CASE WHEN interval_month = 7 THEN Total_TI END), 0) -
+            COALESCE(MAX(CASE WHEN interval_month = 7 THEN Total_TO END), 0)),
+
+           (COALESCE(MAX(CASE WHEN interval_month = 0 THEN Total_Base END), 0) +
+            COALESCE(MAX(CASE WHEN interval_month = 13 THEN Total_TI END), 0) -
+            COALESCE(MAX(CASE WHEN interval_month = 13 THEN Total_TO END), 0)),
+
+           (COALESCE(MAX(CASE WHEN interval_month = 0 THEN Total_Base END), 0) +
+            COALESCE(MAX(CASE WHEN interval_month = 25 THEN Total_TI END), 0) -
+            COALESCE(MAX(CASE WHEN interval_month = 25 THEN Total_TO END), 0))
     FROM SummaryCounts
 
     UNION ALL
 
     SELECT 'E. Mothers Alive and on ART',
            0,
-           MAX(CASE WHEN interval_month = 4 THEN Total_Active ELSE 0 END),
-           MAX(CASE WHEN interval_month = 7 THEN Total_Active ELSE 0 END),
-           MAX(CASE WHEN interval_month = 13 THEN Total_Active ELSE 0 END),
-           MAX(CASE WHEN interval_month = 25 THEN Total_Active ELSE 0 END)
+           COALESCE(MAX(CASE WHEN interval_month = 4 THEN Total_Active END), 0),
+           COALESCE(MAX(CASE WHEN interval_month = 7 THEN Total_Active END), 0),
+           COALESCE(MAX(CASE WHEN interval_month = 13 THEN Total_Active END), 0),
+           COALESCE(MAX(CASE WHEN interval_month = 25 THEN Total_Active END), 0)
     FROM SummaryCounts
 
     UNION ALL
 
     SELECT 'F. Lost to F/U',
            0,
-           MAX(CASE WHEN interval_month = 4 THEN Total_LTFU ELSE 0 END),
-           MAX(CASE WHEN interval_month = 7 THEN Total_LTFU ELSE 0 END),
-           MAX(CASE WHEN interval_month = 13 THEN Total_LTFU ELSE 0 END),
-           MAX(CASE WHEN interval_month = 25 THEN Total_LTFU ELSE 0 END)
+           COALESCE(MAX(CASE WHEN interval_month = 4 THEN Total_LTFU END), 0),
+           COALESCE(MAX(CASE WHEN interval_month = 7 THEN Total_LTFU END), 0),
+           COALESCE(MAX(CASE WHEN interval_month = 13 THEN Total_LTFU END), 0),
+           COALESCE(MAX(CASE WHEN interval_month = 25 THEN Total_LTFU END), 0)
     FROM SummaryCounts
 
     UNION ALL
 
     SELECT 'G. Known Dead',
            0,
-           MAX(CASE WHEN interval_month = 4 THEN Total_Dead ELSE 0 END),
-           MAX(CASE WHEN interval_month = 7 THEN Total_Dead ELSE 0 END),
-           MAX(CASE WHEN interval_month = 13 THEN Total_Dead ELSE 0 END),
-           MAX(CASE WHEN interval_month = 25 THEN Total_Dead ELSE 0 END)
+           COALESCE(MAX(CASE WHEN interval_month = 4 THEN Total_Dead END), 0),
+           COALESCE(MAX(CASE WHEN interval_month = 7 THEN Total_Dead END), 0),
+           COALESCE(MAX(CASE WHEN interval_month = 13 THEN Total_Dead END), 0),
+           COALESCE(MAX(CASE WHEN interval_month = 25 THEN Total_Dead END), 0)
     FROM SummaryCounts
 
     UNION ALL
 
     SELECT 'H. % Alive and on ART (E/D)',
            0,
-           CONCAT(ROUND((MAX(CASE WHEN interval_month = 4 THEN Total_Active ELSE 0 END) / NULLIF(MAX(CASE WHEN interval_month = 4 THEN (Total_Base + Total_TI - Total_TO) ELSE 0 END),0))*100, 1), '%'),
-           CONCAT(ROUND((MAX(CASE WHEN interval_month = 7 THEN Total_Active ELSE 0 END) / NULLIF(MAX(CASE WHEN interval_month = 7 THEN (Total_Base + Total_TI - Total_TO) ELSE 0 END),0))*100, 1), '%'),
-           CONCAT(ROUND((MAX(CASE WHEN interval_month = 13 THEN Total_Active ELSE 0 END) / NULLIF(MAX(CASE WHEN interval_month = 13 THEN (Total_Base + Total_TI - Total_TO) ELSE 0 END),0))*100, 1), '%'),
-           CONCAT(ROUND((MAX(CASE WHEN interval_month = 25 THEN Total_Active ELSE 0 END) / NULLIF(MAX(CASE WHEN interval_month = 25 THEN (Total_Base + Total_TI - Total_TO) ELSE 0 END),0))*100, 1), '%')
+           COALESCE(CONCAT(ROUND((MAX(CASE WHEN interval_month = 4 THEN Total_Active END) /
+                                  NULLIF((COALESCE(MAX(CASE WHEN interval_month = 0 THEN Total_Base END), 0) +
+                                          COALESCE(MAX(CASE WHEN interval_month = 4 THEN Total_TI END), 0) -
+                                          COALESCE(MAX(CASE WHEN interval_month = 4 THEN Total_TO END), 0)), 0)) * 100, 1), '%'), '0%'),
+
+           COALESCE(CONCAT(ROUND((MAX(CASE WHEN interval_month = 7 THEN Total_Active END) /
+                                  NULLIF((COALESCE(MAX(CASE WHEN interval_month = 0 THEN Total_Base END), 0) +
+                                          COALESCE(MAX(CASE WHEN interval_month = 7 THEN Total_TI END), 0) -
+                                          COALESCE(MAX(CASE WHEN interval_month = 7 THEN Total_TO END), 0)), 0)) * 100, 1), '%'), '0%'),
+
+           COALESCE(CONCAT(ROUND((MAX(CASE WHEN interval_month = 13 THEN Total_Active END) /
+                                  NULLIF((COALESCE(MAX(CASE WHEN interval_month = 0 THEN Total_Base END), 0) +
+                                          COALESCE(MAX(CASE WHEN interval_month = 13 THEN Total_TI END), 0) -
+                                          COALESCE(MAX(CASE WHEN interval_month = 13 THEN Total_TO END), 0)), 0)) * 100, 1), '%'), '0%'),
+
+           COALESCE(CONCAT(ROUND((MAX(CASE WHEN interval_month = 25 THEN Total_Active END) /
+                                  NULLIF((COALESCE(MAX(CASE WHEN interval_month = 0 THEN Total_Base END), 0) +
+                                          COALESCE(MAX(CASE WHEN interval_month = 25 THEN Total_TI END), 0) -
+                                          COALESCE(MAX(CASE WHEN interval_month = 25 THEN Total_TO END), 0)), 0)) * 100, 1), '%'), '0%')
     FROM SummaryCounts;
 
 END //
