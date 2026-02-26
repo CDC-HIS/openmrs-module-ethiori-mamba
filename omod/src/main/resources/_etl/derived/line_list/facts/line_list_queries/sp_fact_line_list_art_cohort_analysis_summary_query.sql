@@ -9,7 +9,9 @@ BEGIN
                                        follow_up_status,
                                        follow_up_date_followup_                                                AS follow_up_date,
                                        art_antiretroviral_start_date                                           AS art_start_date,
-                                       COALESCE(treatment_end_date, DATE_ADD(follow_up_date_followup_, INTERVAL CAST(antiretroviral_art_dispensed_dose_i AS UNSIGNED) DAY)) as treatment_end_date,
+                                       COALESCE(treatment_end_date, DATE_ADD(follow_up_date_followup_, INTERVAL
+                                                                             CAST(antiretroviral_art_dispensed_dose_i AS UNSIGNED)
+                                                                             DAY))                             as treatment_end_date,
                                        regimen,
                                        antiretroviral_art_dispensed_dose_i                                     AS ARTDoseDays,
                                        anitiretroviral_adherence_level                                         AS AdherenceLevel,
@@ -138,12 +140,16 @@ BEGIN
                                          OVER (PARTITION BY PatientId)                                                                          as ever_ti,
 
                                      MAX(CASE
-                                             WHEN strict_status IN ('Dead', 'Transferred out', 'Stop all', 'Ran away', 'Loss to follow-up', 'LTFU', 'Loss to follow-up (LTFU)')
+                                             WHEN strict_status IN ('Dead', 'Transferred out', 'Stop all', 'Ran away',
+                                                                    'Loss to follow-up', 'LTFU',
+                                                                    'Loss to follow-up (LTFU)')
                                                  THEN 1
                                              ELSE 0 END)
                                          OVER (PARTITION BY PatientId ORDER BY interval_month ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) as has_terminal_event,
                                      MAX(CASE
-                                             WHEN strict_status IN ('Dead', 'Transferred out', 'Stop all', 'Ran away', 'Loss to follow-up', 'LTFU', 'Loss to follow-up (LTFU)')
+                                             WHEN strict_status IN ('Dead', 'Transferred out', 'Stop all', 'Ran away',
+                                                                    'Loss to follow-up', 'LTFU',
+                                                                    'Loss to follow-up (LTFU)')
                                                  THEN strict_status
                                              ELSE NULL END)
                                          OVER (PARTITION BY PatientId ORDER BY interval_month ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) as specific_terminal_event,
@@ -156,7 +162,9 @@ BEGIN
                                   CASE
                                       WHEN has_terminal_event = 1 THEN specific_terminal_event
                                       WHEN max_tx_end_date_so_far >= interval_end_date THEN
-                                          CASE WHEN strict_status IS NOT NULL THEN 'Active' ELSE 'Active - Carry Forward Rx' END
+                                          CASE
+                                              WHEN strict_status IS NOT NULL THEN 'Active'
+                                              ELSE 'Active - Carry Forward Rx' END
                                       ELSE 'Loss to follow-up (LTFU)'
                                       END AS final_cohort_outcome
                            FROM StateCalculation sc
@@ -172,8 +180,14 @@ BEGIN
                                FROM IntervalsDef),
          CohortHeaderCalc AS (SELECT interval_month,
                                      CASE CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(
-                                                                       fn_gregorian_to_ethiopian_calendar(header_gregorian_date, 'Y-M-D'),
-                                                                       '-', 2), '-', -1) AS UNSIGNED)
+                                                                       fn_gregorian_to_ethiopian_calendar(
+                                                                               CASE
+                                                                                   WHEN interval_month = 0
+                                                                                       THEN REPORT_END_DATE
+                                                                                   ELSE header_gregorian_date
+                                                                                   END,
+                                                                               'Y-M-D'
+                                                                       ), '-', 2), '-', -1) AS UNSIGNED)
                                          WHEN 1 THEN 'Meskerem'
                                          WHEN 2 THEN 'Tikimt'
                                          WHEN 3 THEN 'Hidar'
@@ -187,10 +201,15 @@ BEGIN
                                          WHEN 11 THEN 'Hamle'
                                          WHEN 12 THEN 'Nehase'
                                          WHEN 13 THEN 'Pagume'
-                                         END             AS et_month,
+                                         END                     AS et_month,
                                      CAST(SUBSTRING_INDEX(
-                                             fn_gregorian_to_ethiopian_calendar(header_gregorian_date, 'Y-M-D'), '-',
-                                             1) AS CHAR) as et_year
+                                             fn_gregorian_to_ethiopian_calendar(
+                                                     CASE
+                                                         WHEN interval_month = 0 THEN report_end_date
+                                                         ELSE header_gregorian_date
+                                                         END,
+                                                     'Y-M-D'
+                                             ), '-', 1) AS CHAR) AS et_year
                               FROM CohortHeaderDates),
 
          CohortEnriched AS (SELECT interval_month,
@@ -219,7 +238,7 @@ BEGIN
                                  SUM(CASE WHEN ever_ti = 1 THEN 1 ELSE 0 END)                              AS ever_ti,
                                  SUM(CASE WHEN ti_in_this_interval = 1 THEN 1 ELSE 0 END)                  AS count_ti_this_interval,
                                  SUM(CASE WHEN final_cohort_outcome = 'Transferred out' THEN 1 ELSE 0 END) AS count_to,
-                                 SUM(CASE WHEN strict_status = 'Transferred out' THEN 1 ELSE 0 END) AS count_interval_to,
+                                 SUM(CASE WHEN strict_status = 'Transferred out' THEN 1 ELSE 0 END)        AS count_interval_to,
 
                                  SUM(CASE WHEN final_cohort_outcome = 'Stop all' THEN 1 ELSE 0 END)        AS count_stop,
                                  SUM(CASE WHEN final_cohort_outcome = 'Dead' THEN 1 ELSE 0 END)            AS count_dead,
@@ -297,13 +316,20 @@ BEGIN
 
     SELECT 'D. Net current cohort (A + B - C)',
            0,
-           CAST(GREATEST(0, IFNULL(MAX(CASE WHEN interval_month = 7 THEN (count_base + count_ti_this_interval) - count_interval_to END),
+           CAST(GREATEST(0, IFNULL(
+                   MAX(CASE WHEN interval_month = 7 THEN (count_base + count_ti_this_interval) - count_interval_to END),
+                   0)) AS SIGNED),
+           CAST(GREATEST(0, IFNULL(MAX(CASE
+                                           WHEN interval_month = 13
+                                               THEN (count_base + count_ti_this_interval) - count_interval_to END),
                                    0)) AS SIGNED),
-           CAST(GREATEST(0, IFNULL(MAX(CASE WHEN interval_month = 13 THEN (count_base + count_ti_this_interval) - count_interval_to END),
+           CAST(GREATEST(0, IFNULL(MAX(CASE
+                                           WHEN interval_month = 25
+                                               THEN (count_base + count_ti_this_interval) - count_interval_to END),
                                    0)) AS SIGNED),
-           CAST(GREATEST(0, IFNULL(MAX(CASE WHEN interval_month = 25 THEN (count_base + count_ti_this_interval) - count_interval_to END),
-                                   0)) AS SIGNED),
-           CAST(GREATEST(0, IFNULL(MAX(CASE WHEN interval_month = 37 THEN (count_base + count_ti_this_interval) - count_interval_to END),
+           CAST(GREATEST(0, IFNULL(MAX(CASE
+                                           WHEN interval_month = 37
+                                               THEN (count_base + count_ti_this_interval) - count_interval_to END),
                                    0)) AS SIGNED)
     FROM MonthlyStats
 
