@@ -4,17 +4,18 @@ INSERT INTO mamba_fact_client
  registration_date, art_start_date, months_on_art, next_appointment_date, hiv_confirmed_date, transfer_in_date,
  region, zone, woreda, kebele, house_number, mobile_phone, address_completeness, current_status,
  current_regimen, regimen_dose, regimen_line, tx_curr_end_date, nutritional_status, pregnancy_status,
- pmtct_status, family_planning_method, last_visit_date, days_overdue, last_vl_date, last_vl_result,
+ pmtct_status, family_planning_method, who_stage, last_visit_date, days_overdue, last_vl_date, last_vl_result,
  is_suppressed, vl_status, vl_eligibility_date, tpt_status, tpt_start_date, tpt_completed_date,
  tpt_discontinued_date, active_tb_diagnosis_date, tb_treatment_start_date, tb_treatment_discontinued_date,
  tb_treatment_completed_date, dsd_category, ict_screening_status, ncd_screening_status, next_ncd_screening_date,
- cxca_screening_status, target_population)
+ cxca_screening_status, next_cca_screening_date, systolic_blood_pressure, diastolic_blood_pressure, target_population)
 WITH
     -- 1. Get Latest Clinical Follow-up with all flattened columns
     FollowUp AS (SELECT follow_up.client_id,
                         follow_up.encounter_id,
                         follow_up_date_followup_,
                         next_visit_date,
+                        current_who_hiv_stage,
                         follow_up_status,
                         regimen,
                         antiretroviral_art_dispensed_dose_i,
@@ -43,6 +44,16 @@ WITH
                         hpv_dna_result_received_date                                   as hpv_received_date,
                         date_cytology_result_received                                  as cytology_received_date,
 
+                        eligible_for_cxca_screening,
+                        reason_for_not_being_eligible,
+                        other_reason_for_not_being_eligible_for_cxca,
+                        treatment_start_date                                           as ccs_treat_received_date,
+                        colposcopy_of_cervix_findings                                  as colposcopy_exam_finding,
+                        biopsy_result_received_date,
+                        biopsy_result,
+                        date_patient_referred_out,
+                        next_follow_up_screening_date,
+
                         COALESCE(at_3436_weeks_of_gestation,
                                  viral_load_after_eac_confirmatory_viral_load_where_initial_v,
                                  viral_load_after_eac_repeat_viral_load_where_initial_viral_l,
@@ -63,7 +74,8 @@ WITH
                         diagnosis_date,
                         tuberculosis_drug_treatment_start_d,
                         regimen_change,
-                        date_active_tbrx_completed
+                        date_active_tbrx_completed,
+                        date_active_tbrx_dc
                  FROM mamba_flat_encounter_follow_up follow_up
                           LEFT JOIN mamba_flat_encounter_follow_up_1 USING (encounter_id)
                           LEFT JOIN mamba_flat_encounter_follow_up_2 USING (encounter_id)
@@ -90,24 +102,37 @@ WITH
                                     mid_upper_arm_circumference,
                                     pregnancy_status,
                                     art_start_date,
+                                    current_who_hiv_stage as who_stage,
                                     currently_breastfeeding_child,
                                     weight,
                                     method_of_family_planning,
                                     dsd_category,
                                     date_of_event                                                                                        as hiv_confirmed_date,
                                     transfer_in,
+                                    -- Extra columns for CXCA logic optimization
+                                    eligible_for_cxca_screening,
+                                    reason_for_not_being_eligible,
+                                    other_reason_for_not_being_eligible_for_cxca,
+                                    cx_ca_screening_status                                                                               as screening_status,
                                     ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date_followup_ DESC, encounter_id DESC) as rn
                              FROM FollowUp
                              WHERE follow_up_date_followup_ IS NOT NULL) ranked
                        WHERE rn = 1),
 
-    -- 3. Transfer In Logic (Gets the very first date they were marked as Transfer In)
-    TransferIn AS (SELECT client_id,
-                          MIN(follow_up_date_followup_) as transfer_in_date
-                   FROM FollowUp
-                   WHERE transfer_in IN ('Yes', 'True', '1')
-                      OR follow_up_status IN ('Transfer in', 'Transfer In', 'TI')
-                   GROUP BY client_id),
+    -- 3. Medical & Transfer Aggregates (Consolidated scan of FollowUp)
+    Medical_Aggregates AS (SELECT client_id,
+                                  MIN(CASE WHEN transfer_in IN ('Yes', 'True', '1') OR follow_up_status IN ('Transfer in', 'Transfer In', 'TI') THEN follow_up_date_followup_ END) as transfer_in_date,
+                                  MIN(art_start_date) as art_start_date,
+                                  MAX(date_started_on_tuberculosis_prophy)  as tpt_start_date,
+                                  MAX(date_completed_tuberculosis_prophyl)  as tpt_completed_date,
+                                  MAX(date_discontinued_tuberculosis_prop)  as tpt_discontinued_date,
+                                  MAX(CASE WHEN reason_not_eligible_for_tuberculosi = 'Contraindication' THEN 1 ELSE 0 END) as tpt_is_contraindicated,
+                                  MAX(diagnosis_date)                      as active_tb_diagnosis_date,
+                                  MAX(tuberculosis_drug_treatment_start_d) as tb_treatment_start_date,
+                                  MAX(date_active_tbrx_dc)                 as tb_treatment_discontinued_date,
+                                  MAX(date_active_tbrx_completed)          as tb_treatment_completed_date
+                           FROM FollowUp
+                           GROUP BY client_id),
 
     -- 4. Rank Viral Load Events (Sent, Switch, Performed)
     Vl_Events AS (SELECT encounter_id,
@@ -201,42 +226,18 @@ WITH
                                   END AS vl_status_final
                        FROM vl_scenario),
 
-    -- 8. ART Start Date
-    ARTStart AS (SELECT client_id, MIN(art_start_date) as start_date
-                 FROM FollowUp
-                 WHERE art_start_date IS NOT NULL
-                 GROUP BY client_id),
-
-    -- 9. Identifiers (Added ICT Number)
+    -- 8. Identifiers (NCD, PHRH, ICD)
     Identifiers AS (SELECT patient_id,
                            MAX(CASE WHEN pit.name = 'PHRH' THEN pi.identifier END) as phrh_code,
                            MAX(CASE WHEN pit.name = 'NCD' THEN pi.identifier END)  as ncd_code,
-                           MAX(CASE WHEN pit.name = 'ICD' THEN pi.identifier END)  as icd_number,
-                           MAX(CASE WHEN pit.name = 'ICT' THEN pi.identifier END)  as ict_number
+                           MAX(CASE WHEN pit.name = 'ICD' THEN pi.identifier END)  as icd_number
                     FROM mamba_dim_patient_identifier pi
                              JOIN mamba_dim_patient_identifier_type pit
                                   ON pi.identifier_type = pit.patient_identifier_type_id
+                    WHERE pit.name IN ('PHRH', 'NCD', 'ICD')
                     GROUP BY patient_id),
 
-    -- 10. TPT Logic
-    TPT_Events AS (SELECT client_id,
-                          MAX(date_started_on_tuberculosis_prophy)  as tpt_start_date,
-                          MAX(date_completed_tuberculosis_prophyl)  as tpt_completed_date,
-                          MAX(date_discontinued_tuberculosis_prop)  as tpt_discontinued_date,
-                          MAX(CASE WHEN reason_not_eligible_for_tuberculosi = 'Contraindication' THEN 1 ELSE 0 END) as is_contraindicated
-                   FROM FollowUp
-                   GROUP BY client_id),
-
-    -- 11. TB Treatment Dates
-    TB_Events AS (SELECT client_id,
-                         MAX(diagnosis_date)                      as active_tb_diagnosis_date,
-                         MAX(tuberculosis_drug_treatment_start_d) as tb_treatment_start_date,
-                         MAX(date_active_tbrx_completed)          as tb_treatment_completed_date,
-                         MAX(date_discontinued_tuberculosis_prop) as tb_treatment_discontinued_date
-                  FROM FollowUp
-                  GROUP BY client_id),
-
-    -- 12. ICT Screening Logic
+    -- 9. ICT Screening Logic
     ICT_Events AS (SELECT *
                    FROM (SELECT client_id,
                                 CASE WHEN accepted = 'Yes' THEN 'Accepted' WHEN accepted = 'No' THEN 'Refused' ELSE 'Offered' END as ict_status,
@@ -245,47 +246,200 @@ WITH
                          WHERE offered_date IS NOT NULL) ranked
                    WHERE rn = 1),
 
-    -- 13. NCD Screening Events (Added next_visit_date logic)
+    -- 10. ICT General Logic (Latest ICT Number)
+    ICT_General_Events AS (SELECT *
+                           FROM (SELECT client_id,
+                                        ict_serial_number as ict_number,
+                                        ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY encounter_datetime DESC, encounter_id DESC) as rn
+                                 FROM mamba_flat_encounter_ict_general
+                                 WHERE ict_serial_number IS NOT NULL AND ict_serial_number != '') ranked
+                           WHERE rn = 1),
+
+    -- 11. NCD Screening Events
     NCD_Screening_Events AS (SELECT *
                              FROM (SELECT client_id,
                                           baseline_diagnosis,
-                                          NULL as next_screening_date,
                                           ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY screening_date DESC) as rn
                                    FROM mamba_flat_encounter_ncd_screening
                                    WHERE screening_date IS NOT NULL) ranked
                              WHERE rn = 1),
 
-    -- 14. Cervical Cancer (CxCa) Screening Events
-    CXCA_Events AS (SELECT *
-                    FROM (SELECT client_id,
-                                 CASE
-                                     WHEN screening_method = 'Visual Inspection of the Cervix with Acetic Acid (VIA)' AND via_screening_result = 'VIA negative' THEN 'Cervical Cancer screen: Negative'
-                                     WHEN screening_method = 'Visual Inspection of the Cervix with Acetic Acid (VIA)' AND via_screening_result IN ('VIA positive: eligible for cryo/thermo-coagulation', 'VIA positive: eligible for cryo/thermo-coagula', 'VIA positive: non-eligible for cryo/thermo-coagulation') THEN 'Cervical Cancer screen: Positive'
-                                     WHEN screening_method = 'Visual Inspection of the Cervix with Acetic Acid (VIA)' AND via_screening_result IN ('Suspicious for cervical cancer', 'suspected cervical cancer') THEN 'Cervical Cancer screen: Suspected Cancer'
-                                     WHEN screening_method = 'Human Papillomavirus test' AND hpv_dna_screening_result = 'Negative result' THEN 'Cervical Cancer screen: Negative'
-                                     WHEN screening_method = 'Human Papillomavirus test' AND hpv_dna_screening_result = 'Positive' AND via_screening_result IN ('VIA positive: eligible for cryo/thermo-coagulation', 'VIA positive: eligible for cryo/thermo-coagula', 'VIA positive: non-eligible for cryo/thermo-coagulation') THEN 'Cervical Cancer screen: Positive'
-                                     WHEN screening_method = 'Human Papillomavirus test' AND hpv_dna_screening_result = 'Positive' AND via_screening_result = 'VIA negative' THEN 'Cervical Cancer screen: Negative'
-                                     WHEN screening_method = 'Cytology' AND cytology_result IN ('Negative', 'ASCUS') THEN 'Cervical Cancer screen: Negative'
-                                     WHEN screening_method = 'Cytology' AND cytology_result = '> Ascus' THEN 'Cervical Cancer screen: Positive'
-                                     ELSE 'Screened - Result Pending/Unknown'
-                                     END AS cxca_screening_status,
-                                 ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY COALESCE(via_date, hpv_received_date, cytology_received_date, follow_up_date_followup_) DESC, encounter_id DESC) as rn
-                          FROM FollowUp
-                          WHERE cx_ca_screening_status = 'Cervical cancer screening performed') ranked
-                    WHERE rn = 1),
+    -- 12. NCD Follow-up Events
+    NCD_FollowUp_Events AS (SELECT *
+                            FROM (SELECT f.client_id,
+                                         return_visit_date                                                                   as next_screening_date,
+                                         systolic_blood_pressure,
+                                         diastolic_blood_pressure,
+                                         ROW_NUMBER() OVER (PARTITION BY f.client_id ORDER BY follow_up_date DESC, f.encounter_id DESC) as rn
+                                  FROM mamba_flat_encounter_ncd_followup f
+                                  LEFT JOIN mamba_flat_encounter_ncd_followup_1 f1 on f.encounter_id = f1.encounter_id
+                                  WHERE return_visit_date IS NOT NULL OR systolic_blood_pressure IS NOT NULL OR diastolic_blood_pressure IS NOT NULL) ranked
+                            WHERE rn = 1),
 
-    -- 15. PMTCT Logic
+    -- 13. Prev Screening for CxCa
+    CXCA_PrevScreening AS (SELECT *
+                           FROM (SELECT client_id,
+                                        follow_up_date_followup_                                                                             as follow_up_date,
+                                        via_screening_result                                                                                 as ccs_via_result,
+                                        via_date                                                                                             as via_date,
+                                        ccs_treat_received_date,
+                                        date_patient_referred_out,
+                                        biopsy_result,
+                                        hpv_dna_screening_result                                                                             as ccs_hpv_result,
+                                        hpv_received_date                                                                                    as hpv_dna_result_received_date,
+                                        cytology_result,
+                                        cytology_received_date                                                                               as cytology_result_date,
+                                        colposcopy_exam_finding,
+                                        biopsy_result_received_date,
+                                        next_follow_up_screening_date,
+                                        ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date_followup_ DESC, encounter_id DESC) as rn
+                                 FROM FollowUp
+                                 WHERE cx_ca_screening_status = 'Cervical cancer screening performed') ranked
+                           WHERE rn = 1),
+
+    -- 14. CxCa Eligibility Base (Optimized: Using LatestFollowUp)
+    CXCA_Eligibility_Base AS (SELECT lf.client_id,
+                                     lf.visit_date,
+                                     lf.follow_up_status                                                                         as final_follow_up_status,
+                                     lf.eligible_for_cxca_screening,
+                                     lf.reason_for_not_being_eligible,
+                                     lf.other_reason_for_not_being_eligible_for_cxca,
+                                     lf.screening_status,
+                                     lf.art_start_date,
+                                     ps.follow_up_date                                                                           AS previous_screening_follow_up_date,
+                                     ps.ccs_via_result,
+                                     ps.via_date,
+                                     ps.ccs_treat_received_date,
+                                     ps.date_patient_referred_out,
+                                     ps.biopsy_result,
+                                     ps.ccs_hpv_result,
+                                     ps.hpv_dna_result_received_date,
+                                     ps.cytology_result,
+                                     ps.cytology_result_date,
+                                     ps.colposcopy_exam_finding,
+                                     ps.biopsy_result_received_date,
+                                     ps.next_follow_up_screening_date,
+                                     c.sex,
+                                     TIMESTAMPDIFF(YEAR, c.date_of_birth, CURDATE())                                             AS Age,
+
+                                     CASE
+                                         WHEN ps.client_id IS NULL AND lf.eligible_for_cxca_screening = 'No'
+                                             THEN CONCAT('Not Eligible ',
+                                                         COALESCE(lf.reason_for_not_being_eligible,
+                                                                  lf.other_reason_for_not_being_eligible_for_cxca))
+                                         WHEN (ps.biopsy_result = 'Carcinoma in situ' OR ps.biopsy_result = 'Invasive cervical cancer' OR
+                                               ps.biopsy_result = 'Other')
+                                             AND (ps.ccs_treat_received_date <= CURDATE() OR ps.date_patient_referred_out <= CURDATE())
+                                             THEN 'Not Eligible Confirmed Cirvical Cancer'
+                                         WHEN ps.client_id IS NULL AND lf.screening_status != 'Cervical cancer screening performed' AND
+                                              lf.eligible_for_cxca_screening = 'Yes'
+                                             THEN 'Eligible Labeled by User'
+                                         WHEN ps.client_id IS NULL AND lf.eligible_for_cxca_screening IS NULL
+                                             THEN 'Eligible Never Screened/Assessed'
+                                         WHEN ps.ccs_via_result = 'Unknown'
+                                             THEN 'Eligible Unknown VIA Screening Result'
+                                         WHEN (TIMESTAMPDIFF(DAY, ps.via_date, CURDATE())) > 730 AND ps.ccs_via_result = 'VIA negative'
+                                             THEN 'Eligible Needs Re-Screening'
+                                         WHEN ps.ccs_via_result = 'VIA positive: eligible for cryo/thermo-coagula'
+                                             THEN CASE
+                                                      WHEN ((TIMESTAMPDIFF(DAY, ps.ccs_treat_received_date, CURDATE())) > 365 OR
+                                                            (TIMESTAMPDIFF(DAY, ps.date_patient_referred_out, CURDATE())) > 365) AND
+                                                           ps.biopsy_result IS NULL
+                                                          THEN 'Eligible Post Treatment/Referral Follow-Up'
+                                                      WHEN ps.ccs_treat_received_date IS NULL AND ps.date_patient_referred_out IS NULL
+                                                          THEN 'Eligible Treatment Not Received or Not Referred'
+                                                      ELSE 'Not Eligible (Screening Up-to-Date)'
+                                             END
+                                         WHEN (ps.ccs_via_result = 'VIA positive: non-eligible for cryo/thermo-coagula' OR
+                                               ps.ccs_via_result = 'suspected cervical cancer') AND ps.biopsy_result IS NULL
+                                             THEN 'Eligible Biopsy Test Not Done'
+                                         WHEN ps.ccs_hpv_result = 'Negative result' AND
+                                              TIMESTAMPDIFF(DAY, ps.hpv_dna_result_received_date, CURDATE()) > 1095
+                                             THEN 'Eligible Needs Re-Screening'
+                                         WHEN ps.ccs_via_result IS NULL AND ps.ccs_hpv_result = 'Positive'
+                                             THEN 'Eligible Needs VIA Triage'
+                                         WHEN ps.cytology_result = 'Negative result' AND
+                                              TIMESTAMPDIFF(DAY, ps.cytology_result_date, CURDATE()) > 1095
+                                             THEN 'Eligible Needs Re-Screening'
+                                         WHEN (ps.cytology_result =
+                                               'ASCUS (Atypical Squamous Cells of Undetermined Significance) on Pap Smear' OR
+                                               ps.cytology_result = '> Ascus')
+                                             THEN CASE
+                                                      WHEN ps.hpv_dna_result_received_date IS NULL THEN 'Eligible Needs HPV Triage'
+                                                      WHEN ps.ccs_hpv_result = 'Negative result' AND
+                                                           TIMESTAMPDIFF(DAY, ps.hpv_dna_result_received_date, CURDATE()) > 730
+                                                          THEN 'Eligible Needs Re-Screening'
+                                                      WHEN ps.ccs_hpv_result = 'Positive' AND ps.colposcopy_exam_finding IS NULL
+                                                          THEN 'Eligible Needs Colposcopy Test'
+                                                      ELSE 'Not Eligible (Screening Up-to-Date)'
+                                             END
+                                         WHEN (ps.biopsy_result = 'CIN (1-3)' OR ps.biopsy_result = 'CIN-2') AND
+                                              TIMESTAMPDIFF(DAY, ps.biopsy_result_received_date, CURDATE()) > 365
+                                             THEN 'Eligible Needs Re-Screening'
+                                         ELSE 'Not Eligible (Screening Up-to-Date)'
+                                         END AS EligibilityStatus
+                              FROM LatestFollowUp lf
+                                       LEFT JOIN CXCA_PrevScreening ps ON lf.client_id = ps.client_id
+                                       JOIN mamba_dim_client c ON lf.client_id = c.client_id),
+
+    -- 15. CXCA Status (Final Color Coding)
+    CXCA_Status AS (SELECT base.*,
+                           CASE
+                               WHEN base.sex = 'Male' OR Age < 25 OR Age > 65 OR
+                                    base.final_follow_up_status IN ('Dead', 'Transferred out', 'Stop all', 'Ran away')
+                                   THEN 'Not Applicable (Blue)'
+                               WHEN base.art_start_date IS NULL
+                                   THEN 'ART Not Started (Black)'
+                               WHEN base.EligibilityStatus = 'Not Eligible Confirmed Cirvical Cancer'
+                                   THEN 'Confirmed CXCA (RED)'
+                               WHEN base.EligibilityStatus = 'Not Eligible (Screening Up-to-Date)'
+                                   THEN 'Previously Screened (Green)'
+                               WHEN base.EligibilityStatus LIKE 'Eligible%'
+                                   THEN 'Eligible (Yellow)'
+                               WHEN base.EligibilityStatus LIKE 'Not Eligible%'
+                                   THEN 'Not Eligible (White)'
+                               ELSE 'Unknown Status'
+                               END AS cxca_screening_status
+                    FROM CXCA_Eligibility_Base AS base),
+
+    -- 16. PMTCT Logic
     PMTCT_CTE AS (SELECT client_id,
                          MAX(date_of_enrollment_or_booking) as pmtct_start_date
                   FROM mamba_flat_encounter_pmtct_enrollment
                   WHERE date_of_enrollment_or_booking IS NOT NULL
                   GROUP BY client_id),
 
+    -- 17. PMTCT Discharge Logic
     PMTCT_Discharge_CTE AS (SELECT client_id,
                                    MAX(discharge_date) as pmtct_discharge_date
                             FROM mamba_flat_encounter_pmtct_discharge
                             WHERE discharge_date IS NOT NULL
-                            GROUP BY client_id)
+                            GROUP BY client_id),
+
+    -- 18. Registration Logic (Avoid Fetching Duplicates)
+    Registration AS (SELECT client_id,
+                            MIN(registration_date) as registration_date
+                     FROM mamba_flat_encounter_registration
+                     WHERE registration_date IS NOT NULL
+                     GROUP BY client_id),
+
+    -- 19. PHRH Target Population Logic (Latest record with target_population)
+    PHRH_Target_Population AS (SELECT *
+                               FROM (SELECT client_id,
+                                            target_population,
+                                            ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY followup_date DESC, encounter_id DESC) as rn
+                                     FROM mamba_flat_encounter_phrh_followup
+                                     WHERE target_population IS NOT NULL AND target_population != '') ranked
+                               WHERE rn = 1),
+
+    -- 20. Latest Family Planning Method (Any follow-up)
+    FamilyPlanning AS (SELECT *
+                       FROM (SELECT client_id,
+                                    method_of_family_planning,
+                                    ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date_followup_ DESC, encounter_id DESC) as rn
+                             FROM FollowUp
+                             WHERE method_of_family_planning IS NOT NULL AND method_of_family_planning != '' AND method_of_family_planning != '-') ranked
+                       WHERE rn = 1)
 
 
 SELECT c.client_id,
@@ -297,22 +451,22 @@ SELECT c.client_id,
        -- Fix: Removed Coalesce to '-' to match INT type
        TIMESTAMPDIFF(YEAR, c.date_of_birth, CURDATE())                                            as age,
 
-       -- Identifiers (ICT Added)
+       -- Identifiers (ICT Added from ICT_General_Events)
        COALESCE(c.uan, '-')                                                                                          as uan,
        COALESCE(id.phrh_code, '-')                                                                                   as phrh_code,
        COALESCE(id.ncd_code, '-')                                                                                    as ncd_code,
        COALESCE(id.icd_number, '-')                                                                                  as icd_number,
-       COALESCE(id.ict_number, '-')                                                                                  as ict_number,
+       COALESCE(ict_gen.ict_number, '-')                                                                             as ict_number,
 
        -- Registration & One-Time Data Header Info
-       NULL                                                                                       as registration_date,
-       art.start_date                                                                             as art_start_date,
+       reg.registration_date                                                                      as registration_date,
+       ma.art_start_date                                                                          as art_start_date,
        -- Fix: Removed Coalesce to '-' to match INT type
-       TIMESTAMPDIFF(MONTH, art.start_date, CURDATE())                                            as months_on_art,
+       TIMESTAMPDIFF(MONTH, ma.art_start_date, CURDATE())                                         as months_on_art,
        lfu.next_visit_date                                                                        as next_appointment_date,
 
        lfu.hiv_confirmed_date                                                                     as hiv_confirmed_date,
-       ti.transfer_in_date                                                                        as transfer_in_date,
+       ma.transfer_in_date                                                                        as transfer_in_date,
 
        -- Address & Completeness (With Fallbacks)
        COALESCE(c.state_province, '-')                                                                               as region,
@@ -344,13 +498,14 @@ SELECT c.client_id,
            END                                                                                                           as regimen_line,
 
        lfu.treatment_end_date                                                                     as tx_curr_end_date,
-       COALESCE(lfu.nutritional_status_of_adult, lfu.nutritional_status_of_older_child_a, CONCAT('MUAC: ', lfu.mid_upper_arm_circumference), '-') as nutritional_status,
+       COALESCE(lfu.nutritional_status_of_adult, lfu.nutritional_status_of_older_child_a, CASE WHEN lfu.mid_upper_arm_circumference IS NOT NULL THEN CONCAT('MUAC: ', lfu.mid_upper_arm_circumference) END, '-') as nutritional_status,
        COALESCE(lfu.pregnancy_status, '-')                                                                           as pregnancy_status,
        CASE
            WHEN (pmtct.pmtct_start_date IS NOT NULL AND (pmtct_dis.pmtct_discharge_date IS NULL OR pmtct_dis.pmtct_discharge_date < pmtct.pmtct_start_date)) THEN 'Currently on PMTCT'
            ELSE 'Not Applicable'
            END                                                                                                           as pmtct_status,
-       COALESCE(lfu.method_of_family_planning, '-')                                                                  as family_planning_method,
+       COALESCE(fp.method_of_family_planning, '-')                                                                   as family_planning_method,
+       COALESCE(lfu.who_stage, '-')                                                                                  as who_stage,
 
        lfu.visit_date                                                                             as last_visit_date,
        -- Fix: Removed Coalesce to '-' to match INT type
@@ -380,45 +535,50 @@ SELECT c.client_id,
 
        -- TPT Logic
        CASE
-           WHEN tpt.tpt_completed_date IS NOT NULL THEN 'Gold (TPT Completed)'
-           WHEN tpt.tpt_start_date IS NOT NULL AND tpt.tpt_completed_date IS NULL AND tpt.tpt_discontinued_date IS NULL THEN 'On TPT'
-           WHEN tpt.is_contraindicated = 1 THEN 'Contraindicated'
+           WHEN ma.tpt_completed_date IS NOT NULL THEN 'Gold (TPT Completed)'
+           WHEN ma.tpt_start_date IS NOT NULL AND ma.tpt_completed_date IS NULL AND ma.tpt_discontinued_date IS NULL THEN 'On TPT'
+           WHEN ma.tpt_is_contraindicated = 1 THEN 'Contraindicated'
            ELSE 'Not Started'
            END                                                                                                           as tpt_status,
 
-       tpt.tpt_start_date                                                                         as tpt_start_date,
-       tpt.tpt_completed_date                                                                     as tpt_completed_date,
-       tpt.tpt_discontinued_date                                                                  as tpt_discontinued_date,
+       ma.tpt_start_date                                                                         as tpt_start_date,
+       ma.tpt_completed_date                                                                     as tpt_completed_date,
+       ma.tpt_discontinued_date                                                                  as tpt_discontinued_date,
 
        -- TB Treatment
-       tb.active_tb_diagnosis_date                                                                as active_tb_diagnosis_date,
-       tb.tb_treatment_start_date                                                                 as tb_treatment_start_date,
-       tb.tb_treatment_discontinued_date                                                         as tb_treatment_discontinued_date,
-       tb.tb_treatment_completed_date                                                             as tb_treatment_completed_date,
+       ma.active_tb_diagnosis_date                                                                as active_tb_diagnosis_date,
+       ma.tb_treatment_start_date                                                                 as tb_treatment_start_date,
+       ma.tb_treatment_discontinued_date                                                         as tb_treatment_discontinued_date,
+       ma.tb_treatment_completed_date                                                             as tb_treatment_completed_date,
 
        COALESCE(lfu.dsd_category, '-')                                                                               as dsd_category,
 
        -- Screening Modules
        COALESCE(ict.ict_status, 'Not Screened')                                                                      as ict_screening_status,
        COALESCE(ncd.baseline_diagnosis, CASE WHEN ncd.client_id IS NOT NULL THEN 'Screened' ELSE 'Not Screened' END) as ncd_screening_status,
-       ncd.next_screening_date                                                                    as next_ncd_screening_date,
+       ncd_fu.next_screening_date                                                                    as next_ncd_screening_date,
 
        -- CxCa Screening (With Age and Sex constraints)
-       CASE WHEN c.sex IN ('F', 'Female') AND TIMESTAMPDIFF(YEAR, c.date_of_birth, CURDATE()) >= 15 THEN COALESCE(cxca.cxca_screening_status, 'Not Screened') ELSE 'Not Applicable' END as cxca_screening_status,
+       COALESCE(cxca.cxca_screening_status, 'Not Applicable')                                                                        as cxca_screening_status,
+       cxca.next_follow_up_screening_date                                                                                            as next_cca_screening_date,
+       ncd_fu.systolic_blood_pressure                                                                                                as systolic_blood_pressure,
+       ncd_fu.diastolic_blood_pressure                                                                                               as diastolic_blood_pressure,
 
-       COALESCE(c.key_population, '-')                                                                               as target_population
+       COALESCE(phrh.target_population, c.key_population, '-')                                                                       as target_population
 
 FROM mamba_dim_client c
          LEFT JOIN LatestFollowUp lfu ON c.client_id = lfu.client_id
-         LEFT JOIN TransferIn ti ON c.client_id = ti.client_id
+         LEFT JOIN Medical_Aggregates ma ON c.client_id = ma.client_id
          LEFT JOIN vl_eligibility lab ON c.client_id = lab.client_id
-         LEFT JOIN ARTStart art ON c.client_id = art.client_id
          LEFT JOIN Identifiers id ON c.client_id = id.patient_id
-         LEFT JOIN TPT_Events tpt ON c.client_id = tpt.client_id
-         LEFT JOIN TB_Events tb ON c.client_id = tb.client_id
          LEFT JOIN ICT_Events ict ON c.client_id = ict.client_id
+         LEFT JOIN ICT_General_Events ict_gen ON c.client_id = ict_gen.client_id
          LEFT JOIN NCD_Screening_Events ncd ON c.client_id = ncd.client_id
-         LEFT JOIN CXCA_Events cxca ON c.client_id = cxca.client_id
+         LEFT JOIN NCD_FollowUp_Events ncd_fu ON c.client_id = ncd_fu.client_id
+         LEFT JOIN CXCA_Status cxca ON c.client_id = cxca.client_id
          LEFT JOIN PMTCT_CTE pmtct ON c.client_id = pmtct.client_id
-         LEFT JOIN PMTCT_Discharge_CTE pmtct_dis ON c.client_id = pmtct_dis.client_id;
+         LEFT JOIN PMTCT_Discharge_CTE pmtct_dis ON c.client_id = pmtct_dis.client_id
+         LEFT JOIN Registration reg ON c.client_id = reg.client_id
+         LEFT JOIN PHRH_Target_Population phrh ON c.client_id = phrh.client_id
+         LEFT JOIN FamilyPlanning fp ON c.client_id = fp.client_id;
 -- $END

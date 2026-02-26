@@ -45,6 +45,7 @@ CREATE TABLE IF NOT EXISTS mamba_fact_client
     pregnancy_status               VARCHAR(50),
     pmtct_status                   VARCHAR(50),
     family_planning_method         VARCHAR(255),
+    who_stage                      VARCHAR(50),  -- Added
 
     last_visit_date                DATE,
     days_overdue                   INT,
@@ -74,6 +75,9 @@ CREATE TABLE IF NOT EXISTS mamba_fact_client
     ncd_screening_status           VARCHAR(100),
     next_ncd_screening_date        DATE,         -- Added
     cxca_screening_status          VARCHAR(100),
+    next_cca_screening_date        DATE,
+    systolic_blood_pressure        INT,
+    diastolic_blood_pressure       INT,
     target_population              VARCHAR(100),
 
     -- Metadata
