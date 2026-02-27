@@ -35,7 +35,6 @@ CREATE TABLE IF NOT EXISTS mamba_fact_client
     mobile_phone                   VARCHAR(50),
     address_completeness           VARCHAR(20),
 
-    -- Clinical Follow-up
     current_status                 VARCHAR(50),
     current_regimen                VARCHAR(255),
     regimen_dose                   VARCHAR(255),
@@ -50,40 +49,34 @@ CREATE TABLE IF NOT EXISTS mamba_fact_client
     last_visit_date                DATE,
     days_overdue                   INT,
 
-    -- Viral Load
     last_vl_date                   DATE,
     last_vl_result                 NUMERIC(10, 2),
     is_suppressed                  BOOLEAN,
     vl_status                      VARCHAR(100),
     vl_eligibility_date            DATE,
 
-    -- TPT
     tpt_status                     VARCHAR(50),
-    tpt_start_date                 DATE,         -- Added
-    tpt_completed_date             DATE,         -- Added
-    tpt_discontinued_date          DATE,         -- Added
+    tpt_start_date                 DATE,
+    tpt_completed_date             DATE,
+    tpt_discontinued_date          DATE,
 
--- TB Treatment
     active_tb_diagnosis_date       DATE,
     tb_treatment_start_date        DATE,
     tb_treatment_discontinued_date DATE,
     tb_treatment_completed_date    DATE,
 
-    -- Other Statuses
     dsd_category                   VARCHAR(100),
     ict_screening_status           VARCHAR(100),
     ncd_screening_status           VARCHAR(100),
-    next_ncd_screening_date        DATE,         -- Added
+    next_ncd_screening_date        DATE,
     cxca_screening_status          VARCHAR(100),
     next_cca_screening_date        DATE,
     systolic_blood_pressure        INT,
     diastolic_blood_pressure       INT,
     target_population              VARCHAR(100),
 
-    -- Metadata
     last_updated                   TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-    -- Indexes for Performance
     INDEX idx_uuid (patient_uuid),
     INDEX idx_mrn (mrn),
     INDEX idx_status (current_status)
