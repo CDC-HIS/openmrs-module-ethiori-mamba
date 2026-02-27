@@ -10,7 +10,6 @@ INSERT INTO mamba_fact_client
  tb_treatment_completed_date, dsd_category, ict_screening_status, ncd_screening_status, next_ncd_screening_date,
  cxca_screening_status, next_cca_screening_date, systolic_blood_pressure, diastolic_blood_pressure, target_population)
 WITH
-    -- 1. Get Latest Clinical Follow-up with all flattened columns
     FollowUp AS (SELECT follow_up.client_id,
                         follow_up.encounter_id,
                         follow_up_date_followup_,
@@ -88,7 +87,6 @@ WITH
                           LEFT JOIN mamba_flat_encounter_follow_up_9 USING (encounter_id)
                           LEFT JOIN mamba_flat_encounter_follow_up_10 USING (encounter_id)),
 
-    -- 2. Isolate the absolute latest follow-up for baseline stats
     LatestFollowUp AS (SELECT *
                        FROM (SELECT client_id,
                                     follow_up_date_followup_                                                                             as visit_date,
@@ -109,7 +107,6 @@ WITH
                                     dsd_category,
                                     date_of_event                                                                                        as hiv_confirmed_date,
                                     transfer_in,
-                                    -- Extra columns for CXCA logic optimization
                                     eligible_for_cxca_screening,
                                     reason_for_not_being_eligible,
                                     other_reason_for_not_being_eligible_for_cxca,
@@ -119,7 +116,6 @@ WITH
                              WHERE follow_up_date_followup_ IS NOT NULL) ranked
                        WHERE rn = 1),
 
-    -- 3. Medical & Transfer Aggregates (Consolidated scan of FollowUp)
     Medical_Aggregates AS (SELECT client_id,
                                   MIN(CASE WHEN transfer_in IN ('Yes', 'True', '1') OR follow_up_status IN ('Transfer in', 'Transfer In', 'TI') THEN follow_up_date_followup_ END) as transfer_in_date,
                                   MIN(art_start_date) as art_start_date,
@@ -134,7 +130,6 @@ WITH
                            FROM FollowUp
                            GROUP BY client_id),
 
-    -- 4. Rank Viral Load Events (Sent, Switch, Performed)
     Vl_Events AS (SELECT encounter_id,
                          client_id,
                          follow_up_date_followup_,
@@ -151,7 +146,6 @@ WITH
                          ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY (date_viral_load_results_received IS NOT NULL) DESC, date_viral_load_results_received DESC, encounter_id DESC) AS rn_perf
                   FROM FollowUp),
 
-    -- 5. Reconcile Performed vs Sent dates and infer VL status
     vl_performed AS (SELECT vl_perf.encounter_id,
                             vl_perf.client_id,
                             vl_sent.viral_load_sent_date AS VL_Sent_Date,
@@ -172,7 +166,6 @@ WITH
                               LEFT JOIN Vl_Events vl_sent ON vl_perf.client_id = vl_sent.client_id AND vl_sent.rn_sent = 1 AND vl_sent.viral_load_sent_date IS NOT NULL
                      WHERE vl_perf.rn_perf = 1),
 
-    -- 6. Centralize Clinical Scenario calculation
     vl_scenario AS (SELECT f_case.client_id, f_case.art_start_date, f_case.visit_date, f_case.follow_up_status, sub_switch_date.FollowupDate as switchDate, vlperfdate.VL_Sent_Date, vlperfdate.viral_load_perform_date, vlperfdate.viral_load_status_inferred,
                            CASE
                                WHEN vlperfdate.VL_Sent_Date IS NULL AND f_case.follow_up_status = 'Restart medication' THEN 'RESTART_NULL'
@@ -194,7 +187,6 @@ WITH
                              LEFT JOIN Vl_Events as sub_switch_date ON sub_switch_date.client_id = f_case.client_id AND sub_switch_date.rn_switch = 1 AND sub_switch_date.regimen_change IS NOT NULL
                     WHERE f_case.rn = 1),
 
-    -- 7. Evaluate final VL eligibility dates
     vl_eligibility AS (SELECT *,
                               CASE scenario_type
                                   WHEN 'RESTART_NULL' THEN DATE_ADD(visit_date, INTERVAL 91 DAY)
@@ -226,7 +218,6 @@ WITH
                                   END AS vl_status_final
                        FROM vl_scenario),
 
-    -- 8. Identifiers (NCD, PHRH, ICD)
     Identifiers AS (SELECT patient_id,
                            MAX(CASE WHEN pit.name = 'PHRH' THEN pi.identifier END) as phrh_code,
                            MAX(CASE WHEN pit.name = 'NCD' THEN pi.identifier END)  as ncd_code,
@@ -237,7 +228,6 @@ WITH
                     WHERE pit.name IN ('PHRH', 'NCD', 'ICD')
                     GROUP BY patient_id),
 
-    -- 9. ICT Screening Logic
     ICT_Events AS (SELECT *
                    FROM (SELECT client_id,
                                 CASE WHEN accepted = 'Yes' THEN 'Accepted' WHEN accepted = 'No' THEN 'Refused' ELSE 'Offered' END as ict_status,
@@ -246,7 +236,6 @@ WITH
                          WHERE offered_date IS NOT NULL) ranked
                    WHERE rn = 1),
 
-    -- 10. ICT General Logic (Latest ICT Number)
     ICT_General_Events AS (SELECT *
                            FROM (SELECT client_id,
                                         ict_serial_number as ict_number,
@@ -255,7 +244,6 @@ WITH
                                  WHERE ict_serial_number IS NOT NULL AND ict_serial_number != '') ranked
                            WHERE rn = 1),
 
-    -- 11. NCD Screening Events
     NCD_Screening_Events AS (SELECT *
                              FROM (SELECT client_id,
                                           baseline_diagnosis,
@@ -264,7 +252,6 @@ WITH
                                    WHERE screening_date IS NOT NULL) ranked
                              WHERE rn = 1),
 
-    -- 12. NCD Follow-up Events
     NCD_FollowUp_Events AS (SELECT *
                             FROM (SELECT f.client_id,
                                          return_visit_date                                                                   as next_screening_date,
@@ -276,7 +263,6 @@ WITH
                                   WHERE return_visit_date IS NOT NULL OR systolic_blood_pressure IS NOT NULL OR diastolic_blood_pressure IS NOT NULL) ranked
                             WHERE rn = 1),
 
-    -- 13. Prev Screening for CxCa
     CXCA_PrevScreening AS (SELECT *
                            FROM (SELECT client_id,
                                         follow_up_date_followup_                                                                             as follow_up_date,
@@ -297,7 +283,6 @@ WITH
                                  WHERE cx_ca_screening_status = 'Cervical cancer screening performed') ranked
                            WHERE rn = 1),
 
-    -- 14. CxCa Eligibility Base (Optimized: Using LatestFollowUp)
     CXCA_Eligibility_Base AS (SELECT lf.client_id,
                                      lf.visit_date,
                                      lf.follow_up_status                                                                         as final_follow_up_status,
@@ -382,7 +367,6 @@ WITH
                                        LEFT JOIN CXCA_PrevScreening ps ON lf.client_id = ps.client_id
                                        JOIN mamba_dim_client c ON lf.client_id = c.client_id),
 
-    -- 15. CXCA Status (Final Color Coding)
     CXCA_Status AS (SELECT base.*,
                            CASE
                                WHEN base.sex = 'Male' OR Age < 25 OR Age > 65 OR
@@ -402,28 +386,24 @@ WITH
                                END AS cxca_screening_status
                     FROM CXCA_Eligibility_Base AS base),
 
-    -- 16. PMTCT Logic
     PMTCT_CTE AS (SELECT client_id,
                          MAX(date_of_enrollment_or_booking) as pmtct_start_date
                   FROM mamba_flat_encounter_pmtct_enrollment
                   WHERE date_of_enrollment_or_booking IS NOT NULL
                   GROUP BY client_id),
 
-    -- 17. PMTCT Discharge Logic
     PMTCT_Discharge_CTE AS (SELECT client_id,
                                    MAX(discharge_date) as pmtct_discharge_date
                             FROM mamba_flat_encounter_pmtct_discharge
                             WHERE discharge_date IS NOT NULL
                             GROUP BY client_id),
 
-    -- 18. Registration Logic (Avoid Fetching Duplicates)
     Registration AS (SELECT client_id,
                             MIN(registration_date) as registration_date
                      FROM mamba_flat_encounter_registration
                      WHERE registration_date IS NOT NULL
                      GROUP BY client_id),
 
-    -- 19. PHRH Target Population Logic (Latest record with target_population)
     PHRH_Target_Population AS (SELECT *
                                FROM (SELECT client_id,
                                             target_population,
@@ -432,7 +412,6 @@ WITH
                                      WHERE target_population IS NOT NULL AND target_population != '') ranked
                                WHERE rn = 1),
 
-    -- 20. Latest Family Planning Method (Any follow-up)
     FamilyPlanning AS (SELECT *
                        FROM (SELECT client_id,
                                     method_of_family_planning,
@@ -448,27 +427,22 @@ SELECT c.client_id,
        COALESCE(c.patient_name, '-')                                                                                 as patient_name,
        c.sex,
        c.date_of_birth                                                                            as birthdate,
-       -- Fix: Removed Coalesce to '-' to match INT type
        TIMESTAMPDIFF(YEAR, c.date_of_birth, CURDATE())                                            as age,
 
-       -- Identifiers (ICT Added from ICT_General_Events)
        COALESCE(c.uan, '-')                                                                                          as uan,
        COALESCE(id.phrh_code, '-')                                                                                   as phrh_code,
        COALESCE(id.ncd_code, '-')                                                                                    as ncd_code,
        COALESCE(id.icd_number, '-')                                                                                  as icd_number,
        COALESCE(ict_gen.ict_number, '-')                                                                             as ict_number,
 
-       -- Registration & One-Time Data Header Info
        reg.registration_date                                                                      as registration_date,
        ma.art_start_date                                                                          as art_start_date,
-       -- Fix: Removed Coalesce to '-' to match INT type
        TIMESTAMPDIFF(MONTH, ma.art_start_date, CURDATE())                                         as months_on_art,
        lfu.next_visit_date                                                                        as next_appointment_date,
 
        lfu.hiv_confirmed_date                                                                     as hiv_confirmed_date,
        ma.transfer_in_date                                                                        as transfer_in_date,
 
-       -- Address & Completeness (With Fallbacks)
        COALESCE(c.state_province, '-')                                                                               as region,
        COALESCE(c.county_district, '-')                                                                              as zone,
        COALESCE(c.city_village, '-')                                                                                 as woreda,
@@ -477,9 +451,8 @@ SELECT c.client_id,
        COALESCE(c.mobile_no, '-')                                                                                    as mobile_phone,
        CASE WHEN (c.patient_name IS NOT NULL AND c.state_province IS NOT NULL AND c.mobile_no IS NOT NULL) THEN 'GREEN' ELSE 'YELLOW' END as address_completeness,
 
-       -- Status Logic
        CASE
-           WHEN lfu.visit_date IS NULL THEN '-' -- Client Registered but No Clinical Data yet
+           WHEN lfu.visit_date IS NULL THEN '-'
            WHEN lfu.follow_up_status IN ('Dead', 'Died') THEN 'Dead'
            WHEN lfu.follow_up_status IN ('Transferred out', 'TO') THEN 'Transferred Out'
            WHEN lfu.treatment_end_date >= CURDATE() THEN 'Active'
@@ -489,7 +462,6 @@ SELECT c.client_id,
        COALESCE(lfu.regimen, '-')                                                                                    as current_regimen,
        COALESCE(lfu.regimen_dose, '-')                                                                               as regimen_dose,
 
-       -- Regimen Line (Handling NULLs)
        CASE
            WHEN lfu.regimen IS NULL THEN '-'
            WHEN lfu.regimen LIKE '1%' THEN 'First Line'
@@ -498,7 +470,15 @@ SELECT c.client_id,
            END                                                                                                           as regimen_line,
 
        lfu.treatment_end_date                                                                     as tx_curr_end_date,
-       COALESCE(lfu.nutritional_status_of_adult, lfu.nutritional_status_of_older_child_a, CASE WHEN lfu.mid_upper_arm_circumference IS NOT NULL THEN CONCAT('MUAC: ', lfu.mid_upper_arm_circumference) END, '-') as nutritional_status,
+       CASE COALESCE(lfu.nutritional_status_of_adult, lfu.nutritional_status_of_older_child_a)
+           WHEN 'normal' THEN 'Normal'
+           WHEN 'Malnutrition of mild degree (Gomez: 75% to Less than 90% of Standard Weight)' THEN 'Mild Malnutrition'
+           WHEN 'Malnutrition of moderate degree (Gomez: 60% to Less than 75% of Standard Weight)' THEN 'Moderate Malnutrition'
+           WHEN 'Severe protein-calorie malnutrition (Gomez: Less than 60% of Standard Weight)' THEN 'Severe Malnutrition'
+           WHEN 'Overweight' THEN 'Overweight'
+           WHEN 'Obese Abdomen' THEN 'Obese'
+           ELSE COALESCE(lfu.nutritional_status_of_adult, lfu.nutritional_status_of_older_child_a, '-')
+           END AS nutritional_status,
        COALESCE(lfu.pregnancy_status, '-')                                                                           as pregnancy_status,
        CASE
            WHEN (pmtct.pmtct_start_date IS NOT NULL AND (pmtct_dis.pmtct_discharge_date IS NULL OR pmtct_dis.pmtct_discharge_date < pmtct.pmtct_start_date)) THEN 'Currently on PMTCT'
@@ -508,12 +488,9 @@ SELECT c.client_id,
        COALESCE(lfu.who_stage, '-')                                                                                  as who_stage,
 
        lfu.visit_date                                                                             as last_visit_date,
-       -- Fix: Removed Coalesce to '-' to match INT type
        DATEDIFF(CURDATE(), COALESCE(lfu.next_visit_date, lfu.visit_date))                         as days_overdue,
 
-       -- Viral Load
        lab.viral_load_perform_date                                                                as last_vl_date,
-       -- Fix: Removed Coalesce to '-' to match NUMERIC type
        lab.viral_load_count                                                                       as last_vl_result,
        CASE
            WHEN lab.viral_load_status_inferred = 'S' THEN 1
@@ -521,7 +498,6 @@ SELECT c.client_id,
            ELSE NULL
            END                                                as is_suppressed,
 
-       -- Viral Load Status Logic (Handling Registered-Only Clients)
        CASE
            WHEN lfu.visit_date IS NULL THEN '-'
            WHEN lab.vl_status_final = 'N/A' THEN 'Not Applicable'
@@ -533,7 +509,6 @@ SELECT c.client_id,
 
        lab.eligiblityDate                                                                         as vl_eligibility_date,
 
-       -- TPT Logic
        CASE
            WHEN ma.tpt_completed_date IS NOT NULL THEN 'Gold (TPT Completed)'
            WHEN ma.tpt_start_date IS NOT NULL AND ma.tpt_completed_date IS NULL AND ma.tpt_discontinued_date IS NULL THEN 'On TPT'
@@ -545,7 +520,6 @@ SELECT c.client_id,
        ma.tpt_completed_date                                                                     as tpt_completed_date,
        ma.tpt_discontinued_date                                                                  as tpt_discontinued_date,
 
-       -- TB Treatment
        ma.active_tb_diagnosis_date                                                                as active_tb_diagnosis_date,
        ma.tb_treatment_start_date                                                                 as tb_treatment_start_date,
        ma.tb_treatment_discontinued_date                                                         as tb_treatment_discontinued_date,
@@ -553,12 +527,10 @@ SELECT c.client_id,
 
        COALESCE(lfu.dsd_category, '-')                                                                               as dsd_category,
 
-       -- Screening Modules
        COALESCE(ict.ict_status, 'Not Screened')                                                                      as ict_screening_status,
        COALESCE(ncd.baseline_diagnosis, CASE WHEN ncd.client_id IS NOT NULL THEN 'Screened' ELSE 'Not Screened' END) as ncd_screening_status,
        ncd_fu.next_screening_date                                                                    as next_ncd_screening_date,
 
-       -- CxCa Screening (With Age and Sex constraints)
        COALESCE(cxca.cxca_screening_status, 'Not Applicable')                                                                        as cxca_screening_status,
        cxca.next_follow_up_screening_date                                                                                            as next_cca_screening_date,
        ncd_fu.systolic_blood_pressure                                                                                                as systolic_blood_pressure,
