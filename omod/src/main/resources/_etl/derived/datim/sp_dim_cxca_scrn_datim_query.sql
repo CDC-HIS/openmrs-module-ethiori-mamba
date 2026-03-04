@@ -164,12 +164,11 @@ BEGIN
     ELSE
         SELECT GROUP_CONCAT(CONCAT('SUM(CASE WHEN fine_age_group ',
                                    CASE
-                                       -- If the datim_agegroup is '50-54' or '55-59',
-                                       -- aggregate them under the '50+' column.
+
                                        WHEN datim_agegroup IN ('50-54', '55-59', '60-64', '65+') THEN
-                                           'IN (''50-54'', ''55-59'', ''60-64'', ''65+'')' -- Condition for the aggregated '50+' column
+                                           'IN (''50-54'', ''55-59'', ''60-64'', ''65+'')'
                                        ELSE
-                                           CONCAT(' = ', '''', datim_agegroup, '''') -- Condition for all other individual age groups
+                                           CONCAT(' = ', '''', datim_agegroup, '''')
                                        END,
                                    ' THEN count ELSE 0 END) AS `',
                                    REPLACE(
