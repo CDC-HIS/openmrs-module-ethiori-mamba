@@ -48,7 +48,7 @@ BEGIN
         SET outcome_condition = CONCAT(' art_start_date IS NOT NULL AND art_start_date between ''',REPORT_START_DATE,''' AND ''',REPORT_END_DATE,''' and tb_treatment_start_date between ''',REPORT_START_DATE,''' AND ''',REPORT_END_DATE,''' ');
         SET source_table = 'tb_treatment';
     ELSEIF REPORT_TYPE = 'NUMERATOR_TOTAL' THEN
-        SET outcome_condition = CONCAT(' art_start_date IS NOT NULL AND tb_treatment_start_date between ''',REPORT_START_DATE,''' AND ',REPORT_END_DATE,' ');
+        SET outcome_condition = CONCAT(' art_start_date IS NOT NULL AND art_start_date <= ''',REPORT_END_DATE,''' AND tb_treatment_start_date between ''',REPORT_START_DATE,''' AND ''',REPORT_END_DATE,''' ');
         SET source_table = 'tb_treatment';
     ELSEIF REPORT_TYPE = 'NUMERATOR_PREV' THEN
         SET outcome_condition = CONCAT(' art_start_date IS NOT NULL AND art_start_date < ''',REPORT_START_DATE,''' and tb_treatment_start_date between ''',REPORT_START_DATE,''' AND ''',REPORT_END_DATE,''' ');
