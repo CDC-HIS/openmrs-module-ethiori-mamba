@@ -29,7 +29,7 @@ public class TXTBReportMamba implements ReportManager {
 	
 	@Override
 	public String getName() {
-		return "LINELIST- TB Art";
+		return "LINELIST- TX_TB (Denominator/Numerator) & TB_ART";
 	}
 	
 	@Override
@@ -67,7 +67,7 @@ public class TXTBReportMamba implements ReportManager {
 		TXTBDataSetDefinitionMamba dataSetDefinitionMamba = new TXTBDataSetDefinitionMamba();
 		dataSetDefinitionMamba.addParameters(getParameters());
 		
-		reportDefinition.addDataSetDefinition("TB Report",
+		reportDefinition.addDataSetDefinition("TX_TB (Denominator/Numerator) & TB_ART",
 		    map(dataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC},type=${type}"));
 		return reportDefinition;
 	}
