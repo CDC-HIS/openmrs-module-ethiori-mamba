@@ -98,7 +98,7 @@ BEGIN
            f_case.regimen                                      as `Regimen`,
            f_case.art_dose_days                                as `ARV Dose Days`,
            f_case.adherence                                    as ` Adherence`,
-           pregnancy_status                                    as `Pregnant?`,
+           f_case.pregnancy_status                                    as `Pregnant?`,
            breast_feeding_status                               as `Breastfeeding?`,
            ''
                                                                as `On PMTCT?`,
