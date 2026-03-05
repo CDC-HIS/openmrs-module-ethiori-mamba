@@ -22,15 +22,15 @@ BEGIN
         SET source_table = 'tb_screening';
     ELSEIF REPORT_TYPE = 'NEW_ART_NEGATIVE' THEN
         SET outcome_condition =
-                CONCAT(' art_start_date between ''',REPORT_START_DATE,''' AND ''',REPORT_END_DATE,'''  and screening_result != ''Positive''  ');
+                CONCAT(' art_start_date between ''',REPORT_START_DATE,''' AND ''',REPORT_END_DATE,'''  and (screening_result != ''Positive'' OR screening_result IS NULL)  ');
         SET source_table = 'tb_screening';
     ELSEIF REPORT_TYPE = 'PREV_ART_POSITIVE' THEN
         SET outcome_condition =
-                CONCAT(' art_start_date < ''',REPORT_END_DATE,''' and follow_up_status in (''Alive'', ''Restart medication'') and screening_result = ''Positive'' ');
+                CONCAT(' art_start_date < ''',REPORT_START_DATE,''' and follow_up_status in (''Alive'', ''Restart medication'') and screening_result = ''Positive'' ');
         SET source_table = 'tb_screening';
     ELSEIF REPORT_TYPE = 'PREV_ART_NEGATIVE' THEN
         SET outcome_condition =
-                CONCAT(' art_start_date < ''',REPORT_END_DATE,''' and follow_up_status in (''Alive'', ''Restart medication'')  and screening_result != ''Positive'' ');
+                CONCAT(' art_start_date < ''',REPORT_START_DATE,''' and follow_up_status in (''Alive'', ''Restart medication'')  and (screening_result != ''Positive'' OR screening_result IS NULL) ');
         SET source_table = 'tb_screening';
     ELSEIF REPORT_TYPE = 'SCREEN_TYPE' THEN
         SET outcome_condition = ' 1=1 ';
