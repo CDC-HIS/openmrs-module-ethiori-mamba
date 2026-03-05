@@ -19,8 +19,8 @@ BEGIN
                              follow_up_date_followup_                  as follow_up_date,
                              art_antiretroviral_start_date             as art_start_date,
                              height,
-                             pregnancy_status,
-                             currently_breastfeeding_child,
+                             follow_up_4.pregnancy_status,
+                             follow_up_7.currently_breastfeeding_child,
                              specimen_sent_to_lab,
                              mfeia.date_hiv_confirmed                  as date_hiv_confirmed,
                              current_who_hiv_stage,
@@ -41,7 +41,7 @@ BEGIN
                              tuberculosis_drug_treatment_start_d       as tb_treatment_start_date,
                              date_active_tbrx_completed       as tb_treatment_completed_date,
                              date_active_tbrx_dc       as tb_treatment_discontinued_date,
-                             mfepe.operation_triple_zero_enrollment_da as booking_date
+                             mfepe.date_of_enrollment_or_booking as booking_date
                       FROM mamba_flat_encounter_intake_a mfeia
                                LEFT JOIN mamba_flat_encounter_follow_up follow_up
                                          on follow_up.client_id = mfeia.client_id
@@ -99,7 +99,7 @@ BEGIN
            f_case.regimen                                      as `Regimen`,
            f_case.art_dose_days                                as `ARV Dose Days`,
            f_case.adherence                                    as ` Adherence`,
-           pregnancy_status                                    as `Pregnant?`,
+           f_case.pregnancy_status                                    as `Pregnant?`,
            currently_breastfeeding_child                       as `Breastfeeding?`,
            case
                when client.sex = 'MALE'
