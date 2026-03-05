@@ -62,23 +62,24 @@ BEGIN
                            where tpt_start_date >= fn_ethiopian_to_gregorian_calendar(date_add(
                                    fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'), INTERVAL -6 MONTH))
                              AND tpt_start_date < REPORT_START_DATE),
-         tpt_started as (select tmp_tpt_start.*,
-                                sex,
-                                date_of_birth
+         tpt_started as (select tmp_tpt_start.*
                          from tmp_tpt_start
-                                  join mamba_dim_client client on client.client_id = tmp_tpt_start.client_id
                          where row_num = 1),
 
          tmp_tpt_complete as (select client_id,
                                      tpt_completed_date,
                                      art_start_date,
+                                     tpt_adherence,
+                                     tpt_dosday_type,
+                                     tpt_type,
                                      ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY tpt_completed_date DESC, FollowUp.encounter_id DESC) AS row_num
                               from FollowUp
                               where tpt_completed_date >= fn_ethiopian_to_gregorian_calendar(date_add(
                                       fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'), INTERVAL -6
                                       MONTH))
                                 AND tpt_completed_date < REPORT_END_DATE),
-         tpt_completed as (select tmp_tpt_complete.*
+         tpt_completed as (select tmp_tpt_complete.*,
+                                  tpt_started.tpt_start_date
                            from tmp_tpt_complete
                                     join tpt_started on tpt_started.client_id = tmp_tpt_complete.client_id
                            where tmp_tpt_complete.row_num = 1),
@@ -89,7 +90,19 @@ BEGIN
                                   FROM FollowUp
                                   where follow_up_date < REPORT_END_DATE),
 
-
+         tpt_events AS (SELECT client_id,
+                               tpt_completed_date,
+                               ROW_NUMBER() OVER (
+                                   PARTITION BY client_id
+                                   ORDER BY CASE WHEN tpt_completed_date IS NOT NULL THEN 0 ELSE 1 END, tpt_completed_date DESC )     AS rn_completed,
+                               tpt_discontinue_date,
+                               ROW_NUMBER() OVER (
+                                   PARTITION BY client_id
+                                   ORDER BY CASE WHEN tpt_discontinue_date IS NOT NULL THEN 0 ELSE 1 END, tpt_discontinue_date DESC ) AS rn_discontinued
+                        FROM FollowUp
+                        WHERE follow_up_date < REPORT_END_DATE
+                          AND (tpt_completed_date IS NOT NULL OR tpt_discontinue_date IS NOT NULL)
+         ),
          latest_follow_up AS (select *
                               from tmp_latest_follow_up
                               where r_n = 1)
@@ -106,13 +119,13 @@ BEGIN
            date_hiv_confirmed                                                     as `Hiv Confirmed Date in G.C.`,
            f_case.art_start_date                                                  as `ART Start Date EC.`,
            f_case.art_start_date                                                  as `ART Start Date G.C`,
-           f_case.tpt_start_date                                                  as `TPT Start Date in EC.`,
-           f_case.tpt_start_date                                                  as `TPT Start Date in G.C.`,
-           f_case.tpt_completed_date                                              as `TPT Completed Date in EC.`,
-           f_case.tpt_completed_date                                              as `TPT Completed Date in G.C.`,
-           f_case.tpt_discontinue_date                                            as `TPT Discontinued Date in EC.`,
-           f_case.tpt_discontinue_date                                            as `TPT Discontinued Date in G.C.`,
-           f_case.tpt_type                                                        as `TpT Type`,
+           tpt_completed.tpt_start_date                                           as `TPT Start Date in EC.`,
+           tpt_completed.tpt_start_date                                           as `TPT Start Date in G.C.`,
+           tpt_completed.tpt_completed_date                                       as `TPT Completed Date in EC.`,
+           tpt_completed.tpt_completed_date                                       as `TPT Completed Date in G.C.`,
+           tpt_discontinued.tpt_discontinue_date                                            as `TPT Discontinued Date in EC.`,
+           tpt_discontinued.tpt_discontinue_date                                            as `TPT Discontinued Date in G.C.`,
+           tpt_completed.tpt_type                                                        as `TpT Type`,
            CASE f_case.tpt_followup_status
                WHEN 'Alive' THEN 'Alive on ART'
                WHEN 'Restart medication' THEN 'Restart'
@@ -121,8 +134,8 @@ BEGIN
                WHEN 'Loss to follow-up (LTFU)' THEN 'Lost'
                WHEN 'Ran away' THEN 'Drop'
                END                                                                as `TPT Follow-up status`,
-           f_case.tpt_dosday_type                                                 as `TPT Dispensed Dose`,
-           f_case.tpt_adherence                                                   as `TPT Adherence`,
+           tpt_completed.tpt_dosday_type                                          as `TPT Dispensed Dose`,
+           tpt_completed.tpt_adherence                                            as `TPT Adherence`,
            f_case.follow_up_date                                                  as `Latest Follow-up Date in EC.`,
            f_case.follow_up_date                                                  as `Latest Follow-up Date in G.C.`,
            f_case.follow_up_status                                                as `Latest Follow-up Status`,
@@ -135,6 +148,7 @@ BEGIN
 
     FROM latest_follow_up AS f_case
              INNER JOIN tpt_completed on f_case.client_id = tpt_completed.client_id
+             LEFT JOIN tpt_events tpt_discontinued on f_case.client_id = tpt_discontinued.client_id AND tpt_discontinued.rn_discontinued=1
              INNER JOIN mamba_dim_client client on f_case.client_id = client.client_id
 
     ORDER BY client.patient_name;
