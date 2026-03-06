@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.openmrs.module</groupId>
         <artifactId>ethiohri-mamba</artifactId>
-        <version>1.0.5-SNAPSHOT</version>
+        <version>2.0.0</version>
     </parent>
 
     <artifactId>ethiohri-mamba-omod</artifactId>
