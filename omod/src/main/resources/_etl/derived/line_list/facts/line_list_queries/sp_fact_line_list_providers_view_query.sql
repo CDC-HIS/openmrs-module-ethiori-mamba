@@ -1020,10 +1020,10 @@ BEGIN
                WHEN offered.offered_date is null and final_follow_up_status NOT IN ("Dead", "Transferred Out")
                    THEN "Never Screened for ICT"
                WHEN offered.offered_date IS NOT NULL AND
-                    DATE_ADD(offered.offered_date, INTERVAL 730 DAY) > END_DATE
+                    DATE_ADD(offered.offered_date, INTERVAL 730 DAY) > COALESCE(END_DATE, CURDATE())
                    THEN "Screened for ICT Previously (Not Eligible)"
                WHEN offered.offered_date IS NOT NULL AND
-                    DATE_ADD(offered.offered_date, INTERVAL 730 DAY) <= END_DATE
+                    DATE_ADD(offered.offered_date, INTERVAL 730 DAY) <= COALESCE(END_DATE, CURDATE())
                    THEN "Currently Eligible for Rescreening"
                WHEN final_follow_up_status IN ("Dead", "Transferred Out")
                    THEN "Not Applicable" END                                 AS `ICT Eligibility Status`,
