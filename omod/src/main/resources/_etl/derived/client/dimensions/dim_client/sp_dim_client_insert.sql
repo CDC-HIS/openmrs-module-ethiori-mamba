@@ -1,5 +1,5 @@
 -- $BEGIN
-INSERT INTO mamba_dim_client (client_id,
+REPLACE INTO mamba_dim_client (client_id,
                               patient_name,
                               prefix,
                               given_name,
@@ -51,19 +51,28 @@ SELECT p.person_id,
        mag_normal.normal_agegroup                                                AS coarse_age_group,
        mag_datim.datim_agegroup                                                  AS fine_age_group
 FROM mamba_dim_person p
-         LEFT JOIN (select *, ROW_NUMBER() over (PARTITION BY person_id ORDER BY person_name_id desc) as row_num
-                    from mamba_dim_person_name
-                    where preferred = 1
-                      and voided = 0) pn ON p.person_id = pn.person_id
-         LEFT JOIN (select *, ROW_NUMBER() over (PARTITION BY person_id ORDER BY person_address_id desc) as row_num
-                    from mamba_dim_person_address
-                    where preferred = 1
-                      and voided = 0) p_addr ON p.person_id = p_addr.person_id
+         LEFT JOIN (
+    SELECT * FROM (
+                      SELECT person_id, prefix, given_name, middle_name, family_name,
+                             ROW_NUMBER() OVER (PARTITION BY person_id ORDER BY person_name_id DESC) as row_num
+                      FROM mamba_dim_person_name
+                      WHERE preferred = 1 AND voided = 0
+                  ) temp_pn WHERE temp_pn.row_num = 1
+) pn ON p.person_id = pn.person_id
+
+         LEFT JOIN (
+    SELECT * FROM (
+                      SELECT person_id, state_province, county_district, city_village,
+                             ROW_NUMBER() OVER (PARTITION BY person_id ORDER BY person_address_id DESC) as row_num
+                      FROM mamba_dim_person_address
+                      WHERE preferred = 1 AND voided = 0
+                  ) temp_addr WHERE temp_addr.row_num = 1
+) p_addr ON p.person_id = p_addr.person_id
+
          LEFT JOIN mamba_dim_patient_identifier p_id on p.person_id = p_id.patient_id
          LEFT JOIN mamba_dim_person_attribute p_attr on p.person_id = p_attr.person_id
          LEFT JOIN mamba_dim_agegroup mag_normal ON fn_mamba_age_calculator(p.birthdate, CURDATE()) = mag_normal.age
          LEFT JOIN mamba_dim_agegroup mag_datim ON fn_mamba_age_calculator(p.birthdate, CURDATE()) = mag_datim.age
-where pn.row_num=1 and p_addr.row_num=1
 GROUP BY p.person_id,
          pn.prefix,
          pn.given_name,
