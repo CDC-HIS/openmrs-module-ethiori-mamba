@@ -3,7 +3,6 @@ package org.openmrs.module.mambaetl.datasetevaluator.linelist;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.mambaetl.datasetdefinition.linelist.TXNewLineListDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.datasetdefinition.linelist.VlSentReceivedLineListDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
@@ -68,24 +67,27 @@ public class VlSentReceivedLineListDatasetEvaluatorMamba implements DataSetEvalu
         return null;
     }
 	
-	private List<ProcedureCall> createProcedureCalls(VlSentReceivedLineListDataSetDefinitionMamba dataSetDefinitionMamba) {
-        java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null ? new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime()):null ;
-        java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date( dataSetDefinitionMamba.getEndDate().getTime()):null ;
+	private List<ProcedureCall> createProcedureCalls(
+            VlSentReceivedLineListDataSetDefinitionMamba dataSetDefinitionMamba) {
+        java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null
+                ? new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime())
+                : null;
+        java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null
+                ? new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime())
+                : null;
 
         if (dataSetDefinitionMamba.getType().equalsIgnoreCase("sent")) {
             return Collections.singletonList(
                     new ProcedureCall("{call sp_fact_line_list_vl_sent_query(?,?)}", statement -> {
                         statement.setDate(1, startDate);
                         statement.setDate(2, endDate);
-                    })
-            );
+                    }));
         } else {
             return Collections.singletonList(
                     new ProcedureCall("{call sp_fact_line_list_vl_received_query(?,?)}", statement -> {
                         statement.setDate(1, startDate);
                         statement.setDate(2, endDate);
-                    })
-            );
+                    }));
         }
 
     }

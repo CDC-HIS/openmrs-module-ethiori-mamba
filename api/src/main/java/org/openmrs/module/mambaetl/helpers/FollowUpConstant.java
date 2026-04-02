@@ -1,9 +1,5 @@
 package org.openmrs.module.mambaetl.helpers;
 
-import org.springframework.util.StringUtils;
-
-import java.util.Arrays;
-
 public class FollowUpConstant {
 	
 	private static final String ALL = "All";

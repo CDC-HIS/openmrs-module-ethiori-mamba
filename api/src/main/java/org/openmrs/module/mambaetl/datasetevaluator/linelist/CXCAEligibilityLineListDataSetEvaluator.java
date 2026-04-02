@@ -7,8 +7,6 @@ import org.openmrs.module.mambaetl.datasetdefinition.linelist.CXCAEligibilityLis
 import org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
 import org.openmrs.module.reporting.dataset.DataSet;
-import org.openmrs.module.reporting.dataset.DataSetColumn;
-import org.openmrs.module.reporting.dataset.DataSetRow;
 import org.openmrs.module.reporting.dataset.SimpleDataSet;
 import org.openmrs.module.reporting.dataset.definition.DataSetDefinition;
 import org.openmrs.module.reporting.dataset.definition.evaluator.DataSetEvaluator;
@@ -22,7 +20,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper.*;
-import static org.openmrs.module.mambaetl.helpers.ValidationHelper.ValidateDates;
 
 @Handler(supports = { CXCAEligibilityListDatasetDefinition.class })
 public class CXCAEligibilityLineListDataSetEvaluator implements DataSetEvaluator {
@@ -42,7 +39,7 @@ public class CXCAEligibilityLineListDataSetEvaluator implements DataSetEvaluator
 
 		ResultSetMapper resultSetMapper = new ResultSetMapper();
 
-		if(!data.getRows().isEmpty()){
+		if (!data.getRows().isEmpty()) {
 			return data;
 		}
 		try (Connection connection = DataSetEvaluatorHelper.getDataSource().getConnection()) {
@@ -55,7 +52,7 @@ public class CXCAEligibilityLineListDataSetEvaluator implements DataSetEvaluator
 				executeStatements(statementContainer, procedureCalls);
 
 				ResultSet[] allResultSets = statementContainer.getResultSets();
-				mapResultSet(data, resultSetMapper, allResultSets,Boolean.TRUE);
+				mapResultSet(data, resultSetMapper, allResultSets, Boolean.TRUE);
 				connection.commit();
 				return data;
 
@@ -70,13 +67,14 @@ public class CXCAEligibilityLineListDataSetEvaluator implements DataSetEvaluator
 	
 	private List<ProcedureCall> createProcedureCalls(CXCAEligibilityListDatasetDefinition dataSetDefinitionMamba) {
 
-		java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date( dataSetDefinitionMamba.getEndDate().getTime()):null ;
+		java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null
+				? new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime())
+				: null;
 
 		return Collections.singletonList(
 
-                new ProcedureCall("{call sp_fact_line_list_cxca_eligibility_query(?)}", statement -> {
-                    statement.setDate(1, endDate);
-                })
-        );
+				new ProcedureCall("{call sp_fact_line_list_cxca_eligibility_query(?)}", statement -> {
+					statement.setDate(1, endDate);
+				}));
 	}
 }

@@ -8,8 +8,6 @@ import org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
 import static org.openmrs.module.mambaetl.helpers.ValidationHelper.ValidateDates;
 import org.openmrs.module.reporting.dataset.DataSet;
-import org.openmrs.module.reporting.dataset.DataSetColumn;
-import org.openmrs.module.reporting.dataset.DataSetRow;
 import org.openmrs.module.reporting.dataset.SimpleDataSet;
 import org.openmrs.module.reporting.dataset.definition.DataSetDefinition;
 import org.openmrs.module.reporting.dataset.definition.evaluator.DataSetEvaluator;
@@ -42,21 +40,24 @@ public class CXCAScreeningLineListDataSetEvaluator implements DataSetEvaluator {
 
 		ResultSetMapper resultSetMapper = new ResultSetMapper();
 
-		ValidateDates(data, cxcaScreeningLineListDatasetDefinition.getStartDate(), cxcaScreeningLineListDatasetDefinition.getEndDate());
-		if(!data.getRows().isEmpty()){
+		ValidateDates(data, cxcaScreeningLineListDatasetDefinition.getStartDate(),
+				cxcaScreeningLineListDatasetDefinition.getEndDate());
+		if (!data.getRows().isEmpty()) {
 			return data;
 		}
 		try (Connection connection = DataSetEvaluatorHelper.getDataSource().getConnection()) {
 			connection.setAutoCommit(false);
 
-			List<DataSetEvaluatorHelper.ProcedureCall> procedureCalls = createProcedureCalls(cxcaScreeningLineListDatasetDefinition);
+			List<DataSetEvaluatorHelper.ProcedureCall> procedureCalls = createProcedureCalls(
+					cxcaScreeningLineListDatasetDefinition);
 
-			try (DataSetEvaluatorHelper.CallableStatementContainer statementContainer = prepareStatements(connection, procedureCalls)) {
+			try (DataSetEvaluatorHelper.CallableStatementContainer statementContainer = prepareStatements(connection,
+					procedureCalls)) {
 
 				executeStatements(statementContainer, procedureCalls);
 
 				ResultSet[] allResultSets = statementContainer.getResultSets();
-				mapResultSet(data, resultSetMapper, allResultSets,Boolean.TRUE);
+				mapResultSet(data, resultSetMapper, allResultSets, Boolean.TRUE);
 				connection.commit();
 				return data;
 
@@ -70,15 +71,18 @@ public class CXCAScreeningLineListDataSetEvaluator implements DataSetEvaluator {
 	}
 	
 	private List<ProcedureCall> createProcedureCalls(CXCAScreeningLineListDatasetDefinition dataSetDefinitionMamba) {
-		java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null ? new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime()):null ;
-		java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date( dataSetDefinitionMamba.getEndDate().getTime()):null ;
+		java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null
+				? new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime())
+				: null;
+		java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null
+				? new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime())
+				: null;
 
 		return Collections.singletonList(
 
-                new ProcedureCall("{call sp_fact_line_list_cxca_scrn_query(?,?)}", statement -> {
-                    statement.setDate(1, startDate);
-                    statement.setDate(2, endDate);
-                })
-        );
+				new ProcedureCall("{call sp_fact_line_list_cxca_scrn_query(?,?)}", statement -> {
+					statement.setDate(1, startDate);
+					statement.setDate(2, endDate);
+				}));
 	}
 }

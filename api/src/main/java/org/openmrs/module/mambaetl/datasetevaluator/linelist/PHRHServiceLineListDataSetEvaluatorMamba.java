@@ -3,7 +3,6 @@ package org.openmrs.module.mambaetl.datasetevaluator.linelist;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.mambaetl.datasetdefinition.linelist.HVLLineListDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.datasetdefinition.linelist.PHRHServiceLineListDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
@@ -39,8 +38,9 @@ public class PHRHServiceLineListDataSetEvaluatorMamba implements DataSetEvaluato
 		PHRHServiceLineListDataSetDefinitionMamba phrhServiceLineListDataSetDefinitionMamba = (PHRHServiceLineListDataSetDefinitionMamba) dataSetDefinition;
 		SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
 		ResultSetMapper resultSetMapper = new ResultSetMapper();
-		ValidateDates(data, phrhServiceLineListDataSetDefinitionMamba.getStartDate(), phrhServiceLineListDataSetDefinitionMamba.getEndDate());
-		if(!data.getRows().isEmpty()){
+		ValidateDates(data, phrhServiceLineListDataSetDefinitionMamba.getStartDate(),
+				phrhServiceLineListDataSetDefinitionMamba.getEndDate());
+		if (!data.getRows().isEmpty()) {
 			return data;
 		}
 		try (Connection connection = DataSetEvaluatorHelper.getDataSource().getConnection()) {
@@ -53,7 +53,7 @@ public class PHRHServiceLineListDataSetEvaluatorMamba implements DataSetEvaluato
 				executeStatements(statementContainer, procedureCalls);
 
 				ResultSet[] allResultSets = statementContainer.getResultSets();
-				mapResultSet(data, resultSetMapper, allResultSets,Boolean.TRUE);
+				mapResultSet(data, resultSetMapper, allResultSets, Boolean.TRUE);
 				connection.commit();
 				return data;
 
@@ -67,16 +67,20 @@ public class PHRHServiceLineListDataSetEvaluatorMamba implements DataSetEvaluato
 	}
 	
 	private List<ProcedureCall> createProcedureCalls(PHRHServiceLineListDataSetDefinitionMamba dataSetDefinitionMamba) {
-		java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null ? new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime()):null ;
-		java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date( dataSetDefinitionMamba.getEndDate().getTime()):null ;
-		String targetGroup = dataSetDefinitionMamba.getTargetGroup() != null ? dataSetDefinitionMamba.getTargetGroup() : null;
+		java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null
+				? new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime())
+				: null;
+		java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null
+				? new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime())
+				: null;
+		String targetGroup = dataSetDefinitionMamba.getTargetGroup() != null ? dataSetDefinitionMamba.getTargetGroup()
+				: null;
 
 		return Collections.singletonList(
-                new ProcedureCall("{call sp_fact_line_list_phrh_service_query(?,?,?)}", statement -> {
-                    statement.setDate(1, startDate);
+				new ProcedureCall("{call sp_fact_line_list_phrh_service_query(?,?,?)}", statement -> {
+					statement.setDate(1, startDate);
 					statement.setDate(2, endDate);
 					statement.setString(3, targetGroup);
-                })
-        );
+				}));
 	}
 }

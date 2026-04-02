@@ -2,11 +2,9 @@ package org.openmrs.module.mambaetl.datasetevaluator.linelist;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jetbrains.annotations.NotNull;
 import org.openmrs.annotation.Handler;
 import org.openmrs.module.mambaetl.datasetdefinition.linelist.PEPLineListDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper;
-import org.openmrs.module.mambaetl.helpers.DefaultDateParameter;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
 import org.openmrs.module.reporting.dataset.DataSet;
 import org.openmrs.module.reporting.dataset.SimpleDataSet;
@@ -16,15 +14,12 @@ import org.openmrs.module.reporting.evaluation.EvaluationContext;
 import org.openmrs.module.reporting.evaluation.EvaluationException;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
 import static org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper.*;
-import static org.openmrs.module.mambaetl.helpers.EthiOhriUtil.getDefaultDateParameter;
 
 @Handler(supports = { PEPLineListDataSetDefinitionMamba.class })
 public class PEPLineListDataSetEvaluatorMamba implements DataSetEvaluator {
@@ -67,14 +62,17 @@ public class PEPLineListDataSetEvaluatorMamba implements DataSetEvaluator {
     }
 	
 	private List<ProcedureCall> createProcedureCalls(PEPLineListDataSetDefinitionMamba dataSetDefinitionMamba) {
-        java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null ? new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime()):null ;
-        java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date( dataSetDefinitionMamba.getEndDate().getTime()):null ;
+        java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null
+                ? new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime())
+                : null;
+        java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null
+                ? new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime())
+                : null;
 
         return Collections.singletonList(
                 new ProcedureCall("{call sp_fact_line_list_post_exposure_query(?,?)}", statement -> {
                     statement.setDate(1, startDate);
                     statement.setDate(2, endDate);
-                })
-        );
+                }));
     }
 }

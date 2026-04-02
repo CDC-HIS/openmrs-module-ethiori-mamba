@@ -16,8 +16,6 @@ import org.openmrs.module.reporting.evaluation.EvaluationException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -34,7 +32,8 @@ public class TxCurrPvlsDataSetEvaluatorMamba implements DataSetEvaluator {
 	private static final String DATABASE_CONNECTION_ERROR = "Database connection error: ";
 	
 	@Override
-    public DataSet evaluate(DataSetDefinition dataSetDefinition, EvaluationContext evalContext) throws EvaluationException {
+    public DataSet evaluate(DataSetDefinition dataSetDefinition, EvaluationContext evalContext)
+            throws EvaluationException {
         TxCurrPvlsDataSetDefinitionMamba dataSetDefinitionMamba = (TxCurrPvlsDataSetDefinitionMamba) dataSetDefinition;
         SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
 
@@ -45,14 +44,15 @@ public class TxCurrPvlsDataSetEvaluatorMamba implements DataSetEvaluator {
 
             List<DataSetEvaluatorHelper.ProcedureCall> procedureCalls = createProcedureCalls(dataSetDefinitionMamba);
 
-            try (DataSetEvaluatorHelper.CallableStatementContainer statementContainer = prepareStatements(connection, procedureCalls)) {
+            try (DataSetEvaluatorHelper.CallableStatementContainer statementContainer = prepareStatements(connection,
+                    procedureCalls)) {
 
                 executeStatements(statementContainer, procedureCalls);
 
                 ResultSet[] allResultSets = statementContainer.getResultSets();
 
                 // Merge results
-                mapResultSet(data, resultSetMapper, allResultSets,Boolean.FALSE);
+                mapResultSet(data, resultSetMapper, allResultSets, Boolean.FALSE);
                 connection.commit();
                 return data;
 
@@ -66,13 +66,14 @@ public class TxCurrPvlsDataSetEvaluatorMamba implements DataSetEvaluator {
     }
 	
 	private List<ProcedureCall> createProcedureCalls(TxCurrPvlsDataSetDefinitionMamba dataSetDefinitionMamba) {
-        java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date( dataSetDefinitionMamba.getEndDate().getTime()):null ;
+        java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null
+                ? new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime())
+                : null;
         return Collections.singletonList(
                 new ProcedureCall("{call sp_dim_tx_pvls_datim_query(?,?,?)}", statement -> {
                     statement.setDate(1, endDate);
                     statement.setInt(2, 0);
-                    statement.setString(3,dataSetDefinitionMamba.getTxCurrPvlsAggregationTypes().getSqlValue());
-                })
-        );
+                    statement.setString(3, dataSetDefinitionMamba.getTxCurrPvlsAggregationTypes().getSqlValue());
+                }));
     }
 }

@@ -5,8 +5,6 @@ import org.apache.commons.logging.LogFactory;
 import org.openmrs.annotation.Handler;
 import org.openmrs.module.mambaetl.datasetdefinition.linelist.HIVPositiveTrackingLineListDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper;
-import org.openmrs.module.mambaetl.helpers.DefaultDateParameter;
-import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
 import org.openmrs.module.reporting.dataset.DataSet;
 import org.openmrs.module.reporting.dataset.SimpleDataSet;
@@ -36,8 +34,7 @@ public class HIVPositiveTrackingLineListDataSetEvaluatorMamba implements DataSet
 	public DataSet evaluate(DataSetDefinition dataSetDefinition, EvaluationContext evalContext)
 			throws EvaluationException {
 
-		HIVPositiveTrackingLineListDataSetDefinitionMamba _dataSetDefinitionMamba =
-				(HIVPositiveTrackingLineListDataSetDefinitionMamba) dataSetDefinition;
+		HIVPositiveTrackingLineListDataSetDefinitionMamba _dataSetDefinitionMamba = (HIVPositiveTrackingLineListDataSetDefinitionMamba) dataSetDefinition;
 		SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
 		ResultSetMapper resultSetMapper = new ResultSetMapper();
 
@@ -51,7 +48,7 @@ public class HIVPositiveTrackingLineListDataSetEvaluatorMamba implements DataSet
 				executeStatements(statementContainer, procedureCalls);
 
 				ResultSet[] allResultSets = statementContainer.getResultSets();
-				mapResultSet(data, resultSetMapper, allResultSets,Boolean.TRUE);
+				mapResultSet(data, resultSetMapper, allResultSets, Boolean.TRUE);
 				connection.commit();
 				return data;
 
@@ -64,14 +61,18 @@ public class HIVPositiveTrackingLineListDataSetEvaluatorMamba implements DataSet
 		return null;
 	}
 	
-	private List<ProcedureCall> createProcedureCalls(HIVPositiveTrackingLineListDataSetDefinitionMamba dataSetDefinitionMamba) {
-		java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null ? new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime()):null ;
-		java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date( dataSetDefinitionMamba.getEndDate().getTime()):null ;
+	private List<ProcedureCall> createProcedureCalls(
+			HIVPositiveTrackingLineListDataSetDefinitionMamba dataSetDefinitionMamba) {
+		java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null
+				? new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime())
+				: null;
+		java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null
+				? new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime())
+				: null;
 		return Collections.singletonList(
-                new ProcedureCall("{call sp_fact_line_list_positive_tracking_query(?,?)}", statement -> {
+				new ProcedureCall("{call sp_fact_line_list_positive_tracking_query(?,?)}", statement -> {
 					statement.setDate(1, startDate);
 					statement.setDate(2, endDate);
-                })
-        );
+				}));
 	}
 }

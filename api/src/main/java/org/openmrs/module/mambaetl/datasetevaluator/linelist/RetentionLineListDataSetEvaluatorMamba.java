@@ -3,7 +3,6 @@ package org.openmrs.module.mambaetl.datasetevaluator.linelist;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.mambaetl.datasetdefinition.linelist.AHDLineListDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.datasetdefinition.linelist.ARTRetentionDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
@@ -17,7 +16,6 @@ import org.openmrs.module.reporting.evaluation.EvaluationException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
@@ -50,7 +48,7 @@ public class RetentionLineListDataSetEvaluatorMamba implements DataSetEvaluator 
 				executeStatements(statementContainer, procedureCalls);
 
 				ResultSet[] allResultSets = statementContainer.getResultSets();
-				mapResultSet(data, resultSetMapper, allResultSets,Boolean.TRUE);
+				mapResultSet(data, resultSetMapper, allResultSets, Boolean.TRUE);
 				connection.commit();
 				return data;
 
@@ -64,13 +62,16 @@ public class RetentionLineListDataSetEvaluatorMamba implements DataSetEvaluator 
 	}
 	
 	private List<ProcedureCall> createProcedureCalls(ARTRetentionDataSetDefinitionMamba dataSetDefinitionMamba) {
-		java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null ? new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime()):null ;
-		java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date( dataSetDefinitionMamba.getEndDate().getTime()):null ;
+		java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null
+				? new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime())
+				: null;
+		java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null
+				? new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime())
+				: null;
 		return Collections.singletonList(
-                new ProcedureCall("{call sp_fact_line_list_art_retention_query(?,?)}", statement -> {
+				new ProcedureCall("{call sp_fact_line_list_art_retention_query(?,?)}", statement -> {
 					statement.setDate(1, startDate);
 					statement.setDate(2, endDate);
-                })
-        );
+				}));
 	}
 }

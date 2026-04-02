@@ -7,8 +7,6 @@ import org.openmrs.annotation.Handler;
 import org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
 import org.openmrs.module.reporting.dataset.DataSet;
-import org.openmrs.module.reporting.dataset.DataSetColumn;
-import org.openmrs.module.reporting.dataset.DataSetRow;
 import org.openmrs.module.reporting.dataset.SimpleDataSet;
 import org.openmrs.module.reporting.dataset.definition.DataSetDefinition;
 import org.openmrs.module.reporting.dataset.definition.evaluator.DataSetEvaluator;
@@ -43,7 +41,7 @@ public class TxNewLineListDatasetEvaluatorMamba implements DataSetEvaluator {
         ResultSetMapper resultSetMapper = new ResultSetMapper();
 
         ValidateDates(data, dataSetDefinitionMamba.getStartDate(), dataSetDefinitionMamba.getEndDate());
-        if(!data.getRows().isEmpty()){
+        if (!data.getRows().isEmpty()) {
             return data;
         }
         try (Connection connection = DataSetEvaluatorHelper.getDataSource().getConnection()) {
@@ -51,13 +49,14 @@ public class TxNewLineListDatasetEvaluatorMamba implements DataSetEvaluator {
 
             List<DataSetEvaluatorHelper.ProcedureCall> procedureCalls = createProcedureCalls(dataSetDefinitionMamba);
 
-            try (DataSetEvaluatorHelper.CallableStatementContainer statementContainer = prepareStatements(connection, procedureCalls)) {
+            try (DataSetEvaluatorHelper.CallableStatementContainer statementContainer = prepareStatements(connection,
+                    procedureCalls)) {
 
                 executeStatements(statementContainer, procedureCalls);
 
                 ResultSet[] allResultSets = statementContainer.getResultSets();
 
-                mapResultSet(data, resultSetMapper, allResultSets,Boolean.TRUE);
+                mapResultSet(data, resultSetMapper, allResultSets, Boolean.TRUE);
                 connection.commit();
                 return data;
 
@@ -71,14 +70,17 @@ public class TxNewLineListDatasetEvaluatorMamba implements DataSetEvaluator {
     }
 	
 	private List<ProcedureCall> createProcedureCalls(TXNewLineListDataSetDefinitionMamba dataSetDefinitionMamba) {
-        java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null ? new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime()):null ;
-        java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date( dataSetDefinitionMamba.getEndDate().getTime()):null ;
+        java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null
+                ? new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime())
+                : null;
+        java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null
+                ? new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime())
+                : null;
 
         return Collections.singletonList(
                 new ProcedureCall("{call sp_fact_line_list_tx_new_query(?,?)}", statement -> {
                     statement.setDate(1, startDate);
                     statement.setDate(2, endDate);
-                })
-        );
+                }));
     }
 }

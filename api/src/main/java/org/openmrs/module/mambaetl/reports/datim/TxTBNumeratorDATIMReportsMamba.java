@@ -1,7 +1,6 @@
 package org.openmrs.module.mambaetl.reports.datim;
 
 import org.openmrs.module.mambaetl.datasetdefinition.datim.HeaderDataSetDefinitionMamba;
-import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_tb.TxTBDenominatorDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_tb.TxTBNumeratorDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.mambaetl.helpers.reportOptions.TxTBAggregationTypes;
@@ -98,9 +97,9 @@ public class TxTBNumeratorDATIMReportsMamba implements ReportManager {
 	}
 	
 	@Override
-    public List<ReportRequest> constructScheduledRequests(ReportDefinition reportDefinition) {
-        return new ArrayList<>();
-    }
+	public List<ReportRequest> constructScheduledRequests(ReportDefinition reportDefinition) {
+		return new ArrayList<>();
+	}
 	
 	@Override
 	public String getVersion() {

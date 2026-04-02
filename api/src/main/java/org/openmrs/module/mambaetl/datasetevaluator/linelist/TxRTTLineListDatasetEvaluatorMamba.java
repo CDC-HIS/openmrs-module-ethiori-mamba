@@ -7,8 +7,6 @@ import org.openmrs.module.mambaetl.datasetdefinition.linelist.TXRTTLineListDataS
 import org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
 import org.openmrs.module.reporting.dataset.DataSet;
-import org.openmrs.module.reporting.dataset.DataSetColumn;
-import org.openmrs.module.reporting.dataset.DataSetRow;
 import org.openmrs.module.reporting.dataset.SimpleDataSet;
 import org.openmrs.module.reporting.dataset.definition.DataSetDefinition;
 import org.openmrs.module.reporting.dataset.definition.evaluator.DataSetEvaluator;
@@ -42,7 +40,7 @@ public class TxRTTLineListDatasetEvaluatorMamba implements DataSetEvaluator {
         ResultSetMapper resultSetMapper = new ResultSetMapper();
 
         ValidateDates(data, dataSetDefinitionMamba.getStartDate(), dataSetDefinitionMamba.getEndDate());
-        if(!data.getRows().isEmpty()){
+        if (!data.getRows().isEmpty()) {
             return data;
         }
         try (Connection connection = DataSetEvaluatorHelper.getDataSource().getConnection()) {
@@ -56,7 +54,7 @@ public class TxRTTLineListDatasetEvaluatorMamba implements DataSetEvaluator {
 
                 ResultSet[] allResultSets = statementContainer.getResultSets();
 
-                mapResultSet(data, resultSetMapper, allResultSets,Boolean.TRUE);
+                mapResultSet(data, resultSetMapper, allResultSets, Boolean.TRUE);
                 connection.commit();
                 return data;
 
@@ -70,14 +68,17 @@ public class TxRTTLineListDatasetEvaluatorMamba implements DataSetEvaluator {
     }
 	
 	private List<ProcedureCall> createProcedureCalls(TXRTTLineListDataSetDefinitionMamba dataSetDefinitionMamba) {
-        java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null ? new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime()):null ;
-        java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date( dataSetDefinitionMamba.getEndDate().getTime()):null ;
+        java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null
+                ? new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime())
+                : null;
+        java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null
+                ? new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime())
+                : null;
 
         return Collections.singletonList(
                 new ProcedureCall("{call sp_fact_line_list_tx_rtt_query(?,?)}", statement -> {
                     statement.setDate(1, startDate);
                     statement.setDate(2, endDate);
-                })
-        );
+                }));
     }
 }

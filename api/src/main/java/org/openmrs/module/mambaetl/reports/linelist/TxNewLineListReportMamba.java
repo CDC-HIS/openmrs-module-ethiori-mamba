@@ -1,6 +1,5 @@
 package org.openmrs.module.mambaetl.reports.linelist;
 
-import org.apache.xpath.operations.Bool;
 import org.openmrs.module.mambaetl.datasetdefinition.linelist.TXNewLineListDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
