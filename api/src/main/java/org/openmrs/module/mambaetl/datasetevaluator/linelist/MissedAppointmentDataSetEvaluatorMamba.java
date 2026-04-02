@@ -14,10 +14,8 @@ import org.openmrs.module.reporting.evaluation.EvaluationContext;
 import org.openmrs.module.reporting.evaluation.EvaluationException;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
@@ -50,7 +48,7 @@ public class MissedAppointmentDataSetEvaluatorMamba implements DataSetEvaluator 
 				executeStatements(statementContainer, procedureCalls);
 
 				ResultSet[] allResultSets = statementContainer.getResultSets();
-				mapResultSet(data, resultSetMapper, allResultSets,Boolean.TRUE);
+				mapResultSet(data, resultSetMapper, allResultSets, Boolean.TRUE);
 				connection.commit();
 				return data;
 
@@ -64,12 +62,13 @@ public class MissedAppointmentDataSetEvaluatorMamba implements DataSetEvaluator 
 	}
 	
 	private List<ProcedureCall> createProcedureCalls(MissedAppointmentDataSetDefinitionMamba dataSetDefinitionMamba) {
-		java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date( dataSetDefinitionMamba.getEndDate().getTime()):null ;
+		java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null
+				? new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime())
+				: null;
 
 		return Collections.singletonList(
-                new ProcedureCall("{call sp_fact_line_list_missed_appointment_query(?)}", statement -> {
+				new ProcedureCall("{call sp_fact_line_list_missed_appointment_query(?)}", statement -> {
 					statement.setDate(1, endDate);
-                })
-        );
+				}));
 	}
 }

@@ -1,6 +1,5 @@
 package org.openmrs.module.mambaetl.reports.datim;
 
-import org.openmrs.module.mambaetl.datasetdefinition.datim.KeyPopulationDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_curr_pvls.TxCurrPvlsDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.datasetdefinition.datim.HeaderDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
@@ -81,10 +80,12 @@ public class TxPvlsDenominatorDATIMReportsMamba implements ReportManager {
 		reportDefinition.addDataSetDefinition("Disaggregated by Pregnant/Breastfeeding.",
 		    EthiOhriUtil.map(txCurrPvlsDataSetDefinitionDenominatorBreastFeedingPregnantMamba, "endDate=${endDateGC}"));
 		
-		//		KeyPopulationDataSetDefinitionMamba keyPopulationDataSetDefinitionMamba = new KeyPopulationDataSetDefinitionMamba();
-		//		keyPopulationDataSetDefinitionMamba.addParameters(getParameters());
-		//		reportDefinition.addDataSetDefinition("Disaggregated by key population type",
-		//		    EthiOhriUtil.map(keyPopulationDataSetDefinitionMamba, "endDate=${endDateGC}"));
+		// KeyPopulationDataSetDefinitionMamba keyPopulationDataSetDefinitionMamba = new
+		// KeyPopulationDataSetDefinitionMamba();
+		// keyPopulationDataSetDefinitionMamba.addParameters(getParameters());
+		// reportDefinition.addDataSetDefinition("Disaggregated by key population type",
+		// EthiOhriUtil.map(keyPopulationDataSetDefinitionMamba,
+		// "endDate=${endDateGC}"));
 		return reportDefinition;
 	}
 	
@@ -96,9 +97,9 @@ public class TxPvlsDenominatorDATIMReportsMamba implements ReportManager {
 	}
 	
 	@Override
-    public List<ReportRequest> constructScheduledRequests(ReportDefinition reportDefinition) {
-        return new ArrayList<>();
-    }
+	public List<ReportRequest> constructScheduledRequests(ReportDefinition reportDefinition) {
+		return new ArrayList<>();
+	}
 	
 	@Override
 	public String getVersion() {

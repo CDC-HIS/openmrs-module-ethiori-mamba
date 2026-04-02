@@ -8,8 +8,6 @@ import org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
 import static org.openmrs.module.mambaetl.helpers.ValidationHelper.ValidateDates;
 import org.openmrs.module.reporting.dataset.DataSet;
-import org.openmrs.module.reporting.dataset.DataSetColumn;
-import org.openmrs.module.reporting.dataset.DataSetRow;
 import org.openmrs.module.reporting.dataset.SimpleDataSet;
 import org.openmrs.module.reporting.dataset.definition.DataSetDefinition;
 import org.openmrs.module.reporting.dataset.definition.evaluator.DataSetEvaluator;
@@ -19,7 +17,6 @@ import org.openmrs.module.reporting.evaluation.EvaluationException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -42,21 +39,24 @@ public class PediatricAgeOutLineListDataSetEvaluator implements DataSetEvaluator
 		SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
 		ResultSetMapper resultSetMapper = new ResultSetMapper();
 
-		ValidateDates(data, pediatricAgeOutLineListDatasetDefinition.getStartDate(), pediatricAgeOutLineListDatasetDefinition.getEndDate());
-		if(!data.getRows().isEmpty()){
+		ValidateDates(data, pediatricAgeOutLineListDatasetDefinition.getStartDate(),
+				pediatricAgeOutLineListDatasetDefinition.getEndDate());
+		if (!data.getRows().isEmpty()) {
 			return data;
 		}
 		try (Connection connection = DataSetEvaluatorHelper.getDataSource().getConnection()) {
 			connection.setAutoCommit(false);
 
-			List<DataSetEvaluatorHelper.ProcedureCall> procedureCalls = createProcedureCalls(pediatricAgeOutLineListDatasetDefinition);
+			List<DataSetEvaluatorHelper.ProcedureCall> procedureCalls = createProcedureCalls(
+					pediatricAgeOutLineListDatasetDefinition);
 
-			try (DataSetEvaluatorHelper.CallableStatementContainer statementContainer = prepareStatements(connection, procedureCalls)) {
+			try (DataSetEvaluatorHelper.CallableStatementContainer statementContainer = prepareStatements(connection,
+					procedureCalls)) {
 
 				executeStatements(statementContainer, procedureCalls);
 
 				ResultSet[] allResultSets = statementContainer.getResultSets();
-				mapResultSet(data, resultSetMapper, allResultSets,Boolean.TRUE);
+				mapResultSet(data, resultSetMapper, allResultSets, Boolean.TRUE);
 				connection.commit();
 				return data;
 
@@ -70,15 +70,18 @@ public class PediatricAgeOutLineListDataSetEvaluator implements DataSetEvaluator
 	}
 	
 	private List<ProcedureCall> createProcedureCalls(PediatricAgeOutLineListDatasetDefinition dataSetDefinitionMamba) {
-		java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null ? new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime()):null ;
-		java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date( dataSetDefinitionMamba.getEndDate().getTime()):null ;
+		java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null
+				? new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime())
+				: null;
+		java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null
+				? new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime())
+				: null;
 
 		return Collections.singletonList(
 
-                new ProcedureCall("{call sp_fact_line_list_pediatric_age_out_query(?,?)}", statement -> {
-                    statement.setDate(1, startDate);
-                    statement.setDate(2, endDate);
-                })
-        );
+				new ProcedureCall("{call sp_fact_line_list_pediatric_age_out_query(?,?)}", statement -> {
+					statement.setDate(1, startDate);
+					statement.setDate(2, endDate);
+				}));
 	}
 }

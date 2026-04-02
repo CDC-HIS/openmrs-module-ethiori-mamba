@@ -1,6 +1,5 @@
 package org.openmrs.module.mambaetl.reports.datim;
 
-import org.openmrs.module.mambaetl.datasetdefinition.datim.KeyPopulationDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_curr.TxCurrAgeSexDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.datasetdefinition.datim.HeaderDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
@@ -76,10 +75,12 @@ public class TxCurrDATIMReportsMamba implements ReportManager {
 		reportDefinition.addDataSetDefinition("Disaggregated by ARV Dispensing Quantity by Coarse Age/Sex)",
 		    EthiOhriUtil.map(txCurrCd4DataSetDefinitionMamba, "endDate=${endDateGC}"));
 		
-		//		KeyPopulationDataSetDefinitionMamba keyPopulationDataSetDefinitionMamba = new KeyPopulationDataSetDefinitionMamba();
-		//		keyPopulationDataSetDefinitionMamba.addParameters(getParameters());
-		//		reportDefinition.addDataSetDefinition("Disaggregated by key population type",
-		//		    EthiOhriUtil.map(keyPopulationDataSetDefinitionMamba, "endDate=${endDateGC}"));
+		// KeyPopulationDataSetDefinitionMamba keyPopulationDataSetDefinitionMamba = new
+		// KeyPopulationDataSetDefinitionMamba();
+		// keyPopulationDataSetDefinitionMamba.addParameters(getParameters());
+		// reportDefinition.addDataSetDefinition("Disaggregated by key population type",
+		// EthiOhriUtil.map(keyPopulationDataSetDefinitionMamba,
+		// "endDate=${endDateGC}"));
 		return reportDefinition;
 	}
 	

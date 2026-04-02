@@ -4,7 +4,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.annotation.Handler;
 import org.openmrs.module.mambaetl.datasetdefinition.datim.hts_index.HTSIndexDataSetDefinitionMamba;
-import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_new.TxNewAgeSexCd4DataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
 import org.openmrs.module.reporting.dataset.DataSet;
@@ -42,7 +41,7 @@ public class HTSIndexEvaluatorMamba implements DataSetEvaluator {
 		ResultSetMapper resultSetMapper = new ResultSetMapper();
 
 		ValidateDates(data, dataSetDefinitionMamba.getStartDate(), dataSetDefinitionMamba.getEndDate());
-		if(!data.getRows().isEmpty()){
+		if (!data.getRows().isEmpty()) {
 			return data;
 		}
 		try (Connection connection = DataSetEvaluatorHelper.getDataSource().getConnection()) {
@@ -57,7 +56,7 @@ public class HTSIndexEvaluatorMamba implements DataSetEvaluator {
 				ResultSet[] allResultSets = statementContainer.getResultSets();
 
 				// Merge results
-				mapResultSet(data, resultSetMapper, allResultSets,Boolean.FALSE);
+				mapResultSet(data, resultSetMapper, allResultSets, Boolean.FALSE);
 				connection.commit();
 				return data;
 
@@ -71,27 +70,28 @@ public class HTSIndexEvaluatorMamba implements DataSetEvaluator {
 	}
 	
 	private List<ProcedureCall> createProcedureCalls(HTSIndexDataSetDefinitionMamba dataSetDefinitionMamba) {
-		java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null ? new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime()):null ;
-		java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date( dataSetDefinitionMamba.getEndDate().getTime()):null ;
-		if (dataSetDefinitionMamba.getHtsIndexAggregationTypes().getSqlValue().equalsIgnoreCase("ELICITED")){
+		java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null
+				? new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime())
+				: null;
+		java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null
+				? new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime())
+				: null;
+		if (dataSetDefinitionMamba.getHtsIndexAggregationTypes().getSqlValue().equalsIgnoreCase("ELICITED")) {
 			return Collections.singletonList(
 					new ProcedureCall("{call sp_dim_ict_datim_query(?,?,?,?)}", statement -> {
 						statement.setDate(1, startDate);
 						statement.setDate(2, endDate);
 						statement.setInt(3, 1);
 						statement.setString(4, dataSetDefinitionMamba.getHtsIndexAggregationTypes().getSqlValue());
-					})
-			);
-		}
-		else {
+					}));
+		} else {
 			return Collections.singletonList(
 					new ProcedureCall("{call sp_dim_ict_datim_query(?,?,?,?)}", statement -> {
 						statement.setDate(1, startDate);
 						statement.setDate(2, endDate);
 						statement.setInt(3, 0);
 						statement.setString(4, dataSetDefinitionMamba.getHtsIndexAggregationTypes().getSqlValue());
-					})
-			);
+					}));
 		}
 	}
 }

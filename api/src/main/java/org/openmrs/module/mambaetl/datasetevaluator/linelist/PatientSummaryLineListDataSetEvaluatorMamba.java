@@ -14,7 +14,6 @@ import org.openmrs.module.reporting.evaluation.EvaluationContext;
 import org.openmrs.module.reporting.evaluation.EvaluationException;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collections;
@@ -62,15 +61,14 @@ public class PatientSummaryLineListDataSetEvaluatorMamba implements DataSetEvalu
         return null;
     }
 	
-	private List<ProcedureCall> createProcedureCalls(PatientSummaryLineListDataSetDefinitionMamba dataSetDefinitionMamba) {
-
+	private List<ProcedureCall> createProcedureCalls(
+            PatientSummaryLineListDataSetDefinitionMamba dataSetDefinitionMamba) {
 
         String procedureName = "{call sp_fact_line_list_patient_summary_query(?)}";
 
         return Collections.singletonList(
                 new ProcedureCall(procedureName, statement -> {
                     statement.setString(1, dataSetDefinitionMamba.getPatientUUID());
-                })
-        );
+                }));
     }
 }

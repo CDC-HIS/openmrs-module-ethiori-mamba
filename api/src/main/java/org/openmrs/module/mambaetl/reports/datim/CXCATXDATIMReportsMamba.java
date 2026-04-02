@@ -4,7 +4,6 @@ import org.openmrs.module.mambaetl.datasetdefinition.datim.HeaderDataSetDefiniti
 import org.openmrs.module.mambaetl.datasetdefinition.datim.cxca.CXCATXDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.mambaetl.helpers.reportOptions.CXCATXAggregationTypes;
-import org.openmrs.module.mambaetl.helpers.reportOptions.TxNewAggregationTypes;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.report.ReportDesign;
 import org.openmrs.module.reporting.report.ReportRequest;

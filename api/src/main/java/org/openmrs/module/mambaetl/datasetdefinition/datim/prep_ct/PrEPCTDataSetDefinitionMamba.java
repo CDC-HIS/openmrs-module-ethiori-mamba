@@ -1,7 +1,6 @@
 package org.openmrs.module.mambaetl.datasetdefinition.datim.prep_ct;
 
 import org.openmrs.module.mambaetl.helpers.reportOptions.PrEPCTggregationTypes;
-import org.openmrs.module.mambaetl.helpers.reportOptions.TBArtAggregationTypes;
 import org.openmrs.module.reporting.dataset.definition.BaseDataSetDefinition;
 import org.openmrs.module.reporting.definition.configuration.ConfigurationProperty;
 import org.springframework.stereotype.Component;

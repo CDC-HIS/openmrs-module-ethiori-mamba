@@ -1,6 +1,5 @@
 package org.openmrs.module.mambaetl.datasetdefinition.datim;
 
-import org.openmrs.module.mambaetl.helpers.reportOptions.TxCurrAggregationTypes;
 import org.openmrs.module.reporting.dataset.definition.BaseDataSetDefinition;
 import org.openmrs.module.reporting.definition.configuration.ConfigurationProperty;
 import org.springframework.stereotype.Component;

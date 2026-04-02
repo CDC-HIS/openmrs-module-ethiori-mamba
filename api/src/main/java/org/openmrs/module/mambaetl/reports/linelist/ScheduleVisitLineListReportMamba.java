@@ -1,6 +1,5 @@
 package org.openmrs.module.mambaetl.reports.linelist;
 
-import org.openmrs.module.mambaetl.datasetdefinition.linelist.MonthlyVisitDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.datasetdefinition.linelist.ScheduleVisitLineListDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;

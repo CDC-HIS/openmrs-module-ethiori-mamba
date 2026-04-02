@@ -1,7 +1,6 @@
 package org.openmrs.module.mambaetl.datasetdefinition.datim.hts_index;
 
 import org.openmrs.module.mambaetl.helpers.reportOptions.HTSIndexAggregationTypes;
-import org.openmrs.module.mambaetl.helpers.reportOptions.TxNewAggregationTypes;
 import org.openmrs.module.reporting.dataset.definition.BaseDataSetDefinition;
 import org.openmrs.module.reporting.definition.configuration.ConfigurationProperty;
 import org.springframework.stereotype.Component;

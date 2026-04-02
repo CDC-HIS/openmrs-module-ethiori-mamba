@@ -10,8 +10,6 @@ import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
 import static org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper.*;
 import static org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper.rollbackAndThrowException;
 import org.openmrs.module.reporting.dataset.DataSet;
-import org.openmrs.module.reporting.dataset.DataSetColumn;
-import org.openmrs.module.reporting.dataset.DataSetRow;
 import org.openmrs.module.reporting.dataset.SimpleDataSet;
 import org.openmrs.module.reporting.dataset.definition.DataSetDefinition;
 import org.openmrs.module.reporting.dataset.definition.evaluator.DataSetEvaluator;
@@ -23,8 +21,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
-
-import static org.openmrs.module.mambaetl.helpers.ValidationHelper.ValidateDates;
 
 @Handler(supports = { TxCurrLineListDataSetDefinitionMamba.class })
 public class TxCurrLineListDataSetEvaluatorMamba implements DataSetEvaluator {
@@ -46,14 +42,16 @@ public class TxCurrLineListDataSetEvaluatorMamba implements DataSetEvaluator {
 		try (Connection connection = DataSetEvaluatorHelper.getDataSource().getConnection()) {
 			connection.setAutoCommit(false);
 
-			List<DataSetEvaluatorHelper.ProcedureCall> procedureCalls = createProcedureCalls(txCurrLineListDataSetDefinitionMamba);
+			List<DataSetEvaluatorHelper.ProcedureCall> procedureCalls = createProcedureCalls(
+					txCurrLineListDataSetDefinitionMamba);
 
-			try (DataSetEvaluatorHelper.CallableStatementContainer statementContainer = prepareStatements(connection, procedureCalls)) {
+			try (DataSetEvaluatorHelper.CallableStatementContainer statementContainer = prepareStatements(connection,
+					procedureCalls)) {
 
 				executeStatements(statementContainer, procedureCalls);
 
 				ResultSet[] allResultSets = statementContainer.getResultSets();
-				mapResultSet(data, resultSetMapper, allResultSets,Boolean.TRUE);
+				mapResultSet(data, resultSetMapper, allResultSets, Boolean.TRUE);
 				connection.commit();
 				return data;
 
@@ -67,12 +65,13 @@ public class TxCurrLineListDataSetEvaluatorMamba implements DataSetEvaluator {
 	}
 	
 	private List<ProcedureCall> createProcedureCalls(TxCurrLineListDataSetDefinitionMamba dataSetDefinitionMamba) {
-		java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date( dataSetDefinitionMamba.getEndDate().getTime()):null ;
+		java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null
+				? new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime())
+				: null;
 
 		return Collections.singletonList(
-                new ProcedureCall("{call sp_fact_line_list_tx_curr_query(?)}", statement -> {
-                    statement.setDate(1, endDate);
-                })
-        );
+				new ProcedureCall("{call sp_fact_line_list_tx_curr_query(?)}", statement -> {
+					statement.setDate(1, endDate);
+				}));
 	}
 }

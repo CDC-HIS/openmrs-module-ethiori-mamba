@@ -13,8 +13,6 @@ import static org.openmrs.module.mambaetl.helpers.ValidationHelper.ValidateDates
 
 import org.openmrs.module.mambaetl.helpers.reportOptions.TxCurrAnalysisCategories;
 import org.openmrs.module.reporting.dataset.DataSet;
-import org.openmrs.module.reporting.dataset.DataSetColumn;
-import org.openmrs.module.reporting.dataset.DataSetRow;
 import org.openmrs.module.reporting.dataset.SimpleDataSet;
 import org.openmrs.module.reporting.dataset.definition.DataSetDefinition;
 import org.openmrs.module.reporting.dataset.definition.evaluator.DataSetEvaluator;
@@ -24,7 +22,6 @@ import org.openmrs.module.reporting.evaluation.EvaluationException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -45,21 +42,27 @@ public class TxCurrAnalysisLineListDataSetEvaluatorMamba implements DataSetEvalu
         SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
         ResultSetMapper resultSetMapper = new ResultSetMapper();
 
-        ValidateDates(data, txCurrAnalysisLineListDataSetDefinitionMamba.getStartDate(), txCurrAnalysisLineListDataSetDefinitionMamba.getEndDate());
-        if(!data.getRows().isEmpty()){
+        ValidateDates(data, txCurrAnalysisLineListDataSetDefinitionMamba.getStartDate(),
+                txCurrAnalysisLineListDataSetDefinitionMamba.getEndDate());
+        if (!data.getRows().isEmpty()) {
             return data;
         }
         try (Connection connection = DataSetEvaluatorHelper.getDataSource().getConnection()) {
             connection.setAutoCommit(false);
 
-            List<DataSetEvaluatorHelper.ProcedureCall> procedureCalls = createProcedureCalls(txCurrAnalysisLineListDataSetDefinitionMamba);
+            List<DataSetEvaluatorHelper.ProcedureCall> procedureCalls = createProcedureCalls(
+                    txCurrAnalysisLineListDataSetDefinitionMamba);
 
-            try (DataSetEvaluatorHelper.CallableStatementContainer statementContainer = prepareStatements(connection, procedureCalls)) {
+            try (DataSetEvaluatorHelper.CallableStatementContainer statementContainer = prepareStatements(connection,
+                    procedureCalls)) {
 
                 executeStatements(statementContainer, procedureCalls);
 
                 ResultSet[] allResultSets = statementContainer.getResultSets();
-                mapResultSet(data, resultSetMapper, allResultSets, TxCurrAnalysisCategories.fromString(txCurrAnalysisLineListDataSetDefinitionMamba.getTxCurrAnalysisCategories()).name().equalsIgnoreCase("SUMMARY")?Boolean.FALSE:Boolean.TRUE);
+                mapResultSet(data, resultSetMapper, allResultSets,
+                        TxCurrAnalysisCategories
+                                .fromString(txCurrAnalysisLineListDataSetDefinitionMamba.getTxCurrAnalysisCategories())
+                                .name().equalsIgnoreCase("SUMMARY") ? Boolean.FALSE : Boolean.TRUE);
                 connection.commit();
                 return data;
 
@@ -72,16 +75,21 @@ public class TxCurrAnalysisLineListDataSetEvaluatorMamba implements DataSetEvalu
         return null;
     }
 	
-	private List<ProcedureCall> createProcedureCalls(TxCurrAnalysisLineListDataSetDefinitionMamba dataSetDefinitionMamba) {
-        java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null ? new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime()):null ;
-        java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date( dataSetDefinitionMamba.getEndDate().getTime()):null ;
+	private List<ProcedureCall> createProcedureCalls(
+            TxCurrAnalysisLineListDataSetDefinitionMamba dataSetDefinitionMamba) {
+        java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null
+                ? new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime())
+                : null;
+        java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null
+                ? new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime())
+                : null;
         return Collections.singletonList(
 
                 new ProcedureCall("{call sp_fact_line_list_tx_curr_analysis_query(?,?,?)}", statement -> {
                     statement.setDate(1, startDate);
                     statement.setDate(2, endDate);
-                        statement.setString(3,TxCurrAnalysisCategories.fromString(dataSetDefinitionMamba.getTxCurrAnalysisCategories()).name());
-                })
-        );
+                    statement.setString(3, TxCurrAnalysisCategories
+                            .fromString(dataSetDefinitionMamba.getTxCurrAnalysisCategories()).name());
+                }));
     }
 }

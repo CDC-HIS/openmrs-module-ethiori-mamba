@@ -2,7 +2,6 @@ package org.openmrs.module.mambaetl.reports.datim;
 
 import org.openmrs.module.mambaetl.datasetdefinition.datim.HeaderDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.datasetdefinition.datim.cxca.CXCASCRNDataSetDefinitionMamba;
-import org.openmrs.module.mambaetl.datasetdefinition.datim.cxca.CXCATXDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.mambaetl.helpers.reportOptions.CXCATXAggregationTypes;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;

@@ -3,7 +3,6 @@ package org.openmrs.module.mambaetl.datasetevaluator.linelist;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.annotation.Handler;
-import org.openmrs.module.mambaetl.datasetdefinition.linelist.AHDLineListDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.datasetdefinition.linelist.ScheduleVisitLineListDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
@@ -35,8 +34,7 @@ public class ScheduleVisitLineListDataSetEvaluatorMamba implements DataSetEvalua
 	public DataSet evaluate(DataSetDefinition dataSetDefinition, EvaluationContext evalContext)
 			throws EvaluationException {
 
-		ScheduleVisitLineListDataSetDefinitionMamba dataSetDefinitionMamba =
-				(ScheduleVisitLineListDataSetDefinitionMamba) dataSetDefinition;
+		ScheduleVisitLineListDataSetDefinitionMamba dataSetDefinitionMamba = (ScheduleVisitLineListDataSetDefinitionMamba) dataSetDefinition;
 		SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
 		ResultSetMapper resultSetMapper = new ResultSetMapper();
 
@@ -50,7 +48,7 @@ public class ScheduleVisitLineListDataSetEvaluatorMamba implements DataSetEvalua
 				executeStatements(statementContainer, procedureCalls);
 
 				ResultSet[] allResultSets = statementContainer.getResultSets();
-				mapResultSet(data, resultSetMapper, allResultSets,Boolean.TRUE);
+				mapResultSet(data, resultSetMapper, allResultSets, Boolean.TRUE);
 				connection.commit();
 				return data;
 
@@ -63,15 +61,19 @@ public class ScheduleVisitLineListDataSetEvaluatorMamba implements DataSetEvalua
 		return null;
 	}
 	
-	private List<ProcedureCall> createProcedureCalls(ScheduleVisitLineListDataSetDefinitionMamba dataSetDefinitionMamba) {
-		java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null ? new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime()):null ;
-		java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date( dataSetDefinitionMamba.getEndDate().getTime()):null ;
+	private List<ProcedureCall> createProcedureCalls(
+			ScheduleVisitLineListDataSetDefinitionMamba dataSetDefinitionMamba) {
+		java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null
+				? new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime())
+				: null;
+		java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null
+				? new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime())
+				: null;
 
 		return Collections.singletonList(
-                new ProcedureCall("{call sp_fact_line_list_schedule_visit_query(?,?)}", statement -> {
+				new ProcedureCall("{call sp_fact_line_list_schedule_visit_query(?,?)}", statement -> {
 					statement.setDate(1, startDate);
 					statement.setDate(2, endDate);
-                })
-        );
+				}));
 	}
 }

@@ -1,7 +1,6 @@
 package org.openmrs.module.mambaetl.reports.datim;
 
 import org.openmrs.module.mambaetl.datasetdefinition.datim.HeaderDataSetDefinitionMamba;
-import org.openmrs.module.mambaetl.datasetdefinition.datim.KeyPopulationDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_new.TxNewAgeSexCd4DataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.mambaetl.helpers.reportOptions.TxNewAggregationTypes;
@@ -95,10 +94,12 @@ public class TxNewDATIMReportsMamba implements ReportManager {
 		reportDefinition.addDataSetDefinition("Disaggregated by Breastfeeding Status at ART Initiation",
 		    EthiOhriUtil.map(breastFeedingStatusDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
 		
-		//		KeyPopulationDataSetDefinitionMamba keyPopulationDataSetDefinitionMamba = new KeyPopulationDataSetDefinitionMamba();
-		//		keyPopulationDataSetDefinitionMamba.addParameters(getParameters());
-		//		reportDefinition.addDataSetDefinition("Disaggregated by key population type",
-		//		    EthiOhriUtil.map(keyPopulationDataSetDefinitionMamba, "endDate=${endDateGC}"));
+		// KeyPopulationDataSetDefinitionMamba keyPopulationDataSetDefinitionMamba = new
+		// KeyPopulationDataSetDefinitionMamba();
+		// keyPopulationDataSetDefinitionMamba.addParameters(getParameters());
+		// reportDefinition.addDataSetDefinition("Disaggregated by key population type",
+		// EthiOhriUtil.map(keyPopulationDataSetDefinitionMamba,
+		// "endDate=${endDateGC}"));
 		
 		return reportDefinition;
 	}

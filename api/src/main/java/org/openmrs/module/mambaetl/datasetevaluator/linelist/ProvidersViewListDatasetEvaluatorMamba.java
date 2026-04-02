@@ -21,7 +21,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper.*;
-import static org.openmrs.module.mambaetl.helpers.ValidationHelper.ValidateDates;
 
 @Handler(supports = { ProvidersViewLineListDataSetDefinitionMamba.class })
 public class ProvidersViewListDatasetEvaluatorMamba implements DataSetEvaluator {
@@ -40,7 +39,7 @@ public class ProvidersViewListDatasetEvaluatorMamba implements DataSetEvaluator 
         SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
         ResultSetMapper resultSetMapper = new ResultSetMapper();
 
-        if(!data.getRows().isEmpty()){
+        if (!data.getRows().isEmpty()) {
             return data;
         }
         try (Connection connection = DataSetEvaluatorHelper.getDataSource().getConnection()) {
@@ -54,7 +53,7 @@ public class ProvidersViewListDatasetEvaluatorMamba implements DataSetEvaluator 
 
                 ResultSet[] allResultSets = statementContainer.getResultSets();
 
-                mapResultSet(data, resultSetMapper, allResultSets,Boolean.TRUE);
+                mapResultSet(data, resultSetMapper, allResultSets, Boolean.TRUE);
                 connection.commit();
                 return data;
 
@@ -67,8 +66,11 @@ public class ProvidersViewListDatasetEvaluatorMamba implements DataSetEvaluator 
         return null;
     }
 	
-	private List<ProcedureCall> createProcedureCalls(ProvidersViewLineListDataSetDefinitionMamba dataSetDefinitionMamba) {
-        java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null ? new java.sql.Date( dataSetDefinitionMamba.getEndDate().getTime()):null ;
+	private List<ProcedureCall> createProcedureCalls(
+            ProvidersViewLineListDataSetDefinitionMamba dataSetDefinitionMamba) {
+        java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null
+                ? new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime())
+                : null;
 
         return Collections.singletonList(
                 new ProcedureCall("{call sp_fact_line_list_providers_view_query(?,?,?,?,?)}", statement -> {
@@ -77,7 +79,6 @@ public class ProvidersViewListDatasetEvaluatorMamba implements DataSetEvaluator 
                     statement.setDate(3, null);
                     statement.setDate(4, null);
                     statement.setString(5, dataSetDefinitionMamba.getPatientGUID());
-                })
-        );
+                }));
     }
 }
