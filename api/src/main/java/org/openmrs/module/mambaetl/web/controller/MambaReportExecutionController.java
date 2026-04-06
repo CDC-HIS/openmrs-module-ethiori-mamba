@@ -1,5 +1,6 @@
 package org.openmrs.module.mambaetl.web.controller;
 
+import org.jetbrains.annotations.NotNull;
 import org.openmrs.module.mambaetl.service.DynamicReportExecutorService;
 import org.openmrs.module.mambaetl.web.resource.ReportDataResponse;
 import org.openmrs.module.webservices.rest.web.RestConstants;
@@ -36,21 +37,7 @@ public class MambaReportExecutionController {
             @RequestParam(required = false, defaultValue = "0") int limit,
             @RequestParam Map<String, String> allRequestParams) {
 
-        try {
-
-            List<Map<String, Object>> data = reportExecutorService.executeReport(procedureName, allRequestParams, offset, limit);
-            
-            ReportDataResponse response = new ReportDataResponse(procedureName, data);
-            
-            return new ResponseEntity<>(response, HttpStatus.OK);
-            
-        } catch (IllegalArgumentException e) {
-            log.error("Invalid procedure request: " + procedureName, e);
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
-            log.error("Error executing report procedure: " + procedureName, e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return getReportDataResponseResponseEntity(procedureName, offset, limit, allRequestParams);
     }
 	
 	@RequestMapping(value = "/execute/{procedureName}", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
@@ -61,14 +48,18 @@ public class MambaReportExecutionController {
             @RequestParam(required = false, defaultValue = "0") int limit,
             @RequestBody Map<String, String> payload) {
 
+        return getReportDataResponseResponseEntity(procedureName, offset, limit, payload);
+    }
+
+    @NotNull
+    private ResponseEntity<ReportDataResponse> getReportDataResponseResponseEntity(@PathVariable String procedureName, @RequestParam(required = false, defaultValue = "0") int offset, @RequestParam(required = false, defaultValue = "0") int limit, @RequestBody Map<String, String> payload) {
         try {
-            // executeReport works the same using the payload map instead of url params
             List<Map<String, Object>> data = reportExecutorService.executeReport(procedureName, payload, offset, limit);
-            
+
             ReportDataResponse response = new ReportDataResponse(procedureName, data);
-            
+
             return new ResponseEntity<>(response, HttpStatus.OK);
-            
+
         } catch (IllegalArgumentException e) {
             log.error("Invalid procedure request: " + procedureName, e);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
