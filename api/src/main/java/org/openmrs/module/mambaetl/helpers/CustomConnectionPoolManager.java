@@ -62,7 +62,7 @@ public class CustomConnectionPoolManager {
 		// (e.g. due to an unhandled exception) and will be reclaimed by the pool.
 		dataSource.setRemoveAbandonedOnMaintenance(true);
 		dataSource.setRemoveAbandonedOnBorrow(true);
-		dataSource.setRemoveAbandonedTimeout(java.time.Duration.ofSeconds(300));
+		dataSource.setRemoveAbandonedTimeout(java.time.Duration.ofSeconds(3600));
 		dataSource.setLogAbandoned(true); // log the stack trace of the leak site
 		
 		// --- Idle eviction ---
