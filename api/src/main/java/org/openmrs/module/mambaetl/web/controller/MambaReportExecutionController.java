@@ -30,28 +30,24 @@ public class MambaReportExecutionController {
 	private DynamicReportExecutorService reportExecutorService;
 	
 	@RequestMapping(value = "/execute/{procedureName}", method = RequestMethod.GET, produces = "application/json")
-    @ResponseBody
-    public ResponseEntity<ReportDataResponse> executeReport(
-            @PathVariable String procedureName,
-            @RequestParam(required = false, defaultValue = "0") int offset,
-            @RequestParam(required = false, defaultValue = "0") int limit,
-            @RequestParam Map<String, String> allRequestParams) {
-
-        return getReportDataResponseResponseEntity(procedureName, offset, limit, allRequestParams);
-    }
+	@ResponseBody
+	public ResponseEntity<ReportDataResponse> executeReport(@PathVariable String procedureName,
+	        @RequestParam(required = false, defaultValue = "0") int offset,
+	        @RequestParam(required = false, defaultValue = "0") int limit, @RequestParam Map<String, String> allRequestParams) {
+		
+		return getReportDataResponseResponseEntity(procedureName, offset, limit, allRequestParams);
+	}
 	
 	@RequestMapping(value = "/execute/{procedureName}", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
-    @ResponseBody
-    public ResponseEntity<ReportDataResponse> executeReportPost(
-            @PathVariable String procedureName,
-            @RequestParam(required = false, defaultValue = "0") int offset,
-            @RequestParam(required = false, defaultValue = "0") int limit,
-            @RequestBody Map<String, String> payload) {
-
-        return getReportDataResponseResponseEntity(procedureName, offset, limit, payload);
-    }
-
-    @NotNull
+	@ResponseBody
+	public ResponseEntity<ReportDataResponse> executeReportPost(@PathVariable String procedureName,
+	        @RequestParam(required = false, defaultValue = "0") int offset,
+	        @RequestParam(required = false, defaultValue = "0") int limit, @RequestBody Map<String, String> payload) {
+		
+		return getReportDataResponseResponseEntity(procedureName, offset, limit, payload);
+	}
+	
+	@NotNull
     private ResponseEntity<ReportDataResponse> getReportDataResponseResponseEntity(@PathVariable String procedureName, @RequestParam(required = false, defaultValue = "0") int offset, @RequestParam(required = false, defaultValue = "0") int limit, @RequestBody Map<String, String> payload) {
         try {
             List<Map<String, Object>> data = reportExecutorService.executeReport(procedureName, payload, offset, limit);
