@@ -15,10 +15,10 @@ BEGIN
                                 patient_name,
                                 CASE
                                     WHEN
-                                        (given_name <> "" and middle_name <> "" and family_name <> "" and
-                                         (mobile_no <> "" or phone_no <> "")
-                                            ) THEN "Green"
-                                    ELSE "Yellow"
+                                        (given_name <> '' and middle_name <> '' and family_name <> '' and
+                                         (mobile_no <> '' or phone_no <> '')
+                                            ) THEN 'Green'
+                                    ELSE 'Yellow'
                                     END                                      AS Adrress,
                                 CAST(mrn AS CHAR(20))                        as mrn,
                                 uan
@@ -131,7 +131,7 @@ BEGIN
                                          ON follow_up.encounter_id = follow_up_9.encounter_id
                                LEFT JOIN mamba_flat_encounter_follow_up_10 follow_up_10
                                          ON follow_up.encounter_id = follow_up_10.encounter_id
-                      WHERE follow_up.follow_up_date_followup_ <= COALESCE(END_DATE, CURDATE())),
+                      WHERE follow_up_6.follow_up_date_followup_ <= COALESCE(END_DATE, CURDATE())),
 
          all_art_not_started as (select client_id,
                                             encounter_id,
@@ -150,7 +150,7 @@ BEGIN
                                           from FollowUp) t where row_num = 1),
 
 
-         all_art_not_started_status as (select *, "ART Not Started" as art_status
+         all_art_not_started_status as (select *, 'ART Not Started' as art_status
                                         from all_art_not_started
                                         where art_start_date is null),
 
@@ -196,7 +196,7 @@ BEGIN
                               from (select client_id, encounter_id,
                                            ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
                                     FROM FollowUp
-                                    where eligible_for_tpt = "Yes"
+                                    where eligible_for_tpt = 'Yes'
                                       and inhprophylaxis_completed_date is null
                                       and inhprophylaxis_discontinued_date is null
                                       and inhprophylaxis_started_date is null) t where row_num = 1),
@@ -205,7 +205,7 @@ BEGIN
                              from (select client_id, encounter_id,
                                           ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
                                    FROM FollowUp
-                                   where eligible_for_tpt = "No"
+                                   where eligible_for_tpt = 'No'
                                      and inhprophylaxis_completed_date is null
                                      and inhprophylaxis_discontinued_date is null
                                      and inhprophylaxis_started_date is null) t where row_num = 1),
@@ -215,20 +215,20 @@ BEGIN
                               from (select client_id, encounter_id,
                                            ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
                                     FROM FollowUp
-                                    where reason_not_eligible_for_tuberculosi = "Contraindication"
+                                    where reason_not_eligible_for_tuberculosi = 'Contraindication'
                                       and inhprophylaxis_completed_date is null
                                       and inhprophylaxis_discontinued_date is null
                                       and inhprophylaxis_started_date is null
                                       and follow_up_date <= END_DATE) t where row_num = 1),
 
-         contraindicated as (select client_id, "Contraindicated" as tpt_status from tpt_not_eligible),
+         contraindicated as (select client_id, 'Contraindicated' as tpt_status from tpt_not_eligible),
 
          tpt_bronze_5 as (select ActiveTBTreatmentCompletedDate,
                                  client_id,
                                  Case
                                      When timestampdiff(DAY, tb_treatment_completed.ActiveTBTreatmentCompletedDate,
                                                         END_DATE) < 1095
-                                         THEN "Treatment for TB"
+                                         THEN 'Treatment for TB'
                                      END as tpt_status
                           from tb_treatment_completed
                           where NOT EXISTS (select 1 from contraindicated where contraindicated.client_id = tb_treatment_completed.client_id)),
@@ -237,10 +237,10 @@ BEGIN
                              Case
                                  When tpt_start.inhprophylaxis_started_date <=
                                       tpt_completed.inhprophylaxis_completed_date
-                                     THEN "Gold"
+                                     THEN 'Gold'
                                  When tpt_start.inhprophylaxis_started_date >
                                       tpt_completed.inhprophylaxis_completed_date
-                                     THEN "Gold"
+                                     THEN 'Gold'
                                  END as tpt_status
                       from tpt_start
                                inner join tpt_completed
@@ -252,10 +252,10 @@ BEGIN
                                         Case
                                             When TIMESTAMPDIFF(DAY, tpt_start.inhprophylaxis_started_date, END_DATE) <=
                                                  270
-                                                THEN "Silver"
+                                                THEN 'Silver'
                                             When TIMESTAMPDIFF(
                                                          DAY, tpt_start.inhprophylaxis_started_date, END_DATE) > 270
-                                                THEN "Bronze1"
+                                                THEN 'Bronze1'
                                             END as tpt_status
                                  from tpt_start
                                  where NOT EXISTS (select 1 from tpt_completed where tpt_completed.client_id = tpt_start.client_id)
@@ -267,10 +267,10 @@ BEGIN
                                  Case
                                      When tpt_start.inhprophylaxis_started_date <=
                                           tpt_discontinued.inhprophylaxis_discontinued_date
-                                         THEN "Bronze3"
+                                         THEN 'Bronze3'
                                      When tpt_start.inhprophylaxis_started_date >
                                           tpt_discontinued.inhprophylaxis_discontinued_date
-                                         THEN "Bronze3"
+                                         THEN 'Bronze3'
                                      END as tpt_status
                           from tpt_start
                                    inner join tpt_discontinued
@@ -286,7 +286,7 @@ BEGIN
                                                  timestampdiff(DAY,
                                                                tb_treatment_completed_2.ActiveTBTreatmentCompletedDate,
                                                                END_DATE) >= 1095
-                                                 THEN "Bronze5"
+                                                 THEN 'Bronze5'
                                              END as tpt_status
                                   from tb_treatment_completed_2
                                   where NOT EXISTS (select 1 from tpt_gold where tpt_gold.client_id = tb_treatment_completed_2.client_id)
@@ -295,7 +295,7 @@ BEGIN
                                     and NOT EXISTS (select 1 from tpt_bronze_5 where tpt_bronze_5.client_id = tb_treatment_completed_2.client_id)),
 
          tpt_bronze_4 as (select tpt_eligible_yes.client_id,
-                                 "Bronze4" as tpt_status
+                                 'Bronze4' as tpt_status
                           from tpt_eligible_yes
                           where NOT EXISTS (select 1 from tpt_gold where tpt_gold.client_id = tpt_eligible_yes.client_id)
                             and NOT EXISTS (select 1 from tpt_silver_bronze_1 where tpt_silver_bronze_1.client_id = tpt_eligible_yes.client_id)
@@ -305,7 +305,7 @@ BEGIN
                             AND NOT EXISTS (select 1 from tpt_bronze_5_changed where tpt_bronze_5_changed.client_id = tpt_eligible_yes.client_id)),
 
          tpt_bronze_6 as (select tpt_completed.client_id,
-                                 "Bronze6" as tpt_status
+                                 'Bronze6' as tpt_status
                           from tpt_completed
                           where NOT EXISTS (select 1 from tpt_gold where tpt_gold.client_id = tpt_completed.client_id)
                             and NOT EXISTS (select 1 from tpt_silver_bronze_1 where tpt_silver_bronze_1.client_id = tpt_completed.client_id)
@@ -317,7 +317,7 @@ BEGIN
                             AND NOT EXISTS (select 1 from tpt_start where tpt_start.client_id = tpt_completed.client_id)
                           UNION ALL
                           select tpt_discontinued.client_id,
-                                 "Bronze6" as tpt_status
+                                 'Bronze6' as tpt_status
                           from tpt_discontinued
                           where NOT EXISTS (select 1 from tpt_gold where tpt_gold.client_id = tpt_discontinued.client_id)
                             and NOT EXISTS (select 1 from tpt_silver_bronze_1 where tpt_silver_bronze_1.client_id = tpt_discontinued.client_id)
@@ -330,7 +330,7 @@ BEGIN
                             AND NOT EXISTS (select 1 from tpt_completed where tpt_completed.client_id = tpt_discontinued.client_id)),
 
          tpt_bronze_2 as (select tpt_eligible_no.client_id,
-                                          "Bronze2" as tpt_status
+                                          'Bronze2' as tpt_status
                           from tpt_eligible_no
                           where NOT EXISTS (select 1 from tpt_start where tpt_start.client_id = tpt_eligible_no.client_id)
                             and NOT EXISTS (select 1 from tpt_completed where tpt_completed.client_id = tpt_eligible_no.client_id)
@@ -404,32 +404,32 @@ BEGIN
                                                     NULL
                                                 WHEN tmp_vl_performed_date_2.viral_load_perform_date >=
                                                      vl_sent_date.VL_Sent_Date AND
-                                                     (viral_load_test_status LIKE "Det%"
-                                                         OR viral_load_test_status LIKE "Uns%"
-                                                         OR viral_load_test_status LIKE "High VL%"
-                                                         OR viral_load_test_status LIKE "Low Level Viremia%")
+                                                     (viral_load_test_status LIKE 'Det%'
+                                                         OR viral_load_test_status LIKE 'Uns%'
+                                                         OR viral_load_test_status LIKE 'High VL%'
+                                                         OR viral_load_test_status LIKE 'Low Level Viremia%')
                                                     THEN
-                                                    "U"
+                                                    'U'
                                                 WHEN tmp_vl_performed_date_2.viral_load_perform_date >=
                                                      vl_sent_date.VL_Sent_Date AND
-                                                     (viral_load_test_status LIKE "Su%"
-                                                         OR viral_load_test_status LIKE "Undet%")
+                                                     (viral_load_test_status LIKE 'Su%'
+                                                         OR viral_load_test_status LIKE 'Undet%')
                                                     THEN
-                                                    "S"
+                                                    'S'
                                                 WHEN
                                                     tmp_vl_performed_date_2.viral_load_perform_date >=
                                                     vl_sent_date.VL_Sent_Date AND
                                                     (ISNULL(viral_load_count) > CAST(50 AS float)
                                                         )
                                                     THEN
-                                                    "U"
+                                                    'U'
                                                 WHEN
                                                     tmp_vl_performed_date_2.viral_load_perform_date >=
                                                     vl_sent_date.VL_Sent_Date AND
                                                     (ISNULL(viral_load_count) <= CAST(50 AS float)
                                                         )
                                                     THEN
-                                                    "S"
+                                                    'S'
                                                 ELSE
                                                     NULL
                                                 END                                                      AS viral_load_status_inferred,
@@ -481,7 +481,7 @@ BEGIN
 
                               WHEN
                                   (vlperfdate.VL_Sent_Date IS NULL
-                                      AND f_case.follow_up_status = "Restart medication")
+                                      AND f_case.follow_up_status = 'Restart medication')
                                   THEN DATE_ADD(f_case.follow_up_date, INTERVAL 91 DAY)
 
                               WHEN
@@ -492,7 +492,7 @@ BEGIN
 
                               WHEN
                                   (vlperfdate.VL_Sent_Date IS NULL
-                                      AND f_case.pregnancy_status = "Yes"
+                                      AND f_case.pregnancy_status = 'Yes'
                                       AND TIMESTAMPDIFF(DAY, f_case.art_start_date,
                                                         COALESCE(END_DATE, CURDATE())) > 90)
                                   THEN DATE_ADD(f_case.art_start_date, INTERVAL 91 DAY)
@@ -513,7 +513,7 @@ BEGIN
                               WHEN
                                   (vlperfdate.VL_Sent_Date IS NOT NULL
                                       AND vlperfdate.VL_Sent_Date < f_case.follow_up_date)
-                                      AND (f_case.follow_up_status = "Restart medication")
+                                      AND (f_case.follow_up_status = 'Restart medication')
                                   THEN DATE_ADD(f_case.follow_up_date, INTERVAL 91 DAY)
 
                               WHEN
@@ -525,28 +525,28 @@ BEGIN
 
                               WHEN
                                   (vlperfdate.VL_Sent_Date IS NOT NULL
-                                      AND vlperfdate.viral_load_status_inferred = "U")
+                                      AND vlperfdate.viral_load_status_inferred = 'U')
                                   THEN DATE_ADD(vlperfdate.VL_Sent_Date, INTERVAL 91 DAY)
 
                               WHEN
                                   (vlperfdate.VL_Sent_Date IS NOT NULL
                                       AND
-                                   (f_case.pregnancy_status = "Yes" OR f_case.breastfeeding_status = "Yes")
+                                   (f_case.pregnancy_status = 'Yes' OR f_case.breastfeeding_status = 'Yes')
                                       AND vlperfdate.routine_viral_load_test_indication in
-                                          ("First viral load test at 6 months or longer post ART",
-                                           "Viral load after EAC: repeat viral load where initial viral load greater than 50 and less than 1000 copies per ml",
-                                           "Viral load after EAC: confirmatory viral load where initial viral load greater than 1000 copies per ml"))
+                                          ('First viral load test at 6 months or longer post ART',
+                                           'Viral load after EAC: repeat viral load where initial viral load greater than 50 and less than 1000 copies per ml',
+                                           'Viral load after EAC: confirmatory viral load where initial viral load greater than 1000 copies per ml'))
                                   THEN DATE_ADD(vlperfdate.VL_Sent_Date, INTERVAL 91 DAY)
 
                               WHEN
                                   (vlperfdate.VL_Sent_Date IS NOT NULL
                                       AND
-                                   (f_case.pregnancy_status = "Yes" OR f_case.breastfeeding_status = "Yes")
+                                   (f_case.pregnancy_status = 'Yes' OR f_case.breastfeeding_status = 'Yes')
                                       AND vlperfdate.routine_viral_load_test_indication IS NOT NULL
                                       AND vlperfdate.routine_viral_load_test_indication not in
-                                          ("First viral load test at 6 months or longer post ART",
-                                           "Viral load after EAC: repeat viral load where initial viral load greater than 50 and less than 1000 copies per ml",
-                                           "Viral load after EAC: confirmatory viral load where initial viral load greater than 1000 copies per ml"))
+                                          ('First viral load test at 6 months or longer post ART',
+                                           'Viral load after EAC: repeat viral load where initial viral load greater than 50 and less than 1000 copies per ml',
+                                           'Viral load after EAC: confirmatory viral load where initial viral load greater than 1000 copies per ml'))
                                   THEN DATE_ADD(vlperfdate.VL_Sent_Date, INTERVAL 181 DAY)
 
 
@@ -560,130 +560,130 @@ BEGIN
 
                               WHEN
                                   (vlperfdate.VL_Sent_Date IS NULL
-                                      AND f_case.follow_up_status = "Restart medication")
-                                  THEN "client restarted ART"
+                                      AND f_case.follow_up_status = 'Restart medication')
+                                  THEN 'client restarted ART'
 
                               WHEN
                                   (vlperfdate.VL_Sent_Date IS NULL
                                       AND sub_switch_date.FollowupDate IS NOt NULL
                                       )
-                                  THEN "Regimen Change"
+                                  THEN 'Regimen Change'
 
 
                               WHEN
                                   (vlperfdate.VL_Sent_Date IS NULL
-                                      AND f_case.pregnancy_status = "Yes"
+                                      AND f_case.pregnancy_status = 'Yes'
                                       AND TIMESTAMPDIFF(DAY, f_case.art_start_date,
                                                         COALESCE(END_DATE, CURDATE())) > 90)
-                                  THEN "First VL for Pregnant"
+                                  THEN 'First VL for Pregnant'
 
                               WHEN
                                   (vlperfdate.VL_Sent_Date IS NULL
                                       AND TIMESTAMPDIFF(DAY, f_case.art_start_date,
                                                         COALESCE(END_DATE, CURDATE())) <= 180)
-                                  THEN "N/A"
+                                  THEN 'N/A'
 
                               WHEN
                                   (vlperfdate.VL_Sent_Date IS NULL
                                       AND TIMESTAMPDIFF(DAY, f_case.art_start_date,
                                                         COALESCE(END_DATE, CURDATE())) > 180)
-                                  THEN "First VL"
+                                  THEN 'First VL'
 
 
                               WHEN
                                   (vlperfdate.VL_Sent_Date IS NOT NULL
                                       AND vlperfdate.VL_Sent_Date < f_case.follow_up_date)
-                                      AND (f_case.follow_up_status = "Restart medication")
-                                  THEN "client restarted ART"
+                                      AND (f_case.follow_up_status = 'Restart medication')
+                                  THEN 'client restarted ART'
 
                               WHEN
                                   (vlperfdate.VL_Sent_Date IS NOT NULL
                                       AND vlperfdate.VL_Sent_Date < sub_switch_date.FollowupDate
                                       AND sub_switch_date.FollowupDate IS NOT NULL
                                       )
-                                  THEN "Regimen Change"
+                                  THEN 'Regimen Change'
 
                               WHEN
                                   (vlperfdate.VL_Sent_Date IS NOT NULL
-                                      AND vlperfdate.viral_load_status_inferred = "U")
-                                  THEN "Repeat/Confirmatory Viral Load test"
+                                      AND vlperfdate.viral_load_status_inferred = 'U')
+                                  THEN 'Repeat/Confirmatory Viral Load test'
 
                               WHEN
                                   (vlperfdate.viral_load_status_inferred IS NOT NULL
                                       AND
-                                   (f_case.pregnancy_status = "Yes" OR f_case.breastfeeding_status = "Yes"))
-                                  THEN "Pregnant/Breastfeeding and needs retesting"
+                                   (f_case.pregnancy_status = 'Yes' OR f_case.breastfeeding_status = 'Yes'))
+                                  THEN 'Pregnant/Breastfeeding and needs retesting'
 
 
                               WHEN
                                   (vlperfdate.VL_Sent_Date IS NOT NULL)
-                                  THEN "Annual Viral Load Test"
+                                  THEN 'Annual Viral Load Test'
 
-                              ELSE "Unassigned" End                          AS vl_status_final,
+                              ELSE 'Unassigned' End                          AS vl_status_final,
                           CASE
 
                               WHEN
                                   (vlperfdate.viral_load_perform_date IS NULL
-                                      AND f_case.follow_up_status = "Restart medication")
-                                  THEN "client restarted ART"
+                                      AND f_case.follow_up_status = 'Restart medication')
+                                  THEN 'client restarted ART'
 
                               WHEN
                                   (vlperfdate.viral_load_perform_date IS NULL
                                       AND sub_switch_date.FollowupDate IS NOt NULL
                                       )
-                                  THEN "Regimen Change"
+                                  THEN 'Regimen Change'
 
 
                               WHEN
                                   (vlperfdate.viral_load_perform_date IS NULL
-                                      AND f_case.pregnancy_status = "Yes"
+                                      AND f_case.pregnancy_status = 'Yes'
                                       AND TIMESTAMPDIFF(DAY, f_case.art_start_date,
                                                         COALESCE(END_DATE, CURDATE())) > 90)
-                                  THEN "First VL for Pregnant"
+                                  THEN 'First VL for Pregnant'
 
                               WHEN
                                   (vlperfdate.viral_load_perform_date IS NULL
                                       AND TIMESTAMPDIFF(DAY, f_case.art_start_date,
                                                         COALESCE(END_DATE, CURDATE())) <= 180)
-                                  THEN "N/A"
+                                  THEN 'N/A'
 
                               WHEN
                                   (vlperfdate.viral_load_perform_date IS NULL
                                       AND TIMESTAMPDIFF(DAY, f_case.art_start_date,
                                                         COALESCE(END_DATE, CURDATE())) > 180)
-                                  THEN "First VL"
+                                  THEN 'First VL'
 
 
                               WHEN
                                   (vlperfdate.viral_load_perform_date IS NOT NULL
                                       AND vlperfdate.viral_load_perform_date < f_case.follow_up_date)
-                                      AND (f_case.follow_up_status = "Restart medication")
-                                  THEN "client restarted ART"
+                                      AND (f_case.follow_up_status = 'Restart medication')
+                                  THEN 'client restarted ART'
 
                               WHEN
                                   (vlperfdate.viral_load_perform_date IS NOT NULL
                                       AND vlperfdate.viral_load_perform_date < sub_switch_date.FollowupDate
                                       AND sub_switch_date.FollowupDate IS NOT NULL
                                       )
-                                  THEN "Regimen Change"
+                                  THEN 'Regimen Change'
 
                               WHEN
                                   (vlperfdate.viral_load_perform_date IS NOT NULL
-                                      AND vlperfdate.viral_load_status_inferred = "U")
-                                  THEN "Repeat/Confirmatory Viral Load test"
+                                      AND vlperfdate.viral_load_status_inferred = 'U')
+                                  THEN 'Repeat/Confirmatory Viral Load test'
 
                               WHEN
                                   (vlperfdate.viral_load_status_inferred IS NOT NULL
                                       AND
-                                   (f_case.pregnancy_status = "Yes" OR f_case.breastfeeding_status = "Yes"))
-                                  THEN "Pregnant/Breastfeeding and needs retesting"
+                                   (f_case.pregnancy_status = 'Yes' OR f_case.breastfeeding_status = 'Yes'))
+                                  THEN 'Pregnant/Breastfeeding and needs retesting'
 
 
                               WHEN
                                   (vlperfdate.viral_load_perform_date IS NOT NULL)
-                                  THEN "Annual Viral Load Test"
+                                  THEN 'Annual Viral Load Test'
 
-                              ELSE "Unassigned" End                          AS VL_STATUS_COVERAGE
+                              ELSE 'Unassigned' End                          AS VL_STATUS_COVERAGE
 
 
                    FROM FollowUp AS f_case
@@ -762,7 +762,7 @@ BEGIN
                                          biopsy_result, ccs_hpv_result, hpv_dna_result_received_date, cytology_result, cytology_result_date,
                                          colposcopy_exam_finding, biopsy_result_received_date,
                                          ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS rn
-                                  from FollowUp where follow_up_date <= END_DATE AND screening_status = "Cervical cancer screening performed") sc
+                                  from FollowUp where follow_up_date <= END_DATE AND screening_status = 'Cervical cancer screening performed') sc
                             WHERE sc.rn = 1),
 
          cxca_eligibility_base_clients AS (SELECT lf.*,
@@ -786,42 +786,42 @@ BEGIN
                                                   CASE
                                                       -- TC-02, TC-03, ...: Not eligible by user/form (e.g., Hysterectomy, etc.)
                                                       WHEN ps.client_id IS NULL
-                                                          AND lf.eligible_for_cxca_screening = "No"
-                                                          THEN CONCAT("Not Eligible ",
+                                                          AND lf.eligible_for_cxca_screening = 'No'
+                                                          THEN CONCAT('Not Eligible ',
                                                                       COALESCE(lf.reason_for_not_being_eligible,
                                                                                lf.other_reason_for_not_being_eligible_for_cxca))
 
                                                       -- TC-19: Biopsy confirmed cancer (Red rule source)
-                                                      WHEN (ps.biopsy_result = "Carcinoma in situ"
-                                                          OR ps.biopsy_result = "Invasive cervical cancer"
-                                                          OR ps.biopsy_result = "Other")
+                                                      WHEN (ps.biopsy_result = 'Carcinoma in situ'
+                                                          OR ps.biopsy_result = 'Invasive cervical cancer'
+                                                          OR ps.biopsy_result = 'Other')
                                                           AND (ps.ccs_treat_received_date <= END_DATE
                                                               OR ps.date_patient_referred_out <= END_DATE)
-                                                          THEN "Not Eligible Confirmed Cirvical Cancer"
+                                                          THEN 'Not Eligible Confirmed Cirvical Cancer'
 
                                                       -- TC-06: User-Labeled as Eligible
                                                       WHEN ps.client_id IS NULL
                                                           AND
-                                                           lf.screening_status != "Cervical cancer screening performed"
-                                                          AND lf.eligible_for_cxca_screening = "Yes"
-                                                          THEN "Eligible Labeled by User"
+                                                           lf.screening_status != 'Cervical cancer screening performed'
+                                                          AND lf.eligible_for_cxca_screening = 'Yes'
+                                                          THEN 'Eligible Labeled by User'
 
                                                       -- TC-07: Never screened/assessed
                                                       WHEN ps.client_id IS NULL
                                                           AND lf.eligible_for_cxca_screening IS NULL
-                                                          THEN "Eligible Never Screened/Assessed"
+                                                          THEN 'Eligible Never Screened/Assessed'
 
                                                       -- TC-08: Unknown VIA result
-                                                      WHEN ps.ccs_via_result = "Unknown"
-                                                          THEN "Eligible Unknown VIA Screening Result"
+                                                      WHEN ps.ccs_via_result = 'Unknown'
+                                                          THEN 'Eligible Unknown VIA Screening Result'
 
                                                       -- TC-09: VIA negative >2 years ago
                                                       WHEN (TIMESTAMPDIFF(DAY, ps.via_date, END_DATE)) > 730
-                                                          AND ps.ccs_via_result = "VIA negative"
-                                                          THEN "Eligible Needs Re-Screening"
+                                                          AND ps.ccs_via_result = 'VIA negative'
+                                                          THEN 'Eligible Needs Re-Screening'
 
                                                       -- TC-10, TC-11 (VIA Positive logic)
-                                                      WHEN ps.ccs_via_result = "VIA positive: eligible for cryo/thermo-coagula"
+                                                      WHEN ps.ccs_via_result = 'VIA positive: eligible for cryo/thermo-coagula'
                                                           THEN
                                                           CASE
                                                               -- TC-10: Treatment/Referral Given > 1 year (Needs follow-up)
@@ -832,71 +832,71 @@ BEGIN
                                                                    (TIMESTAMPDIFF(DAY, ps.date_patient_referred_out, END_DATE)) >
                                                                    365)
                                                                       AND ps.biopsy_result IS NULL
-                                                                  THEN "Eligible Post Treatment/Referral Follow-Up"
+                                                                  THEN 'Eligible Post Treatment/Referral Follow-Up'
                                                               -- TC-11: No Treatment/Referral
                                                               WHEN ps.ccs_treat_received_date IS NULL
                                                                   AND ps.date_patient_referred_out IS NULL
-                                                                  THEN "Eligible Treatment Not Received or Not Referred"
-                                                              ELSE "Not Eligible (Screening Up-to-Date)" -- Default if treatment received recently
+                                                                  THEN 'Eligible Treatment Not Received or Not Referred'
+                                                              ELSE 'Not Eligible (Screening Up-to-Date)' -- Default if treatment received recently
                                                               END
 
                                                       -- TC-12: VIA Positive & Not Eligible for Cryo OR Suspected Cancer & NO BIOPSY
                                                       WHEN (ps.ccs_via_result =
-                                                            "VIA positive: non-eligible for cryo/thermo-coagula"
-                                                          OR ps.ccs_via_result = "suspected cervical cancer")
+                                                            'VIA positive: non-eligible for cryo/thermo-coagula'
+                                                          OR ps.ccs_via_result = 'suspected cervical cancer')
                                                           AND ps.biopsy_result IS NULL
-                                                          THEN "Eligible Biopsy Test Not Done"
+                                                          THEN 'Eligible Biopsy Test Not Done'
 
                                                       -- TC-13: HPV negative >3 years ago
-                                                      WHEN ps.ccs_hpv_result = "Negative result"
+                                                      WHEN ps.ccs_hpv_result = 'Negative result'
                                                           AND
                                                            TIMESTAMPDIFF(DAY, ps.hpv_dna_result_received_date, END_DATE) >
                                                            1095
-                                                          THEN "Eligible Needs Re-Screening"
+                                                          THEN 'Eligible Needs Re-Screening'
 
                                                       -- TC-14: HPV positive, needs VIA triage
                                                       WHEN ps.ccs_via_result IS NULL
-                                                          AND ps.ccs_hpv_result = "Positive"
-                                                          THEN "Eligible Needs VIA Triage"
+                                                          AND ps.ccs_hpv_result = 'Positive'
+                                                          THEN 'Eligible Needs VIA Triage'
 
                                                       -- TC-15: Cytology Negative >3 years ago
-                                                      WHEN ps.cytology_result = "Negative result"
+                                                      WHEN ps.cytology_result = 'Negative result'
                                                           AND
                                                            TIMESTAMPDIFF(DAY, ps.cytology_result_date, END_DATE) > 1095
-                                                          THEN "Eligible Needs Re-Screening"
+                                                          THEN 'Eligible Needs Re-Screening'
 
                                                       -- TC-16, TC-17, TC-18 (Cytology Positive logic)
                                                       WHEN (ps.cytology_result =
-                                                            "ASCUS (Atypical Squamous Cells of Undetermined Significance) on Pap Smear"
-                                                          OR ps.cytology_result = "> Ascus")
+                                                            'ASCUS (Atypical Squamous Cells of Undetermined Significance) on Pap Smear'
+                                                          OR ps.cytology_result = '> Ascus')
                                                           THEN
                                                           CASE
                                                               -- TC-16: NO HPV Test
                                                               WHEN ps.hpv_dna_result_received_date IS NULL
-                                                                  THEN "Eligible Needs HPV Triage"
+                                                                  THEN 'Eligible Needs HPV Triage'
                                                               -- TC-17: HPV Negative > 2 years (Needs Reassessment)
-                                                              WHEN ps.ccs_hpv_result = "Negative result"
+                                                              WHEN ps.ccs_hpv_result = 'Negative result'
                                                                   AND
                                                                    TIMESTAMPDIFF(DAY, ps.hpv_dna_result_received_date, END_DATE) >
                                                                    730
-                                                                  THEN "Eligible Needs Re-Screening"
+                                                                  THEN 'Eligible Needs Re-Screening'
                                                               -- TC-18: HPV Positive & Needs Colposcopy
-                                                              WHEN ps.ccs_hpv_result = "Positive"
+                                                              WHEN ps.ccs_hpv_result = 'Positive'
                                                                   AND ps.colposcopy_exam_finding IS NULL
-                                                                  THEN "Eligible Needs Colposcopy Test"
-                                                              ELSE "Not Eligible (Screening Up-to-Date)"
+                                                                  THEN 'Eligible Needs Colposcopy Test'
+                                                              ELSE 'Not Eligible (Screening Up-to-Date)'
                                                               END
 
                                                       -- TC-20: Biopsy CIN-1/CIN-2 > 1 year
-                                                      WHEN (ps.biopsy_result = "CIN (1-3)"
-                                                          OR ps.biopsy_result = "CIN-2")
+                                                      WHEN (ps.biopsy_result = 'CIN (1-3)'
+                                                          OR ps.biopsy_result = 'CIN-2')
                                                           AND
                                                            TIMESTAMPDIFF(DAY, ps.biopsy_result_received_date, END_DATE) >
                                                            365
-                                                          THEN "Eligible Needs Re-Screening"
+                                                          THEN 'Eligible Needs Re-Screening'
 
                                                       -- DEFAULT (CATCH-ALL): Client is not due for screening / Screening Done (Green rule source)
-                                                      ELSE "Not Eligible (Screening Up-to-Date)"
+                                                      ELSE 'Not Eligible (Screening Up-to-Date)'
                                                       END           AS EligibilityStatus
                                            FROM latest_follow_up lf
                                                     LEFT JOIN prev_screening ps
@@ -912,42 +912,42 @@ BEGIN
                              CASE
                                  -- RULE 1: Blue (Not Applicable)
                                  -- Female <25 OR Female >65 OR All Males, Follow-Up Status = TO, DEAD, STOP
-                                 WHEN base.sex = "Male"
+                                 WHEN base.sex = 'Male'
                                      OR age < 25
                                      OR age > 65
                                      OR
-                                      base.final_follow_up_status IN ("Dead", "Transferred out", "Stop all", "Ran away")
-                                     THEN "Not Applicable (Blue)"
+                                      base.final_follow_up_status IN ('Dead', 'Transferred out', 'Stop all', 'Ran away')
+                                     THEN 'Not Applicable (Blue)'
 
                                  -- RULE 2: Black (ART Not Started)
                                  -- HIV Confirmation Date but no ART START DATE
                                  WHEN base.art_start_date IS NULL
-                                     THEN "ART Not Started (Black)"
+                                     THEN 'ART Not Started (Black)'
 
                                  -- RULE 3: Red (Confirmed CXCA)
                                  -- Clients with confirmed cancer are excluded from screening eligibility (using the detailed status)
-                                 WHEN base.EligibilityStatus = "Not Eligible Confirmed Cirvical Cancer"
-                                     THEN "Confirmed CXCA (RED)"
+                                 WHEN base.EligibilityStatus = 'Not Eligible Confirmed Cirvical Cancer'
+                                     THEN 'Confirmed CXCA (RED)'
 
                                  -- The remaining rules apply to the active, 25-65 female cohort
 
                                  -- RULE 4: Green (Previously Screened / Screening Done)
                                  -- Maps to the catch-all status where screening is up-to-date
-                                 WHEN base.EligibilityStatus = "Not Eligible (Screening Up-to-Date)"
-                                     THEN "Previously Screened (Green)"
+                                 WHEN base.EligibilityStatus = 'Not Eligible (Screening Up-to-Date)'
+                                     THEN 'Previously Screened (Green)'
 
                                  -- RULE 5: Yellow (Eligible for Screening/RX)
                                  -- Maps to *any* status that requires screening/follow-up action
-                                 WHEN base.EligibilityStatus LIKE "Eligible%"
-                                     THEN "Eligible (Yellow)"
+                                 WHEN base.EligibilityStatus LIKE 'Eligible%'
+                                     THEN 'Eligible (Yellow)'
 
                                  -- RULE 6: White (Not Eligible - Other Reasons)
                                  -- Maps to other "Not Eligible" statuses (e.g., Hysterectomy, etc.)
-                                 WHEN base.EligibilityStatus LIKE "Not Eligible%"
-                                     THEN "Not Eligible (White)"
+                                 WHEN base.EligibilityStatus LIKE 'Not Eligible%'
+                                     THEN 'Not Eligible (White)'
 
                                  -- Fallback
-                                 ELSE "Unknown Status"
+                                 ELSE 'Unknown Status'
                                  END AS Cervical_status
 
                       FROM cxca_eligibility_base_clients AS base),
@@ -959,8 +959,8 @@ BEGIN
                  from dsd_cat
                  union ALL
                  select client_id
-                      , ""
-                      , "ART not started"
+                      , ''
+                      , 'ART not started'
                  from all_art_not_started_status),
 
          offer_list as (select client.client_id,
@@ -984,7 +984,7 @@ BEGIN
                                specify_other_adverse_event_type,
                                reason_ict_service_not_accepted,
                                adverse_event_type,
-                               CASE WHEN all_art_not_started_status.client_id IS NOT NULL THEN "YES" ELSE "NO" END AS art_not_started
+                               CASE WHEN all_art_not_started_status.client_id IS NOT NULL THEN 'YES' ELSE 'NO' END AS art_not_started
                         from mamba_flat_encounter_ict_general ict_general
                                  join mamba_flat_encounter_ict_offer offer on ict_general.client_id = offer.client_id
                                  join mamba_dim_client client on ict_general.client_id = client.client_id
@@ -1006,45 +1006,45 @@ BEGIN
 
            case
 
-               when vl_status_final = "N/A" THEN "Not Applicable"
+               when vl_status_final = 'N/A' THEN 'Not Applicable'
                when eligiblityDate <= COALESCE(END_DATE, CURDATE())
-                   THEN "Eligible for Viral Load"
+                   THEN 'Eligible for Viral Load'
                when eligiblityDate > COALESCE(END_DATE, CURDATE())
-                   THEN "Viral Load Done (Currently not Eligible)" -- "Viral Load Done"
-               when tmp_3.art_start_date is NULL and follow_up_status is null THEN "Not Started ART"
+                   THEN 'Viral Load Done (Currently not Eligible)' -- "Viral Load Done"
+               when tmp_3.art_start_date is NULL and follow_up_status is null THEN 'Not Started ART'
 
-               Else "undetermined_VL" end                                    as `Viral Load Eligibility Status`
+               Else 'undetermined_VL' end                                    as `Viral Load Eligibility Status`
             ,
            CASE
-               WHEN art_not_started = "YES" THEN "N/A"
-               WHEN offered.offered_date is null and final_follow_up_status NOT IN ("Dead", "Transferred Out")
-                   THEN "Never Screened for ICT"
-               WHEN offered.offered_date IS NOT NULL AND
-                    DATE_ADD(offered.offered_date, INTERVAL 730 DAY) > COALESCE(END_DATE, CURDATE())
-                   THEN "Screened for ICT Previously (Not Eligible)"
-               WHEN offered.offered_date IS NOT NULL AND
-                    DATE_ADD(offered.offered_date, INTERVAL 730 DAY) <= COALESCE(END_DATE, CURDATE())
-                   THEN "Currently Eligible for Rescreening"
-               WHEN final_follow_up_status IN ("Dead", "Transferred Out")
-                   THEN "Not Applicable" END                                 AS `ICT Eligibility Status`,
+               WHEN art_not_started = 'YES' THEN 'N/A'
+               WHEN offer.offered_date is null and latest_follow_up.final_follow_up_status NOT IN ('Dead', 'Transferred Out')
+                   THEN 'Never Screened for ICT'
+               WHEN offer.offered_date IS NOT NULL AND
+                    DATE_ADD(offer.offered_date, INTERVAL 730 DAY) > COALESCE(END_DATE, CURDATE())
+                   THEN 'Screened for ICT Previously (Not Eligible)'
+               WHEN offer.offered_date IS NOT NULL AND
+                    DATE_ADD(offer.offered_date, INTERVAL 730 DAY) <= COALESCE(END_DATE, CURDATE())
+                   THEN 'Currently Eligible for Rescreening'
+               WHEN latest_follow_up.final_follow_up_status IN ('Dead', 'Transferred Out')
+                   THEN 'Not Applicable' END                                 AS `ICT Eligibility Status`,
            offer.offered_date                                                as `Latest ICT Offer Date GC.`,
            offer.offered_date                                                as `Latest ICT Offer Date EC.`,
            case
                when asm.assessment_status is not null then asm.assessment_status
-               Else "" end                                                   as `DSD Assesment Status`
+               Else '' end                                                   as `DSD Assesment Status`
             ,
            case
                when tmp_3.dsd_category is not null then tmp_3.dsd_category
-               Else "Not enrolled to any DSD" end                            as dsd_category
+               Else 'Not enrolled to any DSD' end                            as dsd_category
             ,
 
            CASE tmp_3.follow_up_status
-               WHEN "Alive" THEN "Alive on ART"
-               WHEN "Restart medication" THEN "Restart"
-               WHEN "Transferred out" THEN "TO"
-               WHEN "Stop all" THEN "Stop"
-               WHEN "Loss to follow-up (LTFU)" THEN "Lost"
-               WHEN "Ran away" THEN "Drop"
+               WHEN 'Alive' THEN 'Alive on ART'
+               WHEN 'Restart medication' THEN 'Restart'
+               WHEN 'Transferred out' THEN 'TO'
+               WHEN 'Stop all' THEN 'Stop'
+               WHEN 'Loss to follow-up (LTFU)' THEN 'Lost'
+               WHEN 'Ran away' THEN 'Drop'
                ELSE tmp_3.follow_up_status
                END                                                           as follow_up_status,
 
@@ -1078,11 +1078,11 @@ BEGIN
             OR (tmp_3.next_visit_date BETWEEN START_NV_DATE AND END_NV_DATE)
         )
       AND (
-        (TYPE_OF_CLIENT = "TX_CURR"
-            AND tmp_3.follow_up_status IN ("Alive", "Restart medication")
+        (TYPE_OF_CLIENT = 'TX_CURR'
+            AND tmp_3.follow_up_status IN ('Alive', 'Restart medication')
             AND tmp_3.art_dose_end_date >= END_DATE
             )
-            OR TYPE_OF_CLIENT = "ALL"
+            OR TYPE_OF_CLIENT = 'ALL'
         )
     ORDER BY tmp_address.PatientName;
 
