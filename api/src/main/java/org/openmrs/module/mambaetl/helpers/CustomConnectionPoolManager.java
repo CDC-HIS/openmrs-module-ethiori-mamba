@@ -28,7 +28,7 @@ public class CustomConnectionPoolManager {
 		String url = properties.getProperty("mambaetl.analysis.db.url");
 		String userName = properties.getProperty("mambaetl.analysis.db.username");
 		String password = properties.getProperty("mambaetl.analysis.db.password");
-
+		
 		String resolvedUrl = (url != null) ? url
 		        : "jdbc:mysql://localhost:3306/analytics_db?autoReconnect=true&useSSL=false";
 		
@@ -37,24 +37,23 @@ public class CustomConnectionPoolManager {
 		dataSource.setUsername(userName != null ? userName : properties.getProperty("connection.username"));
 		dataSource.setPassword(password != null ? password : properties.getProperty("connection.password"));
 		dataSource.setUrl(resolvedUrl);
-
+		
 		dataSource.setInitialSize(2);
 		dataSource.setMinIdle(2);
 		dataSource.setMaxIdle(10);
 		dataSource.setMaxTotal(20);
-
+		
 		dataSource.setMaxWait(java.time.Duration.ofSeconds(30));
-
+		
 		dataSource.setValidationQuery("SELECT 1");
 		dataSource.setTestOnBorrow(true);
 		dataSource.setTestWhileIdle(true);
-
+		
 		dataSource.setRemoveAbandonedOnMaintenance(true);
 		dataSource.setRemoveAbandonedOnBorrow(true);
 		dataSource.setRemoveAbandonedTimeout(java.time.Duration.ofSeconds(3600));
 		dataSource.setLogAbandoned(true);
 		
-
 		dataSource.setDurationBetweenEvictionRuns(java.time.Duration.ofSeconds(60));
 		dataSource.setMinEvictableIdle(java.time.Duration.ofMinutes(10));
 	}
@@ -88,7 +87,7 @@ public class CustomConnectionPoolManager {
 				dataSource.close();
 			}
 		}
-		catch (SQLException ignored) {
-		}instance = null;
+		catch (SQLException ignored) {}
+		instance = null;
 	}
 }
