@@ -142,3 +142,114 @@ BEGIN
 END //
 
 DELIMITER ;
+
+DELIMITER //
+
+DROP PROCEDURE IF EXISTS sp_fact_line_list_tx_new_query_v2;
+
+CREATE PROCEDURE sp_fact_line_list_tx_new_query_v2(IN REPORT_START_DATE DATE, IN REPORT_END_DATE DATE)
+BEGIN
+WITH tmp_first_follow_up_ids as (SELECT client_id,
+                                        encounter_id,
+                                        ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date_followup_ , encounter_id ) AS row_num
+                                 FROM vw_mamba_fact_encounter_follow_up
+                                 WHERE art_antiretroviral_start_date IS NOT NULL),
+         first_follow_up_ids as (select encounter_id from tmp_first_follow_up_ids where row_num = 1),
+
+         first_follow_up as (SELECT follow_up.client_id,
+                                    follow_up_date_followup_ AS FollowupDate,
+                                    follow_up.encounter_id,
+                                    transferred_in_check_this_for_all_t as transferred_in,
+                                    pregnancy_status,
+                                    follow_up_status,
+                                    art_antiretroviral_start_date as art_start_date,
+                                    cd4_count,
+                                    weight_text_ as weight,
+                                    current_who_hiv_stage,
+                                    nutritional_screening_result,
+                                    screening_test_result_tuberculosis as TB_SreeningResult,
+                                    date_of_event as hiv_confirmed_date,
+                                    currently_breastfeeding_child breast_feeding_status,
+                                    antiretroviral_art_dispensed_dose_i as ARTDoseDays,
+                                    regimen,
+                                    next_visit_date,
+                                    treatment_end_date
+                             FROM first_follow_up_ids ids
+                             JOIN vw_mamba_fact_encounter_follow_up follow_up USING (encounter_id)),
+
+         tx_new_tmp as (select first_follow_up.client_id,
+                               art_start_date,
+                               FollowupDate,
+                               transferred_in,
+                               pregnancy_status,
+                               cd4_count,
+                               weight,
+                               current_who_hiv_stage,
+                               nutritional_screening_result,
+                               TB_SreeningResult,
+                               COALESCE(intake_a.date_hiv_confirmed,hiv_confirmed_date) as hiv_confirmed_date ,
+                               breast_feeding_status,
+                               regimen,
+                               ARTDoseDays,
+                               next_visit_date,
+                               treatment_end_date
+                        from first_follow_up
+                        left join mamba_flat_encounter_intake_a intake_a on first_follow_up.client_id = intake_a.client_id
+                        where art_start_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE
+                          AND (first_follow_up.transferred_in is null or first_follow_up.transferred_in != 'Yes')
+                          AND first_follow_up.follow_up_status in ('Alive', 'Restart medication')),
+         tx_new as (select tx_new_tmp.client_id,
+                           patient_name,
+                           patient_uuid,
+                           sex,
+                           CAST(mrn AS CHAR(20))                                             as mrn,
+                           uan,
+                           weight,
+                           current_who_hiv_stage,
+                           nutritional_screening_result,
+                           TB_SreeningResult,
+                           hiv_confirmed_date,
+                           art_start_date,
+                           pregnancy_status,
+                           breast_feeding_status,
+                           regimen,
+                           date_of_birth,
+                           ARTDoseDays,
+                           next_visit_date,
+                           treatment_end_date,
+                           mobile_no,
+                           TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE)               as age,
+                           cd4_count
+                    from tx_new_tmp
+                             join mamba_dim_client client on tx_new_tmp.client_id = client.client_id)
+    select patient_name                                                  AS 'Patient Name',
+           patient_uuid                                                  as `UUID`,
+           MRN                                                           AS 'MRN',
+           uan                                                           AS 'UAN',
+           age                                                           AS 'Age',
+           sex                                                           AS 'Sex',
+           weight                                                        AS 'Weight',
+           cd4_count                                                     AS 'CD4',
+           current_who_hiv_stage                                         AS 'WHO Stage',
+           nutritional_screening_result                                  AS 'Nutritional Status',
+           TB_SreeningResult                                             AS 'TB Screening Result',
+           hiv_confirmed_date                                            AS 'Enrollment Date',
+           hiv_confirmed_date                                            AS 'Enrollment Date EC.',
+           hiv_confirmed_date                                            AS 'HIV Confirmed Date',
+           hiv_confirmed_date                                            AS 'HIV Confirmed Date EC.',
+           tx_new.art_start_date                                         AS 'ART Start Date',
+           tx_new.art_start_date                                         AS 'ART Start Date EC.',
+           TIMESTAMPDIFF(DAY, hiv_confirmed_date, tx_new.art_start_date) AS 'Days Difference',
+           pregnancy_status                                              AS 'Pregnant?',
+           breast_feeding_status                                         AS 'Breastfeeding?',
+           regimen                                                       AS 'Regimen',
+           ARTDoseDays                                                   AS 'ARV Dose Days',
+           next_visit_date                                               AS 'Next Visit Date',
+           next_visit_date                                               AS 'Next Visit Date EC.',
+           treatment_end_date                                            AS 'Last TX_Curr Date',
+           treatment_end_date                                            AS 'Last TX_Curr Date EC.',
+           mobile_no                                                     AS 'Mobile No.'
+    FROM tx_new;
+END //
+
+DELIMITER ;
