@@ -209,3 +209,178 @@ BEGIN
 END //
 
 DELIMITER ;
+
+DELIMITER //
+
+DROP PROCEDURE IF EXISTS sp_fact_line_list_tx_curr_query_v2;
+
+CREATE PROCEDURE sp_fact_line_list_tx_curr_query_v2(IN REPORT_END_DATE DATE)
+BEGIN
+
+         -- Hybrid Option A+B: narrow late row lookups using view
+         tx_curr_all AS (SELECT client_id as PatientId,
+                                encounter_id,
+                                follow_up_status,
+                                treatment_end_date,
+                                ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date_followup_ DESC, encounter_id DESC) AS row_num
+                         FROM vw_mamba_fact_encounter_follow_up
+                         WHERE follow_up_status IS NOT NULL
+                           AND art_antiretroviral_start_date IS NOT NULL
+                           AND follow_up_date_followup_ <= COALESCE(REPORT_END_DATE,CURDATE())),
+
+         tx_curr_ids AS (select encounter_id
+                     from tx_curr_all
+                     where row_num = 1
+                       AND follow_up_status in ('Alive', 'Restart medication')
+                       AND treatment_end_date >= COALESCE(REPORT_END_DATE,CURDATE())),
+                       
+         -- To avoid repeating all projections, we join back just the final target encounters
+         tx_curr AS (
+             SELECT follow_up.encounter_id,
+                    follow_up.client_id                 AS PatientId,
+                    follow_up_status,
+                    follow_up_date_followup_            AS follow_up_date,
+                    art_antiretroviral_start_date       AS art_start_date,
+                    assessment_date,
+                    treatment_end_date,
+                    antiretroviral_art_dispensed_dose_i AS ARTDoseDays,
+                    weight_text_                        AS Weight,
+                    screening_test_result_tuberculosis  AS TB_SreeningResult,
+                    date_of_last_menstrual_period_lmp_     LMP_Date,
+                    anitiretroviral_adherence_level     AS AdherenceLevel,
+                    next_visit_date,
+                    regimen,
+                    currently_breastfeeding_child          breast_feeding_status,
+                    pregnancy_status,
+                    diagnosis_date                      AS ActiveTBDiagnoseddate,
+                    nutritional_status_of_adult,
+                    nutritional_supplements_provided,
+                    stages_of_disclosure,
+                    date_started_on_tuberculosis_prophy,
+                    method_of_family_planning,
+                    patient_diagnosed_with_active_tuber as ActiveTBDiagnosed,
+                    dsd_category,
+                    nutritional_screening_result,
+                    cd4_count,
+                    date_of_event                       as hiv_confirmed_date,
+                    date_started_on_tuberculosis_prophy AS inhprophylaxis_started_date,
+                    date_completed_tuberculosis_prophyl AS InhprophylaxisCompletedDate,
+                    date_active_tbrx_completed,
+                    date_of_reported_hiv_viral_load     as viral_load_sent_date,
+                    date_viral_load_results_received    AS viral_load_perform_date,
+                    viral_load_test_status,
+                    CASE visitect_cd4_result WHEN 'VISITECT <=200 copies/ml' THEN 'VISITECT >200 copies/ml' ELSE visitect_cd4_result END AS visitect_cd4_result,
+                    visitect_cd4_test_date
+             FROM tx_curr_ids
+             JOIN vw_mamba_fact_encounter_follow_up follow_up USING (encounter_id)
+         ),
+
+         latestDSD_tmp AS (SELECT FollowUp.client_id as PatientId,
+                                  FollowUp.encounter_id,
+                                  ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY assessment_date DESC, FollowUp.follow_up_date_followup_ desc , FollowUp.encounter_id DESC ) AS row_num
+                           FROM vw_mamba_fact_encounter_follow_up FollowUp
+                           join tx_curr_all on FollowUp.encounter_id=tx_curr_all.encounter_id
+                           WHERE assessment_date IS NOT NULL
+                             AND assessment_date <= COALESCE(REPORT_END_DATE,CURDATE())),
+         latestDSD AS (select v.client_id as PatientId, v.assessment_date AS latestDsdDate, v.dsd_category from latestDSD_tmp t JOIN vw_mamba_fact_encounter_follow_up v USING(encounter_id) where t.row_num = 1),
+
+         tmp_tpt_start as (select encounter_id,
+                                  client_id as PatientId,
+                                  ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY date_started_on_tuberculosis_prophy DESC , encounter_id DESC ) AS row_num
+                           from vw_mamba_fact_encounter_follow_up
+                           where date_started_on_tuberculosis_prophy is not null
+                             and date_started_on_tuberculosis_prophy <= COALESCE(REPORT_END_DATE,CURDATE())),
+         tpt_start AS (select v.client_id as PatientId, v.date_started_on_tuberculosis_prophy AS inhprophylaxis_started_date from tmp_tpt_start t JOIN vw_mamba_fact_encounter_follow_up v USING(encounter_id) where t.row_num = 1),
+
+         tmp_tpt_completed as (select encounter_id,
+                                      ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY date_completed_tuberculosis_prophyl DESC , encounter_id DESC ) AS row_num
+                               from vw_mamba_fact_encounter_follow_up
+                               where date_completed_tuberculosis_prophyl is not null
+                                 and date_completed_tuberculosis_prophyl <= COALESCE(REPORT_END_DATE,CURDATE())),
+         tpt_completed AS (select v.client_id as PatientId, v.date_completed_tuberculosis_prophyl AS InhprophylaxisCompletedDate from tmp_tpt_completed t JOIN vw_mamba_fact_encounter_follow_up v USING(encounter_id) where t.row_num = 1),
+
+         tmp_vl_sent_date as (SELECT encounter_id,
+                                     ROW_NUMBER() over (PARTITION BY client_id ORDER BY date_of_reported_hiv_viral_load DESC, encounter_id DESC) AS row_num
+                              FROM vw_mamba_fact_encounter_follow_up
+                              WHERE date_of_reported_hiv_viral_load <= COALESCE(REPORT_END_DATE,CURDATE())),
+         vl_sent_date AS (select v.client_id as PatientId, v.date_of_reported_hiv_viral_load AS VL_Sent_Date from tmp_vl_sent_date t JOIN vw_mamba_fact_encounter_follow_up v USING(encounter_id) where t.row_num = 1),
+
+         tmp_vl_performed_date as (SELECT encounter_id,
+                                          ROW_NUMBER() over (PARTITION BY client_id ORDER BY date_viral_load_results_received DESC, encounter_id DESC) AS row_num
+                                   FROM vw_mamba_fact_encounter_follow_up
+                                   WHERE date_viral_load_results_received <= COALESCE(REPORT_END_DATE,CURDATE())),
+         vl_performed_date AS (select v.client_id as PatientId, v.date_viral_load_results_received AS viral_load_perform_date, v.viral_load_test_status from tmp_vl_performed_date t JOIN vw_mamba_fact_encounter_follow_up v USING(encounter_id) where t.row_num = 1),
+
+         tmp_visitect_cd4_result as (SELECT encounter_id,
+                                          ROW_NUMBER() over (PARTITION BY client_id ORDER BY visitect_cd4_test_date DESC, encounter_id DESC) AS row_num
+                                   FROM vw_mamba_fact_encounter_follow_up
+                                   WHERE visitect_cd4_test_date is not null and visitect_cd4_test_date <= follow_up_date_followup_),
+         visitect_cd4_result AS (select v.client_id as PatientId, CASE v.visitect_cd4_result WHEN 'VISITECT <=200 copies/ml' THEN 'VISITECT >200 copies/ml' ELSE v.visitect_cd4_result END AS visitect_cd4_result, v.visitect_cd4_test_date from tmp_visitect_cd4_result t JOIN vw_mamba_fact_encounter_follow_up v USING(encounter_id) where t.row_num = 1)
+         
+    select client.patient_name                                                        as 'Patient Name',
+           patient_uuid                             as `UUID`,
+           CAST(mrn AS CHAR(20)) as mrn,
+           UAN,
+           TIMESTAMPDIFF(YEAR, date_of_birth, art_start_date)                         as 'Age at Enrollment',
+           TIMESTAMPDIFF(YEAR, date_of_birth, COALESCE(REPORT_END_DATE,CURDATE()))                        as 'Current Age',
+           Sex,
+           Weight,
+           cd4_count                                                                  as CD4,
+           visitect_cd4_result                                                        as `Visit ECT CD4 Result`,
+           visitect_cd4_test_date as `Visit ECT CD4 Test Date`,
+           visitect_cd4_test_date as `Visit ECT CD4 Test Date EC.`,
+           hiv_confirmed_date            as 'HIV Confirmed Date',
+           hiv_confirmed_date            as 'HIV Confirmed Date EC.',
+           art_start_date                as 'ART Start Date',
+           art_start_date                as 'ART Start Date EC.',
+           CASE WHEN TB_SreeningResult = 'Negative result' THEN 'Negative' ELSE  TB_SreeningResult END           as 'TB Screening Result',
+           follow_up_date                as 'Follow-up Date',
+           follow_up_date                as 'Follow-up Date EC.',
+           CASE WHEN tx_curr.follow_up_status = 'Restart medication'     THEN 'Restart'
+               ELSE tx_curr.follow_up_status
+               END       as 'Follow-up Status',
+           Regimen,
+           ARTDoseDays                                                                as 'ARV Dose Days',
+           AdherenceLevel                                                             as Adherence,
+           tx_curr.dsd_category                                                     as 'DSD Category',
+           CASE WHEN nutritional_status_of_adult = 'Malnutrition of mild degree (Gomez: 75% to Less than 90% of Standard Weight)'    THEN 'Mild Malnutrition'
+                WHEN nutritional_status_of_adult = 'Malnutrition of moderate degree (Gomez: 60% to Less than 75% of Standard Weight)'    THEN 'Moderate Malnutrition'
+                WHEN nutritional_status_of_adult = 'Severe protein-calorie malnutrition (Gomez: Less than 60% of Standard Weight)'    THEN 'Severe Malnutrition'
+                WHEN nutritional_status_of_adult = 'Obese Abdomen' OR nutritional_status_of_adult= 'Overweight'    THEN 'Overweight'
+                ELSE nutritional_status_of_adult
+              END as 'Nutritional Status',
+           nutritional_screening_result                                               as 'Nutritional Screening Result',
+           nutritional_supplements_provided                                           as 'Therapeutic/ Supplementary Food',
+           CASE WHEN method_of_family_planning = 'Vasectomy'
+               THEN 'Vasectomy/tubal ligation'
+               ELSE method_of_family_planning
+               END as 'Familiy Planning Method',
+           pregnancy_status                                                           as 'Pregnant?',
+           breast_feeding_status                                                      as 'Breastfeeding?',
+           IF(breast_feeding_status = 'Yes' or pregnancy_status = 'Yes', 'Yes', 'No') as 'On PMTCT?',
+           tpt_start.inhprophylaxis_started_date                                      as 'TPT Start Date',
+           tpt_start.inhprophylaxis_started_date                                      as 'TPT Start Date EC.',
+           tpt_completed.InhprophylaxisCompletedDate                                  as 'TPT Completed Date',
+           tpt_completed.InhprophylaxisCompletedDate                                  as 'TPT Completed Date EC.',
+           date_active_tbrx_completed                                                 as 'TB Treatment Completed Date',
+           date_active_tbrx_completed                                                 as 'TB Treatment Completed Date EC.',
+           vl_sent_date.VL_Sent_Date                                                  as 'VL Sent Date',
+           vl_sent_date.VL_Sent_Date                                                  as 'VL Sent Date EC.',
+           vl_performed_date.viral_load_test_status                                   as 'VL Status',
+           next_visit_date                                                               'Next Visit Date',
+           next_visit_date                                                               'Next Visit Date EC.',
+           tx_curr.treatment_end_date                                                    'Last TX_Curr Date',
+           tx_curr.treatment_end_date                                                    'Last TX_Curr Date EC.',
+           client.mobile_no                                                           as 'Mobile No.'
+    from tx_curr
+             left join latestDSD on latestDSD.PatientId = tx_curr.PatientId
+             left join tpt_start on tx_curr.PatientId = tpt_start.PatientId
+             left join tpt_completed on tx_curr.PatientId = tpt_completed.PatientId
+             left join vl_sent_date on tx_curr.PatientId = vl_sent_date.PatientId
+             left join vl_performed_date on tx_curr.PatientId = vl_performed_date.PatientId
+             left join mamba_dim_client client on tx_curr.PatientId = client.client_id
+             left join visitect_cd4_result on tx_curr.PatientId = visitect_cd4_result.PatientId
+    order by client.patient_name;
+END //
+
+DELIMITER ;
