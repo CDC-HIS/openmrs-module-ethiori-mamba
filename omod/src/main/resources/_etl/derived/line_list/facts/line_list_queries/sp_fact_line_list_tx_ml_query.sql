@@ -166,3 +166,122 @@ BEGIN
 END //
 
 DELIMITER ;
+
+DELIMITER //
+
+DROP PROCEDURE IF EXISTS sp_fact_line_list_tx_ml_query_v2;
+
+CREATE PROCEDURE sp_fact_line_list_tx_ml_query_v2(IN REPORT_START_DATE DATE, IN REPORT_END_DATE DATE)
+BEGIN
+         -- TX curr start
+         tmp_latest_follow_up_start AS (SELECT client_id,
+                                               encounter_id,
+                                               follow_up_status,
+                                               treatment_end_date,
+                                               ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date_followup_ DESC, encounter_id DESC) AS row_num
+                                        FROM vw_mamba_fact_encounter_follow_up
+                                        WHERE follow_up_status IS NOT NULL
+                                          AND art_antiretroviral_start_date IS NOT NULL
+                                          AND follow_up_date_followup_ <= DATE_ADD(REPORT_START_DATE, INTERVAL -1 DAY)),
+         tx_curr_start_ids AS (select encounter_id, client_id
+                           from tmp_latest_follow_up_start
+                           where row_num = 1
+                             AND follow_up_status in ('Alive', 'Restart medication')
+                             AND treatment_end_date >= DATE_ADD(REPORT_START_DATE, INTERVAL -1 DAY)),
+                             
+         -- TX curr
+         tmp_latest_follow_up AS (SELECT client_id,
+                                         encounter_id,
+                                         follow_up_status,
+                                         treatment_end_date,
+                                         art_antiretroviral_start_date as art_start_date,
+                                         ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date_followup_ DESC, encounter_id DESC) AS row_num
+                                  FROM vw_mamba_fact_encounter_follow_up
+                                  WHERE follow_up_status IS NOT NULL
+                                    AND art_antiretroviral_start_date IS NOT NULL
+                                    AND follow_up_date_followup_ <= REPORT_END_DATE),
+         latest_follow_up_ids as (select encounter_id, client_id, art_start_date
+                              from tmp_latest_follow_up
+                              where row_num = 1),
+         tx_curr_end_ids AS (select client_id
+                         from tmp_latest_follow_up
+                         where row_num = 1
+                           AND follow_up_status in ('Alive', 'Restart medication')
+                           AND treatment_end_date >= REPORT_END_DATE),
+
+         tmp_first_follow_up as (SELECT client_id,
+                                        encounter_id,
+                                        follow_up_status,
+                                        ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date_followup_ , encounter_id ) AS row_num
+                                 FROM vw_mamba_fact_encounter_follow_up
+                                 WHERE art_antiretroviral_start_date IS NOT NULL),
+         first_follow_up_ids as (select client_id, follow_up_status from tmp_first_follow_up where row_num = 1),
+
+         tx_new_ids as (select latest_follow_up_ids.encounter_id, latest_follow_up_ids.client_id
+                        from latest_follow_up_ids
+                                 join first_follow_up_ids on latest_follow_up_ids.client_id = first_follow_up_ids.client_id
+                        where latest_follow_up_ids.art_start_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE
+                          AND first_follow_up_ids.follow_up_status in ('Alive', 'Restart medication')),
+
+         on_art_ids as (select encounter_id, client_id
+                    from tx_new_ids
+                    union ALL
+                    select encounter_id, client_id
+                    from tx_curr_start_ids),
+                    
+         interrupted_art_ids as (select on_art_ids.encounter_id, on_art_ids.client_id
+                             from on_art_ids
+                             where on_art_ids.client_id not in (select client_id from tx_curr_end_ids)),
+
+         interrupted_art as (select 
+                                    latest_follow_up.art_antiretroviral_start_date as art_start_date,
+                                    latest_follow_up.treatment_end_date,
+                                    latest_follow_up.regimen as latest_regimen,
+                                    latest_follow_up.antiretroviral_art_dispensed_dose_i as latest_dose_days,
+                                    latest_follow_up.anitiretroviral_adherence_level as latest_adherence,
+                                    latest_follow_up.next_visit_date as latest_next_visit_date,
+                                    client.sex,
+                                    client.date_of_birth,
+                                    TIMESTAMPDIFF(YEAR, client.date_of_birth, REPORT_END_DATE)        as Age,
+                                    patient_name,
+                                    patient_uuid,
+                                    CAST(client.mrn AS CHAR(20)) as mrn,
+                                    uan,
+                                    mobile_no,
+                                    kebele,
+                                    house_number,
+                                    city_village,
+                                    latest_follow_up.follow_up_status                                   as latest_follow_up_status,
+                                    latest_follow_up.follow_up_date_followup_                                     as latest_follow_up_date
+                             from interrupted_art_ids
+                                      join mamba_dim_client client on interrupted_art_ids.client_id = client.client_id
+                                      join vw_mamba_fact_encounter_follow_up latest_follow_up
+                                           on interrupted_art_ids.encounter_id = latest_follow_up.encounter_id)
+    select patient_name                                             as `Patient Name`,
+           patient_uuid                                             as `UUID`,
+           MRN,
+           UAN,
+           Age,
+           Sex,
+           art_start_date                                           as `ART Start Date`,
+           art_start_date                                           as `ART Start Date EC.`,
+           latest_follow_up_date                                      as `Last Follow-up Date`,
+           latest_follow_up_date                                      as `Last Follow-up Date in EC.`,
+           latest_follow_up_status                                    as `Last Follow-up Status`,
+           latest_regimen                                                  as Regimen,
+           latest_dose_days                                                as   `ARV Dose Days`,
+           latest_Adherence,
+           latest_next_visit_date                                          as `Next Visit Date`,
+           latest_next_visit_date                                          as `Next Visit Date EC.`,
+           treatment_end_date                                       as `Last TX_CURR Date`,
+           treatment_end_date                                       as `Last TX_CURR Date EC.`,
+           TIMESTAMPDIFF(MONTH, art_start_date, treatment_end_date) as `On Treatment For (in months)`,
+           -- `On PMTCT?`,
+           mobile_no                                                as `Mobile No.`,
+           kebele                                                   as `Sub-City`,
+           city_village                                             as   Woreda,
+           house_number                                             as   `House No.`
+    from interrupted_art;
+END //
+
+DELIMITER ;
