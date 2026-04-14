@@ -260,12 +260,13 @@ BEGIN
                                                                  (age_group = 'PEDS' AND reg_prefix = '1')) THEN 1
                                          ELSE 0 END)                                                       AS reg_alt,
                                  SUM(CASE
-                                         WHEN is_active = 1 AND (
-                                             (age_group = 'ADULT' AND reg_prefix = '2') OR
-                                             (age_group = 'PEDS' AND ((interval_month < 37 AND reg_prefix = '5') OR
-                                                                      (interval_month = 37 AND reg_prefix = '6')))
-                                             ) THEN 1
+                                         WHEN is_active = 1 AND ((age_group = 'ADULT' AND reg_prefix = '2') OR
+                                                                 (age_group = 'PEDS' AND reg_prefix = '5')) THEN 1
                                          ELSE 0 END)                                                       AS reg_2nd,
+                                 SUM(CASE
+                                         WHEN is_active = 1 AND ((age_group = 'ADULT' AND reg_prefix = '3') OR
+                                                                 (age_group = 'PEDS' AND reg_prefix = '6')) THEN 1
+                                         ELSE 0 END)                                                       AS reg_3rd,
 
                                  AVG(CASE WHEN age_group = 'PEDS' THEN cd4_percent ELSE NULL END)          as avg_peds_cd4_pct,
                                  SUM(CASE WHEN is_active = 1 AND has_vl_test = 1 THEN 1 ELSE 0 END)        as count_vl_tested,
@@ -274,7 +275,7 @@ BEGIN
                           FROM CohortEnriched
                           GROUP BY interval_month)
 
-    SELECT 'Cohort Intervals (Ethiopian Calendar)'                                            AS Name,
+    SELECT 'For cohort starting ART by month/year: at baseline then results at 6 months on ART, 12 months on ART, 24 months on ART'                                            AS Name,
            MAX(CASE WHEN interval_month = 0 THEN CONCAT(et_month, ' ', et_year) ELSE '' END)  AS 'Month 0',
            MAX(CASE WHEN interval_month = 7 THEN CONCAT(et_month, ' ', et_year) ELSE '' END)  AS 'Month 6',
            MAX(CASE WHEN interval_month = 13 THEN CONCAT(et_month, ' ', et_year) ELSE '' END) AS 'Month 12',
@@ -361,6 +362,15 @@ BEGIN
            CAST(IFNULL(MAX(CASE WHEN interval_month = 13 THEN reg_2nd END), 0) AS SIGNED),
            CAST(IFNULL(MAX(CASE WHEN interval_month = 25 THEN reg_2nd END), 0) AS SIGNED),
            CAST(IFNULL(MAX(CASE WHEN interval_month = 37 THEN reg_2nd END), 0) AS SIGNED)
+    FROM MonthlyStats
+    UNION ALL
+
+    SELECT 'H. On 3rd Line Regimen (Switched) ',
+           0,
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 7 THEN reg_3rd END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 13 THEN reg_3rd END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 25 THEN reg_3rd END), 0) AS SIGNED),
+           CAST(IFNULL(MAX(CASE WHEN interval_month = 37 THEN reg_3rd END), 0) AS SIGNED)
     FROM MonthlyStats
 
     UNION ALL

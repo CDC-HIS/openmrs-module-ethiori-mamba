@@ -17,7 +17,6 @@ import java.util.Properties;
 
 public class CustomConnectionPoolManager {
 	
-	// Volatile ensures visibility of the fully-constructed instance across threads.
 	private static volatile CustomConnectionPoolManager instance = null;
 	
 	private final BasicDataSource dataSource;
@@ -30,8 +29,6 @@ public class CustomConnectionPoolManager {
 		String userName = properties.getProperty("mambaetl.analysis.db.username");
 		String password = properties.getProperty("mambaetl.analysis.db.password");
 		
-		// FIX: the original code passed a JDBC URL string as a property key which always
-		// returned null. Use the hardcoded analytics_db URL as the intended fallback.
 		String resolvedUrl = (url != null) ? url
 		        : "jdbc:mysql://localhost:3306/analytics_db?autoReconnect=true&useSSL=false";
 		
@@ -41,32 +38,22 @@ public class CustomConnectionPoolManager {
 		dataSource.setPassword(password != null ? password : properties.getProperty("connection.password"));
 		dataSource.setUrl(resolvedUrl);
 		
-		// --- Pool sizing ---
 		dataSource.setInitialSize(2);
 		dataSource.setMinIdle(2);
 		dataSource.setMaxIdle(10);
 		dataSource.setMaxTotal(20);
 		
-		// --- Connection wait / timeout ---
-		// Wait at most 30 s for a connection before throwing an error instead of blocking forever.
 		dataSource.setMaxWait(java.time.Duration.ofSeconds(30));
 		
-		// --- Connection validation ---
-		// Evict and replace stale/broken connections before handing them to callers.
 		dataSource.setValidationQuery("SELECT 1");
 		dataSource.setTestOnBorrow(true);
 		dataSource.setTestWhileIdle(true);
 		
-		// --- Abandoned connection recovery ---
-		// If a connection is checked out for more than 5 minutes it is considered abandoned
-		// (e.g. due to an unhandled exception) and will be reclaimed by the pool.
 		dataSource.setRemoveAbandonedOnMaintenance(true);
 		dataSource.setRemoveAbandonedOnBorrow(true);
-		dataSource.setRemoveAbandonedTimeout(java.time.Duration.ofSeconds(300));
-		dataSource.setLogAbandoned(true); // log the stack trace of the leak site
+		dataSource.setRemoveAbandonedTimeout(java.time.Duration.ofSeconds(3600));
+		dataSource.setLogAbandoned(true);
 		
-		// --- Idle eviction ---
-		// Run the eviction thread every 60 s to close connections idle for over 10 minutes.
 		dataSource.setDurationBetweenEvictionRuns(java.time.Duration.ofSeconds(60));
 		dataSource.setMinEvictableIdle(java.time.Duration.ofMinutes(10));
 	}
@@ -100,10 +87,7 @@ public class CustomConnectionPoolManager {
 				dataSource.close();
 			}
 		}
-		catch (SQLException e) {
-			// Nothing useful we can do here; log if a logger is available.
-		}
-		// Allow a fresh pool to be created if the module is restarted in the same JVM.
+		catch (SQLException ignored) {}
 		instance = null;
 	}
 }
