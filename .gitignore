@@ -258,7 +258,7 @@ local.properties
 *.ipr
 .idea/
 /out/
-
+*.csv
 ### Eclipse ###
 .project
 bin/**
