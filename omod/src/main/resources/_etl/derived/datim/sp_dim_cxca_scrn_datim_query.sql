@@ -83,7 +83,8 @@ BEGIN
      currently_on_art AS (select *
                           from tmp_latest_follow_up
                           where row_num = 1
-                            AND follow_up_status in (''Alive'', ''Restart medication'')),
+                          --  AND follow_up_status in (''Alive'', ''Restart medication'')
+                          ),
      tmp_cx_screened as (select FollowUp.*,
                                 ROW_NUMBER() over (PARTITION BY FollowUp.client_id ORDER BY via_date DESC,hpv_received_date DESC,cytology_received_date DESC , FollowUp.encounter_id DESC) as row_num
                          from FollowUp
@@ -99,7 +100,9 @@ BEGIN
 
 
                                 #  WHEN screening_method=''Human Papillomavirus test'' and hpv_dna_screening_result =''Unknown'' then ''Cervical Cancer screen: Suspected Cancer''
-
+                                WHEN screening_method = ''Human Papillomavirus test'' and
+                                     hpv_dna_screening_result = ''Negative result''
+                                    then ''Cervical Cancer screen: Negative''
                                 WHEN screening_method = ''Visual Inspection of the Cervix with Acetic Acid (VIA)'' and
                                      via_screening_result = ''VIA negative'' then ''Cervical Cancer screen: Negative''
                                 WHEN screening_method = ''Visual Inspection of the Cervix with Acetic Acid (VIA)'' and
@@ -112,9 +115,6 @@ BEGIN
                                      via_screening_result = ''Suspicious for cervical cancer'' or via_screening_result = ''suspected cervical cancer''
                                     then ''Cervical Cancer screen: Suspected Cancer''
 
-                                WHEN screening_method = ''Human Papillomavirus test'' and
-                                     hpv_dna_screening_result = ''Negative result''
-                                    then ''Cervical Cancer screen: Negative''
                                 WHEN screening_method = ''Human Papillomavirus test'' and
                                      hpv_dna_screening_result = ''Positive''
                                     and
