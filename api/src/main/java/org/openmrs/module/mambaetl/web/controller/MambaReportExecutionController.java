@@ -23,12 +23,12 @@ import java.util.Map;
 @Controller
 @RequestMapping("/rest/" + RestConstants.VERSION_1 + "/ethiohri-mamba/reports")
 public class MambaReportExecutionController {
-
+	
 	private static final Log log = LogFactory.getLog(MambaReportExecutionController.class);
-
+	
 	@Autowired
 	private DynamicReportExecutorService reportExecutorService;
-
+	
 	@RequestMapping(value = "/execute/{procedureName}", method = RequestMethod.GET, produces = "application/json")
 	@ResponseBody
 	public ResponseEntity<ReportDataResponse> executeReport(@PathVariable String procedureName,
@@ -42,17 +42,16 @@ public class MambaReportExecutionController {
 
 		return executeReportInternal(procedureName, offset, limit, params);
 	}
-
+	
 	@RequestMapping(value = "/execute/{procedureName}", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
 	@ResponseBody
 	public ResponseEntity<ReportDataResponse> executeReportPost(@PathVariable String procedureName,
 	        @RequestParam(required = false, defaultValue = "0") int offset,
-	        @RequestParam(required = false, defaultValue = "0") int limit,
-	        @RequestBody Map<String, String> payload) {
-
+	        @RequestParam(required = false, defaultValue = "0") int limit, @RequestBody Map<String, String> payload) {
+		
 		return executeReportInternal(procedureName, offset, limit, payload);
 	}
-
+	
 	private ResponseEntity<ReportDataResponse> executeReportInternal(String procedureName, int offset, int limit,
 	        Map<String, String> params) {
 		try {
