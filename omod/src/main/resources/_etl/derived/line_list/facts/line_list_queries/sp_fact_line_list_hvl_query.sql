@@ -215,7 +215,7 @@ BEGIN
                                     FROM FollowUp
                                              INNER JOIN vl_performed_date ON vl_performed_date.client_id = FollowUp.client_id
                                     WHERE FollowUp.eac_3 is not null
-                                      AND tmp_vl_performed_date_cf_2.viral_load_perform_date <= FollowUp.eac_3
+                                      AND vl_performed_date.viral_load_performed_date <= FollowUp.eac_3
                                       AND eac_3 <= COALESCE(REPORT_END_DATE,CURDATE())),
 
          tmp_vl_perf_date_eac_1_cf AS (SELECT FollowUp.client_id,
