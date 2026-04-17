@@ -21,106 +21,97 @@ import java.util.Map;
 
 @Service
 public class DynamicReportExecutorService {
-	
+
 	private static final Log log = LogFactory.getLog(DynamicReportExecutorService.class);
-	
+
 	private static final String ERROR_PROCESSING_RESULT_SET = "Error processing ResultSet: ";
-	
+
 	private static final String DATABASE_CONNECTION_ERROR = "Database connection error: ";
-	
-	/**
-	 * @param procedureName The mapped procedure to execute
-	 * @param params Query string parameters
-	 * @param offset Pagination offset
-	 * @param limit Pagination limit
-	 * @return List of map rows
-	 */
-	public List<Map<String, Object>> executeReport(String procedureName, Map<String, String> params, int offset, int limit) throws Exception {
-        
-        SimpleDataSet data = new SimpleDataSet(null, null);
-        ResultSetMapper resultSetMapper = new ResultSetMapper();
 
-        // Validating constraints to avoid arbitrary script execution
-        validateProcedureName(procedureName);
+	public List<Map<String, Object>> executeReport(String procedureName, Map<String, String> params, int offset,
+	        int limit) throws SQLException {
 
-        try (Connection connection = DataSetEvaluatorHelper.getDataSource().getConnection()) {
-            connection.setAutoCommit(false);
+		validateProcedureName(procedureName);
 
-            List<DataSetEvaluatorHelper.ProcedureCall> procedureCalls = getProcedureCalls(procedureName, params);
+		SimpleDataSet data = new SimpleDataSet(null, null);
+		ResultSetMapper resultSetMapper = new ResultSetMapper();
 
-            try (DataSetEvaluatorHelper.CallableStatementContainer statementContainer = DataSetEvaluatorHelper.prepareStatements(connection, procedureCalls)) {
+		try (Connection connection = DataSetEvaluatorHelper.getDataSource().getConnection()) {
+			connection.setAutoCommit(false);
 
-                DataSetEvaluatorHelper.executeStatements(statementContainer, procedureCalls);
+			List<DataSetEvaluatorHelper.ProcedureCall> procedureCalls = getProcedureCalls(procedureName, params);
 
-                ResultSet[] allResultSets = statementContainer.getResultSets();
-                
-                // Maps into DataSetRows via Mamba's standard
-                DataSetEvaluatorHelper.mapResultSet(data, resultSetMapper, allResultSets, false);
-                connection.commit();
+			try (DataSetEvaluatorHelper.CallableStatementContainer statementContainer = DataSetEvaluatorHelper
+			        .prepareStatements(connection, procedureCalls)) {
 
-                // Convert dataset to JSON-friendly map list and apply pagination if requested
-                return mapAndPaginateData(data, offset, limit);
+				DataSetEvaluatorHelper.executeStatements(statementContainer, procedureCalls);
 
-            } catch (SQLException e) {
-                DataSetEvaluatorHelper.rollbackAndThrowException(connection, ERROR_PROCESSING_RESULT_SET + e.getMessage(), e, log);
-            }
-        } catch (SQLException e) {
-            throw new Exception(DATABASE_CONNECTION_ERROR + e.getMessage(), e);
-        }
-        return new ArrayList<>();
-    }
-	
+				ResultSet[] allResultSets = statementContainer.getResultSets();
+				DataSetEvaluatorHelper.mapResultSet(data, resultSetMapper, allResultSets, false);
+				connection.commit();
+
+				return mapAndPaginateData(data, offset, limit);
+
+			}
+			catch (SQLException e) {
+				DataSetEvaluatorHelper.rollbackAndThrowException(connection,
+				    ERROR_PROCESSING_RESULT_SET + e.getMessage(), e, log);
+			}
+		}
+		catch (SQLException e) {
+			throw new SQLException(DATABASE_CONNECTION_ERROR + e.getMessage(), e);
+		}
+		return new ArrayList<>();
+	}
+
 	private void validateProcedureName(String procedureName) {
 		if (!procedureName.matches("^[a-zA-Z0-9_]+$")) {
 			throw new IllegalArgumentException(
 			        "Invalid procedure name formatting. Only alphanumeric characters and underscores are allowed.");
 		}
 	}
-	
-	private List<DataSetEvaluatorHelper.ProcedureCall> getProcedureCalls(String procedureName, Map<String, String> params) {
 
-        if ("sp_fact_line_list_tx_curr_analysis_query".equalsIgnoreCase(procedureName)) {
-            return Collections.singletonList(new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_line_list_tx_curr_analysis_query(?, ?, ?)}", statement -> {
-                statement.setDate(1, parseSqlDate(params.get("startDate")));
-                statement.setDate(2, parseSqlDate(params.get("endDate")));
-                statement.setString(3, params.get("txCurrAnalysisCategories"));
-            }));
-        } 
-        
-        // Add extra reports here as necessary...
-        // Could also integrate with OpenMRS DataSetDefinition framework dynamically
-        
-        throw new IllegalArgumentException("No parameter mapping defined for procedure: " + procedureName);
-    }
-	
+	private List<DataSetEvaluatorHelper.ProcedureCall> getProcedureCalls(String procedureName,
+	        Map<String, String> params) {
+
+		if ("sp_fact_line_list_tx_curr_analysis_query".equalsIgnoreCase(procedureName)) {
+			return Collections.singletonList(
+			    new DataSetEvaluatorHelper.ProcedureCall(
+			            "{call sp_fact_line_list_tx_curr_analysis_query(?, ?, ?)}", statement -> {
+				            statement.setDate(1, parseSqlDate(params.get("startDate")));
+				            statement.setDate(2, parseSqlDate(params.get("endDate")));
+				            statement.setString(3, params.get("txCurrAnalysisCategories"));
+			            }));
+		}
+
+		throw new IllegalArgumentException("No parameter mapping defined for procedure: " + procedureName);
+	}
+
 	private List<Map<String, Object>> mapAndPaginateData(SimpleDataSet data, int offset, int limit) {
-        List<Map<String, Object>> result = new ArrayList<>();
-        if (data == null || data.getRows() == null) return result;
+		List<Map<String, Object>> result = new ArrayList<>();
+		if (data == null || data.getRows() == null) {
+			return result;
+		}
 
-        List<DataSetRow> rows = data.getRows();
+		List<DataSetRow> rows = data.getRows();
+		int start = Math.max(0, offset);
+		int end = (limit > 0) ? Math.min(start + limit, rows.size()) : rows.size();
 
-        int start = Math.max(0, offset);
-        int end = rows.size();
-        
-        if (limit > 0) {
-            end = Math.min(start + limit, rows.size());
-        }
+		if (start >= rows.size()) {
+			return result;
+		}
 
-        if (start >= rows.size()) {
-            return result;
-        }
+		for (int i = start; i < end; i++) {
+			DataSetRow row = rows.get(i);
+			Map<String, Object> map = new HashMap<>();
+			for (DataSetColumn column : row.getColumnValues().keySet()) {
+				map.put(column.getName(), row.getColumnValue(column));
+			}
+			result.add(map);
+		}
+		return result;
+	}
 
-        for (int i = start; i < end; i++) {
-            DataSetRow row = rows.get(i);
-            Map<String, Object> map = new HashMap<>();
-            for (DataSetColumn column : row.getColumnValues().keySet()) {
-                map.put(column.getName(), row.getColumnValue(column));
-            }
-            result.add(map);
-        }
-        return result;
-    }
-	
 	private java.sql.Date parseSqlDate(String dateStr) {
 		if (dateStr == null || dateStr.trim().isEmpty()) {
 			return null;
