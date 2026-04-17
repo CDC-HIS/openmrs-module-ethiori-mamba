@@ -47,7 +47,7 @@ public class PHRHServiceLineListReportMamba implements ReportManager {
 		
 		Parameter targetGroup = new Parameter("targetGroup", "Target Group", String.class);
 		targetGroup.setRequired(false);
-		targetGroup.addToWidgetConfiguration("codedOptions", "ALL,FSW,PWID,High Risk AGYW,Other KPP,General Population");
+		targetGroup.addToWidgetConfiguration("codedOptions", "ALL,WECSW,PWID,High Risk AGYW,Other KPP,General Population");
 		targetGroup.setDefaultValue("ALL");
 		return Arrays.asList(startDate, startDateGC, endDate, endDateGC, targetGroup);
 		
