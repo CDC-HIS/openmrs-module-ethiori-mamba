@@ -25,7 +25,7 @@ BEGIN
                                          mpf.iv_drug_use,
                                          mpf.declined_to_disclose)                                                                   AS risk_behaviors,
                                CASE
-                                   WHEN mpf.target_population = 'Female sex worker' THEN 'FSW'
+                                   WHEN mpf.target_population = 'Female sex worker' THEN 'Women Engaged in Commercial Sex Work (WECSW)'
                                    WHEN mpf.target_population = 'People who inject drug' THEN 'PWID'
                                    WHEN mpf.target_population = 'Late adolescent/young adulthood period'
                                        THEN 'High Risk AGYW'
