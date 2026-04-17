@@ -110,7 +110,6 @@ SELECT ROW_NUMBER()                                                             
        p_tracking.date_final_outcome_known                                             as `Date Linked to Care & Treatment in EC.`,
        p_tracking.date_final_outcome_known                                             as `Date Linked to Care & Treatment in G.C.`,
        p_tracking.final_outcome                                                        as `Final Outcome`,
-       client.mobile_no                                                                as `Mobile Phone Number.`,
        client.mobile_no                                                                as `Mobile Phone Number`
 FROM positive_tracking AS p_tracking
          LEFT JOIN latest_follow_up f_case ON p_tracking.client_id = f_case.client_id
