@@ -25,13 +25,13 @@ import java.util.Map;
 
 @Service
 public class DynamicReportExecutorService {
-
+	
 	private static final Log log = LogFactory.getLog(DynamicReportExecutorService.class);
-
+	
 	private static final String ERROR_PROCESSING_RESULT_SET = "Error processing ResultSet: ";
-
+	
 	private static final String DATABASE_CONNECTION_ERROR = "Database connection error: ";
-
+	
 	public List<Map<String, Object>> executeReport(String procedureName, Map<String, String> params, int offset,
 	        int limit) throws SQLException {
 
@@ -67,18 +67,18 @@ public class DynamicReportExecutorService {
 		}
 		return new ArrayList<>();
 	}
-
+	
 	private void validateProcedureName(String procedureName) {
 		if (!procedureName.matches("^[a-zA-Z0-9_]+$")) {
 			throw new IllegalArgumentException(
 			        "Invalid procedure name formatting. Only alphanumeric characters and underscores are allowed.");
 		}
 	}
-
+	
 	// -------------------------------------------------------------------------
 	// Procedure mapping registry
 	// -------------------------------------------------------------------------
-
+	
 	private List<DataSetEvaluatorHelper.ProcedureCall> getProcedureCalls(String name,
 	        Map<String, String> params) {
 
@@ -607,23 +607,22 @@ public class DynamicReportExecutorService {
 
 		throw new IllegalArgumentException("No parameter mapping defined for procedure: " + name);
 	}
-
+	
 	// -------------------------------------------------------------------------
 	// Helpers
 	// -------------------------------------------------------------------------
-
-	private List<DataSetEvaluatorHelper.ProcedureCall> single(String call,
-	        DataSetEvaluatorHelper.ParameterSetter setter) {
+	
+	private List<DataSetEvaluatorHelper.ProcedureCall> single(String call, DataSetEvaluatorHelper.ParameterSetter setter) {
 		return Collections.singletonList(new DataSetEvaluatorHelper.ProcedureCall(call, setter));
 	}
-
+	
 	private List<DataSetEvaluatorHelper.ProcedureCall> dateRange(String call, Map<String, String> params) {
 		return single(call, s -> {
 			s.setDate(1, parseSqlDate(params.get("startDate")));
 			s.setDate(2, parseSqlDate(params.get("endDate")));
 		});
 	}
-
+	
 	private List<Map<String, Object>> mapAndPaginateData(SimpleDataSet data, int offset, int limit) {
 		List<Map<String, Object>> result = new ArrayList<>();
 		if (data == null || data.getRows() == null) {
@@ -648,7 +647,7 @@ public class DynamicReportExecutorService {
 		}
 		return result;
 	}
-
+	
 	private java.sql.Date parseSqlDate(String dateStr) {
 		if (dateStr == null || dateStr.trim().isEmpty()) {
 			return null;
