@@ -2,7 +2,6 @@ package org.openmrs.module.mambaetl.reports.datim;
 
 import org.openmrs.module.mambaetl.datasetdefinition.datim.HeaderDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.datasetdefinition.datim.prep_ct.PrEPCTDataSetDefinitionMamba;
-import org.openmrs.module.mambaetl.datasetdefinition.datim.tx_ml.MLKeyPopulationDataSetDefinitionMamba;
 import org.openmrs.module.mambaetl.helpers.EthiOhriUtil;
 import org.openmrs.module.mambaetl.helpers.reportOptions.PrEPCTggregationTypes;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
@@ -80,12 +79,6 @@ public class PREPCTDATIMReportsMamba implements ReportManager {
 		prepctTestResultdatimReportsMamba.setDescription("Disaggregated by test result");
 		reportDefinition.addDataSetDefinition("Disaggregated by test result",
 		    EthiOhriUtil.map(prepctTestResultdatimReportsMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
-		
-		MLKeyPopulationDataSetDefinitionMamba mlKeyPopulationDataSetDefinitionMamba = new MLKeyPopulationDataSetDefinitionMamba();
-		mlKeyPopulationDataSetDefinitionMamba.addParameters(getParameters());
-		mlKeyPopulationDataSetDefinitionMamba.setDescription("Disaggregated by Status/Key Population Type:");
-		reportDefinition.addDataSetDefinition("Disaggregated by Status/Key Population Type:",
-		    EthiOhriUtil.map(mlKeyPopulationDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
 		
 		PrEPCTDataSetDefinitionMamba prEPCTBreastFeedingDataSetDefinitionMamba = new PrEPCTDataSetDefinitionMamba();
 		prEPCTBreastFeedingDataSetDefinitionMamba.addParameters(getParameters());
