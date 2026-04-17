@@ -16,7 +16,7 @@ public class ProvidersViewLineListDataSetDefinitionMamba extends BaseDataSetDefi
 	private Date endDate;
 	
 	@ConfigurationProperty
-	private String clientType = "all";
+	private String clientType = "TX_CURR";
 	
 	@ConfigurationProperty
 	private String patientGUID;
