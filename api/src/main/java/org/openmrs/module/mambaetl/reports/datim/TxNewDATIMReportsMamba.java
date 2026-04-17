@@ -93,14 +93,6 @@ public class TxNewDATIMReportsMamba implements ReportManager {
 		breastFeedingStatusDataSetDefinitionMamba.setTxNewAggregationType(TxNewAggregationTypes.BREAST_FEEDING);
 		reportDefinition.addDataSetDefinition("Disaggregated by Breastfeeding Status at ART Initiation",
 		    EthiOhriUtil.map(breastFeedingStatusDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
-		
-		// KeyPopulationDataSetDefinitionMamba keyPopulationDataSetDefinitionMamba = new
-		// KeyPopulationDataSetDefinitionMamba();
-		// keyPopulationDataSetDefinitionMamba.addParameters(getParameters());
-		// reportDefinition.addDataSetDefinition("Disaggregated by key population type",
-		// EthiOhriUtil.map(keyPopulationDataSetDefinitionMamba,
-		// "endDate=${endDateGC}"));
-		
 		return reportDefinition;
 	}
 	
