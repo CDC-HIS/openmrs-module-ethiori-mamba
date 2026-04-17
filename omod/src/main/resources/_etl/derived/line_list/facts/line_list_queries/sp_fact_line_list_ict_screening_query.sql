@@ -79,7 +79,7 @@ BEGIN
                             where rn = 1)
     select patient_uuid                    as `GUID`,
            mrn                             as `MRN`,
-           uan                             as `UAN`,
+           CONCAT('''', uan)                             as `UAN`,
            ict_serial_number               as `ICT#`,
            patient_name                    as `Full Name`,
            date_of_event                   as `Date Confirmed HIV+ve GC.`,

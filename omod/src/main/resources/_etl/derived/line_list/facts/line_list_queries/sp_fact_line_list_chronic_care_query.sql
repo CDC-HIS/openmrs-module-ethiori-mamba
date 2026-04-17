@@ -121,7 +121,7 @@ BEGIN
            client.patient_uuid                                       as `Patient GUID`,
            client.patient_name                                       as `Patient Name`,
            CAST(client.mrn AS CHAR(20))                              as MRN,
-           client.uan                                                AS UAN,
+           CONCAT('''', client.uan)                                                AS UAN,
            client.date_of_birth                                      as `Date of Birth`,
            TIMESTAMPDIFF(YEAR, client.date_of_birth,
                          COALESCE(enrollement_date, CURDATE()))      as `Age At Enrollment`,

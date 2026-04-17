@@ -113,7 +113,7 @@ BEGIN
     select patient_name                                                  AS 'Patient Name',
            patient_uuid                                                  as `UUID`,
            MRN                                                           AS 'MRN',
-           uan                                                           AS 'UAN',
+           CONCAT('''', uan)                                                           AS 'UAN',
            age                                                           AS 'Age',
            sex                                                           AS 'Sex',
            weight                                                        AS 'Weight',

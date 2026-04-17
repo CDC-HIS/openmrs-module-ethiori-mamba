@@ -148,7 +148,7 @@ BEGIN
     SELECT
 
         mpc.patient_name                                  AS 'Full Name',
-        mpc.uan                                           AS 'UAN',
+        CONCAT('''', mpc.uan)                                           AS 'UAN',
         mpc.mrn                                           AS 'MRN',
         TIMESTAMPDIFF(YEAR, mpc.date_of_birth, CURDATE()) AS 'Age',
         mpc.sex                                           AS 'Sex',

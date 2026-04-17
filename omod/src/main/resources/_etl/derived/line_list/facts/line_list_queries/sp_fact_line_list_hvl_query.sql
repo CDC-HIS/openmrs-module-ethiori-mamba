@@ -320,7 +320,7 @@ BEGIN
     SELECT patient_name               as `Patient Name`,
            PatientGUID                as `UUID`,
            CAST(mrn AS CHAR(20))      as mrn,
-           uan,
+           CONCAT('''', uan) as uan,
            age                        AS age,
            sex,
            weight,

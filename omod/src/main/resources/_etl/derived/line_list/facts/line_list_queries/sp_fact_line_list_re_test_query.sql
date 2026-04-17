@@ -33,7 +33,7 @@ BEGIN
     select client.patient_name                                                      as `Patient Name`,
            client.patient_uuid                                                      as `UUID`,
            CAST(client.mrn AS CHAR(20)) as mrn,
-           uan,
+           CONCAT('''', uan) as uan,
            TIMESTAMPDIFF(YEAR, date_of_birth, COALESCE(REPORT_END_DATE, CURDATE())) as Age,
            sex,
            date_of_initial_test                                                     as `Date initial tested`,

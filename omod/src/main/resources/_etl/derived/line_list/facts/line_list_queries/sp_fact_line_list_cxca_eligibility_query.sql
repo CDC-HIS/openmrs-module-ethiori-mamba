@@ -783,7 +783,7 @@ BEGIN
         cx_eligibility as (  select patient_name                                                                 `Patient Name`,
                                     patient_uuid                                                                 `UUID`,
                                     CAST(mrn AS CHAR(20))                                                     as mrn,
-                                    uan,
+                                    CONCAT('''', uan) as uan,
                                     mobile_no                                                                 as `Mobile No`,
                                     phone_no                                                                  as `Home Telephone No`,
                                     Weight,

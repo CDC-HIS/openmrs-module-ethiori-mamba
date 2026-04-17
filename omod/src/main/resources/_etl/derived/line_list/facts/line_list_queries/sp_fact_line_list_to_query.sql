@@ -44,7 +44,7 @@ BEGIN
 
 
          tmp_first_follow_up AS (SELECT *,
-                                        ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date  DESC ,
+                                        ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC ,
                                             encounter_id DESC) AS row_num
                                  FROM FollowUp),
 
@@ -73,14 +73,14 @@ BEGIN
            client.patient_uuid                                                             as UUID,
            client.patient_name                                                             as `Patient Name`,
            CAST(client.mrn AS CHAR(20))                                                    as `MRN`,
-           client.uan                                                                      AS UAN,
+           CONCAT('''', client.uan)                                                        AS UAN,
            TIMESTAMPDIFF(YEAR, client.date_of_birth, COALESCE(REPORT_END_DATE, CURDATE())) as Age,
            client.sex                                                                      as Sex,
-           second_none.art_start_date                                                           as `ART Start Date EC.`,
-           second_none.art_start_date                                                           as `ART Start Date GC.`,
-           f_case.follow_up_date                                                                  as `Follow Up
+           second_none.art_start_date                                                      as `ART Start Date EC.`,
+           second_none.art_start_date                                                      as `ART Start Date GC.`,
+           f_case.follow_up_date                                                           as `Follow Up
 Date (Date of TI) EC.`,
-           f_case.follow_up_date                                                                  as `Follow Up Date
+           f_case.follow_up_date                                                           as `Follow Up Date
 (Date of TI) GC.`,
            CASE f_case.follow_up_status
                WHEN 'Alive' THEN 'Alive on ART'
@@ -90,15 +90,15 @@ Date (Date of TI) EC.`,
                WHEN 'Loss to follow-up (LTFU)' THEN 'Lost'
                WHEN 'Ran away' THEN 'Drop'
                END                                                                         AS `Latest Follow Up Status`,
-           second_none.regimen                                                                  as `Last ARV Regimen`,
-           second_none.art_dose_days                                                            as `Last ART Dose Days`,
-           second_none.adherence                                                                as `Adherence Level`,
-           second_none.treatment_end_date                                                       as `Next Visit Date EC.`,
-           second_none.treatment_end_date                                                       as `Next Visit Date GC.`
+           second_none.regimen                                                             as `Last ARV Regimen`,
+           second_none.art_dose_days                                                       as `Last ART Dose Days`,
+           second_none.adherence                                                           as `Adherence Level`,
+           second_none.treatment_end_date                                                  as `Next Visit Date EC.`,
+           second_none.treatment_end_date                                                  as `Next Visit Date GC.`
     FROM in_range_to_follow_up AS f_case
              inner JOIN mamba_dim_client client on f_case.client_id = client.client_id
-            left JOIN second_none_to_follow_up second_none
-             ON f_case.client_id = second_none.client_id;
+             left JOIN second_none_to_follow_up second_none
+                       ON f_case.client_id = second_none.client_id;
 
 END //
 

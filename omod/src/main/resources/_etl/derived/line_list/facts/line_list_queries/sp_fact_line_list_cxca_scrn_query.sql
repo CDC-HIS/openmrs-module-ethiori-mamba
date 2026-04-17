@@ -148,7 +148,7 @@ BEGIN
     select patient_name                                        as `Patient Name`,
            patient_uuid                                        as `UUID`,
            MRN,
-           UAN,
+           CONCAT('''', uan) as UAN,
            TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) as `Current Age`,
            Sex,
            follow_up_date                                      as `Follow-Up Date`,

@@ -145,7 +145,7 @@ BEGIN
     select client.patient_name                                                        as 'Patient Name',
            patient_uuid                             as `UUID`,
            CAST(mrn AS CHAR(20)) as mrn,
-           UAN,
+           CONCAT('''', uan) UAN,
            TIMESTAMPDIFF(YEAR, date_of_birth, art_start_date)                         as 'Age at Enrollment',
            TIMESTAMPDIFF(YEAR, date_of_birth, COALESCE(REPORT_END_DATE,CURDATE()))                        as 'Current Age',
            Sex,
