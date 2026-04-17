@@ -196,7 +196,7 @@ BEGIN
     SELECT dc.patient_name                                                                  AS 'Patient Name',
            dc.patient_uuid                                                                  AS 'UUID',
            CAST(dc.mrn AS CHAR(20))                                                         AS 'MRN',
-           dc.UAN,
+           CONCAT('''', dc.uan) as UAN,
            dc.Sex,
            dc.date_of_birth                                                                 AS 'Date of Birth',
            dc.date_of_birth                                                                 AS 'Date of Birth EC.',

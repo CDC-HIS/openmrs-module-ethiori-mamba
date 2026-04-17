@@ -111,7 +111,7 @@ BEGIN
            client.patient_uuid                                                    as `Patient GUID`,
            client.patient_name                                                    as `Patient Name`,
            CAST(client.mrn AS CHAR(20))                                           as MRN,
-           client.uan                                                             AS UAN,
+           CONCAT('''', client.uan)                                                             AS UAN,
            TIMESTAMPDIFF(YEAR, client.date_of_birth,
                          COALESCE(REPORT_END_DATE, CURDATE()))                    as `Age`,
            client.sex                                                             as Sex,

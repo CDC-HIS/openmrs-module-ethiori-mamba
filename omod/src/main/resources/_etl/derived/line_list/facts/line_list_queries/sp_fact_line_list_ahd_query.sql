@@ -304,7 +304,7 @@ BEGIN
     SELECT client.patient_name                                                             as `Patient Name`,
            client.patient_uuid                                                             as UUID,
            CAST(client.mrn AS CHAR(20))                                                    as mrn,
-           client.uan,
+           CONCAT('''', client.uan) as uan,
            client.sex                                                                      as Sex,
            f_case.Weight                                                                   as Weight,
            TIMESTAMPDIFF(YEAR, client.date_of_birth, COALESCE(REPORT_END_DATE, CURDATE())) as Age,

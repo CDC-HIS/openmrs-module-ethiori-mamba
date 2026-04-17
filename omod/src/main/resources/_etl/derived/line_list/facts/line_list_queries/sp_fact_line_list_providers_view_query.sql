@@ -996,7 +996,7 @@ BEGIN
     select tmp_address.patient_name                                          AS `Patient Name`,
            tmp_address.patient_uuid                                          AS `UUID`,
            tmp_address.mrn,
-           tmp_address.uan,
+           CONCAT('''', tmp_address.uan) as uan,
            tmp_address.patientname,
            tmp_address.age,
            tmp_address.sex,

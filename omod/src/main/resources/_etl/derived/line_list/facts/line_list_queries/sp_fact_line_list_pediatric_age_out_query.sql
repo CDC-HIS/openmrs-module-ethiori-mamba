@@ -71,7 +71,7 @@ BEGIN
     SELECT DISTINCT patient_name                              AS `Patient Name`,
                     patient_uuid                              AS `UUID`,
                     CAST(mrn AS CHAR(20)) as mrn,
-                    uan,
+                    CONCAT('''', uan) as uan,
                     sex,
                     date_of_birth                             AS `Date of birth`,
                     date_of_birth                             AS `Date of birth EC.`,

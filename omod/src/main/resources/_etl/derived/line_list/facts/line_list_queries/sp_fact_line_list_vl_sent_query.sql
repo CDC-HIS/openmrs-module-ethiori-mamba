@@ -106,7 +106,7 @@ BEGIN
          vl_test_sent AS (SELECT patient_name                                        as `Patient Name`,
                                  patient_uuid as `UUID`,
                                  MRN,
-                                 UAN,
+                                 CONCAT('''', uan) as UAN,
                                  TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) as Age,
                                  Sex,
                                  Weight,

@@ -139,7 +139,7 @@ BEGIN
     select patient_name                                             as `Patient Name`,
            patient_uuid                                             as `UUID`,
            MRN,
-           UAN,
+           CONCAT('''', uan) as UAN,
            Age,
            Sex,
            art_start_date                                           as `ART Start Date`,

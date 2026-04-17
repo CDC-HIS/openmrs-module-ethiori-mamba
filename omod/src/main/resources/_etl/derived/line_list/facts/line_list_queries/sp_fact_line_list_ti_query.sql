@@ -16,7 +16,7 @@ BEGIN
                              weight_text_                        AS Weight,
                              height,
                              date_of_event                       AS date_hiv_confirmed,
-                                transferred_in_check_this_for_all_t,
+                             transferred_in_check_this_for_all_t,
                              antiretroviral_art_dispensed_dose_i AS art_dose_days,
                              regimen,
                              anitiretroviral_adherence_level     as adherence
@@ -42,43 +42,43 @@ BEGIN
                       where follow_up_date_followup_ <= COALESCE(REPORT_END_DATE, CURDATE()
                                                         )),
 
-         first_follow_up as (select client_id,transferred_in_check_this_for_all_t, follow_up_date as ti_follow_up_date,
-                                 ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date  ,
-                                     encounter_id  )  AS r_n
-                          from FollowUp ),
+         first_follow_up as (select client_id,
+                                    transferred_in_check_this_for_all_t,
+                                    follow_up_date     as ti_follow_up_date,
+                                    ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date ,
+                                        encounter_id ) AS r_n
+                             from FollowUp),
          ti_follow_up as (select client_id, ti_follow_up_date as follow_up_date
                           from first_follow_up
                           where r_n = 1
-                            and transferred_in_check_this_for_all_t ='Yes'
+                            and transferred_in_check_this_for_all_t = 'Yes'
                             and ti_follow_up_date >= COALESCE(REPORT_START_DATE, CURDATE())
                             and ti_follow_up_date <= COALESCE(REPORT_END_DATE, CURDATE()))
-         ,
+            ,
 
          tmp_last_follow_up AS (SELECT *,
-                                        ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date desc ,
-                                            encounter_id desc ) AS row_num
-                                 FROM FollowUp),
+                                       ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date desc ,
+                                           encounter_id desc ) AS row_num
+                                FROM FollowUp),
 
          in_range_ti_follow_up AS (select *
-                             from tmp_last_follow_up
-                             where row_num = 1 and  follow_up_date >= COALESCE(REPORT_START_DATE, CURDATE()))
-
-
-
+                                   from tmp_last_follow_up
+                                   where row_num = 1
+                                     and follow_up_date >= COALESCE(REPORT_START_DATE, CURDATE()))
 
 
     SELECT ROW_NUMBER() OVER (ORDER BY patient_name)                                       AS `#`,
            client.patient_uuid                                                             as UUID,
            client.patient_name                                                             as `Patient Name`,
            CAST(client.mrn AS CHAR(20))                                                    as `MRN`,
-           client.uan                                                                      AS UAN,
+           CONCAT('''', client.uan)                                                        AS UAN,
            TIMESTAMPDIFF(YEAR, client.date_of_birth, COALESCE(REPORT_END_DATE, CURDATE())) as Age,
            client.sex                                                                      as Sex,
            f_case.art_start_date                                                           as `ART Start Date EC.`,
            f_case.art_start_date                                                           as `ART Start Date GC.`,
-           ti.follow_up_date                                                                  as `Follow Up Date (Date
+           ti.follow_up_date                                                               as `Follow Up Date (Date
 of TI) EC.`,
-           ti.follow_up_date                                                                   as `Follow Up Date (Date of TI) GC.`,
+           ti.follow_up_date                                                               as `Follow Up Date (Date of TI) GC.`,
            CASE f_case.follow_up_status
                WHEN 'Alive' THEN 'Alive on ART'
                WHEN 'Restart medication' THEN 'Restart'
@@ -95,7 +95,7 @@ of TI) EC.`,
     FROM in_range_ti_follow_up AS f_case
              inner JOIN mamba_dim_client client on
         f_case.client_id = client.client_id
-    inner join ti_follow_up as ti on ti.client_id = f_case.client_id;
+             inner join ti_follow_up as ti on ti.client_id = f_case.client_id;
 
 END //
 
