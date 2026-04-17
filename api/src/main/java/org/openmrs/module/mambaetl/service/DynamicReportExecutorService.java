@@ -7,6 +7,7 @@ import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
 import org.openmrs.module.reporting.dataset.DataSetColumn;
 import org.openmrs.module.reporting.dataset.DataSetRow;
 import org.openmrs.module.reporting.dataset.SimpleDataSet;
+import org.openmrs.module.reporting.evaluation.EvaluationException;
 import org.springframework.stereotype.Service;
 
 import java.sql.Connection;
@@ -58,7 +59,7 @@ public class DynamicReportExecutorService {
 				    ERROR_PROCESSING_RESULT_SET + e.getMessage(), e, log);
 			}
 		}
-		catch (SQLException e) {
+		catch (SQLException | EvaluationException e) {
 			throw new SQLException(DATABASE_CONNECTION_ERROR + e.getMessage(), e);
 		}
 		return new ArrayList<>();
