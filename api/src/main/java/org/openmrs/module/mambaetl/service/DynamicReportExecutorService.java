@@ -330,6 +330,88 @@ public class DynamicReportExecutorService {
 
 		// --- HMIS / DHIS2 procedures ---
 
+		// Combined HMIS: mirrors HMISDHIS2DataSetEvaluator (all 20 SPs in one call)
+		if ("sp_fact_hmis_all".equalsIgnoreCase(name)) {
+			return Arrays.asList(
+			    new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_hiv_hts_tst_index_query(?,?)}", s -> {
+				    s.setDate(1, parseSqlDate(params.get("startDate")));
+				    s.setDate(2, parseSqlDate(params.get("endDate")));
+			    }),
+			    new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_tx_curr_query(?)}", s -> {
+				    s.setDate(1, parseSqlDate(params.get("endDate")));
+			    }),
+			    new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_tx_new_query(?,?)}", s -> {
+				    s.setDate(1, parseSqlDate(params.get("startDate")));
+				    s.setDate(2, parseSqlDate(params.get("endDate")));
+			    }),
+			    new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_hiv_art_ret_query(?,?)}", s -> {
+				    s.setDate(1, parseSqlDate(params.get("startDate")));
+				    s.setDate(2, parseSqlDate(params.get("endDate")));
+			    }),
+			    new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_hiv_art_ret_net_query(?,?)}", s -> {
+				    s.setDate(1, parseSqlDate(params.get("startDate")));
+				    s.setDate(2, parseSqlDate(params.get("endDate")));
+			    }),
+			    new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_hiv_linkage_query(?,?)}", s -> {
+				    s.setDate(1, parseSqlDate(params.get("startDate")));
+				    s.setDate(2, parseSqlDate(params.get("endDate")));
+			    }),
+			    new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_hiv_tx_pvls_query(?,?)}", s -> {
+				    s.setDate(1, parseSqlDate(params.get("startDate")));
+				    s.setDate(2, parseSqlDate(params.get("endDate")));
+			    }),
+			    new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_hiv_dsd_query(?)}", s -> {
+				    s.setDate(1, parseSqlDate(params.get("endDate")));
+			    }),
+			    new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_art_intr_query(?,?)}", s -> {
+				    s.setDate(1, parseSqlDate(params.get("startDate")));
+				    s.setDate(2, parseSqlDate(params.get("endDate")));
+			    }),
+			    new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_art_restart_query(?,?)}", s -> {
+				    s.setDate(1, parseSqlDate(params.get("startDate")));
+				    s.setDate(2, parseSqlDate(params.get("endDate")));
+			    }),
+			    new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_hiv_prep_query(?,?)}", s -> {
+				    s.setDate(1, parseSqlDate(params.get("startDate")));
+				    s.setDate(2, parseSqlDate(params.get("endDate")));
+			    }),
+			    new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_hiv_pep_query(?,?)}", s -> {
+				    s.setDate(1, parseSqlDate(params.get("startDate")));
+				    s.setDate(2, parseSqlDate(params.get("endDate")));
+			    }),
+			    new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_phliv_tsp_query(?,?)}", s -> {
+				    s.setDate(1, parseSqlDate(params.get("startDate")));
+				    s.setDate(2, parseSqlDate(params.get("endDate")));
+			    }),
+			    new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_hiv_fp_query(?)}", s -> {
+				    s.setDate(1, parseSqlDate(params.get("endDate")));
+			    }),
+			    new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_hiv_tb_scrn_query(?,?)}", s -> {
+				    s.setDate(1, parseSqlDate(params.get("startDate")));
+				    s.setDate(2, parseSqlDate(params.get("endDate")));
+			    }),
+			    new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_hiv_tpt_query(?,?)}", s -> {
+				    s.setDate(1, parseSqlDate(params.get("startDate")));
+				    s.setDate(2, parseSqlDate(params.get("endDate")));
+			    }),
+			    new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_cxca_scrn_query(?,?)}", s -> {
+				    s.setDate(1, parseSqlDate(params.get("startDate")));
+				    s.setDate(2, parseSqlDate(params.get("endDate")));
+			    }),
+			    new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_cxca_rx_query(?,?)}", s -> {
+				    s.setDate(1, parseSqlDate(params.get("startDate")));
+				    s.setDate(2, parseSqlDate(params.get("endDate")));
+			    }),
+			    new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_tb_lb_lf_lam_query(?,?)}", s -> {
+				    s.setDate(1, parseSqlDate(params.get("startDate")));
+				    s.setDate(2, parseSqlDate(params.get("endDate")));
+			    }),
+			    new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_mtct_query(?,?)}", s -> {
+				    s.setDate(1, parseSqlDate(params.get("startDate")));
+				    s.setDate(2, parseSqlDate(params.get("endDate")));
+			    }));
+		}
+
 		if ("sp_fact_hmis_hiv_hts_tst_index_query".equalsIgnoreCase(name)) {
 			return dateRange("{call sp_fact_hmis_hiv_hts_tst_index_query(?,?)}", params);
 		}
@@ -518,7 +600,7 @@ public class DynamicReportExecutorService {
 			    }));
 		}
 
-		// TB Prev Numerator: TOTAL → 1 call; otherwise → NEW_ART + PREV_ART (2 calls)
+		// TB Prev Numerator: TOTAL/DEBUG → 1 call; otherwise → NEW_ART + PREV_ART (2 calls)
 		if ("sp_dim_tb_prev_datim_numerator_query".equalsIgnoreCase(name)) {
 			if ("TOTAL".equalsIgnoreCase(params.get("aggregationType"))) {
 				return single("{call sp_dim_tb_prev_datim_numerator_query(?,?,?,?)}", s -> {
@@ -526,6 +608,14 @@ public class DynamicReportExecutorService {
 					s.setDate(2, parseSqlDate(params.get("endDate")));
 					s.setInt(3, 1);
 					s.setString(4, TBPrevAggregationTypes.TOTAL.getSqlValue());
+				});
+			}
+			if ("DEBUG".equalsIgnoreCase(params.get("aggregationType"))) {
+				return single("{call sp_dim_tb_prev_datim_numerator_query(?,?,?,?)}", s -> {
+					s.setDate(1, parseSqlDate(params.get("startDate")));
+					s.setDate(2, parseSqlDate(params.get("endDate")));
+					s.setInt(3, 1);
+					s.setString(4, TBPrevAggregationTypes.DEBUG.getSqlValue());
 				});
 			}
 			return Arrays.asList(
@@ -543,7 +633,7 @@ public class DynamicReportExecutorService {
 			    }));
 		}
 
-		// TB Prev Denominator: TOTAL → 1 call; otherwise → NEW_ART + PREV_ART (2 calls)
+		// TB Prev Denominator: TOTAL/DEBUG → 1 call; otherwise → NEW_ART + PREV_ART (2 calls)
 		if ("sp_dim_tb_prev_datim_denominator_query".equalsIgnoreCase(name)) {
 			if ("TOTAL".equalsIgnoreCase(params.get("aggregationType"))) {
 				return single("{call sp_dim_tb_prev_datim_denominator_query(?,?,?,?)}", s -> {
@@ -551,6 +641,14 @@ public class DynamicReportExecutorService {
 					s.setDate(2, parseSqlDate(params.get("endDate")));
 					s.setInt(3, 1);
 					s.setString(4, TBPrevAggregationTypes.TOTAL.getSqlValue());
+				});
+			}
+			if ("DEBUG".equalsIgnoreCase(params.get("aggregationType"))) {
+				return single("{call sp_dim_tb_prev_datim_denominator_query(?,?,?,?)}", s -> {
+					s.setDate(1, parseSqlDate(params.get("startDate")));
+					s.setDate(2, parseSqlDate(params.get("endDate")));
+					s.setInt(3, 1);
+					s.setString(4, TBPrevAggregationTypes.DEBUG.getSqlValue());
 				});
 			}
 			return Arrays.asList(
