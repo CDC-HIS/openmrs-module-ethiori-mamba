@@ -837,6 +837,10 @@ public class DynamicReportExecutorService {
 		if (resultSets == null) {
 			return Collections.emptyList();
 		}
+		// Composite procedures may return multiple result sets with different schemas.
+		// Build a stable union of columns while preserving the DB order per result set.
+		// (First time a column name is seen defines its position.)
+		Map<String, Boolean> seen = new LinkedHashMap<>();
 		for (ResultSet rs : resultSets) {
 			if (rs == null) {
 				continue;
@@ -846,14 +850,18 @@ public class DynamicReportExecutorService {
 				continue;
 			}
 			int columnCount = metaData.getColumnCount();
-			List<String> columns = new ArrayList<>(Math.max(0, columnCount));
 			for (int i = 1; i <= columnCount; i++) {
 				String label = metaData.getColumnLabel(i);
-				columns.add(mapper.mapColumnName(label));
+				String mapped = mapper.mapColumnName(label);
+				if (!seen.containsKey(mapped)) {
+					seen.put(mapped, Boolean.TRUE);
+				}
 			}
-			return columns;
 		}
-		return Collections.emptyList();
+		if (seen.isEmpty()) {
+			return Collections.emptyList();
+		}
+		return new ArrayList<>(seen.keySet());
 	}
 	
 	public static class ReportExecutionResult {

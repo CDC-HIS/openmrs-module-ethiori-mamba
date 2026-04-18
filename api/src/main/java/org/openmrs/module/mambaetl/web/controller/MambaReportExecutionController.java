@@ -57,7 +57,7 @@ public class MambaReportExecutionController {
 		try {
 			DynamicReportExecutorService.ReportExecutionResult result = reportExecutorService.executeReport(procedureName,
 			    params, offset, limit);
-			return new ResponseEntity<>(new ReportDataResponse(procedureName, result.getColumns(), result.getData()),
+			return new ResponseEntity<>(new ReportDataResponse(procedureName, result.getData()),
 			        HttpStatus.OK);
 		}
 		catch (IllegalArgumentException e) {
