@@ -14,12 +14,14 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -32,8 +34,8 @@ public class DynamicReportExecutorService {
 	
 	private static final String DATABASE_CONNECTION_ERROR = "Database connection error: ";
 	
-	public List<Map<String, Object>> executeReport(String procedureName, Map<String, String> params, int offset,
-	        int limit) throws SQLException {
+	public ReportExecutionResult executeReport(String procedureName, Map<String, String> params, int offset, int limit)
+	        throws SQLException {
 
 		validateProcedureName(procedureName);
 
@@ -51,10 +53,11 @@ public class DynamicReportExecutorService {
 				DataSetEvaluatorHelper.executeStatements(statementContainer, procedureCalls);
 
 				ResultSet[] allResultSets = statementContainer.getResultSets();
+				List<String> columns = extractColumnsInOrder(allResultSets, resultSetMapper);
 				DataSetEvaluatorHelper.mapResultSet(data, resultSetMapper, allResultSets, false);
 				connection.commit();
 
-				return mapAndPaginateData(data, offset, limit);
+				return new ReportExecutionResult(columns, mapAndPaginateData(data, columns, offset, limit));
 
 			}
 			catch (SQLException e) {
@@ -65,7 +68,7 @@ public class DynamicReportExecutorService {
 		catch (SQLException | EvaluationException e) {
 			throw new SQLException(DATABASE_CONNECTION_ERROR + e.getMessage(), e);
 		}
-		return new ArrayList<>();
+		return new ReportExecutionResult(Collections.emptyList(), new ArrayList<>());
 	}
 	
 	private void validateProcedureName(String procedureName) {
@@ -721,7 +724,8 @@ public class DynamicReportExecutorService {
 		});
 	}
 	
-	private List<Map<String, Object>> mapAndPaginateData(SimpleDataSet data, int offset, int limit) {
+	private List<Map<String, Object>> mapAndPaginateData(SimpleDataSet data, List<String> columnsInOrder, int offset,
+	        int limit) {
 		List<Map<String, Object>> result = new ArrayList<>();
 		if (data == null || data.getRows() == null) {
 			return result;
@@ -737,13 +741,74 @@ public class DynamicReportExecutorService {
 
 		for (int i = start; i < end; i++) {
 			DataSetRow row = rows.get(i);
-			Map<String, Object> map = new HashMap<>();
-			for (DataSetColumn column : row.getColumnValues().keySet()) {
-				map.put(column.getName(), row.getColumnValue(column));
+			Map<String, Object> nameToValue = new HashMap<>();
+			for (Map.Entry<DataSetColumn, Object> entry : row.getColumnValues().entrySet()) {
+				nameToValue.put(entry.getKey().getName(), entry.getValue());
+			}
+
+			Map<String, Object> map = new LinkedHashMap<>();
+			if (columnsInOrder != null && !columnsInOrder.isEmpty()) {
+				for (String columnName : columnsInOrder) {
+					map.put(columnName, nameToValue.get(columnName));
+				}
+				// Defensive: include any extra columns at end (stable-ish).
+				for (Map.Entry<String, Object> entry : nameToValue.entrySet()) {
+					if (!map.containsKey(entry.getKey())) {
+						map.put(entry.getKey(), entry.getValue());
+					}
+				}
+			} else {
+				// Fallback to whatever order DataSetRow provides
+				for (Map.Entry<DataSetColumn, Object> entry : row.getColumnValues().entrySet()) {
+					map.put(entry.getKey().getName(), entry.getValue());
+				}
 			}
 			result.add(map);
 		}
 		return result;
+	}
+	
+	private List<String> extractColumnsInOrder(ResultSet[] resultSets, ResultSetMapper mapper) throws SQLException {
+		if (resultSets == null) {
+			return Collections.emptyList();
+		}
+		for (ResultSet rs : resultSets) {
+			if (rs == null) {
+				continue;
+			}
+			ResultSetMetaData metaData = rs.getMetaData();
+			if (metaData == null) {
+				continue;
+			}
+			int columnCount = metaData.getColumnCount();
+			List<String> columns = new ArrayList<>(Math.max(0, columnCount));
+			for (int i = 1; i <= columnCount; i++) {
+				String label = metaData.getColumnLabel(i);
+				columns.add(mapper.mapColumnName(label));
+			}
+			return columns;
+		}
+		return Collections.emptyList();
+	}
+	
+	public static class ReportExecutionResult {
+		
+		private final List<String> columns;
+		
+		private final List<Map<String, Object>> data;
+		
+		public ReportExecutionResult(List<String> columns, List<Map<String, Object>> data) {
+			this.columns = columns;
+			this.data = data;
+		}
+		
+		public List<String> getColumns() {
+			return columns;
+		}
+		
+		public List<Map<String, Object>> getData() {
+			return data;
+		}
 	}
 	
 	private java.sql.Date parseSqlDate(String dateStr) {

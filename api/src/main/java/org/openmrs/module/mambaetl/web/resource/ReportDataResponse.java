@@ -7,13 +7,16 @@ public class ReportDataResponse {
 	
 	private String procedureName;
 	
+	private List<String> columns;
+	
 	private List<Map<String, Object>> data;
 	
 	public ReportDataResponse() {
 	}
 	
-	public ReportDataResponse(String procedureName, List<Map<String, Object>> data) {
+	public ReportDataResponse(String procedureName, List<String> columns, List<Map<String, Object>> data) {
 		this.procedureName = procedureName;
+		this.columns = columns;
 		this.data = data;
 	}
 	
@@ -23,6 +26,14 @@ public class ReportDataResponse {
 	
 	public void setProcedureName(String procedureName) {
 		this.procedureName = procedureName;
+	}
+	
+	public List<String> getColumns() {
+		return columns;
+	}
+	
+	public void setColumns(List<String> columns) {
+		this.columns = columns;
 	}
 	
 	public int getRowCount() {

@@ -55,8 +55,10 @@ public class MambaReportExecutionController {
 	private ResponseEntity<ReportDataResponse> executeReportInternal(String procedureName, int offset, int limit,
 	        Map<String, String> params) {
 		try {
-			List<Map<String, Object>> data = reportExecutorService.executeReport(procedureName, params, offset, limit);
-			return new ResponseEntity<>(new ReportDataResponse(procedureName, data), HttpStatus.OK);
+			DynamicReportExecutorService.ReportExecutionResult result = reportExecutorService.executeReport(procedureName,
+			    params, offset, limit);
+			return new ResponseEntity<>(new ReportDataResponse(procedureName, result.getColumns(), result.getData()),
+			        HttpStatus.OK);
 		}
 		catch (IllegalArgumentException e) {
 			log.error("Invalid procedure request: " + procedureName, e);
