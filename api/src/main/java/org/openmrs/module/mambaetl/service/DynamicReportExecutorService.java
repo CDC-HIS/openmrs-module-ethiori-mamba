@@ -2,6 +2,7 @@ package org.openmrs.module.mambaetl.service;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openmrs.api.context.Context;
 import org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper;
 import org.openmrs.module.mambaetl.helpers.FollowUpConstant;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
@@ -20,6 +21,7 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -57,12 +59,11 @@ public class DynamicReportExecutorService {
 
 				ResultSet[] allResultSets = statementContainer.getResultSets();
 
-				boolean sideBySide = "sp_dim_tx_curr_datim_query".equalsIgnoreCase(procedureName)
-				        && "CD4".equalsIgnoreCase(params.get("aggregationType"));
+				String[] sideBySideLabels = resolveSideBySideLabels(procedureName, params);
 
 				List<String> columns;
-				if (sideBySide) {
-					mergeResultSetsSideBySide(data, allResultSets);
+				if (sideBySideLabels != null) {
+					mergeResultSetsSideBySide(data, allResultSets, sideBySideLabels);
 					columns = data.getRows().isEmpty() ? Collections.emptyList()
 					        : data.getRows().get(0).getColumnValues().keySet().stream()
 					                .map(DataSetColumn::getName).collect(Collectors.toList());
@@ -294,17 +295,17 @@ public class DynamicReportExecutorService {
 		// This alias replicates that behavior for the API executor.
 		if ("sp_fact_line_list_tx_tb".equalsIgnoreCase(name)) {
 			String type = params.getOrDefault("type", "");
-			if ("TB-ART".equalsIgnoreCase(type)) {
+			if ("TB-ART".equalsIgnoreCase(type) || "tb_art".equalsIgnoreCase(type)) {
 				return dateRange("{call sp_fact_line_list_tx_tb_art_query(?,?)}", params);
 			}
-			if ("TB Screening".equalsIgnoreCase(type)) {
+			if ("TB Screening".equalsIgnoreCase(type) || "denominator".equalsIgnoreCase(type)) {
 				return dateRange("{call sp_fact_line_list_tx_tb_denominator_query(?,?)}", params);
 			}
-			if ("TB Treatment".equalsIgnoreCase(type)) {
+			if ("TB Treatment".equalsIgnoreCase(type) || "numerator".equalsIgnoreCase(type)) {
 				return dateRange("{call sp_fact_line_list_tx_tb_numerator_query(?,?)}", params);
 			}
 			throw new IllegalArgumentException(
-			        "Invalid type for sp_fact_line_list_tx_tb. Expected one of: TB-ART, TB Screening, TB Treatment");
+			        "Invalid type for sp_fact_line_list_tx_tb. Expected: TB-ART/tb_art, TB Screening/denominator, TB Treatment/numerator");
 		}
 
 		// Old UI TI/TO report selected which SP to run using "status".
@@ -414,6 +415,7 @@ public class DynamicReportExecutorService {
 
 		// Combined HMIS: mirrors HMISDHIS2DataSetEvaluator (all 20 SPs in one call)
 		if ("sp_fact_hmis_all".equalsIgnoreCase(name)) {
+			java.sql.Date vlStartDate = resolveVlStartDate(params);
 			return Arrays.asList(
 			    new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_hiv_hts_tst_index_query(?,?)}", s -> {
 				    s.setDate(1, parseSqlDate(params.get("startDate")));
@@ -439,7 +441,7 @@ public class DynamicReportExecutorService {
 				    s.setDate(2, parseSqlDate(params.get("endDate")));
 			    }),
 			    new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_hiv_tx_pvls_query(?,?)}", s -> {
-				    s.setDate(1, parseSqlDate(params.get("startDate")));
+				    s.setDate(1, vlStartDate);
 				    s.setDate(2, parseSqlDate(params.get("endDate")));
 			    }),
 			    new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_hiv_dsd_query(?)}", s -> {
@@ -910,11 +912,44 @@ public class DynamicReportExecutorService {
 		return new ArrayList<>(seen.keySet());
 	}
 	
-	private void mergeResultSetsSideBySide(SimpleDataSet data, ResultSet[] resultSets) throws SQLException {
+	private java.sql.Date resolveVlStartDate(Map<String, String> params) {
+		try {
+			String setting = Context.getAdministrationService().getGlobalProperty("_viralLoad12MSetting");
+			if ("YES".equalsIgnoreCase(setting)) {
+				java.sql.Date endDate = parseSqlDate(params.get("endDate"));
+				if (endDate != null) {
+					Calendar cal = Calendar.getInstance();
+					cal.setTime(endDate);
+					cal.add(Calendar.MONTH, -12);
+					return new java.sql.Date(cal.getTimeInMillis());
+				}
+			}
+		}
+		catch (Exception e) {
+			log.warn("Could not read _viralLoad12MSetting global property, using startDate", e);
+		}
+		return parseSqlDate(params.get("startDate"));
+	}
+	
+	private String[] resolveSideBySideLabels(String procedureName, Map<String, String> params) {
+		if ("sp_dim_tx_curr_datim_query".equalsIgnoreCase(procedureName)
+		        && "CD4".equalsIgnoreCase(params.get("aggregationType"))) {
+			return new String[] { "<3 months of ARVs (not MMD)", "3-5 months of ARVs", "6 or more months of ARVs" };
+		}
+		if (("sp_dim_tb_prev_datim_numerator_query".equalsIgnoreCase(procedureName) || "sp_dim_tb_prev_datim_denominator_query"
+		        .equalsIgnoreCase(procedureName))
+		        && !"TOTAL".equalsIgnoreCase(params.get("aggregationType"))
+		        && !"DEBUG".equalsIgnoreCase(params.get("aggregationType"))) {
+			return new String[] { "Newly enrolled on ART", "Previously Enrolled on ART" };
+		}
+		return null;
+	}
+	
+	private void mergeResultSetsSideBySide(SimpleDataSet data, ResultSet[] resultSets, String[] labels)
+	        throws SQLException {
 		if (resultSets == null || resultSets.length == 0) {
 			return;
 		}
-		String[] duration = { "<3 months of ARVs (not MMD)", "3-5 months of ARVs", "6 or more months of ARVs" };
 		Map<String, DataSetRow> rowsMap = new LinkedHashMap<>();
 		int count = 0;
 		for (ResultSet rs : resultSets) {
@@ -940,7 +975,7 @@ public class DynamicReportExecutorService {
 							    new DataSetColumn(colName, colName, val != null ? val.getClass() : Object.class), val);
 						}
 					} else {
-						String prefix = count < duration.length ? duration[count] : "Unknown" + count;
+						String prefix = (labels != null && count < labels.length) ? labels[count] : "Group" + count;
 						colName = prefix + " " + orig;
 						row.addColumnValue(
 						    new DataSetColumn(colName, colName, val != null ? val.getClass() : Object.class), val);

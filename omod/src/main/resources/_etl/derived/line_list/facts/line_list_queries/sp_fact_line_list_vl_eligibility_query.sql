@@ -556,7 +556,7 @@ BEGIN
                                     WHEN IsPregnant = 'Yes' OR BreastFeeding = 'Yes' THEN
                                         'Yes'
                                     ELSE 'No' END                                AS `PMTCT-ART`,
-                                date_hiv_confirmed                               as `Hiv Confirmed Date EC`,
+                                date_hiv_confirmed                               as `Hiv Confirmed Date`,
                                 date_hiv_confirmed                               as `Hiv Confirmed Date EC.`,
                                 t.arv_dispensed_dose                             as ARTDoseDays,
                                 CAST(eligiblityDate AS DATE)                     as `Eligiblity Date`,
