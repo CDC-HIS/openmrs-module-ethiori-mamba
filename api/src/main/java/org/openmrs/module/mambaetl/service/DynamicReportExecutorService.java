@@ -25,6 +25,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class DynamicReportExecutorService {
@@ -54,8 +56,20 @@ public class DynamicReportExecutorService {
 				DataSetEvaluatorHelper.executeStatements(statementContainer, procedureCalls);
 
 				ResultSet[] allResultSets = statementContainer.getResultSets();
-				List<String> columns = extractColumnsInOrder(allResultSets, resultSetMapper);
-				DataSetEvaluatorHelper.mapResultSet(data, resultSetMapper, allResultSets, false);
+
+				boolean sideBySide = "sp_dim_tx_curr_datim_query".equalsIgnoreCase(procedureName)
+				        && "CD4".equalsIgnoreCase(params.get("aggregationType"));
+
+				List<String> columns;
+				if (sideBySide) {
+					mergeResultSetsSideBySide(data, allResultSets);
+					columns = data.getRows().isEmpty() ? Collections.emptyList()
+					        : data.getRows().get(0).getColumnValues().keySet().stream()
+					                .map(DataSetColumn::getName).collect(Collectors.toList());
+				} else {
+					columns = extractColumnsInOrder(allResultSets, resultSetMapper);
+					DataSetEvaluatorHelper.mapResultSet(data, resultSetMapper, allResultSets, false);
+				}
 				connection.commit();
 
 				return new ReportExecutionResult(columns, mapAndPaginateData(data, columns, offset, limit));
@@ -650,22 +664,15 @@ public class DynamicReportExecutorService {
 			});
 		}
 
-		// HTS Index: two calls (ELICITED flag=1 + DEFAULT flag=0)
 		if ("sp_dim_ict_datim_query".equalsIgnoreCase(name)) {
 			String aggType = params.get("aggregationType");
-			return Arrays.asList(
-			    new DataSetEvaluatorHelper.ProcedureCall("{call sp_dim_ict_datim_query(?,?,?,?)}", s -> {
-				    s.setDate(1, parseSqlDate(params.get("startDate")));
-				    s.setDate(2, parseSqlDate(params.get("endDate")));
-				    s.setInt(3, 1);
-				    s.setString(4, aggType);
-			    }),
-			    new DataSetEvaluatorHelper.ProcedureCall("{call sp_dim_ict_datim_query(?,?,?,?)}", s -> {
-				    s.setDate(1, parseSqlDate(params.get("startDate")));
-				    s.setDate(2, parseSqlDate(params.get("endDate")));
-				    s.setInt(3, 0);
-				    s.setString(4, aggType);
-			    }));
+			int elicitedFlag = "ELICITED".equalsIgnoreCase(aggType) ? 1 : 0;
+			return single("{call sp_dim_ict_datim_query(?,?,?,?)}", s -> {
+				s.setDate(1, parseSqlDate(params.get("startDate")));
+				s.setDate(2, parseSqlDate(params.get("endDate")));
+				s.setInt(3, elicitedFlag);
+				s.setString(4, aggType);
+			});
 		}
 
 		// TB Prev Numerator: TOTAL/DEBUG → 1 call; otherwise → NEW_ART + PREV_ART (2 calls)
@@ -736,39 +743,78 @@ public class DynamicReportExecutorService {
 			            }));
 		}
 
-		// TX_CURR DATIM: 5 fixed calls (CD4 breakdown × 3 + age/sex × 2)
+		// TX_CURR DATIM: dispatch by aggregationType
 		if ("sp_dim_tx_curr_datim_query".equalsIgnoreCase(name)) {
-			return Arrays.asList(
-			    new DataSetEvaluatorHelper.ProcedureCall("{call sp_dim_tx_curr_datim_query(?,?,?,?)}", s -> {
-				    s.setDate(1, parseSqlDate(params.get("endDate")));
-				    s.setInt(2, 1);
-				    s.setInt(3, 0);
-				    s.setInt(4, 0);
-			    }),
-			    new DataSetEvaluatorHelper.ProcedureCall("{call sp_dim_tx_curr_datim_query(?,?,?,?)}", s -> {
-				    s.setDate(1, parseSqlDate(params.get("endDate")));
-				    s.setInt(2, 1);
-				    s.setInt(3, 1);
-				    s.setInt(4, 0);
-			    }),
-			    new DataSetEvaluatorHelper.ProcedureCall("{call sp_dim_tx_curr_datim_query(?,?,?,?)}", s -> {
-				    s.setDate(1, parseSqlDate(params.get("endDate")));
-				    s.setInt(2, 1);
-				    s.setInt(3, 2);
-				    s.setInt(4, 0);
-			    }),
-			    new DataSetEvaluatorHelper.ProcedureCall("{call sp_dim_tx_curr_datim_query(?,?,?,?)}", s -> {
-				    s.setDate(1, parseSqlDate(params.get("endDate")));
-				    s.setInt(2, 0);
-				    s.setInt(3, 3);
-				    s.setInt(4, 0);
-			    }),
-			    new DataSetEvaluatorHelper.ProcedureCall("{call sp_dim_tx_curr_datim_query(?,?,?,?)}", s -> {
-				    s.setDate(1, parseSqlDate(params.get("endDate")));
-				    s.setInt(2, 0);
-				    s.setInt(3, 3);
-				    s.setInt(4, 1);
-			    }));
+			String aggType = params.getOrDefault("aggregationType", "").toUpperCase();
+			switch (aggType) {
+				case "CD4":
+					return Arrays.asList(
+					    new DataSetEvaluatorHelper.ProcedureCall("{call sp_dim_tx_curr_datim_query(?,?,?,?)}", s -> {
+						    s.setDate(1, parseSqlDate(params.get("endDate")));
+						    s.setInt(2, 1);
+						    s.setInt(3, 0);
+						    s.setInt(4, 0);
+					    }),
+					    new DataSetEvaluatorHelper.ProcedureCall("{call sp_dim_tx_curr_datim_query(?,?,?,?)}", s -> {
+						    s.setDate(1, parseSqlDate(params.get("endDate")));
+						    s.setInt(2, 1);
+						    s.setInt(3, 1);
+						    s.setInt(4, 0);
+					    }),
+					    new DataSetEvaluatorHelper.ProcedureCall("{call sp_dim_tx_curr_datim_query(?,?,?,?)}", s -> {
+						    s.setDate(1, parseSqlDate(params.get("endDate")));
+						    s.setInt(2, 1);
+						    s.setInt(3, 2);
+						    s.setInt(4, 0);
+					    }));
+				case "AGE_SEX":
+					return single("{call sp_dim_tx_curr_datim_query(?,?,?,?)}", s -> {
+						s.setDate(1, parseSqlDate(params.get("endDate")));
+						s.setInt(2, 0);
+						s.setInt(3, 3);
+						s.setInt(4, 0);
+					});
+				case "NUMERATOR":
+					return single("{call sp_dim_tx_curr_datim_query(?,?,?,?)}", s -> {
+						s.setDate(1, parseSqlDate(params.get("endDate")));
+						s.setInt(2, 0);
+						s.setInt(3, 3);
+						s.setInt(4, 1);
+					});
+				default:
+					// All 5 calls combined (no aggregationType specified)
+					return Arrays.asList(
+					    new DataSetEvaluatorHelper.ProcedureCall("{call sp_dim_tx_curr_datim_query(?,?,?,?)}", s -> {
+						    s.setDate(1, parseSqlDate(params.get("endDate")));
+						    s.setInt(2, 1);
+						    s.setInt(3, 0);
+						    s.setInt(4, 0);
+					    }),
+					    new DataSetEvaluatorHelper.ProcedureCall("{call sp_dim_tx_curr_datim_query(?,?,?,?)}", s -> {
+						    s.setDate(1, parseSqlDate(params.get("endDate")));
+						    s.setInt(2, 1);
+						    s.setInt(3, 1);
+						    s.setInt(4, 0);
+					    }),
+					    new DataSetEvaluatorHelper.ProcedureCall("{call sp_dim_tx_curr_datim_query(?,?,?,?)}", s -> {
+						    s.setDate(1, parseSqlDate(params.get("endDate")));
+						    s.setInt(2, 1);
+						    s.setInt(3, 2);
+						    s.setInt(4, 0);
+					    }),
+					    new DataSetEvaluatorHelper.ProcedureCall("{call sp_dim_tx_curr_datim_query(?,?,?,?)}", s -> {
+						    s.setDate(1, parseSqlDate(params.get("endDate")));
+						    s.setInt(2, 0);
+						    s.setInt(3, 3);
+						    s.setInt(4, 0);
+					    }),
+					    new DataSetEvaluatorHelper.ProcedureCall("{call sp_dim_tx_curr_datim_query(?,?,?,?)}", s -> {
+						    s.setDate(1, parseSqlDate(params.get("endDate")));
+						    s.setInt(2, 0);
+						    s.setInt(3, 3);
+						    s.setInt(4, 1);
+					    }));
+			}
 		}
 
 		throw new IllegalArgumentException("No parameter mapping defined for procedure: " + name);
@@ -862,6 +908,48 @@ public class DynamicReportExecutorService {
 			return Collections.emptyList();
 		}
 		return new ArrayList<>(seen.keySet());
+	}
+	
+	private void mergeResultSetsSideBySide(SimpleDataSet data, ResultSet[] resultSets) throws SQLException {
+		if (resultSets == null || resultSets.length == 0) {
+			return;
+		}
+		String[] duration = { "<3 months of ARVs (not MMD)", "3-5 months of ARVs", "6 or more months of ARVs" };
+		Map<String, DataSetRow> rowsMap = new LinkedHashMap<>();
+		int count = 0;
+		for (ResultSet rs : resultSets) {
+			if (rs == null) {
+				log.warn("Encountered a null ResultSet in mergeResultSetsSideBySide. Skipping.");
+				count++;
+				continue;
+			}
+			ResultSetMetaData meta = rs.getMetaData();
+			int cols = meta.getColumnCount();
+			while (rs.next()) {
+				String key = rs.getObject(1) != null ? rs.getObject(1).toString() : "null_key_" + UUID.randomUUID();
+				DataSetRow row = rowsMap.computeIfAbsent(key, k -> new DataSetRow());
+				for (int i = 1; i <= cols; i++) {
+					String orig = meta.getColumnLabel(i);
+					Object val = rs.getObject(i);
+					String colName;
+					if (orig.equalsIgnoreCase("sex")) {
+						colName = orig;
+						if (!row.getColumnValues().containsKey(
+						    new DataSetColumn(colName, colName, val != null ? val.getClass() : Object.class))) {
+							row.addColumnValue(
+							    new DataSetColumn(colName, colName, val != null ? val.getClass() : Object.class), val);
+						}
+					} else {
+						String prefix = count < duration.length ? duration[count] : "Unknown" + count;
+						colName = prefix + " " + orig;
+						row.addColumnValue(
+						    new DataSetColumn(colName, colName, val != null ? val.getClass() : Object.class), val);
+					}
+				}
+			}
+			count++;
+		}
+		rowsMap.values().forEach(data::addRow);
 	}
 	
 	public static class ReportExecutionResult {
