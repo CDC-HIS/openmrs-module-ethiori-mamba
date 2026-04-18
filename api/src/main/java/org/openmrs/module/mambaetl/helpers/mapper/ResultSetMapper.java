@@ -68,6 +68,10 @@ public class ResultSetMapper {
 		return columnNameMapping.getOrDefault(originalColumnName, originalColumnName);
 	}
 	
+	public String mapColumnName(String originalColumnName) {
+		return getMappedColumnName(originalColumnName);
+	}
+	
 	private Class<?> getClassForSqlType(String sqlType) {
 		switch (sqlType) {
 			case "VARCHAR":
