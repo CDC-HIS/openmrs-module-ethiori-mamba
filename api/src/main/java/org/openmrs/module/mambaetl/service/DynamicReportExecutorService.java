@@ -3,6 +3,7 @@ package org.openmrs.module.mambaetl.service;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper;
+import org.openmrs.module.mambaetl.helpers.FollowUpConstant;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
 import org.openmrs.module.mambaetl.helpers.reportOptions.TBPrevAggregationTypes;
 import org.openmrs.module.mambaetl.helpers.reportOptions.TxCurrAnalysisCategories;
@@ -211,7 +212,13 @@ public class DynamicReportExecutorService {
 			return single("{call sp_fact_line_list_chronic_care_query(?,?,?)}", s -> {
 				s.setDate(1, parseSqlDate(params.get("startDate")));
 				s.setDate(2, parseSqlDate(params.get("endDate")));
-				s.setString(3, params.get("targetGroup"));
+				// Old UI used "followupStatus" and mapped it to DB representation.
+				// Keep backward compatibility: accept either followupStatus or targetGroup.
+				String followupStatus = params.get("followupStatus");
+				if (followupStatus == null || followupStatus.trim().isEmpty()) {
+					followupStatus = params.get("targetGroup");
+				}
+				s.setString(3, FollowUpConstant.getDbRepresentation(followupStatus));
 			});
 		}
 		if ("sp_fact_line_list_monthly_visit_care_query".equalsIgnoreCase(name)) {
@@ -269,57 +276,115 @@ public class DynamicReportExecutorService {
 
 		// --- Line lists: multi-call (combined evaluator pairs) ---
 
+		// Old UI TXTB report selected which SP to run using "type".
+		// This alias replicates that behavior for the API executor.
+		if ("sp_fact_line_list_tx_tb".equalsIgnoreCase(name)) {
+			String type = params.getOrDefault("type", "");
+			if ("TB-ART".equalsIgnoreCase(type)) {
+				return dateRange("{call sp_fact_line_list_tx_tb_art_query(?,?)}", params);
+			}
+			if ("TB Screening".equalsIgnoreCase(type)) {
+				return dateRange("{call sp_fact_line_list_tx_tb_denominator_query(?,?)}", params);
+			}
+			if ("TB Treatment".equalsIgnoreCase(type)) {
+				return dateRange("{call sp_fact_line_list_tx_tb_numerator_query(?,?)}", params);
+			}
+			throw new IllegalArgumentException(
+			        "Invalid type for sp_fact_line_list_tx_tb. Expected one of: TB-ART, TB Screening, TB Treatment");
+		}
+
+		// Old UI TI/TO report selected which SP to run using "status".
+		// This alias replicates that behavior for the API executor.
+		if ("sp_fact_line_list_ti_to".equalsIgnoreCase(name)) {
+			String status = params.getOrDefault("status", "TO");
+			if ("TI".equalsIgnoreCase(status)) {
+				return dateRange("{call sp_fact_line_list_ti_query(?,?)}", params);
+			}
+			if ("TO".equalsIgnoreCase(status)) {
+				return dateRange("{call sp_fact_line_list_to_query(?,?)}", params);
+			}
+			throw new IllegalArgumentException("Invalid status for sp_fact_line_list_ti_to. Expected TI or TO");
+		}
+
 		if ("sp_fact_line_list_art_cohort_analysis".equalsIgnoreCase(name)) {
-			return Arrays.asList(
-			    new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_line_list_art_cohort_analysis_query(?,?)}", s -> {
-				    s.setDate(1, parseSqlDate(params.get("startDate")));
-				    s.setDate(2, parseSqlDate(params.get("endDate")));
-			    }),
-			    new DataSetEvaluatorHelper.ProcedureCall(
-			            "{call sp_fact_line_list_art_cohort_analysis_summary_query(?,?)}", s -> {
-				            s.setDate(1, parseSqlDate(params.get("startDate")));
-				            s.setDate(2, parseSqlDate(params.get("endDate")));
-			            }));
+			String type = params.getOrDefault("type", "LineList");
+			if ("SUMMARY".equalsIgnoreCase(type)) {
+				return single("{call sp_fact_line_list_art_cohort_analysis_summary_query(?,?)}", s -> {
+					s.setDate(1, parseSqlDate(params.get("startDate")));
+					s.setDate(2, parseSqlDate(params.get("endDate")));
+				});
+			}
+			return single("{call sp_fact_line_list_art_cohort_analysis_query(?,?)}", s -> {
+				s.setDate(1, parseSqlDate(params.get("startDate")));
+				s.setDate(2, parseSqlDate(params.get("endDate")));
+			});
 		}
 		if ("sp_fact_line_list_child_cohort_analysis".equalsIgnoreCase(name)) {
-			return Arrays.asList(
-			    new DataSetEvaluatorHelper.ProcedureCall(
-			            "{call sp_fact_line_list_child_cohort_analysis_query(?,?)}", s -> {
-				            s.setDate(1, parseSqlDate(params.get("startDate")));
-				            s.setDate(2, parseSqlDate(params.get("endDate")));
-			            }),
-			    new DataSetEvaluatorHelper.ProcedureCall(
-			            "{call sp_fact_line_list_child_cohort_analysis_summary_query(?,?)}", s -> {
-				            s.setDate(1, parseSqlDate(params.get("startDate")));
-				            s.setDate(2, parseSqlDate(params.get("endDate")));
-			            }));
+			String type = params.getOrDefault("type", "LineList");
+			if ("SUMMARY".equalsIgnoreCase(type)) {
+				return single("{call sp_fact_line_list_child_cohort_analysis_summary_query(?,?)}", s -> {
+					s.setDate(1, parseSqlDate(params.get("startDate")));
+					s.setDate(2, parseSqlDate(params.get("endDate")));
+				});
+			}
+			return single("{call sp_fact_line_list_child_cohort_analysis_query(?,?)}", s -> {
+				s.setDate(1, parseSqlDate(params.get("startDate")));
+				s.setDate(2, parseSqlDate(params.get("endDate")));
+			});
 		}
 		if ("sp_fact_line_list_mother_cohort_analysis".equalsIgnoreCase(name)) {
-			return Arrays.asList(
-			    new DataSetEvaluatorHelper.ProcedureCall(
-			            "{call sp_fact_line_list_mother_cohort_analysis_query(?,?)}", s -> {
-				            s.setDate(1, parseSqlDate(params.get("startDate")));
-				            s.setDate(2, parseSqlDate(params.get("endDate")));
-			            }),
-			    new DataSetEvaluatorHelper.ProcedureCall(
-			            "{call sp_fact_line_list_mother_cohort_analysis_summary_query(?,?)}", s -> {
-				            s.setDate(1, parseSqlDate(params.get("startDate")));
-				            s.setDate(2, parseSqlDate(params.get("endDate")));
-			            }));
+			String type = params.getOrDefault("type", "LineList");
+			if ("SUMMARY".equalsIgnoreCase(type)) {
+				return single("{call sp_fact_line_list_mother_cohort_analysis_summary_query(?,?)}", s -> {
+					s.setDate(1, parseSqlDate(params.get("startDate")));
+					s.setDate(2, parseSqlDate(params.get("endDate")));
+				});
+			}
+			return single("{call sp_fact_line_list_mother_cohort_analysis_query(?,?)}", s -> {
+				s.setDate(1, parseSqlDate(params.get("startDate")));
+				s.setDate(2, parseSqlDate(params.get("endDate")));
+			});
 		}
 		if ("sp_fact_line_list_tb_prev_linelist".equalsIgnoreCase(name)) {
+			String tptStatus = params.getOrDefault("tptStatus", "Numerator");
+			if ("DENOMINATOR".equalsIgnoreCase(tptStatus)) {
+				return single("{call sp_fact_line_list_tx_tbt_denominator_query(?,?)}", s -> {
+					s.setDate(1, parseSqlDate(params.get("startDate")));
+					s.setDate(2, parseSqlDate(params.get("endDate")));
+				});
+			}
+			if ("NUMERATOR".equalsIgnoreCase(tptStatus)) {
+				return single("{call sp_fact_line_list_tx_tbt_numerator_query(?,?)}", s -> {
+					s.setDate(1, parseSqlDate(params.get("startDate")));
+					s.setDate(2, parseSqlDate(params.get("endDate")));
+				});
+			}
+			// Fallback: run both if unknown/ALL
 			return Arrays.asList(
 			    new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_line_list_tx_tbt_numerator_query(?,?)}", s -> {
 				    s.setDate(1, parseSqlDate(params.get("startDate")));
 				    s.setDate(2, parseSqlDate(params.get("endDate")));
 			    }),
-			    new DataSetEvaluatorHelper.ProcedureCall(
-			            "{call sp_fact_line_list_tx_tbt_denominator_query(?,?)}", s -> {
-				            s.setDate(1, parseSqlDate(params.get("startDate")));
-				            s.setDate(2, parseSqlDate(params.get("endDate")));
-			            }));
+			    new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_line_list_tx_tbt_denominator_query(?,?)}", s -> {
+				    s.setDate(1, parseSqlDate(params.get("startDate")));
+				    s.setDate(2, parseSqlDate(params.get("endDate")));
+			    }));
 		}
 		if ("sp_fact_line_list_vl_sent_received".equalsIgnoreCase(name)) {
+			String type = params.getOrDefault("type", "all");
+			if ("SENT".equalsIgnoreCase(type)) {
+				return single("{call sp_fact_line_list_vl_sent_query(?,?)}", s -> {
+					s.setDate(1, parseSqlDate(params.get("startDate")));
+					s.setDate(2, parseSqlDate(params.get("endDate")));
+				});
+			}
+			if ("RECEIVED".equalsIgnoreCase(type)) {
+				return single("{call sp_fact_line_list_vl_received_query(?,?)}", s -> {
+					s.setDate(1, parseSqlDate(params.get("startDate")));
+					s.setDate(2, parseSqlDate(params.get("endDate")));
+				});
+			}
+			// Fallback: run both for "all"/unknown
 			return Arrays.asList(
 			    new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_line_list_vl_sent_query(?,?)}", s -> {
 				    s.setDate(1, parseSqlDate(params.get("startDate")));
