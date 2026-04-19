@@ -78,7 +78,7 @@ BEGIN
                          and prep_started = 'Yes'),
          prep_new_agg AS (
              SELECT
-                 COUNT(*) AS total,
+                 COUNT(*) AS Value,
                  SUM(CASE WHEN age BETWEEN 15 AND 19 AND sex = 'Male'   THEN 1 ELSE 0 END) AS u19_m,
                  SUM(CASE WHEN age BETWEEN 15 AND 19 AND sex = 'Female' THEN 1 ELSE 0 END) AS u19_f,
                  SUM(CASE WHEN age BETWEEN 20 AND 24 AND sex = 'Male'   THEN 1 ELSE 0 END) AS u24_m,
@@ -102,7 +102,7 @@ BEGIN
          ),
          prep_curr_agg AS (
              SELECT
-                 COUNT(*) AS total,
+                 COUNT(*) AS Value,
                  SUM(CASE WHEN age BETWEEN 15 AND 19 AND sex = 'Male'   THEN 1 ELSE 0 END) AS u19_m,
                  SUM(CASE WHEN age BETWEEN 15 AND 19 AND sex = 'Female' THEN 1 ELSE 0 END) AS u19_f,
                  SUM(CASE WHEN age BETWEEN 20 AND 24 AND sex = 'Male'   THEN 1 ELSE 0 END) AS u24_m,
@@ -124,9 +124,9 @@ BEGIN
                  SUM(CASE WHEN sex_worker = 'Yes' OR (do_you_have_an_hiv_positive_partner = 'No' AND sex_worker = 'No')                                                 THEN 1 ELSE 0 END) AS fsw
              FROM (SELECT *, TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) AS age FROM tx_curr) t
          )
-    SELECT 'HIV_PrEP'    AS S_NO, 'Number of individuals receiving Pre-Exposure Prophylaxis'                              AS Activity, total    AS Value FROM prep_new_agg
-    UNION ALL SELECT 'HIV_PrEP.1',    'PrEP (New Number of individuals who were newly enrolled on PrEP)',                total    FROM prep_new_agg
-    UNION ALL SELECT 'HIV_PrEP.1.1',  'By age and Sex',                                                                  total    FROM prep_new_agg
+    SELECT 'HIV_PrEP'    AS S_NO, 'Number of individuals receiving Pre-Exposure Prophylaxis'                              AS Activity, Value    AS Value FROM prep_new_agg
+    UNION ALL SELECT 'HIV_PrEP.1',    'PrEP (New Number of individuals who were newly enrolled on PrEP)',                Value    FROM prep_new_agg
+    UNION ALL SELECT 'HIV_PrEP.1.1',  'By age and Sex',                                                                  Value    FROM prep_new_agg
     UNION ALL SELECT 'HIV_PrEP.1.1. 1',  '15 - 19 years, Male',   u19_m  FROM prep_new_agg
     UNION ALL SELECT 'HIV_PrEP.1.1. 2',  '15 - 19 years, Female', u19_f  FROM prep_new_agg
     UNION ALL SELECT 'HIV_PrEP.1.1. 3',  '20 - 24 years, Male',   u24_m  FROM prep_new_agg
@@ -147,7 +147,7 @@ BEGIN
     UNION ALL SELECT 'HIV_PrEP.1.2. 1', 'Discordant Couple',       discordant FROM prep_new_agg
     UNION ALL SELECT 'HIV_PrEP.1.2. 2', 'Female sex worker[FSW]',  fsw        FROM prep_new_agg
     UNION ALL SELECT 'HIV_PrEP_CURR.1', 'PrEP Curr (Number of individuals that received oral PrEP during the reporting period)', total FROM prep_curr_agg
-    UNION ALL SELECT 'HIV_PrEP_CURR.1',  'By age and Sex',          total  FROM prep_curr_agg
+    UNION ALL SELECT 'HIV_PrEP_CURR.1',  'By age and Sex',          Value  FROM prep_curr_agg
     UNION ALL SELECT 'HIV_PrEP_CURR.1. 1',  '15 - 19 years, Male',   u19_m  FROM prep_curr_agg
     UNION ALL SELECT 'HIV_PrEP_CURR.1. 2',  '15 - 19 years, Female', u19_f  FROM prep_curr_agg
     UNION ALL SELECT 'HIV_PrEP_CURR.1. 3',  '20 - 24 years, Male',   u24_m  FROM prep_curr_agg
