@@ -72,29 +72,20 @@ WITH FollowUp AS (select follow_up.encounter_id,
                 from latest_tb_screened_follow_up
                 where tb_screening_date between REPORT_START_DATE AND REPORT_END_DATE
                   and follow_up_status in ('Alive', 'Restart medication') and art_start_date is not null
-                  and lf_lam_result is not null
+                  and lf_lam_result is not null),
+     lf_lam_agg AS (
+         SELECT COUNT(*)                                                                    AS total,
+                SUM(CASE WHEN lf_lam_result = 'Positive'       THEN 1 ELSE 0 END)          AS positive,
+                SUM(CASE WHEN lf_lam_result = 'Negative result' THEN 1 ELSE 0 END)         AS negative
+         FROM lf_lam
      )
-
 
 SELECT 'TB_LB_LF-LAM'                                                                              AS S_NO,
        'Total Number of tests performed using Lateral Flow Urine Lipoarabinomannan (LF-LAM) assay' as Activity,
-       COUNT(*)                                                                                    as Value
-FROM lf_lam
-WHERE lf_lam_result is not null
-
-UNION ALL
-SELECT 'TB_LB_LF-LAM. 1' AS S_NO,
-       'Positive'        as Activity,
-       COUNT(*)          as Value
-FROM lf_lam
-WHERE lf_lam_result = 'Positive'
-
-UNION ALL
-SELECT 'TB_LB_LF-LAM. 2' AS S_NO,
-       'Negative'        as Activity,
-       COUNT(*)          as Value
-FROM lf_lam
-WHERE lf_lam_result = 'Negative result';
+       total                                                                                        as Value
+FROM lf_lam_agg
+UNION ALL SELECT 'TB_LB_LF-LAM. 1', 'Positive', positive FROM lf_lam_agg
+UNION ALL SELECT 'TB_LB_LF-LAM. 2', 'Negative', negative FROM lf_lam_agg;
 END //
 
 DELIMITER ;
