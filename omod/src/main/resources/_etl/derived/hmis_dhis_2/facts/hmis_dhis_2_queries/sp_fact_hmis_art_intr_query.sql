@@ -119,242 +119,65 @@ BEGIN
                                       join mamba_dim_client client on on_art.client_id = client.client_id
                                       join lost_follow_up
                                            on on_art.client_id = lost_follow_up.client_id
-                             where on_art.client_id not in (select client_id from tx_curr_end))
-    SELECT 'HIV_ART_INTR'                                     AS S_NO,
-           'Number of ART Clients that interrupted Treatment' as Activity,
-           COUNT(*)                                           as Value
-    FROM interrupted_art
--- Number of ART Clients Interrupted treatment by outcome
-    UNION ALL
-    SELECT 'HIV_ART_INTR_OUT'                                       AS S_NO,
-           'Number of ART Clients Interrupted treatment by outcome' as Activity,
-           COUNT(*)                                                 as Value
-    FROM interrupted_art
--- Lost after treatemnt < 3month
-    UNION ALL
-    SELECT 'HIV_ART_INTR_OUT.1'            AS S_NO,
-           'Lost after treatemnt < 3month' as Activity,
-           COUNT(*)                        as Value
-    FROM interrupted_art
-    WHERE TIMESTAMPDIFF(MONTH, art_start_date, treatment_end_date) < 3
-      AND lost_follow_up_status not in ('Transferred out', 'Stop all', 'Dead')
--- < 15 years, Male
-    UNION ALL
-    SELECT 'HIV_ART_INTR_OUT.1. 1' AS S_NO,
-           '< 15 years, Male'      as Activity,
-           COUNT(*)                as Value
-    FROM interrupted_art
-    WHERE TIMESTAMPDIFF(MONTH, art_start_date, treatment_end_date) < 3
-      AND lost_follow_up_status not in ('Transferred out', 'Stop all', 'Dead')
-      AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
-      AND sex = 'Male'
--- < 15 years, Female
-    UNION ALL
-    SELECT 'HIV_ART_INTR_OUT.1. 2' AS S_NO,
-           '< 15 years, Female'    as Activity,
-           COUNT(*)                as Value
-    FROM interrupted_art
-    WHERE TIMESTAMPDIFF(MONTH, art_start_date, treatment_end_date) < 3
-      AND lost_follow_up_status not in ('Transferred out', 'Stop all', 'Dead')
-      AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
-      AND sex = 'Female'
--- >= 15 years, Male
-    UNION ALL
-    SELECT 'HIV_ART_INTR_OUT.1. 3' AS S_NO,
-           '>= 15 years, Male'     as Activity,
-           COUNT(*)                as Value
-    FROM interrupted_art
-    WHERE TIMESTAMPDIFF(MONTH, art_start_date, treatment_end_date) < 3
-      AND lost_follow_up_status not in ('Transferred out', 'Stop all', 'Dead')
-      AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
-      AND sex = 'Male'
--- >= 15 years, Female
-    UNION ALL
-    SELECT 'HIV_ART_INTR_OUT.1. 4' AS S_NO,
-           '>= 15 years, Female'   as Activity,
-           COUNT(*)                as Value
-    FROM interrupted_art
-    WHERE TIMESTAMPDIFF(MONTH, art_start_date, treatment_end_date) < 3
-      AND lost_follow_up_status not in ('Transferred out', 'Stop all', 'Dead')
-      AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
-      AND sex = 'Female'
--- Lost after treatement > 3month
-    UNION ALL
-    SELECT 'HIV_ART_INTR_OUT.2'             AS S_NO,
-           'Lost after treatement > 3month' as Activity,
-           COUNT(*)                         as Value
-    FROM interrupted_art
-    WHERE TIMESTAMPDIFF(MONTH, art_start_date, treatment_end_date) >= 3
-      AND lost_follow_up_status not in ('Transferred out', 'Stop all', 'Dead')
--- < 15 years, Male
-    UNION ALL
-    SELECT 'HIV_ART_INTR_OUT.2. 1' AS S_NO,
-           '< 15 years, Male'      as Activity,
-           COUNT(*)                as Value
-    FROM interrupted_art
-    WHERE TIMESTAMPDIFF(MONTH, art_start_date, treatment_end_date) >= 3
-      AND lost_follow_up_status not in ('Transferred out', 'Stop all', 'Dead')
-      AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
-      AND sex = 'Male'
--- < 15 years, Female
-    UNION ALL
-    SELECT 'HIV_ART_INTR_OUT.2. 2' AS S_NO,
-           '< 15 years, Female'    as Activity,
-           COUNT(*)                as Value
-    FROM interrupted_art
-    WHERE TIMESTAMPDIFF(MONTH, art_start_date, treatment_end_date) >= 3
-      AND lost_follow_up_status not in ('Transferred out', 'Stop all', 'Dead')
-      AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
-      AND sex = 'Female'
--- >= 15 years, Male
-    UNION ALL
-    SELECT 'HIV_ART_INTR_OUT.2. 3' AS S_NO,
-           '>= 15 years, Male'     as Activity,
-           COUNT(*)                as Value
-    FROM interrupted_art
-    WHERE TIMESTAMPDIFF(MONTH, art_start_date, treatment_end_date) >= 3
-      AND lost_follow_up_status not in ('Transferred out', 'Stop all', 'Dead')
-      AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
-      AND sex = 'Male'
--- >= 15 years, Female
-    UNION ALL
-    SELECT 'HIV_ART_INTR_OUT.2. 4' AS S_NO,
-           '>= 15 years, Female'   as Activity,
-           COUNT(*)                as Value
-    FROM interrupted_art
-    WHERE TIMESTAMPDIFF(MONTH, art_start_date, treatment_end_date) >= 3
-      AND lost_follow_up_status not in ('Transferred out', 'Stop all', 'Dead')
-      AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
-      AND sex = 'Female'
--- Transferred out
-    UNION ALL
-    SELECT 'HIV_ART_INTR_OUT.3' AS S_NO,
-           'Transferred out'    as Activity,
-           COUNT(*)             as Value
-    FROM interrupted_art
-    WHERE lost_follow_up_status = 'Transferred out'
--- < 15 years, Male
-    UNION ALL
-    SELECT 'HIV_ART_INTR_OUT.3. 1' AS S_NO,
-           '< 15 years, Male'      as Activity,
-           COUNT(*)                as Value
-    FROM interrupted_art
-    WHERE lost_follow_up_status = 'Transferred out'
-      AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
-      AND sex = 'Male'
--- < 15 years, Female
-    UNION ALL
-    SELECT 'HIV_ART_INTR_OUT.3. 2' AS S_NO,
-           '< 15 years, Female'    as Activity,
-           COUNT(*)                as Value
-    FROM interrupted_art
-    WHERE lost_follow_up_status = 'Transferred out'
-      AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
-      AND sex = 'Female'
--- >= 15 years, Male
-    UNION ALL
-    SELECT 'HIV_ART_INTR_OUT.3. 3' AS S_NO,
-           '>= 15 years, Male'     as Activity,
-           COUNT(*)                as Value
-    FROM interrupted_art
-    WHERE lost_follow_up_status = 'Transferred out'
-      AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
-      AND sex = 'Male'
--- >= 15 years, Female
-    UNION ALL
-    SELECT 'HIV_ART_INTR_OUT.3. 4' AS S_NO,
-           '>= 15 years, Female'   as Activity,
-           COUNT(*)                as Value
-    FROM interrupted_art
-    WHERE lost_follow_up_status = 'Transferred out'
-      AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
-      AND sex = 'Female'
--- Refused (stopped) treatement
-    UNION ALL
-    SELECT 'HIV_ART_INTR_OUT.4'           AS S_NO,
-           'Refused (stopped) treatement' as Activity,
-           COUNT(*)                       as Value
-    FROM interrupted_art
-    WHERE lost_follow_up_status = 'Stop all'
--- < 15 years, Male
-    UNION ALL
-    SELECT 'HIV_ART_INTR_OUT.4. 1' AS S_NO,
-           '< 15 years, Male'      as Activity,
-           COUNT(*)                as Value
-    FROM interrupted_art
-    WHERE lost_follow_up_status = 'Stop all'
-      AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
-      AND sex = 'Male'
--- < 15 years, Female
-    UNION ALL
-    SELECT 'HIV_ART_INTR_OUT.4. 2' AS S_NO,
-           '< 15 years, Female'    as Activity,
-           COUNT(*)                as Value
-    FROM interrupted_art
-    WHERE lost_follow_up_status = 'Stop all'
-      AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
-      AND sex = 'Female'
--- >= 15 years, Male
-    UNION ALL
-    SELECT 'HIV_ART_INTR_OUT.4. 3' AS S_NO,
-           '>= 15 years, Male'     as Activity,
-           COUNT(*)                as Value
-    FROM interrupted_art
-    WHERE lost_follow_up_status = 'Stop all'
-      AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
-      AND sex = 'Male'
--- >= 15 years, Female
-    UNION ALL
-    SELECT 'HIV_ART_INTR_OUT.4. 4' AS S_NO,
-           '>= 15 years, Female'   as Activity,
-           COUNT(*)                as Value
-    FROM interrupted_art
-    WHERE lost_follow_up_status = 'Stop all'
-      AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
-      AND sex = 'Female'
--- Died
-    UNION ALL
-    SELECT 'HIV_ART_INTR_OUT.5' AS S_NO,
-           'Died'               as Activity,
-           COUNT(*)             as Value
-    FROM interrupted_art
-    WHERE lost_follow_up_status = 'Dead'
--- < 15 years, Male
-    UNION ALL
-    SELECT 'HIV_ART_INTR_OUT.5. 1' AS S_NO,
-           '< 15 years, Male'      as Activity,
-           COUNT(*)                as Value
-    FROM interrupted_art
-    WHERE lost_follow_up_status = 'Dead'
-      AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
-      AND sex = 'Male'
--- < 15 years, Female
-    UNION ALL
-    SELECT 'HIV_ART_INTR_OUT.5. 2' AS S_NO,
-           '< 15 years, Female'    as Activity,
-           COUNT(*)                as Value
-    FROM interrupted_art
-    WHERE lost_follow_up_status = 'Dead'
-      AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
-      AND sex = 'Female'
--- >= 15 years, Male
-    UNION ALL
-    SELECT 'HIV_ART_INTR_OUT.5. 3' AS S_NO,
-           '>= 15 years, Male'     as Activity,
-           COUNT(*)                as Value
-    FROM interrupted_art
-    WHERE lost_follow_up_status = 'Dead'
-      AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
-      AND sex = 'Male'
--- >= 15 years, Female
-    UNION ALL
-    SELECT 'HIV_ART_INTR_OUT.5. 4' AS S_NO,
-           '>= 15 years, Female'   as Activity,
-           COUNT(*)                as Value
-    FROM interrupted_art
-    WHERE lost_follow_up_status = 'Dead'
-      AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
-      AND sex = 'Female';
+                             where on_art.client_id not in (select client_id from tx_curr_end)),
+         intr_agg AS (
+             SELECT
+                 COUNT(*) AS total,
+                 SUM(CASE WHEN TIMESTAMPDIFF(MONTH, art_start_date, treatment_end_date) < 3  AND lost_follow_up_status NOT IN ('Transferred out', 'Stop all', 'Dead')                   THEN 1 ELSE 0 END) AS out1_total,
+                 SUM(CASE WHEN TIMESTAMPDIFF(MONTH, art_start_date, treatment_end_date) < 3  AND lost_follow_up_status NOT IN ('Transferred out', 'Stop all', 'Dead') AND Age < 15  AND sex = 'Male'   THEN 1 ELSE 0 END) AS out1_u15_male,
+                 SUM(CASE WHEN TIMESTAMPDIFF(MONTH, art_start_date, treatment_end_date) < 3  AND lost_follow_up_status NOT IN ('Transferred out', 'Stop all', 'Dead') AND Age < 15  AND sex = 'Female' THEN 1 ELSE 0 END) AS out1_u15_female,
+                 SUM(CASE WHEN TIMESTAMPDIFF(MONTH, art_start_date, treatment_end_date) < 3  AND lost_follow_up_status NOT IN ('Transferred out', 'Stop all', 'Dead') AND Age >= 15 AND sex = 'Male'   THEN 1 ELSE 0 END) AS out1_o15_male,
+                 SUM(CASE WHEN TIMESTAMPDIFF(MONTH, art_start_date, treatment_end_date) < 3  AND lost_follow_up_status NOT IN ('Transferred out', 'Stop all', 'Dead') AND Age >= 15 AND sex = 'Female' THEN 1 ELSE 0 END) AS out1_o15_female,
+                 SUM(CASE WHEN TIMESTAMPDIFF(MONTH, art_start_date, treatment_end_date) >= 3 AND lost_follow_up_status NOT IN ('Transferred out', 'Stop all', 'Dead')                   THEN 1 ELSE 0 END) AS out2_total,
+                 SUM(CASE WHEN TIMESTAMPDIFF(MONTH, art_start_date, treatment_end_date) >= 3 AND lost_follow_up_status NOT IN ('Transferred out', 'Stop all', 'Dead') AND Age < 15  AND sex = 'Male'   THEN 1 ELSE 0 END) AS out2_u15_male,
+                 SUM(CASE WHEN TIMESTAMPDIFF(MONTH, art_start_date, treatment_end_date) >= 3 AND lost_follow_up_status NOT IN ('Transferred out', 'Stop all', 'Dead') AND Age < 15  AND sex = 'Female' THEN 1 ELSE 0 END) AS out2_u15_female,
+                 SUM(CASE WHEN TIMESTAMPDIFF(MONTH, art_start_date, treatment_end_date) >= 3 AND lost_follow_up_status NOT IN ('Transferred out', 'Stop all', 'Dead') AND Age >= 15 AND sex = 'Male'   THEN 1 ELSE 0 END) AS out2_o15_male,
+                 SUM(CASE WHEN TIMESTAMPDIFF(MONTH, art_start_date, treatment_end_date) >= 3 AND lost_follow_up_status NOT IN ('Transferred out', 'Stop all', 'Dead') AND Age >= 15 AND sex = 'Female' THEN 1 ELSE 0 END) AS out2_o15_female,
+                 SUM(CASE WHEN lost_follow_up_status = 'Transferred out'                                                                                                              THEN 1 ELSE 0 END) AS out3_total,
+                 SUM(CASE WHEN lost_follow_up_status = 'Transferred out' AND Age < 15  AND sex = 'Male'                                                                              THEN 1 ELSE 0 END) AS out3_u15_male,
+                 SUM(CASE WHEN lost_follow_up_status = 'Transferred out' AND Age < 15  AND sex = 'Female'                                                                            THEN 1 ELSE 0 END) AS out3_u15_female,
+                 SUM(CASE WHEN lost_follow_up_status = 'Transferred out' AND Age >= 15 AND sex = 'Male'                                                                              THEN 1 ELSE 0 END) AS out3_o15_male,
+                 SUM(CASE WHEN lost_follow_up_status = 'Transferred out' AND Age >= 15 AND sex = 'Female'                                                                            THEN 1 ELSE 0 END) AS out3_o15_female,
+                 SUM(CASE WHEN lost_follow_up_status = 'Stop all'                                                                                                                    THEN 1 ELSE 0 END) AS out4_total,
+                 SUM(CASE WHEN lost_follow_up_status = 'Stop all' AND Age < 15  AND sex = 'Male'                                                                                     THEN 1 ELSE 0 END) AS out4_u15_male,
+                 SUM(CASE WHEN lost_follow_up_status = 'Stop all' AND Age < 15  AND sex = 'Female'                                                                                   THEN 1 ELSE 0 END) AS out4_u15_female,
+                 SUM(CASE WHEN lost_follow_up_status = 'Stop all' AND Age >= 15 AND sex = 'Male'                                                                                     THEN 1 ELSE 0 END) AS out4_o15_male,
+                 SUM(CASE WHEN lost_follow_up_status = 'Stop all' AND Age >= 15 AND sex = 'Female'                                                                                   THEN 1 ELSE 0 END) AS out4_o15_female,
+                 SUM(CASE WHEN lost_follow_up_status = 'Dead'                                                                                                                        THEN 1 ELSE 0 END) AS out5_total,
+                 SUM(CASE WHEN lost_follow_up_status = 'Dead' AND Age < 15  AND sex = 'Male'                                                                                         THEN 1 ELSE 0 END) AS out5_u15_male,
+                 SUM(CASE WHEN lost_follow_up_status = 'Dead' AND Age < 15  AND sex = 'Female'                                                                                       THEN 1 ELSE 0 END) AS out5_u15_female,
+                 SUM(CASE WHEN lost_follow_up_status = 'Dead' AND Age >= 15 AND sex = 'Male'                                                                                         THEN 1 ELSE 0 END) AS out5_o15_male,
+                 SUM(CASE WHEN lost_follow_up_status = 'Dead' AND Age >= 15 AND sex = 'Female'                                                                                       THEN 1 ELSE 0 END) AS out5_o15_female
+             FROM interrupted_art
+         )
+
+    SELECT 'HIV_ART_INTR' AS S_NO, 'Number of ART Clients that interrupted Treatment' AS Activity, total AS Value FROM intr_agg
+    UNION ALL SELECT 'HIV_ART_INTR_OUT',    'Number of ART Clients Interrupted treatment by outcome', total          FROM intr_agg
+    UNION ALL SELECT 'HIV_ART_INTR_OUT.1',   'Lost after treatemnt < 3month',    out1_total      FROM intr_agg
+    UNION ALL SELECT 'HIV_ART_INTR_OUT.1. 1','< 15 years, Male',                 out1_u15_male   FROM intr_agg
+    UNION ALL SELECT 'HIV_ART_INTR_OUT.1. 2','< 15 years, Female',               out1_u15_female FROM intr_agg
+    UNION ALL SELECT 'HIV_ART_INTR_OUT.1. 3','>= 15 years, Male',                out1_o15_male   FROM intr_agg
+    UNION ALL SELECT 'HIV_ART_INTR_OUT.1. 4','>= 15 years, Female',              out1_o15_female FROM intr_agg
+    UNION ALL SELECT 'HIV_ART_INTR_OUT.2',   'Lost after treatement > 3month',   out2_total      FROM intr_agg
+    UNION ALL SELECT 'HIV_ART_INTR_OUT.2. 1','< 15 years, Male',                 out2_u15_male   FROM intr_agg
+    UNION ALL SELECT 'HIV_ART_INTR_OUT.2. 2','< 15 years, Female',               out2_u15_female FROM intr_agg
+    UNION ALL SELECT 'HIV_ART_INTR_OUT.2. 3','>= 15 years, Male',                out2_o15_male   FROM intr_agg
+    UNION ALL SELECT 'HIV_ART_INTR_OUT.2. 4','>= 15 years, Female',              out2_o15_female FROM intr_agg
+    UNION ALL SELECT 'HIV_ART_INTR_OUT.3',   'Transferred out',                  out3_total      FROM intr_agg
+    UNION ALL SELECT 'HIV_ART_INTR_OUT.3. 1','< 15 years, Male',                 out3_u15_male   FROM intr_agg
+    UNION ALL SELECT 'HIV_ART_INTR_OUT.3. 2','< 15 years, Female',               out3_u15_female FROM intr_agg
+    UNION ALL SELECT 'HIV_ART_INTR_OUT.3. 3','>= 15 years, Male',                out3_o15_male   FROM intr_agg
+    UNION ALL SELECT 'HIV_ART_INTR_OUT.3. 4','>= 15 years, Female',              out3_o15_female FROM intr_agg
+    UNION ALL SELECT 'HIV_ART_INTR_OUT.4',   'Refused (stopped) treatement',     out4_total      FROM intr_agg
+    UNION ALL SELECT 'HIV_ART_INTR_OUT.4. 1','< 15 years, Male',                 out4_u15_male   FROM intr_agg
+    UNION ALL SELECT 'HIV_ART_INTR_OUT.4. 2','< 15 years, Female',               out4_u15_female FROM intr_agg
+    UNION ALL SELECT 'HIV_ART_INTR_OUT.4. 3','>= 15 years, Male',                out4_o15_male   FROM intr_agg
+    UNION ALL SELECT 'HIV_ART_INTR_OUT.4. 4','>= 15 years, Female',              out4_o15_female FROM intr_agg
+    UNION ALL SELECT 'HIV_ART_INTR_OUT.5',   'Died',                             out5_total      FROM intr_agg
+    UNION ALL SELECT 'HIV_ART_INTR_OUT.5. 1','< 15 years, Male',                 out5_u15_male   FROM intr_agg
+    UNION ALL SELECT 'HIV_ART_INTR_OUT.5. 2','< 15 years, Female',               out5_u15_female FROM intr_agg
+    UNION ALL SELECT 'HIV_ART_INTR_OUT.5. 3','>= 15 years, Male',                out5_o15_male   FROM intr_agg
+    UNION ALL SELECT 'HIV_ART_INTR_OUT.5. 4','>= 15 years, Female',              out5_o15_female FROM intr_agg;
 END //
 
 DELIMITER ;

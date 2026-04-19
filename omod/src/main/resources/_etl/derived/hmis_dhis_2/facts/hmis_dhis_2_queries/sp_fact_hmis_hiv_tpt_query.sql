@@ -85,437 +85,114 @@ WITH FollowUp AS (select follow_up.encounter_id,
                       and art_start_date is not null
                       and  tpt_start_date BETWEEN fn_ethiopian_to_gregorian_calendar(date_add(fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'), INTERVAL -12 MONTH)) AND
                         fn_ethiopian_to_gregorian_calendar(date_add(fn_gregorian_to_ethiopian_calendar(REPORT_END_DATE, 'Y-M-D'), INTERVAL -12 MONTH))
+     ),
+     tpt_agg AS (
+         SELECT
+             COUNT(*) AS total,
+             SUM(CASE WHEN tb_prophylaxis_type = '6H'                                              THEN 1 ELSE 0 END) AS _6h_total,
+             SUM(CASE WHEN tb_prophylaxis_type = '6H' AND age < 15  AND sex = 'Male'               THEN 1 ELSE 0 END) AS _6h_u15_male,
+             SUM(CASE WHEN tb_prophylaxis_type = '6H' AND age < 15  AND sex = 'Female'             THEN 1 ELSE 0 END) AS _6h_u15_female,
+             SUM(CASE WHEN tb_prophylaxis_type = '6H' AND age >= 15 AND sex = 'Male'               THEN 1 ELSE 0 END) AS _6h_o15_male,
+             SUM(CASE WHEN tb_prophylaxis_type = '6H' AND age >= 15 AND sex = 'Female'             THEN 1 ELSE 0 END) AS _6h_o15_female,
+             SUM(CASE WHEN tb_prophylaxis_type = '3HP'                                             THEN 1 ELSE 0 END) AS _3hp_total,
+             SUM(CASE WHEN tb_prophylaxis_type = '3HP' AND age < 15  AND sex = 'Male'              THEN 1 ELSE 0 END) AS _3hp_u15_male,
+             SUM(CASE WHEN tb_prophylaxis_type = '3HP' AND age < 15  AND sex = 'Female'            THEN 1 ELSE 0 END) AS _3hp_u15_female,
+             SUM(CASE WHEN tb_prophylaxis_type = '3HP' AND age >= 15 AND sex = 'Male'              THEN 1 ELSE 0 END) AS _3hp_o15_male,
+             SUM(CASE WHEN tb_prophylaxis_type = '3HP' AND age >= 15 AND sex = 'Female'            THEN 1 ELSE 0 END) AS _3hp_o15_female,
+             SUM(CASE WHEN tb_prophylaxis_type = '3HR'                                             THEN 1 ELSE 0 END) AS _3hr_total,
+             SUM(CASE WHEN tb_prophylaxis_type = '3HR' AND age < 15  AND sex = 'Male'              THEN 1 ELSE 0 END) AS _3hr_u15_male,
+             SUM(CASE WHEN tb_prophylaxis_type = '3HR' AND age < 15  AND sex = 'Female'            THEN 1 ELSE 0 END) AS _3hr_u15_female,
+             SUM(CASE WHEN tb_prophylaxis_type = '3HR' AND age >= 15 AND sex = 'Male'              THEN 1 ELSE 0 END) AS _3hr_o15_male,
+             SUM(CASE WHEN tb_prophylaxis_type = '3HR' AND age >= 15 AND sex = 'Female'            THEN 1 ELSE 0 END) AS _3hr_o15_female
+         FROM (SELECT *, TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) AS age FROM art_tpt) t
+     ),
+     tpt_cr_agg AS (
+         SELECT
+             -- CR.1: started (no completion filter)
+             COUNT(*) AS cr_total,
+             SUM(CASE WHEN tb_prophylaxis_type = '6H'                                                                       THEN 1 ELSE 0 END) AS cr_6h_total,
+             SUM(CASE WHEN tb_prophylaxis_type = '6H'  AND age < 15  AND sex = 'Male'                                       THEN 1 ELSE 0 END) AS cr_6h_u15_male,
+             SUM(CASE WHEN tb_prophylaxis_type = '6H'  AND age < 15  AND sex = 'Female'                                     THEN 1 ELSE 0 END) AS cr_6h_u15_female,
+             SUM(CASE WHEN tb_prophylaxis_type = '6H'  AND age >= 15 AND sex = 'Male'                                       THEN 1 ELSE 0 END) AS cr_6h_o15_male,
+             SUM(CASE WHEN tb_prophylaxis_type = '6H'  AND age >= 15 AND sex = 'Female'                                     THEN 1 ELSE 0 END) AS cr_6h_o15_female,
+             SUM(CASE WHEN tb_prophylaxis_type = '3HP'                                                                      THEN 1 ELSE 0 END) AS cr_3hp_total,
+             SUM(CASE WHEN tb_prophylaxis_type = '3HP' AND age < 15  AND sex = 'Male'                                       THEN 1 ELSE 0 END) AS cr_3hp_u15_male,
+             SUM(CASE WHEN tb_prophylaxis_type = '3HP' AND age < 15  AND sex = 'Female'                                     THEN 1 ELSE 0 END) AS cr_3hp_u15_female,
+             SUM(CASE WHEN tb_prophylaxis_type = '3HP' AND age >= 15 AND sex = 'Male'                                       THEN 1 ELSE 0 END) AS cr_3hp_o15_male,
+             SUM(CASE WHEN tb_prophylaxis_type = '3HP' AND age >= 15 AND sex = 'Female'                                     THEN 1 ELSE 0 END) AS cr_3hp_o15_female,
+             SUM(CASE WHEN tb_prophylaxis_type = '3HR'                                                                      THEN 1 ELSE 0 END) AS cr_3hr_total,
+             SUM(CASE WHEN tb_prophylaxis_type = '3HR' AND age < 15  AND sex = 'Male'                                       THEN 1 ELSE 0 END) AS cr_3hr_u15_male,
+             SUM(CASE WHEN tb_prophylaxis_type = '3HR' AND age < 15  AND sex = 'Female'                                     THEN 1 ELSE 0 END) AS cr_3hr_u15_female,
+             SUM(CASE WHEN tb_prophylaxis_type = '3HR' AND age >= 15 AND sex = 'Male'                                       THEN 1 ELSE 0 END) AS cr_3hr_o15_male,
+             SUM(CASE WHEN tb_prophylaxis_type = '3HR' AND age >= 15 AND sex = 'Female'                                     THEN 1 ELSE 0 END) AS cr_3hr_o15_female,
+             -- CR.2: completed
+             SUM(CASE WHEN tpt_completed_date IS NOT NULL                                                                   THEN 1 ELSE 0 END) AS cr2_total,
+             SUM(CASE WHEN tb_prophylaxis_type = '6H'  AND tpt_completed_date IS NOT NULL                                   THEN 1 ELSE 0 END) AS cr2_6h_total,
+             SUM(CASE WHEN tb_prophylaxis_type = '6H'  AND age < 15  AND sex = 'Male'   AND tpt_completed_date IS NOT NULL  THEN 1 ELSE 0 END) AS cr2_6h_u15_male,
+             SUM(CASE WHEN tb_prophylaxis_type = '6H'  AND age < 15  AND sex = 'Female' AND tpt_completed_date IS NOT NULL  THEN 1 ELSE 0 END) AS cr2_6h_u15_female,
+             SUM(CASE WHEN tb_prophylaxis_type = '6H'  AND age >= 15 AND sex = 'Male'   AND tpt_completed_date IS NOT NULL  THEN 1 ELSE 0 END) AS cr2_6h_o15_male,
+             SUM(CASE WHEN tb_prophylaxis_type = '6H'  AND age >= 15 AND sex = 'Female' AND tpt_completed_date IS NOT NULL  THEN 1 ELSE 0 END) AS cr2_6h_o15_female,
+             SUM(CASE WHEN tb_prophylaxis_type = '3HP' AND tpt_completed_date IS NOT NULL                                   THEN 1 ELSE 0 END) AS cr2_3hp_total,
+             SUM(CASE WHEN tb_prophylaxis_type = '3HP' AND age < 15  AND sex = 'Male'   AND tpt_completed_date IS NOT NULL  THEN 1 ELSE 0 END) AS cr2_3hp_u15_male,
+             SUM(CASE WHEN tb_prophylaxis_type = '3HP' AND age < 15  AND sex = 'Female' AND tpt_completed_date IS NOT NULL  THEN 1 ELSE 0 END) AS cr2_3hp_u15_female,
+             SUM(CASE WHEN tb_prophylaxis_type = '3HP' AND age >= 15 AND sex = 'Male'   AND tpt_completed_date IS NOT NULL  THEN 1 ELSE 0 END) AS cr2_3hp_o15_male,
+             SUM(CASE WHEN tb_prophylaxis_type = '3HP' AND age >= 15 AND sex = 'Female' AND tpt_completed_date IS NOT NULL  THEN 1 ELSE 0 END) AS cr2_3hp_o15_female,
+             SUM(CASE WHEN tb_prophylaxis_type = '3HR' AND tpt_completed_date IS NOT NULL                                   THEN 1 ELSE 0 END) AS cr2_3hr_total,
+             SUM(CASE WHEN tb_prophylaxis_type = '3HR' AND age < 15  AND sex = 'Male'   AND tpt_completed_date IS NOT NULL  THEN 1 ELSE 0 END) AS cr2_3hr_u15_male,
+             SUM(CASE WHEN tb_prophylaxis_type = '3HR' AND age < 15  AND sex = 'Female' AND tpt_completed_date IS NOT NULL  THEN 1 ELSE 0 END) AS cr2_3hr_u15_female,
+             SUM(CASE WHEN tb_prophylaxis_type = '3HR' AND age >= 15 AND sex = 'Male'   AND tpt_completed_date IS NOT NULL  THEN 1 ELSE 0 END) AS cr2_3hr_o15_male,
+             SUM(CASE WHEN tb_prophylaxis_type = '3HR' AND age >= 15 AND sex = 'Female' AND tpt_completed_date IS NOT NULL  THEN 1 ELSE 0 END) AS cr2_3hr_o15_female
+         FROM (SELECT *, TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) AS age FROM art_tpt_cr) t
      )
 
--- Number of ART patients who started on a standard course of TB Preventive Treatment (TPT) in the reporting period
-SELECT 'HIV_ART_TPT.1'                                                                                                    AS S_NO,
-       'Number of ART patients who started on a standard course of TB Preventive Treatment (TPT) in the reporting period' as Activity,
-       COUNT(*)                                                                                                           as Value
-FROM art_tpt
--- Patients on 6H
-UNION ALL
-SELECT 'HIV_ART_TPT_6H' AS S_NO,
-       'Patients on 6H' as Activity,
-       COUNT(*)         as Value
-FROM art_tpt
-WHERE tb_prophylaxis_type = '6H'
--- < 15 years, Male
-UNION ALL
-SELECT 'HIV_ART_TPT_6H. 1' AS S_NO,
-       '< 15 years, Male'  as Activity,
-       COUNT(*)            as Value
-FROM art_tpt
-WHERE tb_prophylaxis_type = '6H'
-  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
-  and sex = 'Male'
--- < 15 years, Female
-UNION ALL
-SELECT 'HIV_ART_TPT_6H. 2'  AS S_NO,
-       '< 15 years, Female' as Activity,
-       COUNT(*)             as Value
-FROM art_tpt
-WHERE tb_prophylaxis_type = '6H'
-  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
-  and sex = 'Female'
-
--- >= 15 years, Male
-UNION ALL
-SELECT 'HIV_ART_TPT_6H. 3' AS S_NO,
-       '>= 15 years, Male' as Activity,
-       COUNT(*)            as Value
-FROM art_tpt
-WHERE tb_prophylaxis_type = '6H'
-  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
-  and sex = 'Male'
--- >= 15 years, Female
-UNION ALL
-SELECT 'HIV_ART_TPT_6H. 4'   AS S_NO,
-       '>= 15 years, Female' as Activity,
-       COUNT(*)              as Value
-FROM art_tpt
-WHERE tb_prophylaxis_type = '6H'
-  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
-  and sex = 'Female'
-
--- Patients on 3HP
-UNION ALL
-SELECT 'HIV_ART_TPT_3HP' AS S_NO,
-       'Patients on 3HP' as Activity,
-       COUNT(*)          as Value
-FROM art_tpt
-WHERE tb_prophylaxis_type = '3HP'
--- < 15 years, Male
-UNION ALL
-SELECT 'HIV_ART_TPT_3HP. 1' AS S_NO,
-       '< 15 years, Male'   as Activity,
-       COUNT(*)             as Value
-FROM art_tpt
-WHERE tb_prophylaxis_type = '3HP'
-  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
-  and sex = 'Male'
--- < 15 years, Female
-UNION ALL
-SELECT 'HIV_ART_TPT_3HP. 2' AS S_NO,
-       '< 15 years, Female' as Activity,
-       COUNT(*)             as Value
-FROM art_tpt
-WHERE tb_prophylaxis_type = '3HP'
-  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
-  and sex = 'Female'
-
--- >= 15 years, Male
-UNION ALL
-SELECT 'HIV_ART_TPT_3HP. 3' AS S_NO,
-       '>= 15 years, Male'  as Activity,
-       COUNT(*)             as Value
-FROM art_tpt
-WHERE tb_prophylaxis_type = '3HP'
-  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
-  and sex = 'Male'
--- >= 15 years, Female
-UNION ALL
-SELECT 'HIV_ART_TPT_3HP. 4'  AS S_NO,
-       '>= 15 years, Female' as Activity,
-       COUNT(*)              as Value
-FROM art_tpt
-WHERE tb_prophylaxis_type = '3HP'
-  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
-  and sex = 'Female'
-
--- Patients on 3HR
-UNION ALL
-SELECT 'HIV_ART_TPT_3HR' AS S_NO,
-       'Patients on 3HR' as Activity,
-       COUNT(*)          as Value
-FROM art_tpt
-WHERE tb_prophylaxis_type = '3HR'
--- < 15 years, Male
-UNION ALL
-SELECT 'HIV_ART_TPT_3HR. 1' AS S_NO,
-       '< 15 years, Male'   as Activity,
-       COUNT(*)             as Value
-FROM art_tpt
-WHERE tb_prophylaxis_type = '3HR'
-  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
-  and sex = 'Male'
--- < 15 years, Female
-UNION ALL
-SELECT 'HIV_ART_TPT_3HR. 2' AS S_NO,
-       '< 15 years, Female' as Activity,
-       COUNT(*)             as Value
-FROM art_tpt
-WHERE tb_prophylaxis_type = '3HR'
-  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
-  and sex = 'Female'
-
--- >= 15 years, Male
-UNION ALL
-SELECT 'HIV_ART_TPT_3HR. 3' AS S_NO,
-       '>= 15 years, Male'  as Activity,
-       COUNT(*)             as Value
-FROM art_tpt
-WHERE tb_prophylaxis_type = '3HR'
-  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
-  and sex = 'Male'
--- >= 15 years, Female
-UNION ALL
-SELECT 'HIV_ART_TPT_3HR. 4'  AS S_NO,
-       '>= 15 years, Female' as Activity,
-       COUNT(*)              as Value
-FROM art_tpt
-WHERE tb_prophylaxis_type = '3HR'
-  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
-  and sex = 'Female'
--- Number of ART patients who started on a standard course of TB Preventive Treatment (TPT) in the reporting period
-UNION ALL
-SELECT 'HIV_ART_TPT_CR.1'                                                                                     AS S_NO,
-       'Number of ART patients who were initiated on any course of TPT 12 months before the reporting period' as Activity,
-       COUNT(*)                                                                                               as Value
-FROM art_tpt_cr
--- Patients on 6H 12 months prior to the reporting period
-UNION ALL
-SELECT 'HIV_ART_TPT_CR.1.1'                                     AS S_NO,
-       'Patients on 6H 12 months prior to the reporting period' as Activity,
-       COUNT(*)                                                 as Value
-FROM art_tpt_cr
-WHERE tb_prophylaxis_type = '6H'
--- < 15 years, Male
-UNION ALL
-SELECT 'HIV_ART_TPT_CR.1.1. 1' AS S_NO,
-       '< 15 years, Male'      as Activity,
-       COUNT(*)                as Value
-FROM art_tpt_cr
-WHERE tb_prophylaxis_type = '6H'
-  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
-  and sex = 'Male'
--- < 15 years, Female
-UNION ALL
-SELECT 'HIV_ART_TPT_CR.1.1. 2' AS S_NO,
-       '< 15 years, Female'    as Activity,
-       COUNT(*)                as Value
-FROM art_tpt_cr
-WHERE tb_prophylaxis_type = '6H'
-  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
-  and sex = 'Female'
-
--- >= 15 years, Male
-UNION ALL
-SELECT 'HIV_ART_TPT_CR.1.1. 3' AS S_NO,
-       '>= 15 years, Male'     as Activity,
-       COUNT(*)                as Value
-FROM art_tpt_cr
-WHERE tb_prophylaxis_type = '6H'
-  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
-  and sex = 'Male'
--- >= 15 years, Female
-UNION ALL
-SELECT 'HIV_ART_TPT_CR.1.1. 4' AS S_NO,
-       '>= 15 years, Female'   as Activity,
-       COUNT(*)                as Value
-FROM art_tpt_cr
-WHERE tb_prophylaxis_type = '6H'
-  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
-  and sex = 'Female'
-
--- Patients on 3HP 12 months prior to the reporting period
-UNION ALL
-SELECT 'HIV_ART_TPT_CR.1.2'                                      AS S_NO,
-       'Patients on 3HP 12 months prior to the reporting period' as Activity,
-       COUNT(*)                                                  as Value
-FROM art_tpt_cr
-WHERE tb_prophylaxis_type = '3HP'
--- < 15 years, Male
-UNION ALL
-SELECT 'HIV_ART_TPT_CR.1.2. 1' AS S_NO,
-       '< 15 years, Male'      as Activity,
-       COUNT(*)                as Value
-FROM art_tpt_cr
-WHERE tb_prophylaxis_type = '3HP'
-  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
-  and sex = 'Male'
--- < 15 years, Female
-UNION ALL
-SELECT 'HIV_ART_TPT_CR.1.2. 2' AS S_NO,
-       '< 15 years, Female'    as Activity,
-       COUNT(*)                as Value
-FROM art_tpt_cr
-WHERE tb_prophylaxis_type = '3HP'
-  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
-  and sex = 'Female'
-
--- >= 15 years, Male
-UNION ALL
-SELECT 'HIV_ART_TPT_CR.1.2. 3' AS S_NO,
-       '>= 15 years, Male'     as Activity,
-       COUNT(*)                as Value
-FROM art_tpt_cr
-WHERE tb_prophylaxis_type = '3HP'
-  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
-  and sex = 'Male'
--- >= 15 years, Female
-UNION ALL
-SELECT 'HIV_ART_TPT_CR.1.2. 4' AS S_NO,
-       '>= 15 years, Female'   as Activity,
-       COUNT(*)                as Value
-FROM art_tpt_cr
-WHERE tb_prophylaxis_type = '3HP'
-  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
-  and sex = 'Female'
--- Patients on 3HR 12 months prior to the reporting period
-UNION ALL
-SELECT 'HIV_ART_TPT_CR.1.3'                                      AS S_NO,
-       'Patients on 3HR 12 months prior to the reporting period' as Activity,
-       COUNT(*)                                                  as Value
-FROM art_tpt_cr
-WHERE tb_prophylaxis_type = '3HR'
--- < 15 years, Male
-UNION ALL
-SELECT 'HIV_ART_TPT_CR.1.3. 1' AS S_NO,
-       '< 15 years, Male'      as Activity,
-       COUNT(*)                as Value
-FROM art_tpt_cr
-WHERE tb_prophylaxis_type = '3HR'
-  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
-  and sex = 'Male'
--- < 15 years, Female
-UNION ALL
-SELECT 'HIV_ART_TPT_CR.1.3. 2' AS S_NO,
-       '< 15 years, Female'    as Activity,
-       COUNT(*)                as Value
-FROM art_tpt_cr
-WHERE tb_prophylaxis_type = '3HR'
-  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
-  and sex = 'Female'
-
--- >= 15 years, Male
-UNION ALL
-SELECT 'HIV_ART_TPT_CR.1.3. 3' AS S_NO,
-       '>= 15 years, Male'     as Activity,
-       COUNT(*)                as Value
-FROM art_tpt_cr
-WHERE tb_prophylaxis_type = '3HR'
-  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
-  and sex = 'Male'
--- >= 15 years, Female
-UNION ALL
-SELECT 'HIV_ART_TPT_CR.1.3. 4' AS S_NO,
-       '>= 15 years, Female'   as Activity,
-       COUNT(*)                as Value
-FROM art_tpt_cr
-WHERE tb_prophylaxis_type = '3HR'
-  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
-  and sex = 'Female'
--- Number of ART patients who started TPT 12 months prior to the reproting period that completed a full course of therapy
-UNION ALL
-SELECT 'HIV_ART_TPT_CR.2'                                                                                                       AS S_NO,
-       'Number of ART patients who started TPT 12 months prior to the reproting period that completed a full course of therapy' as Activity,
-       COUNT(*)                                                                                                                 as Value
-FROM art_tpt_cr
-WHERE tpt_completed_date is not null
--- Patients who completed 6H
-UNION ALL
-SELECT 'HIV_ART_TPT_CR.2.1'        AS S_NO,
-       'Patients who completed 6H' as Activity,
-       COUNT(*)                    as Value
-FROM art_tpt_cr
-WHERE tb_prophylaxis_type = '6H'
-  AND tpt_completed_date is not null
--- < 15 years, Male
-UNION ALL
-SELECT 'HIV_ART_TPT_CR.2.1. 1' AS S_NO,
-       '< 15 years, Male'      as Activity,
-       COUNT(*)                as Value
-FROM art_tpt_cr
-WHERE tb_prophylaxis_type = '6H'
-  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
-  and sex = 'Male'
-  and tpt_completed_date is not null
--- < 15 years, Female
-UNION ALL
-SELECT 'HIV_ART_TPT_CR.2.1. 2' AS S_NO,
-       '< 15 years, Female'    as Activity,
-       COUNT(*)                as Value
-FROM art_tpt_cr
-WHERE tb_prophylaxis_type = '6H'
-  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
-  and sex = 'Female'
-  and tpt_completed_date is not null
--- >= 15 years, Male
-UNION ALL
-SELECT 'HIV_ART_TPT_CR.2.1. 3' AS S_NO,
-       '>= 15 years, Male'     as Activity,
-       COUNT(*)                as Value
-FROM art_tpt_cr
-WHERE tb_prophylaxis_type = '6H'
-  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
-  and sex = 'Male'
-  and tpt_completed_date is not null
--- >= 15 years, Female
-UNION ALL
-SELECT 'HIV_ART_TPT_CR.2.1. 4' AS S_NO,
-       '>= 15 years, Female'   as Activity,
-       COUNT(*)                as Value
-FROM art_tpt_cr
-WHERE tb_prophylaxis_type = '6H'
-  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
-  and sex = 'Female'
-  and tpt_completed_date is not null
--- Patients who completed 3HP
-UNION ALL
-SELECT 'HIV_ART_TPT_CR.2.2'         AS S_NO,
-       'Patients who completed 3HP' as Activity,
-       COUNT(*)                     as Value
-FROM art_tpt_cr
-WHERE tb_prophylaxis_type = '3HP'
-  and tpt_completed_date is not null
--- < 15 years, Male
-UNION ALL
-SELECT 'HIV_ART_TPT_CR.2.2. 1' AS S_NO,
-       '< 15 years, Male'      as Activity,
-       COUNT(*)                as Value
-FROM art_tpt_cr
-WHERE tb_prophylaxis_type = '3HP'
-  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
-  and sex = 'Male'
-  and tpt_completed_date is not null
--- < 15 years, Female
-UNION ALL
-SELECT 'HIV_ART_TPT_CR.2.2. 2' AS S_NO,
-       '< 15 years, Female'    as Activity,
-       COUNT(*)                as Value
-FROM art_tpt_cr
-WHERE tb_prophylaxis_type = '3HP'
-  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
-  and sex = 'Female'
-  and tpt_completed_date is not null
--- >= 15 years, Male
-UNION ALL
-SELECT 'HIV_ART_TPT_CR.2.2. 3' AS S_NO,
-       '>= 15 years, Male'     as Activity,
-       COUNT(*)                as Value
-FROM art_tpt_cr
-WHERE tb_prophylaxis_type = '3HP'
-  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
-  and sex = 'Male'
-  and tpt_completed_date is not null
--- >= 15 years, Female
-UNION ALL
-SELECT 'HIV_ART_TPT_CR.2.2. 4' AS S_NO,
-       '>= 15 years, Female'   as Activity,
-       COUNT(*)                as Value
-FROM art_tpt_cr
-WHERE tb_prophylaxis_type = '3HP'
-  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
-  and sex = 'Female'
-  and tpt_completed_date is not null
--- Patients who completed 3HR
-UNION ALL
-SELECT 'HIV_ART_TPT_CR.2.3'         AS S_NO,
-       'Patients who completed 3HR' as Activity,
-       COUNT(*)                     as Value
-FROM art_tpt_cr
-WHERE tb_prophylaxis_type = '3HR'
-  and tpt_completed_date is not null
--- < 15 years, Male
-UNION ALL
-SELECT 'HIV_ART_TPT_CR.2.3. 1' AS S_NO,
-       '< 15 years, Male'      as Activity,
-       COUNT(*)                as Value
-FROM art_tpt_cr
-WHERE tb_prophylaxis_type = '3HR'
-  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
-  and sex = 'Male'
-  and tpt_completed_date is not null
--- < 15 years, Female
-UNION ALL
-SELECT 'HIV_ART_TPT_CR.2.3. 2' AS S_NO,
-       '< 15 years, Female'    as Activity,
-       COUNT(*)                as Value
-FROM art_tpt_cr
-WHERE tb_prophylaxis_type = '3HR'
-  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
-  and sex = 'Female'
-  and tpt_completed_date is not null
--- >= 15 years, Male
-UNION ALL
-SELECT 'HIV_ART_TPT_CR.2.3. 3' AS S_NO,
-       '>= 15 years, Male'     as Activity,
-       COUNT(*)                as Value
-FROM art_tpt_cr
-WHERE tb_prophylaxis_type = '3HR'
-  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
-  and sex = 'Male'
-  and tpt_completed_date is not null
--- >= 15 years, Female
-UNION ALL
-SELECT 'HIV_ART_TPT_CR.2.3. 4' AS S_NO,
-       '>= 15 years, Female'   as Activity,
-       COUNT(*)                as Value
-FROM art_tpt_cr
-WHERE tb_prophylaxis_type = '3HR'
-  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
-  and sex = 'Female'
-  and tpt_completed_date is not null;
+SELECT 'HIV_ART_TPT.1' AS S_NO, 'Number of ART patients who started on a standard course of TB Preventive Treatment (TPT) in the reporting period' AS Activity, total AS Value FROM tpt_agg
+UNION ALL SELECT 'HIV_ART_TPT_6H',      'Patients on 6H',         _6h_total        FROM tpt_agg
+UNION ALL SELECT 'HIV_ART_TPT_6H. 1',   '< 15 years, Male',       _6h_u15_male     FROM tpt_agg
+UNION ALL SELECT 'HIV_ART_TPT_6H. 2',   '< 15 years, Female',     _6h_u15_female   FROM tpt_agg
+UNION ALL SELECT 'HIV_ART_TPT_6H. 3',   '>= 15 years, Male',      _6h_o15_male     FROM tpt_agg
+UNION ALL SELECT 'HIV_ART_TPT_6H. 4',   '>= 15 years, Female',    _6h_o15_female   FROM tpt_agg
+UNION ALL SELECT 'HIV_ART_TPT_3HP',     'Patients on 3HP',        _3hp_total       FROM tpt_agg
+UNION ALL SELECT 'HIV_ART_TPT_3HP. 1',  '< 15 years, Male',       _3hp_u15_male    FROM tpt_agg
+UNION ALL SELECT 'HIV_ART_TPT_3HP. 2',  '< 15 years, Female',     _3hp_u15_female  FROM tpt_agg
+UNION ALL SELECT 'HIV_ART_TPT_3HP. 3',  '>= 15 years, Male',      _3hp_o15_male    FROM tpt_agg
+UNION ALL SELECT 'HIV_ART_TPT_3HP. 4',  '>= 15 years, Female',    _3hp_o15_female  FROM tpt_agg
+UNION ALL SELECT 'HIV_ART_TPT_3HR',     'Patients on 3HR',        _3hr_total       FROM tpt_agg
+UNION ALL SELECT 'HIV_ART_TPT_3HR. 1',  '< 15 years, Male',       _3hr_u15_male    FROM tpt_agg
+UNION ALL SELECT 'HIV_ART_TPT_3HR. 2',  '< 15 years, Female',     _3hr_u15_female  FROM tpt_agg
+UNION ALL SELECT 'HIV_ART_TPT_3HR. 3',  '>= 15 years, Male',      _3hr_o15_male    FROM tpt_agg
+UNION ALL SELECT 'HIV_ART_TPT_3HR. 4',  '>= 15 years, Female',    _3hr_o15_female  FROM tpt_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.1',    'Number of ART patients who were initiated on any course of TPT 12 months before the reporting period', cr_total          FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.1.1',  'Patients on 6H 12 months prior to the reporting period',  cr_6h_total      FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.1.1. 1', '< 15 years, Male',    cr_6h_u15_male   FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.1.1. 2', '< 15 years, Female',  cr_6h_u15_female FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.1.1. 3', '>= 15 years, Male',   cr_6h_o15_male   FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.1.1. 4', '>= 15 years, Female', cr_6h_o15_female FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.1.2',  'Patients on 3HP 12 months prior to the reporting period', cr_3hp_total     FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.1.2. 1', '< 15 years, Male',    cr_3hp_u15_male  FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.1.2. 2', '< 15 years, Female',  cr_3hp_u15_female FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.1.2. 3', '>= 15 years, Male',   cr_3hp_o15_male  FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.1.2. 4', '>= 15 years, Female', cr_3hp_o15_female FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.1.3',  'Patients on 3HR 12 months prior to the reporting period', cr_3hr_total     FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.1.3. 1', '< 15 years, Male',    cr_3hr_u15_male  FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.1.3. 2', '< 15 years, Female',  cr_3hr_u15_female FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.1.3. 3', '>= 15 years, Male',   cr_3hr_o15_male  FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.1.3. 4', '>= 15 years, Female', cr_3hr_o15_female FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.2',    'Number of ART patients who started TPT 12 months prior to the reproting period that completed a full course of therapy', cr2_total FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.2.1',  'Patients who completed 6H',  cr2_6h_total      FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.2.1. 1', '< 15 years, Male',    cr2_6h_u15_male   FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.2.1. 2', '< 15 years, Female',  cr2_6h_u15_female FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.2.1. 3', '>= 15 years, Male',   cr2_6h_o15_male   FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.2.1. 4', '>= 15 years, Female', cr2_6h_o15_female FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.2.2',  'Patients who completed 3HP', cr2_3hp_total     FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.2.2. 1', '< 15 years, Male',    cr2_3hp_u15_male  FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.2.2. 2', '< 15 years, Female',  cr2_3hp_u15_female FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.2.2. 3', '>= 15 years, Male',   cr2_3hp_o15_male  FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.2.2. 4', '>= 15 years, Female', cr2_3hp_o15_female FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.2.3',  'Patients who completed 3HR', cr2_3hr_total     FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.2.3. 1', '< 15 years, Male',    cr2_3hr_u15_male  FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.2.3. 2', '< 15 years, Female',  cr2_3hr_u15_female FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.2.3. 3', '>= 15 years, Male',   cr2_3hr_o15_male  FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.2.3. 4', '>= 15 years, Female', cr2_3hr_o15_female FROM tpt_cr_agg;
 END //
 
 DELIMITER ;

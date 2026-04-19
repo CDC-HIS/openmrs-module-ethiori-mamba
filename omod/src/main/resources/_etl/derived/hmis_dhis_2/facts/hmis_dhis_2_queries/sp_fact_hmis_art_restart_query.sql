@@ -143,45 +143,22 @@ BEGIN
                              join tx_curr_end
                                   on interrupted_at_start.client_id = tx_curr_end.client_id
                              join mamba_dim_client client on interrupted_at_start.client_id = client.client_id
-                             join restart_follow_up_end on tx_curr_end.client_id = restart_follow_up_end.client_id)
+                             join restart_follow_up_end on tx_curr_end.client_id = restart_follow_up_end.client_id),
+         rtt_agg AS (
+             SELECT
+                 COUNT(*) AS total,
+                 SUM(CASE WHEN age < 15  AND sex = 'Male'   THEN 1 ELSE 0 END) AS u15_male,
+                 SUM(CASE WHEN age < 15  AND sex = 'Female' THEN 1 ELSE 0 END) AS u15_female,
+                 SUM(CASE WHEN age >= 15 AND sex = 'Male'   THEN 1 ELSE 0 END) AS o15_male,
+                 SUM(CASE WHEN age >= 15 AND sex = 'Female' THEN 1 ELSE 0 END) AS o15_female
+             FROM (SELECT *, TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) AS age FROM tx_rtt) t
+         )
 
--- Number of ART clients restarted ARV treatment in the reporting period
-    SELECT 'HIV_ART_RE_ARV'                                                        AS S_NO,
-           'Number of ART clients restarted ARV treatment in the reporting period' as Activity,
-           COUNT(*)                                                                as Value
-    FROM tx_rtt
--- < 15 years, Male
-    UNION ALL
-    SELECT 'HIV_ART_RE_ARV. 1' AS S_NO,
-           '< 15 years, Male'  as Activity,
-           COUNT(*)            as Value
-    FROM tx_rtt
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
-      AND sex = 'Male'
--- < 15 years, Female
-    UNION ALL
-    SELECT 'HIV_ART_RE_ARV. 2'  AS S_NO,
-           '< 15 years, Female' as Activity,
-           COUNT(*)             as Value
-    FROM tx_rtt
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
-      AND sex = 'Female'
--- >= 15 years, Male
-    UNION ALL
-    SELECT 'HIV_ART_RE_ARV. 3' AS S_NO,
-           '>= 15 years, Male' as Activity,
-           COUNT(*)            as Value
-    FROM tx_rtt
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
-      AND sex = 'Male'
--- >= 15 years, Female
-    UNION ALL
-    SELECT 'HIV_ART_RE_ARV. 4'   AS S_NO,
-           '>= 15 years, Female' as Activity,
-           COUNT(*)              as Value
-    FROM tx_rtt
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
-      AND sex = 'Female';
+    SELECT 'HIV_ART_RE_ARV' AS S_NO, 'Number of ART clients restarted ARV treatment in the reporting period' AS Activity, total AS Value FROM rtt_agg
+    UNION ALL SELECT 'HIV_ART_RE_ARV. 1', '< 15 years, Male',    u15_male   FROM rtt_agg
+    UNION ALL SELECT 'HIV_ART_RE_ARV. 2', '< 15 years, Female',  u15_female FROM rtt_agg
+    UNION ALL SELECT 'HIV_ART_RE_ARV. 3', '>= 15 years, Male',   o15_male   FROM rtt_agg
+    UNION ALL SELECT 'HIV_ART_RE_ARV. 4', '>= 15 years, Female', o15_female FROM rtt_agg;
 END //
 
 DELIMITER ;
