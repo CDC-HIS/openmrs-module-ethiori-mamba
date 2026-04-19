@@ -56,7 +56,7 @@ WITH FollowUp as (select follow_up.encounter_id,
                      ),
      scrn_agg AS (
          SELECT
-             COUNT(*) AS total,
+             COUNT(*) AS Value,
              SUM(CASE WHEN screening_type = 'Visual Inspection of the Cervix with Acetic Acid (VIA)'  THEN 1 ELSE 0 END) AS via_total,
              SUM(CASE WHEN screening_type = 'Human Papillomavirus test'                               THEN 1 ELSE 0 END) AS hpv_total,
              SUM(CASE WHEN screening_type = 'Visual Inspection of the Cervix with Acetic Acid (VIA)' AND via_screening_result = 'VIA negative'                                                                                               THEN 1 ELSE 0 END) AS via_normal_total,
@@ -85,7 +85,7 @@ WITH FollowUp as (select follow_up.encounter_id,
              SUM(CASE WHEN screening_type = 'Human Papillomavirus test' AND hpv_dna_screening_result = 'Positive' AND age >= 50               THEN 1 ELSE 0 END) AS hpv_pos_o50
          FROM (SELECT *, TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) AS age FROM cx_screened) t
      )
-SELECT 'HIV_CXCA_SCRN.1'    AS S_NO, 'Cervical Cancer screening by type of test'   AS Activity, total              FROM scrn_agg
+SELECT 'HIV_CXCA_SCRN.1'    AS S_NO, 'Cervical Cancer screening by type of test'   AS Activity, Value              FROM scrn_agg
 UNION ALL SELECT 'HIV_CXCA_SCRN.1. 1',   'Screened by VIA',                                     via_total          FROM scrn_agg
 UNION ALL SELECT 'HIV_CXCA_SCRN.1. 2',   'Screened by HPV DNA',                                 hpv_total          FROM scrn_agg
 UNION ALL SELECT 'HIV_CXCA_SCRN.2',      'VIA Screening Result',                                 via_total          FROM scrn_agg
