@@ -59,7 +59,8 @@ BEGIN
                                         client.date_of_birth,
                                         pregnancy_status,
                                         regimen,
-                                        left(regimen, 1) as regimen_line
+                                        left(regimen, 1)                                                   as regimen_line,
+                                        TIMESTAMPDIFF(YEAR, client.date_of_birth, REPORT_END_DATE)         as age
                                  from FollowUp
                                           inner join tx_curr on FollowUp.encounter_id = tx_curr.encounter_id
                                           left join mamba_dim_client client on tx_curr.PatientId = client.client_id)
