@@ -32,14 +32,7 @@ BEGIN
                                 hiv_side_effects                          as side_effects,
                                 next_visit_date,
                                 number_of_missed_tablets_in_the_past_30_days,
-                                CASE follow_up_status
-                                    WHEN 'Alive' THEN 'Alive on ART'
-                                    WHEN 'Restart medication' THEN 'Restart'
-                                    WHEN 'Transferred out' THEN 'TO'
-                                    WHEN 'Stop all' THEN 'Stop'
-                                    WHEN 'Loss to follow-up (LTFU)' THEN 'Lost'
-                                    WHEN 'Ran away' THEN 'Drop'
-                                    END                                   as follow_up_status
+                                follow_up_status    as follow_up_status
                          FROM mamba_flat_encounter_pre_exposure_scree screening
                                   left join mamba_flat_encounter_pre_exposure_scree_1 screening_1
                                             on screening.encounter_id = screening_1.encounter_id

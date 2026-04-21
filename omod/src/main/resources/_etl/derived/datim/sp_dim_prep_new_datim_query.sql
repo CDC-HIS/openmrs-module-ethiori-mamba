@@ -28,6 +28,7 @@ BEGIN
                             screening_1.antiretroviral_art_dispensed_dose_in_days as dose_dispensed,
                             follow_up.follow_up_status,
                             follow_up.pregnancy_status                            as f_pregnancy_status,
+                            preexposure_prophylaxis_prep_regimen as regimen,
                             follow_up_1.prep_dose_end_date,
                             follow_up_1.followup_date_followup_1,
                             screening.screening_date,
@@ -58,6 +59,7 @@ BEGIN
                                      follow_up_status,
                                      type_of_client,
                                      client.client_id,
+                                     regimen,
                                      followup_date_followup_1,
                                      dose_dispensed,
                                      final_hiv_test_result,
@@ -127,11 +129,11 @@ BEGIN
     ELSEIF REPORT_TYPE = 'DEBUG' THEN
         SET group_query = 'SELECT * FROM prep_new';
     ELSEIF REPORT_TYPE = 'PREP_TYPE' THEN
-        SET group_query = 'select ''Oral'' as `Name`, COUNT(*) as count from prep_new
+        SET group_query = 'select ''Oral'' as `Name`, COUNT(*) as count from prep_new where regimen not in (''Cabotegravir'',''Other'') and regimen is not null
         UNION ALL
-        select ''Injectable'' as `Name`, 0
+        select ''Injectable'' as `Name`, COUNT(*) as count from prep_new where regimen=''Cabotegravir''
         UNION ALL
-        select ''Other'' as `Name`, 0';
+        select ''Other'' as `Name`, COUNT(*) as count from prep_new where regimen=''Other''';
     ELSEIF REPORT_TYPE = 'PREGNANT_BF' THEN
         SET group_query = 'select ''Pregnant'' as `Name`, COUNT(*) as count from prep_new where f_pregnancy_status = ''Yes''
         UNION ALL
