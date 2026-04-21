@@ -140,7 +140,7 @@ BEGIN
            prep.side_effects                                 as `Side Effects`,
            prep.reason_for_stopping                          as `Reason to stop PrEP`,
            prep.contraindications_to_prep_medicines          as `Contraindications to PrEP Medicines`,
-           prep.sex_worker                                   as `Self-Identifying FSW`,
+           prep.sex_worker                                   as `Self-Identifying WECSW`,
            prep.do_you_have_an_hiv_positive_partner          as `Have HIV+ Partner?`,
            prep.preexposure_prophylaxis_provision_site       as `PrEP Provision Site`,
            prep.referred_from                                as `Referred From`
