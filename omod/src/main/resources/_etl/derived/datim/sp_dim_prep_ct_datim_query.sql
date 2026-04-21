@@ -30,6 +30,7 @@ BEGIN
                             follow_up.pregnancy_status                            as f_pregnancy_status,
                             follow_up_1.prep_dose_end_date,
                             follow_up_1.followup_date_followup_1,
+                            preexposure_prophylaxis_prep_regimen as regimen,
                             screening.screening_date,
                             final_hiv_test_result,
                             currently_breastfeeding_child
@@ -57,6 +58,7 @@ BEGIN
                                      treatment_start_date,
                                      follow_up_status,
                                      type_of_client,
+                                     regimen,
                                      client.client_id,
                                      followup_date_followup_1,
                                      dose_dispensed,
@@ -135,7 +137,7 @@ BEGIN
     ELSEIF REPORT_TYPE = 'TOTAL' THEN
         SET group_query = 'SELECT COUNT(*) AS NUMERATOR FROM prep';
     ELSEIF REPORT_TYPE= 'DEBUG' THEN
-        SET group_query = 'SELECT * FROM FROM prep';
+        SET group_query = 'SELECT * FROM prep';
     ELSEIF REPORT_TYPE = 'TEST_RESULT' THEN
         SET group_query = 'select ''Positive'' as `Name`, COUNT(*) as count from prep where final_hiv_test_result=''Positive''
         UNION ALL
@@ -143,11 +145,11 @@ BEGIN
         UNION ALL
         select ''Other'' as `Name`, COUNT(*) from prep where final_hiv_test_result NOT IN (''Negative result'',''Positive'',''Negative'')';
     ELSEIF REPORT_TYPE = 'PREP_TYPE' THEN
-        SET group_query = 'select ''Oral'' as `Name`, COUNT(*) as count from prep
+        SET group_query = 'select ''Oral'' as `Name`, COUNT(*) as count from prep where regimen not in (''Cabotegravir'',''Other'') and regimen is not null
         UNION ALL
-        select ''Injectable'' as `Name`, 0
+        select ''Injectable'' as `Name`, COUNT(*) as count from prep where regimen=''Cabotegravir''
         UNION ALL
-        select ''Other'' as `Name`, 0';
+        select ''Other'' as `Name`, COUNT(*) as count from prep where regimen=''Other''';
     ELSEIF REPORT_TYPE = 'PREGNANT_BF' THEN
         SET group_query = 'select ''Pregnant'' as `Name`, COUNT(*) as count from prep where f_pregnancy_status = ''Yes''
         UNION ALL
