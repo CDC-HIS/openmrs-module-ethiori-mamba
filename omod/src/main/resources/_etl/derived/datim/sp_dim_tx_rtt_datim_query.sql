@@ -9,8 +9,8 @@ CREATE PROCEDURE sp_dim_tx_rtt_datim_query(
     IN REPORT_TYPE VARCHAR(100)
 )
 BEGIN
-    DECLARE age_group_cols VARCHAR(5000);
-    DECLARE tx_rtt_query VARCHAR(10323);
+    DECLARE age_group_cols VARCHAR(6000);
+    DECLARE tx_rtt_query VARCHAR(15000);
     DECLARE group_query TEXT;
     DECLARE outcome_condition VARCHAR(227);
     SET session group_concat_max_len = 20000;
@@ -22,9 +22,11 @@ BEGIN
         SET outcome_condition =
                 ' (restart_visitect_cd4_result is null and restart_cd4_count >= 200) or (restart_visitect_cd4_result = ''VISITECT >200 copies/ml'') ';
     ELSEIF REPORT_TYPE = 'CD4_UNKNOWN' THEN
-        SET outcome_condition = ' (restart_cd4_count is null and interrupted_months >= 6) AND (restart_visitect_cd4_result is null and interrupted_months >= 6)';
+        SET outcome_condition = ' (restart_cd4_count is null AND restart_visitect_cd4_result is null AND datim_age_val > 2 ) OR (datim_age_val <= 2)';
+     -- SET outcome_condition = ' (restart_cd4_count is null and interrupted_months >= 6) AND (restart_visitect_cd4_result is null and interrupted_months >= 6)';
     ELSEIF REPORT_TYPE = 'CD4_NOT_ELIGIBLE' THEN
-        SET outcome_condition = 'interrupted_months < 6';
+        SET outcome_condition = 'interrupted_months = 5000';
+     -- SET outcome_condition = 'interrupted_months < 6';
     ELSE
         SET outcome_condition = '1=1';
     END IF;
@@ -53,7 +55,7 @@ BEGIN
         END IF;
     ELSE
         IF REPORT_TYPE = 'CD4_LESS_THAN_200' OR REPORT_TYPE = 'CD4_GREATER_THAN_200' OR
-           REPORT_TYPE = 'CD4_NOT_ELIGIBLE' OR REPORT_TYPE = 'CD4_UNKNOWN' THEN
+           REPORT_TYPE = 'CD4_NOT_ELIGIBLE'  THEN
             SELECT GROUP_CONCAT(CONCAT('SUM(CASE WHEN fine_age_group = ''', datim_agegroup,
                                        ''' THEN count ELSE 0 END) AS `',
                                        REPLACE(datim_agegroup, '`', '``'),
@@ -200,6 +202,7 @@ BEGIN
                        uan,
                        (SELECT datim_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth, ''',REPORT_END_DATE,''' )=age) as fine_age_group,
                        (SELECT normal_agegroup from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth, ''',REPORT_END_DATE,''' )=age) as coarse_age_group,
+                       (SELECT datim_age_val from mamba_dim_agegroup where TIMESTAMPDIFF(YEAR,date_of_birth, ''',REPORT_END_DATE,''' )=age) as datim_age_val,
                        interrupted_at_start.follow_up_date as interrupted_follow_up_follow_up_date,
                        interrupted_at_start.follow_up_status as interrupted_follow_up_follow_up_status,
                        interrupted_at_start.treatment_end_date as interrupted_follow_up_treatment_end_date,
