@@ -40,7 +40,8 @@ BEGIN
                              date_of_event                       date_hiv_confirmed,
                              weight_text_                     as weight,
                              adherence,
-                             cd4_
+                             cd4_,
+                             cd4_count
                       FROM mamba_flat_encounter_follow_up follow_up
                                LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1
                                          ON follow_up.encounter_id = follow_up_1.encounter_id
@@ -75,6 +76,7 @@ BEGIN
                                           regimen,
                                           viral_load_count,
                                           cd4_,
+                                          cd4_count,
                                           routine_viral_load_test_indication,
                                           targeted_viral_load_test_indication,
                                           ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY viral_load_perform_date DESC, encounter_id DESC) AS row_num
@@ -106,7 +108,7 @@ BEGIN
                                       TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) as Age,
                                       Sex,
                                       Weight,
-                                      vlperfdate.cd4_                                     as CD4,
+                                      vlperfdate.cd4_count                                     as CD4,
                                       art_start_date                                      as `ART Start Date`,
                                       art_start_date                                      as `ART Start Date EC.`,
                                       vlperfdate.follow_up_date                           as `Follow-up Date`,
