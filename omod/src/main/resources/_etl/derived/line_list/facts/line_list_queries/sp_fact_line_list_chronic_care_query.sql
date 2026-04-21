@@ -15,7 +15,8 @@ BEGIN
                                  WHEN 'Transferred out' THEN 'TO'
                                  WHEN 'Stop all' THEN 'Stop'
                                  WHEN 'Loss to follow-up (LTFU)' THEN 'Lost'
-                                 WHEN 'Ran away' THEN 'Drop'
+                                 WHEN 'Ran away' THEN 'Dropped'
+                                 ELSE follow_up_status
                                  END                                         as follow_up_status,
                              follow_up_date_followup_                        as follow_up_date,
                              art_antiretroviral_start_date                   as art_start_date,
