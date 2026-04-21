@@ -187,6 +187,7 @@ BEGIN
                                                        THEN FollowUp.viral_load_performed_date
                                                    Else NULL END                   AS viral_load_ref_date,
                                                routine_viral_load_test_indication  AS routine_viral_load_cf,
+                                               targeted_viral_load_test_indication AS targeted_viral_load_cf,
 
                                                targeted_viral_load_test_indication AS target_cf
                                         FROM FollowUp
@@ -298,6 +299,7 @@ BEGIN
                         vlperfdate.routine_viral_load,
                         vlperfdate.target,
                         vlperfdate_cf.routine_viral_load_cf,
+                        vlperfdate_cf.targeted_viral_load_cf,
                         vlperfdate_cf.target_cf,
                         vlperfdate.hvl_regimen,
                         f_case.adherence
@@ -364,7 +366,7 @@ BEGIN
                ELSE NULL
                END                    as `First VL Status`,
            viral_load_count           as `First VL Count`,
-           viral_load_status          as `First VL Indication`,
+           COALESCE(routine_viral_load,target)          as `First VL Indication`,
            SwitchDate                 as `Regimen Change Date`,
            SwitchDate                 as `Regimen Change Date EC.`,
            date_eac_provided_1        as `First VL EAC1`,
@@ -392,7 +394,7 @@ BEGIN
                ELSE NULL
                END                    as `Confirmatory VL Status`,
            viral_load_count_cf        as `Confirmatory VL Count`,
-           viral_load_status_cf       as `Confirmatory VL Indication`,
+           COALESCE(routine_viral_load_cf,targeted_viral_load_cf)       as `Confirmatory VL Indication`,
            date_eac_provided_1        as `Confirmatory EAC1  Date`,
            date_eac_provided_1        as `Confirmatory EAC1  Date EC.`,
            date_eac_provided_2        as `Confirmatory EAC2  Date`,
