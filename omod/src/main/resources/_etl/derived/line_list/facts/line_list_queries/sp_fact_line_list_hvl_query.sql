@@ -254,11 +254,11 @@ BEGIN
                                          FollowUp.encounter_id,
                                          ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY FollowUp.follow_up_date DESC , FollowUp.encounter_id DESC ) as row_num
                                   FROM FollowUp
-                                           left join tmp_vl_performed_date_cf_2 cf on FollowUp.client_id = cf.client_id
+                                    --       left join tmp_vl_performed_date_cf_2 cf on FollowUp.client_id = cf.client_id
                                   where follow_up_status Is Not Null
                                     AND follow_up_date <= COALESCE(REPORT_END_DATE,CURDATE())
-                                    AND (cf.viral_load_perform_date IS NULL OR
-                                         follow_up_date >= cf.viral_load_perform_date)),
+                              --      AND (cf.viral_load_perform_date IS NULL OR   follow_up_date >= cf.viral_load_perform_date)
+                                  ),
          latest_follow_up as (select * from tmp_latest_follow_up where row_num = 1),
          hvl as (SELECT client.patient_uuid                                                                    as PatientGUID,
                         client.patient_name,
