@@ -23,15 +23,14 @@ BEGIN
                              height,
                              mfeia.date_hiv_confirmed                        as date_hiv_confirmed,
                              current_who_hiv_stage,
-                             cd4_count,
                              follow_up_2.weight_text_                        as weight,
                              follow_up_6.method_of_family_planning           as family_planning_method,
                              follow_up_6.current_functional_status           as functional_status,
                              follow_up_4.pregnancy_status                    as pregnancy_status,
                              follow_up_7.currently_breastfeeding_child       as breastfeeding_status,
                              follow_up_9.tb_related_ois_opportunistic_illnes as tb_related_ois,
-                             follow_up.cd4_                                  as cd4,
-                             follow_up_1.cd4_count                           as cd4_count_1,
+                             follow_up_1.cd4_count                                  as cd4,
+                             follow_up.cd4_                           as cd4_percent,
                              follow_up_5.stages_of_disclosure                as disclosure_stage,
                              follow_up_8.date_viral_load_results_received    as vl_received_date,
                              follow_up_5.viral_load_test_status              as vl_test_status,
@@ -158,7 +157,7 @@ BEGIN
            f_case.family_planning_method                             as `Family Planning`,
            f_case.tb_related_ois                                     as `OIs/HIV related cancers`,
            f_case.Cd4                                                as `CD4 `,
-           f_case.client_id                                        as `CD4 %`,
+           f_case.cd4_percent                                        as `CD4 %`,
            f_case.disclosure_stage                                   as `Disclosure Stage(DSO-3) `,
            f_case.vl_received_date                                   as `Latest VL Received Date EC.`,
            f_case.vl_received_date                                   as `Latest VL Received Date G.C.`,
@@ -179,7 +178,7 @@ BEGIN
     FROM latest_follow_up AS f_case
              INNER JOIN mamba_dim_client client on f_case.client_id = client.client_id
              LEFT JOIN deduped_previous_regiment as d on d.client_id = f_case.client_id
-    ORDER BY client.patient_name asc;
+    ORDER BY client.patient_name;
 
 
 END //
