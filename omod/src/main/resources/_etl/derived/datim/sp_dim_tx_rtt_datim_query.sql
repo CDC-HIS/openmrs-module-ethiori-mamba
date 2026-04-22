@@ -227,7 +227,7 @@ BEGIN
         UNION ALL
         select ''Experienced treatment interruption of 3-5 months before returning to treatment'' ,COUNT(*) from tx_rtt where interrupted_months BETWEEN 3 AND 5
         UNION ALL
-        select ''Experienced treatment interruption of 6+ months before returning to treatment'' ,COUNT(*) from tx_rtt where interrupted_months >6';
+        select ''Experienced treatment interruption of 6+ months before returning to treatment'' ,COUNT(*) from tx_rtt where interrupted_months >= 6';
     ELSEIF REPORT_TYPE = 'TOTAL' THEN
         SET group_query = 'SELECT COUNT(*) AS NUMERATOR FROM tx_rtt';
     ELSEIF REPORT_TYPE = 'DEBUG' THEN
