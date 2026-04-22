@@ -16,12 +16,13 @@ import org.openmrs.module.reporting.dataset.definition.evaluator.DataSetEvaluato
 import org.openmrs.module.reporting.evaluation.EvaluationContext;
 import org.openmrs.module.reporting.evaluation.EvaluationException;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
-import static org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper.*; //Static import DataSetEvaluatorHelper methods and inner classes
+import static org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper.rollbackAndThrowException;
 
 @Handler(supports = { HMISDHIS2DatasetDefinition.class })
 public class HMISDHIS2DataSetEvaluator implements DataSetEvaluator {
@@ -46,21 +47,21 @@ public class HMISDHIS2DataSetEvaluator implements DataSetEvaluator {
 			return data;
 		}
 		try (Connection connection = DataSetEvaluatorHelper.getDataSource().getConnection()) {
-			connection.setAutoCommit(false); // Ensure consistency across multiple queries
+			connection.setAutoCommit(false);
 
 			List<ProcedureCall> procedureCalls = createProcedureCalls(hmisdhis2DatasetDefinition);
 
-			try (CallableStatementContainer statementContainer = prepareStatements(connection, procedureCalls)) {
-
-				executeStatements(statementContainer, procedureCalls);
-
-				ResultSet[] allResultSets = statementContainer.getResultSets();
-
-				// Merge results
-				mapResultSet(data, resultSetMapper, allResultSets,Boolean.FALSE);
+			try {
+				for (ProcedureCall call : procedureCalls) {
+					try (CallableStatement statement = connection.prepareCall(call.getProcedureName())) {
+						call.getParameterSetter().setParameters(statement);
+						try (ResultSet rs = statement.executeQuery()) {
+							resultSetMapper.mapResultSetToDataSet(rs, data);
+						}
+					}
+				}
 				connection.commit();
 				return data;
-
 			} catch (SQLException e) {
 				rollbackAndThrowException(connection, ERROR_PROCESSING_RESULT_SET + e.getMessage(), e, log);
 			}
