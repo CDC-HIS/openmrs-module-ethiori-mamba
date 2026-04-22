@@ -22,6 +22,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
+import org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper.ProcedureCall;
 import static org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper.rollbackAndThrowException;
 
 @Handler(supports = { HMISDHIS2DatasetDefinition.class })
