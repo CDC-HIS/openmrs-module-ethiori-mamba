@@ -100,20 +100,20 @@ BEGIN
            'Percentage of HIV-positive pregnant women who received ART to reduce the risk of mother-to child-transmission (MTCT) during pregnancy, L&D and PNC' as Activity,
            total                                                                                                                                                 as Value
     FROM enrollment_agg
-    UNION ALL SELECT 'MTCT_ART.1.', 'Number of HIV positive women who received ART to reduce the risk of mother to child transmission during ANC for the first time',        anc_count FROM enrollment_agg
-    UNION ALL SELECT 'MTCT_ART.2.', 'Number of HIV positive Pregnant women who received ART to reduce the risk of mother to child transmission during L&D for the first time', ld_count  FROM enrollment_agg
-    UNION ALL SELECT 'MTCT_ART.3.', 'Number of HIV positive lactating women who received ART to reduce the risk of mother to child transmission during PNC for the first time', pnc_count FROM enrollment_agg
-    UNION ALL SELECT 'MTCT_ART.4.', 'Number of HIV-positive women who get pregnant while on ART and linked to ANC',                                                             art_count FROM enrollment_agg
-    UNION ALL SELECT 'MTCT_HEI_EID.',   'Percentage of  HIV exposed infants who received a virologic HIV test (sample collected) within 12 month',              in_0_2        FROM hei_test_agg
-    UNION ALL SELECT 'MTCT_HEI_EID.1',  'Number of HIV exposed infants who received a virologic HIV test (sample collected) 0- 2 months of birth',             in_0_2        FROM hei_test_agg
-    UNION ALL SELECT 'MTCT_HEI_EID.2',  'Number of HIV exposed infants who received a virologic HIV test (sample collected) 2-12 months of birth',             in_2_12       FROM hei_test_agg
-    UNION ALL SELECT 'MTCT_HEI_EID.3',  'Total Number of infants within 12 month received virological test result',                                             total_with_result FROM hei_test_agg
-    UNION ALL SELECT 'MTCT_HEI_EID.1.1',   'Number of HIV exposed infants who received an HIV test 0- 2 months of birth',                                      in_0_2_tested    FROM hei_test_agg
-    UNION ALL SELECT 'MTCT_HEI_EID.1.1. 1', 'Positive',                                                                                                        in_0_2_positive  FROM hei_test_agg
-    UNION ALL SELECT 'MTCT_HEI_EID.1.1. 2', 'Negative',                                                                                                        in_0_2_negative  FROM hei_test_agg
-    UNION ALL SELECT 'MTCT_HEI_EID.1.2',   'Number of HIV exposed infants who received an HIV test 2-12 months of birth',                                      in_2_12_tested   FROM hei_test_agg
-    UNION ALL SELECT 'MTCT_HEI_EID.1.2. 1', 'Positive',                                                                                                        in_2_12_positive FROM hei_test_agg
-    UNION ALL SELECT 'MTCT_HEI_EID.1.2. 2', 'Negative',                                                                                                        in_2_12_negative FROM hei_test_agg
+    UNION ALL SELECT 'MTCT_ART.1.', 'Number of HIV positive women who received ART to reduce the risk of mother to child transmission during ANC for the first time',        COALESCE(anc_count,0) FROM enrollment_agg
+    UNION ALL SELECT 'MTCT_ART.2.', 'Number of HIV positive Pregnant women who received ART to reduce the risk of mother to child transmission during L&D for the first time', COALESCE(ld_count,0)  FROM enrollment_agg
+    UNION ALL SELECT 'MTCT_ART.3.', 'Number of HIV positive lactating women who received ART to reduce the risk of mother to child transmission during PNC for the first time', COALESCE(pnc_count,0) FROM enrollment_agg
+    UNION ALL SELECT 'MTCT_ART.4.', 'Number of HIV-positive women who get pregnant while on ART and linked to ANC',                                                             COALESCE(art_count,0) FROM enrollment_agg
+    UNION ALL SELECT 'MTCT_HEI_EID.',   'Percentage of  HIV exposed infants who received a virologic HIV test (sample collected) within 12 month',              COALESCE(in_0_2,0)        FROM hei_test_agg
+    UNION ALL SELECT 'MTCT_HEI_EID.1',  'Number of HIV exposed infants who received a virologic HIV test (sample collected) 0- 2 months of birth',             COALESCE(in_0_2,0)        FROM hei_test_agg
+    UNION ALL SELECT 'MTCT_HEI_EID.2',  'Number of HIV exposed infants who received a virologic HIV test (sample collected) 2-12 months of birth',             COALESCE(in_2_12,0)       FROM hei_test_agg
+    UNION ALL SELECT 'MTCT_HEI_EID.3',  'Total Number of infants within 12 month received virological test result',                                             COALESCE(total_with_result,0) FROM hei_test_agg
+    UNION ALL SELECT 'MTCT_HEI_EID.1.1',   'Number of HIV exposed infants who received an HIV test 0- 2 months of birth',                                      COALESCE(in_0_2_tested,0)    FROM hei_test_agg
+    UNION ALL SELECT 'MTCT_HEI_EID.1.1. 1', 'Positive',                                                                                                        COALESCE(in_0_2_positive,0)  FROM hei_test_agg
+    UNION ALL SELECT 'MTCT_HEI_EID.1.1. 2', 'Negative',                                                                                                        COALESCE(in_0_2_negative,0)  FROM hei_test_agg
+    UNION ALL SELECT 'MTCT_HEI_EID.1.2',   'Number of HIV exposed infants who received an HIV test 2-12 months of birth',                                      COALESCE(in_2_12_tested,0)   FROM hei_test_agg
+    UNION ALL SELECT 'MTCT_HEI_EID.1.2. 1', 'Positive',                                                                                                        COALESCE(in_2_12_positive,0) FROM hei_test_agg
+    UNION ALL SELECT 'MTCT_HEI_EID.1.2. 2', 'Negative',                                                                                                        COALESCE(in_2_12_negative,0) FROM hei_test_agg
     UNION ALL
     SELECT 'MTCT_HEI_COTR'                                                                                                                      AS S_NO,
            'Percentage of exposed Infants born to HIV positive women who were started on co-trimoxazole prophylaxis within two months of birth' as Activity,
@@ -144,10 +144,10 @@ BEGIN
            COUNT(*)                                                            as Value
     FROM Delivery
     where location_of_birth != 'Home Delivery'
-    UNION ALL SELECT 'MTCT_HEI_ABTST',    'Percentage of HIV exposed infants receiving HIV confirmatory (antibody test) test by 18 months', total    FROM hei_confirmatory_agg
-    UNION ALL SELECT 'MTCT_HEI_ABTST.1',  'Number of HIV exposed infants receiving HIV confirmatory (antibody test) by 18 months',          total    FROM hei_confirmatory_agg
-    UNION ALL SELECT 'MTCT_HEI_ABTST.1. 1', 'Positive',                                                                                    positive FROM hei_confirmatory_agg
-    UNION ALL SELECT 'MTCT_HEI_ABTST.1. 2', 'Negative',                                                                                    negative FROM hei_confirmatory_agg;
+    UNION ALL SELECT 'MTCT_HEI_ABTST',    'Percentage of HIV exposed infants receiving HIV confirmatory (antibody test) test by 18 months', COALESCE(total,0)    FROM hei_confirmatory_agg
+    UNION ALL SELECT 'MTCT_HEI_ABTST.1',  'Number of HIV exposed infants receiving HIV confirmatory (antibody test) by 18 months',          COALESCE(total,0)    FROM hei_confirmatory_agg
+    UNION ALL SELECT 'MTCT_HEI_ABTST.1. 1', 'Positive',                                                                                    COALESCE(positive,0) FROM hei_confirmatory_agg
+    UNION ALL SELECT 'MTCT_HEI_ABTST.1. 2', 'Negative',                                                                                    COALESCE(negative,0) FROM hei_confirmatory_agg;
 END //
 
 DELIMITER ;
