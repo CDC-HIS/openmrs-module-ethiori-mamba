@@ -1,12 +1,12 @@
 DELIMITER //
 
-DROP PROCEDURE IF EXISTS sp_fact_hmis_art_restart_query;
+DROP PROCEDURE IF EXISTS sp_fact_hmis_art_restart_query_v2;
 
-CREATE PROCEDURE sp_fact_hmis_art_restart_query(IN REPORT_START_DATE DATE, IN REPORT_END_DATE DATE)
+CREATE PROCEDURE sp_fact_hmis_art_restart_query_v2(IN REPORT_START_DATE DATE, IN REPORT_END_DATE DATE)
 BEGIN
 
-    WITH FollowUp AS (SELECT follow_up.encounter_id,
-                             follow_up.client_id,
+    WITH FollowUp AS (SELECT encounter_id,
+                             client_id,
                              follow_up_status,
                              follow_up_date_followup_            AS follow_up_date,
                              art_antiretroviral_start_date       AS art_start_date,
@@ -20,25 +20,7 @@ BEGIN
                              cd4_count,
                              weight_text_,
                              adherence
-                      FROM mamba_flat_encounter_follow_up follow_up
-                               LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1
-                                         ON follow_up.encounter_id = follow_up_1.encounter_id
-                               LEFT JOIN mamba_flat_encounter_follow_up_2 follow_up_2
-                                         ON follow_up.encounter_id = follow_up_2.encounter_id
-                               LEFT JOIN mamba_flat_encounter_follow_up_3 follow_up_3
-                                         ON follow_up.encounter_id = follow_up_3.encounter_id
-                               LEFT JOIN mamba_flat_encounter_follow_up_4 follow_up_4
-                                         ON follow_up.encounter_id = follow_up_4.encounter_id
-                               LEFT JOIN mamba_flat_encounter_follow_up_5 follow_up_5
-                                         ON follow_up.encounter_id = follow_up_5.encounter_id
-                               LEFT JOIN mamba_flat_encounter_follow_up_6 follow_up_6
-                                         ON follow_up.encounter_id = follow_up_6.encounter_id
-                               LEFT JOIN mamba_flat_encounter_follow_up_7 follow_up_7
-                                         ON follow_up.encounter_id = follow_up_7.encounter_id
-                               LEFT JOIN mamba_flat_encounter_follow_up_8 follow_up_8
-                                         ON follow_up.encounter_id = follow_up_8.encounter_id
-                               LEFT JOIN mamba_flat_encounter_follow_up_9 follow_up_9
-                                         ON follow_up.encounter_id = follow_up_9.encounter_id),
+                      FROM tmp_hmis_follow_up),
          -- TX curr start
          tmp_latest_follow_up_start AS (SELECT client_id,
                                                follow_up_date,
@@ -143,45 +125,22 @@ BEGIN
                              join tx_curr_end
                                   on interrupted_at_start.client_id = tx_curr_end.client_id
                              join mamba_dim_client client on interrupted_at_start.client_id = client.client_id
-                             join restart_follow_up_end on tx_curr_end.client_id = restart_follow_up_end.client_id)
+                             join restart_follow_up_end on tx_curr_end.client_id = restart_follow_up_end.client_id),
+         rtt_agg AS (
+             SELECT
+                 COUNT(*) AS total,
+                 SUM(CASE WHEN age < 15  AND sex = 'Male'   THEN 1 ELSE 0 END) AS u15_male,
+                 SUM(CASE WHEN age < 15  AND sex = 'Female' THEN 1 ELSE 0 END) AS u15_female,
+                 SUM(CASE WHEN age >= 15 AND sex = 'Male'   THEN 1 ELSE 0 END) AS o15_male,
+                 SUM(CASE WHEN age >= 15 AND sex = 'Female' THEN 1 ELSE 0 END) AS o15_female
+             FROM (SELECT *, TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) AS age FROM tx_rtt) t
+         )
 
--- Number of ART clients restarted ARV treatment in the reporting period
-    SELECT 'HIV_ART_RE_ARV'                                                        AS S_NO,
-           'Number of ART clients restarted ARV treatment in the reporting period' as Activity,
-           COUNT(*)                                                                as Value
-    FROM tx_rtt
--- < 15 years, Male
-    UNION ALL
-    SELECT 'HIV_ART_RE_ARV. 1' AS S_NO,
-           '< 15 years, Male'  as Activity,
-           COUNT(*)            as Value
-    FROM tx_rtt
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
-      AND sex = 'Male'
--- < 15 years, Female
-    UNION ALL
-    SELECT 'HIV_ART_RE_ARV. 2'  AS S_NO,
-           '< 15 years, Female' as Activity,
-           COUNT(*)             as Value
-    FROM tx_rtt
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
-      AND sex = 'Female'
--- >= 15 years, Male
-    UNION ALL
-    SELECT 'HIV_ART_RE_ARV. 3' AS S_NO,
-           '>= 15 years, Male' as Activity,
-           COUNT(*)            as Value
-    FROM tx_rtt
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
-      AND sex = 'Male'
--- >= 15 years, Female
-    UNION ALL
-    SELECT 'HIV_ART_RE_ARV. 4'   AS S_NO,
-           '>= 15 years, Female' as Activity,
-           COUNT(*)              as Value
-    FROM tx_rtt
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
-      AND sex = 'Female';
+    SELECT 'HIV_ART_RE_ARV' AS S_NO, 'Number of ART clients restarted ARV treatment in the reporting period' AS Activity, total AS Value FROM rtt_agg
+    UNION ALL SELECT 'HIV_ART_RE_ARV. 1', '< 15 years, Male',    COALESCE(u15_male,0)   FROM rtt_agg
+    UNION ALL SELECT 'HIV_ART_RE_ARV. 2', '< 15 years, Female',  COALESCE(u15_female,0) FROM rtt_agg
+    UNION ALL SELECT 'HIV_ART_RE_ARV. 3', '>= 15 years, Male',   COALESCE(o15_male,0)   FROM rtt_agg
+    UNION ALL SELECT 'HIV_ART_RE_ARV. 4', '>= 15 years, Female', COALESCE(o15_female,0) FROM rtt_agg;
 END //
 
 DELIMITER ;

@@ -1,14 +1,14 @@
 DELIMITER //
 
-DROP PROCEDURE IF EXISTS sp_fact_hmis_tx_curr_query;
+DROP PROCEDURE IF EXISTS sp_fact_hmis_tx_curr_query_v2;
 
-CREATE PROCEDURE sp_fact_hmis_tx_curr_query(
+CREATE PROCEDURE sp_fact_hmis_tx_curr_query_v2(
     IN REPORT_END_DATE DATE
 )
 BEGIN
 
-    WITH FollowUp AS (select follow_up.encounter_id,
-                             follow_up.client_id           AS PatientId,
+    WITH FollowUp AS (SELECT encounter_id,
+                             client_id                     AS PatientId,
                              follow_up_status,
                              follow_up_date_followup_      AS follow_up_date,
                              art_antiretroviral_start_date AS art_start_date,
@@ -17,26 +17,7 @@ BEGIN
                              regimen,
                              currently_breastfeeding_child    breast_feeding_status,
                              pregnancy_status
-
-                      FROM mamba_flat_encounter_follow_up follow_up
-                               LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1
-                                         ON follow_up.encounter_id = follow_up_1.encounter_id
-                               LEFT JOIN mamba_flat_encounter_follow_up_2 follow_up_2
-                                         ON follow_up.encounter_id = follow_up_2.encounter_id
-                               LEFT JOIN mamba_flat_encounter_follow_up_3 follow_up_3
-                                         ON follow_up.encounter_id = follow_up_3.encounter_id
-                               LEFT JOIN mamba_flat_encounter_follow_up_4 follow_up_4
-                                         ON follow_up.encounter_id = follow_up_4.encounter_id
-                               LEFT JOIN mamba_flat_encounter_follow_up_5 follow_up_5
-                                         ON follow_up.encounter_id = follow_up_5.encounter_id
-                               LEFT JOIN mamba_flat_encounter_follow_up_6 follow_up_6
-                                         ON follow_up.encounter_id = follow_up_6.encounter_id
-                               LEFT JOIN mamba_flat_encounter_follow_up_7 follow_up_7
-                                         ON follow_up.encounter_id = follow_up_7.encounter_id
-                               LEFT JOIN mamba_flat_encounter_follow_up_8 follow_up_8
-                                         ON follow_up.encounter_id = follow_up_8.encounter_id
-                               LEFT JOIN mamba_flat_encounter_follow_up_9 follow_up_9
-                                         ON follow_up.encounter_id = follow_up_9.encounter_id),
+                      FROM tmp_hmis_follow_up),
          -- TX curr
          tx_curr_all AS (SELECT PatientId,
                                 follow_up_date                                                                             AS FollowupDate,
@@ -59,7 +40,8 @@ BEGIN
                                         client.date_of_birth,
                                         pregnancy_status,
                                         regimen,
-                                        left(regimen, 1) as regimen_line
+                                        left(regimen, 1)                                                   as regimen_line,
+                                        TIMESTAMPDIFF(YEAR, client.date_of_birth, REPORT_END_DATE)         as age
                                  from FollowUp
                                           inner join tx_curr on FollowUp.encounter_id = tx_curr.encounter_id
                                           left join mamba_dim_client client on tx_curr.PatientId = client.client_id)
