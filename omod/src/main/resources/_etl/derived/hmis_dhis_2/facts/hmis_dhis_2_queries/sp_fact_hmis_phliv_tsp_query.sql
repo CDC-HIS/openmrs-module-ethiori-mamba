@@ -47,6 +47,7 @@ WITH FollowUp as (select follow_up.encounter_id,
                      WHERE follow_up_status IS NOT NULL
                        AND art_start_date IS NOT NULL
                        AND follow_up_date_followup_ <= REPORT_END_DATE),
+
      tx_curr AS (select *
                  from tx_curr_all
                  where row_num = 1
@@ -73,168 +74,433 @@ WITH FollowUp as (select follow_up.encounter_id,
                                          join mamba_dim_client client
                                               on tmp_screened_for_nutrition.client_id = client.client_id
                                 where tmp_screened_for_nutrition.row_num = 1),
-     screened_agg AS (
-         SELECT COUNT(*)                                                                                                                                                                             AS total,
-                SUM(CASE WHEN age < 15 AND sex = 'Male'   THEN 1 ELSE 0 END)                                                                                                                        AS u15_male,
-                SUM(CASE WHEN age < 15 AND sex = 'Female' THEN 1 ELSE 0 END)                                                                                                                        AS u15_female,
-                SUM(CASE WHEN age >= 15 AND sex = 'Male'  THEN 1 ELSE 0 END)                                                                                                                        AS o15_male,
-                SUM(CASE WHEN age >= 15 AND sex = 'Female' THEN 1 ELSE 0 END)                                                                                                                       AS o15_female,
-                -- undernourished totals
-                SUM(CASE WHEN nutritional_screening_result = 'Undernourished' THEN 1 ELSE 0 END)                                                                                                     AS und_total,
-                -- MAM
-                SUM(CASE WHEN nutritional_screening_result = 'Undernourished'
-                           AND nutritional_screening_status IN ('Malnutrition of mild degree (Gomez: 75% to Less than 90% of Standard Weight)',
-                                                                'Malnutrition of moderate degree (Gomez: 60% to Less than 75% of Standard Weight)')
-                          THEN 1 ELSE 0 END)                                                                                                                                                         AS mam_total,
-                SUM(CASE WHEN nutritional_screening_result = 'Undernourished'
-                           AND nutritional_screening_status IN ('Malnutrition of mild degree (Gomez: 75% to Less than 90% of Standard Weight)',
-                                                                'Malnutrition of moderate degree (Gomez: 60% to Less than 75% of Standard Weight)')
-                           AND age < 15 AND sex = 'Male'   THEN 1 ELSE 0 END)                                                                                                                       AS mam_u15_male,
-                SUM(CASE WHEN nutritional_screening_result = 'Undernourished'
-                           AND nutritional_screening_status IN ('Malnutrition of mild degree (Gomez: 75% to Less than 90% of Standard Weight)',
-                                                                'Malnutrition of moderate degree (Gomez: 60% to Less than 75% of Standard Weight)')
-                           AND age < 15 AND sex = 'Female' THEN 1 ELSE 0 END)                                                                                                                       AS mam_u15_female,
-                SUM(CASE WHEN nutritional_screening_result = 'Undernourished'
-                           AND nutritional_screening_status IN ('Malnutrition of mild degree (Gomez: 75% to Less than 90% of Standard Weight)',
-                                                                'Malnutrition of moderate degree (Gomez: 60% to Less than 75% of Standard Weight)')
-                           AND age >= 15 AND sex = 'Male'  THEN 1 ELSE 0 END)                                                                                                                       AS mam_o15_male,
-                SUM(CASE WHEN nutritional_screening_result = 'Undernourished'
-                           AND nutritional_screening_status IN ('Malnutrition of mild degree (Gomez: 75% to Less than 90% of Standard Weight)',
-                                                                'Malnutrition of moderate degree (Gomez: 60% to Less than 75% of Standard Weight)')
-                           AND age >= 15 AND sex = 'Female' THEN 1 ELSE 0 END)                                                                                                                      AS mam_o15_female,
-                -- SAM
-                SUM(CASE WHEN nutritional_screening_result = 'Undernourished'
-                           AND nutritional_screening_status IN ('Severe protein-calorie malnutrition (Gomez: Less than 60% of Standard Weight)')
-                          THEN 1 ELSE 0 END)                                                                                                                                                         AS sam_total,
-                SUM(CASE WHEN nutritional_screening_result = 'Undernourished'
-                           AND nutritional_screening_status IN ('Severe protein-calorie malnutrition (Gomez: Less than 60% of Standard Weight)')
-                           AND age < 15 AND sex = 'Male'   THEN 1 ELSE 0 END)                                                                                                                       AS sam_u15_male,
-                SUM(CASE WHEN nutritional_screening_result = 'Undernourished'
-                           AND nutritional_screening_status IN ('Severe protein-calorie malnutrition (Gomez: Less than 60% of Standard Weight)')
-                           AND age < 15 AND sex = 'Female' THEN 1 ELSE 0 END)                                                                                                                       AS sam_u15_female,
-                SUM(CASE WHEN nutritional_screening_result = 'Undernourished'
-                           AND nutritional_screening_status IN ('Severe protein-calorie malnutrition (Gomez: Less than 60% of Standard Weight)')
-                           AND age >= 15 AND sex = 'Male'  THEN 1 ELSE 0 END)                                                                                                                       AS sam_o15_male,
-                SUM(CASE WHEN nutritional_screening_result = 'Undernourished'
-                           AND nutritional_screening_status IN ('Severe protein-calorie malnutrition (Gomez: Less than 60% of Standard Weight)')
-                           AND age >= 15 AND sex = 'Female' THEN 1 ELSE 0 END)                                                                                                                      AS sam_o15_female,
-                -- supplementary food total
-                SUM(CASE WHEN nutritional_screening_result = 'Undernourished'
-                           AND (eats_nutritious_foods = 'Yes' OR nutritional_supplements_provided IS NOT NULL)
-                          THEN 1 ELSE 0 END)                                                                                                                                                         AS sup_total,
-                -- MAM + food
-                SUM(CASE WHEN nutritional_screening_result = 'Undernourished'
-                           AND (eats_nutritious_foods = 'Yes' OR nutritional_supplements_provided IS NOT NULL)
-                           AND nutritional_screening_status IN ('Malnutrition of mild degree (Gomez: 75% to Less than 90% of Standard Weight)',
-                                                                'Malnutrition of moderate degree (Gomez: 60% to Less than 75% of Standard Weight)')
-                          THEN 1 ELSE 0 END)                                                                                                                                                         AS sup_mam_total,
-                SUM(CASE WHEN nutritional_screening_result = 'Undernourished'
-                           AND (eats_nutritious_foods = 'Yes' OR nutritional_supplements_provided IS NOT NULL)
-                           AND nutritional_screening_status IN ('Malnutrition of mild degree (Gomez: 75% to Less than 90% of Standard Weight)',
-                                                                'Malnutrition of moderate degree (Gomez: 60% to Less than 75% of Standard Weight)')
-                           AND age < 15 AND sex = 'Male'   THEN 1 ELSE 0 END)                                                                                                                       AS sup_mam_u15_male,
-                SUM(CASE WHEN nutritional_screening_result = 'Undernourished'
-                           AND (eats_nutritious_foods = 'Yes' OR nutritional_supplements_provided IS NOT NULL)
-                           AND nutritional_screening_status IN ('Malnutrition of mild degree (Gomez: 75% to Less than 90% of Standard Weight)',
-                                                                'Malnutrition of moderate degree (Gomez: 60% to Less than 75% of Standard Weight)')
-                           AND age < 15 AND sex = 'Female' AND pregnancy_status = 'Yes' THEN 1 ELSE 0 END)                                                                                          AS sup_mam_u15_female_p,
-                SUM(CASE WHEN nutritional_screening_result = 'Undernourished'
-                           AND (eats_nutritious_foods = 'Yes' OR nutritional_supplements_provided IS NOT NULL)
-                           AND nutritional_screening_status IN ('Malnutrition of mild degree (Gomez: 75% to Less than 90% of Standard Weight)',
-                                                                'Malnutrition of moderate degree (Gomez: 60% to Less than 75% of Standard Weight)')
-                           AND age < 15 AND sex = 'Female' AND (pregnancy_status = 'No' OR pregnancy_status IS NULL) THEN 1 ELSE 0 END)                                                             AS sup_mam_u15_female_np,
-                SUM(CASE WHEN nutritional_screening_result = 'Undernourished'
-                           AND (eats_nutritious_foods = 'Yes' OR nutritional_supplements_provided IS NOT NULL)
-                           AND nutritional_screening_status IN ('Malnutrition of mild degree (Gomez: 75% to Less than 90% of Standard Weight)',
-                                                                'Malnutrition of moderate degree (Gomez: 60% to Less than 75% of Standard Weight)')
-                           AND age >= 15 AND sex = 'Male'  THEN 1 ELSE 0 END)                                                                                                                       AS sup_mam_o15_male,
-                SUM(CASE WHEN nutritional_screening_result = 'Undernourished'
-                           AND (eats_nutritious_foods = 'Yes' OR nutritional_supplements_provided IS NOT NULL)
-                           AND nutritional_screening_status IN ('Malnutrition of mild degree (Gomez: 75% to Less than 90% of Standard Weight)',
-                                                                'Malnutrition of moderate degree (Gomez: 60% to Less than 75% of Standard Weight)')
-                           AND age >= 15 AND sex = 'Female' AND pregnancy_status = 'Yes' THEN 1 ELSE 0 END)                                                                                         AS sup_mam_o15_female_p,
-                SUM(CASE WHEN nutritional_screening_result = 'Undernourished'
-                           AND (eats_nutritious_foods = 'Yes' OR nutritional_supplements_provided IS NOT NULL)
-                           AND nutritional_screening_status IN ('Malnutrition of mild degree (Gomez: 75% to Less than 90% of Standard Weight)',
-                                                                'Malnutrition of moderate degree (Gomez: 60% to Less than 75% of Standard Weight)')
-                           AND age >= 15 AND sex = 'Female' AND (pregnancy_status = 'No' OR pregnancy_status IS NULL) THEN 1 ELSE 0 END)                                                            AS sup_mam_o15_female_np,
-                -- SAM + food
-                SUM(CASE WHEN nutritional_screening_result = 'Undernourished'
-                           AND (eats_nutritious_foods = 'Yes' OR nutritional_supplements_provided IS NOT NULL)
-                           AND nutritional_screening_status IN ('Severe protein-calorie malnutrition (Gomez: Less than 60% of Standard Weight)')
-                          THEN 1 ELSE 0 END)                                                                                                                                                         AS sup_sam_total,
-                SUM(CASE WHEN nutritional_screening_result = 'Undernourished'
-                           AND (eats_nutritious_foods = 'Yes' OR nutritional_supplements_provided IS NOT NULL)
-                           AND nutritional_screening_status IN ('Severe protein-calorie malnutrition (Gomez: Less than 60% of Standard Weight)')
-                           AND age < 15 AND sex = 'Male'   THEN 1 ELSE 0 END)                                                                                                                       AS sup_sam_u15_male,
-                SUM(CASE WHEN nutritional_screening_result = 'Undernourished'
-                           AND (eats_nutritious_foods = 'Yes' OR nutritional_supplements_provided IS NOT NULL)
-                           AND nutritional_screening_status IN ('Severe protein-calorie malnutrition (Gomez: Less than 60% of Standard Weight)')
-                           AND age < 15 AND sex = 'Female' AND pregnancy_status = 'Yes' THEN 1 ELSE 0 END)                                                                                          AS sup_sam_u15_female_p,
-                SUM(CASE WHEN nutritional_screening_result = 'Undernourished'
-                           AND (eats_nutritious_foods = 'Yes' OR nutritional_supplements_provided IS NOT NULL)
-                           AND nutritional_screening_status IN ('Severe protein-calorie malnutrition (Gomez: Less than 60% of Standard Weight)')
-                           AND age < 15 AND sex = 'Female' AND (pregnancy_status = 'No' OR pregnancy_status IS NULL) THEN 1 ELSE 0 END)                                                             AS sup_sam_u15_female_np,
-                SUM(CASE WHEN nutritional_screening_result = 'Undernourished'
-                           AND (eats_nutritious_foods = 'Yes' OR nutritional_supplements_provided IS NOT NULL)
-                           AND nutritional_screening_status IN ('Severe protein-calorie malnutrition (Gomez: Less than 60% of Standard Weight)')
-                           AND age >= 15 AND sex = 'Male'  THEN 1 ELSE 0 END)                                                                                                                       AS sup_sam_o15_male,
-                SUM(CASE WHEN nutritional_screening_result = 'Undernourished'
-                           AND (eats_nutritious_foods = 'Yes' OR nutritional_supplements_provided IS NOT NULL)
-                           AND nutritional_screening_status IN ('Severe protein-calorie malnutrition (Gomez: Less than 60% of Standard Weight)')
-                           AND age >= 15 AND sex = 'Female' AND pregnancy_status = 'Yes' THEN 1 ELSE 0 END)                                                                                         AS sup_sam_o15_female_p,
-                SUM(CASE WHEN nutritional_screening_result = 'Undernourished'
-                           AND (eats_nutritious_foods = 'Yes' OR nutritional_supplements_provided IS NOT NULL)
-                           AND nutritional_screening_status IN ('Severe protein-calorie malnutrition (Gomez: Less than 60% of Standard Weight)')
-                           AND age >= 15 AND sex = 'Female' AND (pregnancy_status = 'No' OR pregnancy_status IS NULL) THEN 1 ELSE 0 END)                                                            AS sup_sam_o15_female_np
-         FROM (SELECT *, TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) AS age FROM screened_for_nutrition) t
-     ),
      percentage_calc AS (SELECT 'HIV_PLHIV_TSP'                                                                                                         AS S_NO,
                                 'Proportion of clinically undernourished People Living with HIV (PLHIV) who received therapeutic or supplementary food' AS Activity,
                                 CASE
-                                    WHEN (SELECT und_total FROM screened_agg) = 0 THEN
+                                    WHEN (SELECT COUNT(*)
+                                          FROM screened_for_nutrition
+                                          WHERE nutritional_screening_result = 'Undernourished') = 0 THEN
                                         '0%'
                                     ELSE
                                         CONCAT(CAST(ROUND(
-                                                (CAST((SELECT sup_total FROM screened_agg) AS REAL) * 100.0) /
-                                                (SELECT und_total FROM screened_agg)
+                                                (CAST((SELECT COUNT(*)
+                                                       FROM screened_for_nutrition
+                                                       WHERE nutritional_screening_result = 'Undernourished'
+                                                         AND (eats_nutritious_foods = 'Yes' OR
+                                                              nutritional_supplements_provided IS NOT NULL)) AS REAL) *
+                                                 100.0) /
+                                                (SELECT COUNT(*)
+                                                 FROM screened_for_nutrition
+                                                 WHERE nutritional_screening_result = 'Undernourished')
                                             , 2) AS CHAR), '%')
                                     END                                                                                                                 AS Value
-FROM (SELECT 1) AS dummy
+FROM (SELECT 1) AS dummy -- Added a dummy table to ensure the CTE returns at least one row
     )
+-- Number of individuals receiving Pre-Exposure Prophylaxis
+SELECT S_NO,
+       Activity,
+       Value
+FROM percentage_calc
+-- Number of PLHIV who were assessed/screened for malnutrition
+UNION ALL
+SELECT 'HIV_PLHIV_TSP.1'                                             AS S_NO,
+       'Number of PLHIV who were assessed/screened for malnutrition' as Activity,
+       COUNT(*) as Value
+FROM screened_for_nutrition
+-- < 15 years, Male
+UNION ALL
+SELECT 'HIV_PLHIV_TSP.1. 1' AS S_NO,
+       '< 15 years, Male'   as Activity,
+       COUNT(*) as Value
+FROM screened_for_nutrition
+WHERE TIMESTAMPDIFF(YEAR
+    , date_of_birth
+    , REPORT_END_DATE)
+    < 15
+  AND sex = 'Male'
+-- < 15 years, Female
+UNION ALL
+SELECT 'HIV_PLHIV_TSP.1. 2' AS S_NO,
+       '< 15 years, Female' as Activity,
+       COUNT(*) as Value
+FROM screened_for_nutrition
+WHERE TIMESTAMPDIFF(YEAR
+    , date_of_birth
+    , REPORT_END_DATE)
+    < 15
+  AND sex = 'Female'
+-- >= 15 years, Male
+UNION ALL
+SELECT 'HIV_PLHIV_TSP.1. 3' AS S_NO,
+       '>= 15 years, Male'  as Activity,
+       COUNT(*) as Value
+FROM screened_for_nutrition
+WHERE TIMESTAMPDIFF(YEAR
+    , date_of_birth
+    , REPORT_END_DATE) >= 15
+  AND sex = 'Male'
+-- >= 15 years, Female
+UNION ALL
+SELECT 'HIV_PLHIV_TSP.1. 4'  AS S_NO,
+       '>= 15 years, Female' as Activity,
+       COUNT(*) as Value
+FROM screened_for_nutrition
+WHERE TIMESTAMPDIFF(YEAR
+    , date_of_birth
+    , REPORT_END_DATE) >= 15
+  AND sex = 'Female'
+-- Number of PLHIV that were nutritionally assessed and found to be clinically undernourished (disaggregated by Age, Sex and Pregnancy)
+UNION ALL
+SELECT 'HIV_PLHIV_NUT'                                                                                                                        AS S_NO,
+       'Number of PLHIV that were nutritionally assessed and found to be clinically undernourished (disaggregated by Age, Sex and Pregnancy)' as Activity,
+       COUNT(*) as Value
+FROM screened_for_nutrition
+where nutritional_screening_result = 'Undernourished'
+-- Total MAM
+UNION ALL
+SELECT 'HIV_PLHIV_NUT_MAM' AS S_NO,
+       'Total MAM'         as Activity,
+       COUNT(*) as Value
+FROM screened_for_nutrition
+where nutritional_screening_result = 'Undernourished'
+  and nutritional_screening_status in ('Malnutrition of mild degree (Gomez: 75% to Less than 90% of Standard Weight)'
+    , 'Malnutrition of moderate degree (Gomez: 60% to Less than 75% of Standard Weight)')
+-- < 15 years, Male
+UNION ALL
+SELECT 'HIV_PLHIV_NUT_MAM. 1' AS S_NO,
+       '< 15 years, Male'     as Activity,
+       COUNT(*) as Value
+FROM screened_for_nutrition
+where nutritional_screening_result = 'Undernourished'
+  and nutritional_screening_status in ('Malnutrition of mild degree (Gomez: 75% to Less than 90% of Standard Weight)'
+    , 'Malnutrition of moderate degree (Gomez: 60% to Less than 75% of Standard Weight)')
+  and TIMESTAMPDIFF(YEAR
+    , date_of_birth
+    , REPORT_END_DATE)
+    < 15
+  and sex = 'Male'
+-- < 15 years, Female
+UNION ALL
+SELECT 'HIV_PLHIV_NUT_MAM. 2' AS S_NO,
+       '< 15 years, Female'   as Activity,
+       COUNT(*) as Value
+FROM screened_for_nutrition
+where nutritional_screening_result = 'Undernourished'
+  and nutritional_screening_status in ('Malnutrition of mild degree (Gomez: 75% to Less than 90% of Standard Weight)'
+    , 'Malnutrition of moderate degree (Gomez: 60% to Less than 75% of Standard Weight)')
+  and TIMESTAMPDIFF(YEAR
+    , date_of_birth
+    , REPORT_END_DATE)
+    < 15
+  and sex = 'Female'
+-- >= 15 years, Male
+UNION ALL
+SELECT 'HIV_PLHIV_NUT_MAM. 3' AS S_NO,
+       '>= 15 years, Male'    as Activity,
+       COUNT(*) as Value
+FROM screened_for_nutrition
+where nutritional_screening_result = 'Undernourished'
+  and nutritional_screening_status in ('Malnutrition of mild degree (Gomez: 75% to Less than 90% of Standard Weight)'
+    , 'Malnutrition of moderate degree (Gomez: 60% to Less than 75% of Standard Weight)')
+  and TIMESTAMPDIFF(YEAR
+    , date_of_birth
+    , REPORT_END_DATE) >= 15
+  and sex = 'Male'
+-- >= 15 years, Female
+UNION ALL
+SELECT 'HIV_PLHIV_NUT_MAM. 4' AS S_NO,
+       '>= 15 years, Female'  as Activity,
+       COUNT(*) as Value
+FROM screened_for_nutrition
+where nutritional_screening_result = 'Undernourished'
+  and nutritional_screening_status in ('Malnutrition of mild degree (Gomez: 75% to Less than 90% of Standard Weight)'
+    , 'Malnutrition of moderate degree (Gomez: 60% to Less than 75% of Standard Weight)')
+  and TIMESTAMPDIFF(YEAR
+    , date_of_birth
+    , REPORT_END_DATE) >= 15
+  and sex = 'Female'
+-- Total SAM
+UNION ALL
+SELECT 'HIV_PLHIV_NUT_SAM' AS S_NO,
+       'Total SAM'         as Activity,
+       COUNT(*) as Value
+FROM screened_for_nutrition
+where nutritional_screening_result = 'Undernourished'
+  and nutritional_screening_status in ('Severe protein-calorie malnutrition (Gomez: Less than 60% of Standard Weight)')
+-- < 15 years, Male
+UNION ALL
+SELECT 'HIV_PLHIV_NUT_SAM. 1' AS S_NO,
+       '< 15 years, Male'     as Activity,
+       COUNT(*) as Value
+FROM screened_for_nutrition
+where nutritional_screening_result = 'Undernourished'
+  and nutritional_screening_status in ('Severe protein-calorie malnutrition (Gomez: Less than 60% of Standard Weight)')
+  and TIMESTAMPDIFF(YEAR
+    , date_of_birth
+    , REPORT_END_DATE)
+    < 15
+  and sex = 'Male'
+-- < 15 years, Female
+UNION ALL
+SELECT 'HIV_PLHIV_NUT_SAM. 2' AS S_NO,
+       '< 15 years, Female'   as Activity,
+       COUNT(*) as Value
+FROM screened_for_nutrition
+where nutritional_screening_result = 'Undernourished'
+  and nutritional_screening_status in ('Severe protein-calorie malnutrition (Gomez: Less than 60% of Standard Weight)')
+  and TIMESTAMPDIFF(YEAR
+    , date_of_birth
+    , REPORT_END_DATE)
+    < 15
+  and sex = 'Female'
+-- >= 15 years, Male
+UNION ALL
+SELECT 'HIV_PLHIV_NUT_SAM. 3' AS S_NO,
+       '>= 15 years, Male'    as Activity,
+       COUNT(*) as Value
+FROM screened_for_nutrition
+where nutritional_screening_result = 'Undernourished'
+  and nutritional_screening_status in ('Severe protein-calorie malnutrition (Gomez: Less than 60% of Standard Weight)')
+  and TIMESTAMPDIFF(YEAR
+    , date_of_birth
+    , REPORT_END_DATE) >= 15
+  and sex = 'Male'
+-- >= 15 years, Female
+UNION ALL
+SELECT 'HIV_PLHIV_NUT_SAM. 4' AS S_NO,
+       '>= 15 years, Female'  as Activity,
+       COUNT(*) as Value
+FROM screened_for_nutrition
+where nutritional_screening_result = 'Undernourished'
+  and nutritional_screening_status in ('Severe protein-calorie malnutrition (Gomez: Less than 60% of Standard Weight)')
+  and TIMESTAMPDIFF(YEAR
+    , date_of_birth
+    , REPORT_END_DATE) >= 15
+  and sex = 'Female'
+-- Clinically undernourished PLHIV who received therapeutic or supplementary food (disaggregated by age, sex and pregnancy status)
+UNION ALL
+SELECT 'HIV_PLHIV_SUP'                                                                                                                   AS S_NO,
+       'Clinically undernourished PLHIV who received therapeutic or supplementary food (disaggregated by age, sex and pregnancy status)' as Activity,
+       COUNT(*) as Value
+FROM screened_for_nutrition
+where nutritional_screening_result = 'Undernourished'
+  and (eats_nutritious_foods = 'Yes'
+   or nutritional_supplements_provided is not null)
+-- Total MAM who received therapeutic or supplementary food
+UNION ALL
+SELECT 'HIV_PLHIV_SUP.1'                                          AS S_NO,
+       'Total MAM who received therapeutic or supplementary food' as Activity,
+       COUNT(*) as Value
+FROM screened_for_nutrition
+where nutritional_screening_result = 'Undernourished'
+  and (eats_nutritious_foods = 'Yes'
+   or nutritional_supplements_provided is not null)
+  and nutritional_screening_status in ('Malnutrition of mild degree (Gomez: 75% to Less than 90% of Standard Weight)'
+    , 'Malnutrition of moderate degree (Gomez: 60% to Less than 75% of Standard Weight)')
+-- < 15 years, Male
+UNION ALL
+SELECT 'HIV_PLHIV_SUP.1. 1' AS S_NO,
+       '< 15 years, Male'   as Activity,
+       COUNT(*) as Value
+FROM screened_for_nutrition
+where nutritional_screening_result = 'Undernourished'
+  and (eats_nutritious_foods = 'Yes'
+   or nutritional_supplements_provided is not null)
+  and nutritional_screening_status in ('Malnutrition of mild degree (Gomez: 75% to Less than 90% of Standard Weight)'
+    , 'Malnutrition of moderate degree (Gomez: 60% to Less than 75% of Standard Weight)')
+  and TIMESTAMPDIFF(YEAR
+    , date_of_birth
+    , REPORT_END_DATE)
+    < 15
+  and sex = 'Male'
+-- < 15 years, Female - pregnant
+UNION ALL
+SELECT 'HIV_PLHIV_SUP.1. 2'            AS S_NO,
+       '< 15 years, Female - pregnant' as Activity,
+       COUNT(*) as Value
+FROM screened_for_nutrition
+where nutritional_screening_result = 'Undernourished'
+  and (eats_nutritious_foods = 'Yes'
+   or nutritional_supplements_provided is not null)
+  and nutritional_screening_status in ('Malnutrition of mild degree (Gomez: 75% to Less than 90% of Standard Weight)'
+    , 'Malnutrition of moderate degree (Gomez: 60% to Less than 75% of Standard Weight)')
+  and TIMESTAMPDIFF(YEAR
+    , date_of_birth
+    , REPORT_END_DATE)
+    < 15
+  and sex = 'Female'
+  and pregnancy_status = 'Yes'
+-- < 15 years, Female - non-pregnant
+UNION ALL
+SELECT 'HIV_PLHIV_SUP.1. 3'                AS S_NO,
+       '< 15 years, Female - non-pregnant' as Activity,
+       COUNT(*) as Value
+FROM screened_for_nutrition
+where nutritional_screening_result = 'Undernourished'
+  and (eats_nutritious_foods = 'Yes'
+   or nutritional_supplements_provided is not null)
+  and nutritional_screening_status in ('Malnutrition of mild degree (Gomez: 75% to Less than 90% of Standard Weight)'
+    , 'Malnutrition of moderate degree (Gomez: 60% to Less than 75% of Standard Weight)')
+  and TIMESTAMPDIFF(YEAR
+    , date_of_birth
+    , REPORT_END_DATE)
+    < 15
+  and sex = 'Female'
+  and (pregnancy_status = 'No'
+   or pregnancy_status is null)
+-- >= 15 years, Male
+UNION ALL
+SELECT 'HIV_PLHIV_SUP.1. 4' AS S_NO,
+       '>= 15 years, Male'  as Activity,
+       COUNT(*) as Value
+FROM screened_for_nutrition
+where nutritional_screening_result = 'Undernourished'
+  and (eats_nutritious_foods = 'Yes'
+   or nutritional_supplements_provided is not null)
+  and nutritional_screening_status in ('Malnutrition of mild degree (Gomez: 75% to Less than 90% of Standard Weight)'
+    , 'Malnutrition of moderate degree (Gomez: 60% to Less than 75% of Standard Weight)')
+  and TIMESTAMPDIFF(YEAR
+    , date_of_birth
+    , REPORT_END_DATE) >= 15
+  and sex = 'Male'
+-- >= 15 years, Female - pregnant
+UNION ALL
+SELECT 'HIV_PLHIV_SUP.1. 5'             AS S_NO,
+       '>= 15 years, Female - pregnant' as Activity,
+       COUNT(*) as Value
+FROM screened_for_nutrition
+where nutritional_screening_result = 'Undernourished'
+  and (eats_nutritious_foods = 'Yes'
+   or nutritional_supplements_provided is not null)
+  and nutritional_screening_status in ('Malnutrition of mild degree (Gomez: 75% to Less than 90% of Standard Weight)'
+    , 'Malnutrition of moderate degree (Gomez: 60% to Less than 75% of Standard Weight)')
+  and TIMESTAMPDIFF(YEAR
+    , date_of_birth
+    , REPORT_END_DATE) >= 15
+  and sex = 'Female'
+  and pregnancy_status = 'Yes'
+-- >= 15 years, Female - non-pregnant
+UNION ALL
+SELECT 'HIV_PLHIV_SUP.1. 6'                 AS S_NO,
+       '>= 15 years, Female - non-pregnant' as Activity,
+       COUNT(*) as Value
+FROM screened_for_nutrition
+where nutritional_screening_result = 'Undernourished'
+  and (eats_nutritious_foods = 'Yes'
+   or nutritional_supplements_provided is not null)
+  and nutritional_screening_status in ('Malnutrition of mild degree (Gomez: 75% to Less than 90% of Standard Weight)'
+    , 'Malnutrition of moderate degree (Gomez: 60% to Less than 75% of Standard Weight)')
+  and TIMESTAMPDIFF(YEAR
+    , date_of_birth
+    , REPORT_END_DATE) >= 15
+  and sex = 'Female'
+  and (pregnancy_status = 'No'
+   or pregnancy_status is null)
 
-SELECT S_NO, Activity, Value FROM percentage_calc
-UNION ALL SELECT 'HIV_PLHIV_TSP.1',      'Number of PLHIV who were assessed/screened for malnutrition',                                                                       total              FROM screened_agg
-UNION ALL SELECT 'HIV_PLHIV_TSP.1. 1',   '< 15 years, Male',                                                                                                                  u15_male           FROM screened_agg
-UNION ALL SELECT 'HIV_PLHIV_TSP.1. 2',   '< 15 years, Female',                                                                                                                u15_female         FROM screened_agg
-UNION ALL SELECT 'HIV_PLHIV_TSP.1. 3',   '>= 15 years, Male',                                                                                                                 o15_male           FROM screened_agg
-UNION ALL SELECT 'HIV_PLHIV_TSP.1. 4',   '>= 15 years, Female',                                                                                                               o15_female         FROM screened_agg
-UNION ALL SELECT 'HIV_PLHIV_NUT',         'Number of PLHIV that were nutritionally assessed and found to be clinically undernourished (disaggregated by Age, Sex and Pregnancy)', und_total       FROM screened_agg
-UNION ALL SELECT 'HIV_PLHIV_NUT_MAM',    'Total MAM',                                                                                                                          mam_total          FROM screened_agg
-UNION ALL SELECT 'HIV_PLHIV_NUT_MAM. 1', '< 15 years, Male',                                                                                                                  mam_u15_male       FROM screened_agg
-UNION ALL SELECT 'HIV_PLHIV_NUT_MAM. 2', '< 15 years, Female',                                                                                                                mam_u15_female     FROM screened_agg
-UNION ALL SELECT 'HIV_PLHIV_NUT_MAM. 3', '>= 15 years, Male',                                                                                                                 mam_o15_male       FROM screened_agg
-UNION ALL SELECT 'HIV_PLHIV_NUT_MAM. 4', '>= 15 years, Female',                                                                                                               mam_o15_female     FROM screened_agg
-UNION ALL SELECT 'HIV_PLHIV_NUT_SAM',    'Total SAM',                                                                                                                          sam_total          FROM screened_agg
-UNION ALL SELECT 'HIV_PLHIV_NUT_SAM. 1', '< 15 years, Male',                                                                                                                  sam_u15_male       FROM screened_agg
-UNION ALL SELECT 'HIV_PLHIV_NUT_SAM. 2', '< 15 years, Female',                                                                                                                sam_u15_female     FROM screened_agg
-UNION ALL SELECT 'HIV_PLHIV_NUT_SAM. 3', '>= 15 years, Male',                                                                                                                 sam_o15_male       FROM screened_agg
-UNION ALL SELECT 'HIV_PLHIV_NUT_SAM. 4', '>= 15 years, Female',                                                                                                               sam_o15_female     FROM screened_agg
-UNION ALL SELECT 'HIV_PLHIV_SUP',         'Clinically undernourished PLHIV who received therapeutic or supplementary food (disaggregated by age, sex and pregnancy status)',   sup_total          FROM screened_agg
-UNION ALL SELECT 'HIV_PLHIV_SUP.1',       'Total MAM who received therapeutic or supplementary food',                                                                          sup_mam_total      FROM screened_agg
-UNION ALL SELECT 'HIV_PLHIV_SUP.1. 1',   '< 15 years, Male',                                                                                                                  sup_mam_u15_male   FROM screened_agg
-UNION ALL SELECT 'HIV_PLHIV_SUP.1. 2',   '< 15 years, Female - pregnant',                                                                                                     sup_mam_u15_female_p  FROM screened_agg
-UNION ALL SELECT 'HIV_PLHIV_SUP.1. 3',   '< 15 years, Female - non-pregnant',                                                                                                 sup_mam_u15_female_np FROM screened_agg
-UNION ALL SELECT 'HIV_PLHIV_SUP.1. 4',   '>= 15 years, Male',                                                                                                                 sup_mam_o15_male   FROM screened_agg
-UNION ALL SELECT 'HIV_PLHIV_SUP.1. 5',   '>= 15 years, Female - pregnant',                                                                                                    sup_mam_o15_female_p  FROM screened_agg
-UNION ALL SELECT 'HIV_PLHIV_SUP.1. 6',   '>= 15 years, Female - non-pregnant',                                                                                                sup_mam_o15_female_np FROM screened_agg
-UNION ALL SELECT 'HIV_PLHIV_SUP.2',       'Total SAM who received therapeutic or supplementary food',                                                                          sup_sam_total      FROM screened_agg
-UNION ALL SELECT 'HIV_PLHIV_SUP.2. 1',   '< 15 years, Male',                                                                                                                  sup_sam_u15_male   FROM screened_agg
-UNION ALL SELECT 'HIV_PLHIV_SUP.2. 2',   '< 15 years, Female - pregnant',                                                                                                     sup_sam_u15_female_p  FROM screened_agg
-UNION ALL SELECT 'HIV_PLHIV_SUP.2. 3',   '< 15 years, Female - non-pregnant',                                                                                                 sup_sam_u15_female_np FROM screened_agg
-UNION ALL SELECT 'HIV_PLHIV_SUP.2. 4',   '>= 15 years, Male',                                                                                                                 sup_sam_o15_male   FROM screened_agg
-UNION ALL SELECT 'HIV_PLHIV_SUP.2. 5',   '>= 15 years, Female - pregnant',                                                                                                    sup_sam_o15_female_p  FROM screened_agg
-UNION ALL SELECT 'HIV_PLHIV_SUP.2. 6',   '>= 15 years, Female - non-pregnant',                                                                                                sup_sam_o15_female_np FROM screened_agg;
+
+-- Total SAM who received therapeutic or supplementary food
+UNION ALL
+SELECT 'HIV_PLHIV_SUP.2'                                          AS S_NO,
+       'Total SAM who received therapeutic or supplementary food' as Activity,
+       COUNT(*) as Value
+FROM screened_for_nutrition
+where nutritional_screening_result = 'Undernourished'
+  and (eats_nutritious_foods = 'Yes'
+   or nutritional_supplements_provided is not null)
+  and nutritional_screening_status in ('Severe protein-calorie malnutrition (Gomez: Less than 60% of Standard Weight)')
+-- < 15 years, Male
+UNION ALL
+SELECT 'HIV_PLHIV_SUP.2. 1' AS S_NO,
+       '< 15 years, Male'   as Activity,
+       COUNT(*) as Value
+FROM screened_for_nutrition
+where nutritional_screening_result = 'Undernourished'
+  and (eats_nutritious_foods = 'Yes'
+   or nutritional_supplements_provided is not null)
+  and nutritional_screening_status in ('Severe protein-calorie malnutrition (Gomez: Less than 60% of Standard Weight)')
+  and TIMESTAMPDIFF(YEAR
+    , date_of_birth
+    , REPORT_END_DATE)
+    < 15
+  and sex = 'Male'
+-- < 15 years, Female - pregnant
+UNION ALL
+SELECT 'HIV_PLHIV_SUP.2. 2'            AS S_NO,
+       '< 15 years, Female - pregnant' as Activity,
+       COUNT(*) as Value
+FROM screened_for_nutrition
+where nutritional_screening_result = 'Undernourished'
+  and (eats_nutritious_foods = 'Yes'
+   or nutritional_supplements_provided is not null)
+  and nutritional_screening_status in ('Severe protein-calorie malnutrition (Gomez: Less than 60% of Standard Weight)')
+  and TIMESTAMPDIFF(YEAR
+    , date_of_birth
+    , REPORT_END_DATE)
+    < 15
+  and sex = 'Female'
+  and pregnancy_status = 'Yes'
+-- < 15 years, Female - non-pregnant
+UNION ALL
+SELECT 'HIV_PLHIV_SUP.2. 3'                AS S_NO,
+       '< 15 years, Female - non-pregnant' as Activity,
+       COUNT(*) as Value
+FROM screened_for_nutrition
+where nutritional_screening_result = 'Undernourished'
+  and (eats_nutritious_foods = 'Yes'
+   or nutritional_supplements_provided is not null)
+  and nutritional_screening_status in ('Severe protein-calorie malnutrition (Gomez: Less than 60% of Standard Weight)')
+  and TIMESTAMPDIFF(YEAR
+    , date_of_birth
+    , REPORT_END_DATE)
+    < 15
+  and sex = 'Female'
+  and (pregnancy_status = 'No'
+   or pregnancy_status is null)
+-- >= 15 years, Male
+UNION ALL
+SELECT 'HIV_PLHIV_SUP.2. 4' AS S_NO,
+       '>= 15 years, Male'  as Activity,
+       COUNT(*) as Value
+FROM screened_for_nutrition
+where nutritional_screening_result = 'Undernourished'
+  and (eats_nutritious_foods = 'Yes'
+   or nutritional_supplements_provided is not null)
+  and nutritional_screening_status in ('Severe protein-calorie malnutrition (Gomez: Less than 60% of Standard Weight)')
+  and TIMESTAMPDIFF(YEAR
+    , date_of_birth
+    , REPORT_END_DATE) >= 15
+  and sex = 'Male'
+-- >= 15 years, Female - pregnant
+UNION ALL
+SELECT 'HIV_PLHIV_SUP.2. 5'             AS S_NO,
+       '>= 15 years, Female - pregnant' as Activity,
+       COUNT(*) as Value
+FROM screened_for_nutrition
+where nutritional_screening_result = 'Undernourished'
+  and (eats_nutritious_foods = 'Yes'
+   or nutritional_supplements_provided is not null)
+  and nutritional_screening_status in ('Severe protein-calorie malnutrition (Gomez: Less than 60% of Standard Weight)')
+  and TIMESTAMPDIFF(YEAR
+    , date_of_birth
+    , REPORT_END_DATE) >= 15
+  and sex = 'Female'
+  and pregnancy_status = 'Yes'
+-- >= 15 years, Female - non-pregnant
+UNION ALL
+SELECT 'HIV_PLHIV_SUP.2. 6'                 AS S_NO,
+       '>= 15 years, Female - non-pregnant' as Activity,
+       COUNT(*) as Value
+FROM screened_for_nutrition
+where nutritional_screening_result = 'Undernourished'
+  and (eats_nutritious_foods = 'Yes'
+   or nutritional_supplements_provided is not null)
+  and nutritional_screening_status in ('Severe protein-calorie malnutrition (Gomez: Less than 60% of Standard Weight)')
+  and TIMESTAMPDIFF(YEAR
+    , date_of_birth
+    , REPORT_END_DATE) >= 15
+  and sex = 'Female'
+  and (pregnancy_status = 'No'
+   or pregnancy_status is null);
 END //
 
 DELIMITER ;

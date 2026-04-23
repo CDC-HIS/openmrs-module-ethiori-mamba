@@ -1,0 +1,182 @@
+package org.openmrs.module.mambaetl.datasetevaluator.hmis_dhis2;
+
+import org.openmrs.api.AdministrationService;
+import org.openmrs.api.context.Context;
+import org.openmrs.module.mambaetl.datasetdefinition.hmis_dhis2.HMISDHIS2V2DatasetDefinition;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.openmrs.annotation.Handler;
+import org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper;
+import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
+import static org.openmrs.module.mambaetl.helpers.ValidationHelper.ValidateDates;
+import org.openmrs.module.reporting.dataset.DataSet;
+import org.openmrs.module.reporting.dataset.SimpleDataSet;
+import org.openmrs.module.reporting.dataset.definition.DataSetDefinition;
+import org.openmrs.module.reporting.dataset.definition.evaluator.DataSetEvaluator;
+import org.openmrs.module.reporting.evaluation.EvaluationContext;
+import org.openmrs.module.reporting.evaluation.EvaluationException;
+
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
+
+import org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper.ProcedureCall;
+import static org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper.rollbackAndThrowException;
+
+@Handler(supports = { HMISDHIS2V2DatasetDefinition.class })
+public class HMISDHIS2V2DataSetEvaluator implements DataSetEvaluator {
+	
+	private static final Log log = LogFactory.getLog(HMISDHIS2V2DataSetEvaluator.class);
+	
+	private static final String ERROR_PROCESSING_RESULT_SET = "Error processing ResultSet: ";
+	
+	private static final String DATABASE_CONNECTION_ERROR = "Database connection error: ";
+	
+	@Override
+	public DataSet evaluate(DataSetDefinition dataSetDefinition, EvaluationContext evalContext)
+			throws EvaluationException {
+
+		HMISDHIS2V2DatasetDefinition datasetDefinition = (HMISDHIS2V2DatasetDefinition) dataSetDefinition;
+		SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
+
+		ResultSetMapper resultSetMapper = new ResultSetMapper();
+
+		ValidateDates(data, datasetDefinition.getStartDate(), datasetDefinition.getEndDate());
+		if (!data.getRows().isEmpty()) {
+			return data;
+		}
+		try (Connection connection = DataSetEvaluatorHelper.getDataSource().getConnection()) {
+			connection.setAutoCommit(false);
+
+			List<ProcedureCall> procedureCalls = createProcedureCalls(datasetDefinition);
+
+			try {
+				for (ProcedureCall call : procedureCalls) {
+					try (CallableStatement statement = connection.prepareCall(call.getProcedureName())) {
+						call.getParameterSetter().setParameters(statement);
+						boolean hasResultSet = statement.execute();
+						if (hasResultSet) {
+							try (ResultSet rs = statement.getResultSet()) {
+								resultSetMapper.mapResultSetToDataSet(rs, data);
+							}
+						}
+					}
+				}
+				connection.commit();
+				return data;
+			} catch (SQLException e) {
+				rollbackAndThrowException(connection, ERROR_PROCESSING_RESULT_SET + e.getMessage(), e, log);
+			}
+		} catch (SQLException e) {
+			throw new EvaluationException(DATABASE_CONNECTION_ERROR + e.getMessage(), e);
+		}
+		return null;
+	}
+	
+	private List<ProcedureCall> createProcedureCalls(HMISDHIS2V2DatasetDefinition datasetDefinition) {
+		java.sql.Date startDate = datasetDefinition.getStartDate() != null ? new java.sql.Date(datasetDefinition.getStartDate().getTime()) : null;
+		java.sql.Date endDate = datasetDefinition.getEndDate() != null ? new java.sql.Date(datasetDefinition.getEndDate().getTime()) : null;
+
+		java.sql.Date startDateVL12Month;
+
+		String viralLoadType = Context.getService(AdministrationService.class).getGlobalProperty("_viralLoad12MSetting") != null
+				? Context.getService(AdministrationService.class).getGlobalProperty("_viralLoad12MSetting") : "";
+		if (Objects.nonNull(viralLoadType) && viralLoadType.equalsIgnoreCase("YES")) {
+			Calendar calendar = Calendar.getInstance();
+			assert endDate != null;
+			calendar.setTime(endDate);
+			calendar.add(Calendar.MONTH, -12);
+			startDateVL12Month = new java.sql.Date(calendar.getTime().getTime());
+		} else {
+			startDateVL12Month = startDate;
+		}
+
+		return Arrays.asList(
+				// Materialise the shared follow-up temp table once for the whole session
+				new ProcedureCall("{call sp_fact_hmis_create_follow_up_tmp()}", statement -> {}),
+
+				// Procedures that don't use the follow-up join — kept at original names
+				new ProcedureCall("{call sp_fact_hmis_hiv_hts_tst_index_query(?,?)}", statement -> {
+					statement.setDate(1, startDate);
+					statement.setDate(2, endDate);
+				}),
+				new ProcedureCall("{call sp_fact_hmis_hiv_linkage_query(?,?)}", statement -> {
+					statement.setDate(1, startDate);
+					statement.setDate(2, endDate);
+				}),
+				new ProcedureCall("{call sp_fact_hmis_hiv_prep_query(?,?)}", statement -> {
+					statement.setDate(1, startDate);
+					statement.setDate(2, endDate);
+				}),
+				new ProcedureCall("{call sp_fact_hmis_hiv_pep_query(?,?)}", statement -> {
+					statement.setDate(1, startDate);
+					statement.setDate(2, endDate);
+				}),
+				new ProcedureCall("{call sp_fact_hmis_mtct_query(?,?)}", statement -> {
+					statement.setDate(1, startDate);
+					statement.setDate(2, endDate);
+				}),
+
+				// Optimised v2 procedures — read from tmp_hmis_follow_up
+				new ProcedureCall("{call sp_fact_hmis_tx_curr_query_v2(?)}", statement -> {
+					statement.setDate(1, endDate);
+				}),
+				new ProcedureCall("{call sp_fact_hmis_tx_new_query_v2(?,?)}", statement -> {
+					statement.setDate(1, startDate);
+					statement.setDate(2, endDate);
+				}),
+				new ProcedureCall("{call sp_fact_hmis_hiv_art_ret_query_v2(?,?)}", statement -> {
+					statement.setDate(1, startDate);
+					statement.setDate(2, endDate);
+				}),
+				new ProcedureCall("{call sp_fact_hmis_hiv_art_ret_net_query_v2(?,?)}", statement -> {
+					statement.setDate(1, startDate);
+					statement.setDate(2, endDate);
+				}),
+				new ProcedureCall("{call sp_fact_hmis_hiv_tx_pvls_query_v2(?,?)}", statement -> {
+					statement.setDate(1, startDateVL12Month);
+					statement.setDate(2, endDate);
+				}),
+				new ProcedureCall("{call sp_fact_hmis_hiv_dsd_query_v2(?)}", statement -> {
+					statement.setDate(1, endDate);
+				}),
+				new ProcedureCall("{call sp_fact_hmis_art_intr_query_v2(?,?)}", statement -> {
+					statement.setDate(1, startDate);
+					statement.setDate(2, endDate);
+				}),
+				new ProcedureCall("{call sp_fact_hmis_art_restart_query_v2(?,?)}", statement -> {
+					statement.setDate(1, startDate);
+					statement.setDate(2, endDate);
+				}),
+				new ProcedureCall("{call sp_fact_hmis_phliv_tsp_query_v2(?,?)}", statement -> {
+					statement.setDate(1, startDate);
+					statement.setDate(2, endDate);
+				}),
+				new ProcedureCall("{call sp_fact_hmis_hiv_fp_query_v2(?)}", statement -> {
+					statement.setDate(1, endDate);
+				}),
+				new ProcedureCall("{call sp_fact_hmis_hiv_tb_scrn_query_v2(?,?)}", statement -> {
+					statement.setDate(1, startDate);
+					statement.setDate(2, endDate);
+				}),
+				new ProcedureCall("{call sp_fact_hmis_hiv_tpt_query_v2(?,?)}", statement -> {
+					statement.setDate(1, startDate);
+					statement.setDate(2, endDate);
+				}),
+				new ProcedureCall("{call sp_fact_hmis_cxca_scrn_query_v2(?,?)}", statement -> {
+					statement.setDate(1, startDate);
+					statement.setDate(2, endDate);
+				}),
+				new ProcedureCall("{call sp_fact_hmis_cxca_rx_query_v2(?,?)}", statement -> {
+					statement.setDate(1, startDate);
+					statement.setDate(2, endDate);
+				}),
+				new ProcedureCall("{call sp_fact_hmis_tb_lb_lf_lam_query_v2(?,?)}", statement -> {
+					statement.setDate(1, startDate);
+					statement.setDate(2, endDate);
+				})
+		);
+	}
+}

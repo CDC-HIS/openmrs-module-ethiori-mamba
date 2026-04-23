@@ -53,66 +53,254 @@ WITH FollowUp as (select follow_up.encounter_id,
                                 )
                          )
                      and is_the_client_screened_in_this_facility = 'Yes'
-                     ),
-     scrn_agg AS (
-         SELECT
-             COUNT(*) AS Value,
-             SUM(CASE WHEN screening_type = 'Visual Inspection of the Cervix with Acetic Acid (VIA)'  THEN 1 ELSE 0 END) AS via_total,
-             SUM(CASE WHEN screening_type = 'Human Papillomavirus test'                               THEN 1 ELSE 0 END) AS hpv_total,
-             SUM(CASE WHEN screening_type = 'Visual Inspection of the Cervix with Acetic Acid (VIA)' AND via_screening_result = 'VIA negative'                                                                                               THEN 1 ELSE 0 END) AS via_normal_total,
-             SUM(CASE WHEN screening_type = 'Visual Inspection of the Cervix with Acetic Acid (VIA)' AND via_screening_result = 'VIA negative'                                                              AND age BETWEEN 15 AND 19 THEN 1 ELSE 0 END) AS via_normal_u19,
-             SUM(CASE WHEN screening_type = 'Visual Inspection of the Cervix with Acetic Acid (VIA)' AND via_screening_result = 'VIA negative'                                                              AND age BETWEEN 20 AND 24 THEN 1 ELSE 0 END) AS via_normal_u24,
-             SUM(CASE WHEN screening_type = 'Visual Inspection of the Cervix with Acetic Acid (VIA)' AND via_screening_result = 'VIA negative'                                                              AND age BETWEEN 25 AND 29 THEN 1 ELSE 0 END) AS via_normal_u29,
-             SUM(CASE WHEN screening_type = 'Visual Inspection of the Cervix with Acetic Acid (VIA)' AND via_screening_result = 'VIA negative'                                                              AND age BETWEEN 30 AND 49 THEN 1 ELSE 0 END) AS via_normal_u49,
-             SUM(CASE WHEN screening_type = 'Visual Inspection of the Cervix with Acetic Acid (VIA)' AND via_screening_result = 'VIA negative'                                                              AND age >= 50              THEN 1 ELSE 0 END) AS via_normal_o50,
-             SUM(CASE WHEN screening_type = 'Visual Inspection of the Cervix with Acetic Acid (VIA)' AND via_screening_result IN ('VIA positive: non-eligible for cryo/thermo-coagula','VIA positive: eligible for cryo/thermo-coagula')                  THEN 1 ELSE 0 END) AS via_precancer_total,
-             SUM(CASE WHEN screening_type = 'Visual Inspection of the Cervix with Acetic Acid (VIA)' AND via_screening_result IN ('VIA positive: non-eligible for cryo/thermo-coagula','VIA positive: eligible for cryo/thermo-coagula') AND age BETWEEN 15 AND 19 THEN 1 ELSE 0 END) AS via_precancer_u19,
-             SUM(CASE WHEN screening_type = 'Visual Inspection of the Cervix with Acetic Acid (VIA)' AND via_screening_result IN ('VIA positive: non-eligible for cryo/thermo-coagula','VIA positive: eligible for cryo/thermo-coagula') AND age BETWEEN 20 AND 24 THEN 1 ELSE 0 END) AS via_precancer_u24,
-             SUM(CASE WHEN screening_type = 'Visual Inspection of the Cervix with Acetic Acid (VIA)' AND via_screening_result IN ('VIA positive: non-eligible for cryo/thermo-coagula','VIA positive: eligible for cryo/thermo-coagula') AND age BETWEEN 25 AND 29 THEN 1 ELSE 0 END) AS via_precancer_u29,
-             SUM(CASE WHEN screening_type = 'Visual Inspection of the Cervix with Acetic Acid (VIA)' AND via_screening_result IN ('VIA positive: non-eligible for cryo/thermo-coagula','VIA positive: eligible for cryo/thermo-coagula') AND age BETWEEN 30 AND 49 THEN 1 ELSE 0 END) AS via_precancer_u49,
-             SUM(CASE WHEN screening_type = 'Visual Inspection of the Cervix with Acetic Acid (VIA)' AND via_screening_result IN ('VIA positive: non-eligible for cryo/thermo-coagula','VIA positive: eligible for cryo/thermo-coagula') AND age >= 50              THEN 1 ELSE 0 END) AS via_precancer_o50,
-             SUM(CASE WHEN screening_type = 'Visual Inspection of the Cervix with Acetic Acid (VIA)' AND via_screening_result = 'suspected cervical cancer'                                                                                               THEN 1 ELSE 0 END) AS via_cancer_total,
-             SUM(CASE WHEN screening_type = 'Visual Inspection of the Cervix with Acetic Acid (VIA)' AND via_screening_result = 'suspected cervical cancer'                                                 AND age BETWEEN 15 AND 19 THEN 1 ELSE 0 END) AS via_cancer_u19,
-             SUM(CASE WHEN screening_type = 'Visual Inspection of the Cervix with Acetic Acid (VIA)' AND via_screening_result = 'suspected cervical cancer'                                                 AND age BETWEEN 20 AND 24 THEN 1 ELSE 0 END) AS via_cancer_u24,
-             SUM(CASE WHEN screening_type = 'Visual Inspection of the Cervix with Acetic Acid (VIA)' AND via_screening_result = 'suspected cervical cancer'                                                 AND age BETWEEN 25 AND 29 THEN 1 ELSE 0 END) AS via_cancer_u29,
-             SUM(CASE WHEN screening_type = 'Visual Inspection of the Cervix with Acetic Acid (VIA)' AND via_screening_result = 'suspected cervical cancer'                                                 AND age BETWEEN 30 AND 49 THEN 1 ELSE 0 END) AS via_cancer_u49,
-             SUM(CASE WHEN screening_type = 'Visual Inspection of the Cervix with Acetic Acid (VIA)' AND via_screening_result = 'suspected cervical cancer'                                                 AND age >= 50              THEN 1 ELSE 0 END) AS via_cancer_o50,
-             SUM(CASE WHEN screening_type = 'Human Papillomavirus test' AND hpv_dna_screening_result = 'Positive'                             THEN 1 ELSE 0 END) AS hpv_pos_total,
-             SUM(CASE WHEN screening_type = 'Human Papillomavirus test' AND hpv_dna_screening_result = 'Positive' AND age BETWEEN 15 AND 19  THEN 1 ELSE 0 END) AS hpv_pos_u19,
-             SUM(CASE WHEN screening_type = 'Human Papillomavirus test' AND hpv_dna_screening_result = 'Positive' AND age BETWEEN 20 AND 24  THEN 1 ELSE 0 END) AS hpv_pos_u24,
-             SUM(CASE WHEN screening_type = 'Human Papillomavirus test' AND hpv_dna_screening_result = 'Positive' AND age BETWEEN 25 AND 29  THEN 1 ELSE 0 END) AS hpv_pos_u29,
-             SUM(CASE WHEN screening_type = 'Human Papillomavirus test' AND hpv_dna_screening_result = 'Positive' AND age BETWEEN 30 AND 49  THEN 1 ELSE 0 END) AS hpv_pos_u49,
-             SUM(CASE WHEN screening_type = 'Human Papillomavirus test' AND hpv_dna_screening_result = 'Positive' AND age >= 50               THEN 1 ELSE 0 END) AS hpv_pos_o50
-         FROM (SELECT *, TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) AS age FROM cx_screened) t
-     )
-SELECT 'HIV_CXCA_SCRN.1'    AS S_NO, 'Cervical Cancer screening by type of test'   AS Activity, Value              FROM scrn_agg
-UNION ALL SELECT 'HIV_CXCA_SCRN.1. 1',   'Screened by VIA',                                     via_total          FROM scrn_agg
-UNION ALL SELECT 'HIV_CXCA_SCRN.1. 2',   'Screened by HPV DNA',                                 hpv_total          FROM scrn_agg
-UNION ALL SELECT 'HIV_CXCA_SCRN.2',      'VIA Screening Result',                                 via_total          FROM scrn_agg
-UNION ALL SELECT 'HIV_CXCA_SCRN.2.1',    'Normal cervix:',                                       via_normal_total   FROM scrn_agg
-UNION ALL SELECT 'HIV_CXCA_SCRN.2.1. 1', '15 - 19 years',                                       via_normal_u19     FROM scrn_agg
-UNION ALL SELECT 'HIV_CXCA_SCRN.2.1. 2', '20 - 24 years',                                       via_normal_u24     FROM scrn_agg
-UNION ALL SELECT 'HIV_CXCA_SCRN.2.1. 3', '25 - 29 years',                                       via_normal_u29     FROM scrn_agg
-UNION ALL SELECT 'HIV_CXCA_SCRN.2.1. 4', '30 - 49 years',                                       via_normal_u49     FROM scrn_agg
-UNION ALL SELECT 'HIV_CXCA_SCRN.2.1. 5', '>= 50 years',                                         via_normal_o50     FROM scrn_agg
-UNION ALL SELECT 'HIV_CXCA_SCRN.2.3',    'Precancerous Lesion:',                                 via_precancer_total FROM scrn_agg
-UNION ALL SELECT 'HIV_CXCA_SCRN.2.3. 1', '15 - 19 years',                                       via_precancer_u19  FROM scrn_agg
-UNION ALL SELECT 'HIV_CXCA_SCRN.2.3. 2', '20 - 24 years',                                       via_precancer_u24  FROM scrn_agg
-UNION ALL SELECT 'HIV_CXCA_SCRN.2.3. 3', '25 - 29 years',                                       via_precancer_u29  FROM scrn_agg
-UNION ALL SELECT 'HIV_CXCA_SCRN.2.3. 4', '30 - 49 years',                                       via_precancer_u49  FROM scrn_agg
-UNION ALL SELECT 'HIV_CXCA_SCRN.2.3. 5', '>= 50 years',                                         via_precancer_o50  FROM scrn_agg
-UNION ALL SELECT 'HIV_CXCA_SCRN.2.4',    'Suspecious cancerous Lesion:',                         via_cancer_total   FROM scrn_agg
-UNION ALL SELECT 'HIV_CXCA_SCRN.2.4. 1', '15 - 19 years',                                       via_cancer_u19     FROM scrn_agg
-UNION ALL SELECT 'HIV_CXCA_SCRN.2.4. 2', '20 - 24 years',                                       via_cancer_u24     FROM scrn_agg
-UNION ALL SELECT 'HIV_CXCA_SCRN.2.4. 3', '25 - 29 years',                                       via_cancer_u29     FROM scrn_agg
-UNION ALL SELECT 'HIV_CXCA_SCRN.2.4. 4', '30 - 49 years',                                       via_cancer_u49     FROM scrn_agg
-UNION ALL SELECT 'HIV_CXCA_SCRN.2.4. 5', '>= 50 years',                                         via_cancer_o50     FROM scrn_agg
-UNION ALL SELECT 'HIV_CXCA_SCRN.2.5',    'HPV DNA test positive:',                               hpv_pos_total      FROM scrn_agg
-UNION ALL SELECT 'HIV_CXCA_SCRN.2.5. 1', '15 - 19 years',                                       hpv_pos_u19        FROM scrn_agg
-UNION ALL SELECT 'HIV_CXCA_SCRN.2.5. 2', '20 - 24 years',                                       hpv_pos_u24        FROM scrn_agg
-UNION ALL SELECT 'HIV_CXCA_SCRN.2.5. 3', '25 - 29 years',                                       hpv_pos_u29        FROM scrn_agg
-UNION ALL SELECT 'HIV_CXCA_SCRN.2.5. 4', '30 - 49 years',                                       hpv_pos_u49        FROM scrn_agg
-UNION ALL SELECT 'HIV_CXCA_SCRN.2.5. 5', '>= 50 years',                                         hpv_pos_o50        FROM scrn_agg;
+                     )
+--  Cervical Cancer screening by type of test
+SELECT 'HIV_CXCA_SCRN.1'                     AS S_NO,
+       'Cervical Cancer screening by type of test' as Activity,
+       COUNT(*)                          as Value
+FROM cx_screened
+--  Cervical Cancer screening by type of test
+UNION ALL
+SELECT 'HIV_CXCA_SCRN.1. 1'                     AS S_NO,
+       'Screened by VIA' as Activity,
+       COUNT(*)                          as Value
+FROM cx_screened
+where screening_type='Visual Inspection of the Cervix with Acetic Acid (VIA)'
+--  Screened by HPV DNA
+UNION ALL
+SELECT 'HIV_CXCA_SCRN.1. 2'                     AS S_NO,
+       'Screened by HPV DNA' as Activity,
+       COUNT(*)                          as Value
+FROM cx_screened
+where screening_type='Human Papillomavirus test'
+--  VIA Screening Result
+UNION ALL
+SELECT 'HIV_CXCA_SCRN.2'                     AS S_NO,
+       'VIA Screening Result' as Activity,
+       COUNT(*)                          as Value
+FROM cx_screened
+where screening_type='Visual Inspection of the Cervix with Acetic Acid (VIA)'
+
+--  Normal cervix:
+UNION ALL
+SELECT 'HIV_CXCA_SCRN.2.1'                     AS S_NO,
+       'Normal cervix:' as Activity,
+       COUNT(*)                          as Value
+FROM cx_screened
+where screening_type='Visual Inspection of the Cervix with Acetic Acid (VIA)'
+  and via_screening_result='VIA negative'
+--  15 - 19 years
+UNION ALL
+SELECT 'HIV_CXCA_SCRN.2.1. 1'                     AS S_NO,
+       '15 - 19 years' as Activity,
+       COUNT(*)                          as Value
+FROM cx_screened
+where screening_type='Visual Inspection of the Cervix with Acetic Acid (VIA)'
+  and via_screening_result='VIA negative'
+  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
+--  20 - 24 years
+UNION ALL
+SELECT 'HIV_CXCA_SCRN.2.1. 2'                     AS S_NO,
+       '20 - 24 years' as Activity,
+       COUNT(*)                          as Value
+FROM cx_screened
+where screening_type='Visual Inspection of the Cervix with Acetic Acid (VIA)'
+  and via_screening_result='VIA negative'
+  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 20 AND 24
+--  25 - 29 years
+UNION ALL
+SELECT 'HIV_CXCA_SCRN.2.1. 3'                     AS S_NO,
+       '25 - 29 years' as Activity,
+       COUNT(*)                          as Value
+FROM cx_screened
+where screening_type='Visual Inspection of the Cervix with Acetic Acid (VIA)'
+  and via_screening_result='VIA negative'
+  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 25 AND 29
+--  30 - 49 years
+UNION ALL
+SELECT 'HIV_CXCA_SCRN.2.1. 4'                     AS S_NO,
+       '30 - 49 years' as Activity,
+       COUNT(*)                          as Value
+FROM cx_screened
+where screening_type='Visual Inspection of the Cervix with Acetic Acid (VIA)'
+  and via_screening_result='VIA negative'
+  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 30 AND 49
+--  >= 50 years
+UNION ALL
+SELECT 'HIV_CXCA_SCRN.2.1. 5'                     AS S_NO,
+       '>= 50 years' as Activity,
+       COUNT(*)                          as Value
+FROM cx_screened
+where screening_type='Visual Inspection of the Cervix with Acetic Acid (VIA)'
+  and via_screening_result='VIA negative'
+  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 50
+
+--  Precancerous Lesion:
+UNION ALL
+SELECT 'HIV_CXCA_SCRN.2.3'                     AS S_NO,
+       'Precancerous Lesion:' as Activity,
+       COUNT(*)                          as Value
+FROM cx_screened
+where screening_type='Visual Inspection of the Cervix with Acetic Acid (VIA)'
+  and (via_screening_result='VIA positive: non-eligible for cryo/thermo-coagula'
+   or via_screening_result='VIA positive: eligible for cryo/thermo-coagula')
+--  15 - 19 years
+UNION ALL
+SELECT 'HIV_CXCA_SCRN.2.3. 1'                     AS S_NO,
+       '15 - 19 years' as Activity,
+       COUNT(*)                          as Value
+FROM cx_screened
+where screening_type='Visual Inspection of the Cervix with Acetic Acid (VIA)'
+  and (via_screening_result='VIA positive: non-eligible for cryo/thermo-coagula'
+   or via_screening_result='VIA positive: eligible for cryo/thermo-coagula')
+  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
+--  20 - 24 years
+UNION ALL
+SELECT 'HIV_CXCA_SCRN.2.3. 2'                     AS S_NO,
+       '20 - 24 years' as Activity,
+       COUNT(*)                          as Value
+FROM cx_screened
+where screening_type='Visual Inspection of the Cervix with Acetic Acid (VIA)'
+  and (via_screening_result='VIA positive: non-eligible for cryo/thermo-coagula'
+   or via_screening_result='VIA positive: eligible for cryo/thermo-coagula')
+  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 20 AND 24
+--  25 - 29 years
+UNION ALL
+SELECT 'HIV_CXCA_SCRN.2.3. 3'                     AS S_NO,
+       '25 - 29 years' as Activity,
+       COUNT(*)                          as Value
+FROM cx_screened
+where screening_type='Visual Inspection of the Cervix with Acetic Acid (VIA)'
+  and (via_screening_result='VIA positive: non-eligible for cryo/thermo-coagula'
+   or via_screening_result='VIA positive: eligible for cryo/thermo-coagula')
+  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 25 AND 29
+--  30 - 49 years
+UNION ALL
+SELECT 'HIV_CXCA_SCRN.2.3. 4'                     AS S_NO,
+       '30 - 49 years' as Activity,
+       COUNT(*)                          as Value
+FROM cx_screened
+where screening_type='Visual Inspection of the Cervix with Acetic Acid (VIA)'
+  and (via_screening_result='VIA positive: non-eligible for cryo/thermo-coagula'
+   or via_screening_result='VIA positive: eligible for cryo/thermo-coagula')
+  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 30 AND 49
+--  >= 50 years
+UNION ALL
+SELECT 'HIV_CXCA_SCRN.2.3. 5'                     AS S_NO,
+       '>= 50 years' as Activity,
+       COUNT(*)                          as Value
+FROM cx_screened
+where screening_type='Visual Inspection of the Cervix with Acetic Acid (VIA)'
+  and (via_screening_result='VIA positive: non-eligible for cryo/thermo-coagula'
+   or via_screening_result='VIA positive: eligible for cryo/thermo-coagula')
+  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 50
+--  Suspecious cancerous Lesion:
+UNION ALL
+SELECT 'HIV_CXCA_SCRN.2.4'                     AS S_NO,
+       'Suspecious cancerous Lesion:' as Activity,
+       COUNT(*)                          as Value
+FROM cx_screened
+where screening_type='Visual Inspection of the Cervix with Acetic Acid (VIA)'
+  and via_screening_result='suspected cervical cancer'
+--  15 - 19 years
+UNION ALL
+SELECT 'HIV_CXCA_SCRN.2.4. 1'                     AS S_NO,
+       '15 - 19 years' as Activity,
+       COUNT(*)                          as Value
+FROM cx_screened
+where screening_type='Visual Inspection of the Cervix with Acetic Acid (VIA)'
+  and via_screening_result='suspected cervical cancer'
+  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
+--  20 - 24 years
+UNION ALL
+SELECT 'HIV_CXCA_SCRN.2.4. 2'                     AS S_NO,
+       '20 - 24 years' as Activity,
+       COUNT(*)                          as Value
+FROM cx_screened
+where screening_type='Visual Inspection of the Cervix with Acetic Acid (VIA)'
+  and via_screening_result='suspected cervical cancer'
+  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 20 AND 24
+--  25 - 29 years
+UNION ALL
+SELECT 'HIV_CXCA_SCRN.2.4. 3'                     AS S_NO,
+       '25 - 29 years' as Activity,
+       COUNT(*)                          as Value
+FROM cx_screened
+where screening_type='Visual Inspection of the Cervix with Acetic Acid (VIA)'
+  and via_screening_result='suspected cervical cancer'
+  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 25 AND 29
+--  30 - 49 years
+UNION ALL
+SELECT 'HIV_CXCA_SCRN.2.4. 4'                     AS S_NO,
+       '30 - 49 years' as Activity,
+       COUNT(*)                          as Value
+FROM cx_screened
+where screening_type='Visual Inspection of the Cervix with Acetic Acid (VIA)'
+  and via_screening_result='suspected cervical cancer'
+  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 30 AND 49
+--  >= 50 years
+UNION ALL
+SELECT 'HIV_CXCA_SCRN.2.4. 5'                     AS S_NO,
+       '>= 50 years' as Activity,
+       COUNT(*)                          as Value
+FROM cx_screened
+where screening_type='Visual Inspection of the Cervix with Acetic Acid (VIA)'
+  and via_screening_result='suspected cervical cancer'
+  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 50
+
+--  HPV DNA test positive:
+UNION ALL
+SELECT 'HIV_CXCA_SCRN.2.5'                     AS S_NO,
+       'HPV DNA test positive:' as Activity,
+       COUNT(*)                          as Value
+FROM cx_screened
+where screening_type='Human Papillomavirus test'
+  and hpv_dna_screening_result='Positive'
+--  15 - 19 years
+UNION ALL
+SELECT 'HIV_CXCA_SCRN.2.5. 1'                     AS S_NO,
+       '15 - 19 years' as Activity,
+       COUNT(*)                          as Value
+FROM cx_screened
+where screening_type='Human Papillomavirus test'
+  and hpv_dna_screening_result='Positive'
+  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
+--  20 - 24 years
+UNION ALL
+SELECT 'HIV_CXCA_SCRN.2.5. 2'                     AS S_NO,
+       '20 - 24 years' as Activity,
+       COUNT(*)                          as Value
+FROM cx_screened
+where screening_type='Human Papillomavirus test'
+  and hpv_dna_screening_result='Positive'
+  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 20 AND 24
+--  25 - 29 years
+UNION ALL
+SELECT 'HIV_CXCA_SCRN.2.5. 3'                     AS S_NO,
+       '25 - 29 years' as Activity,
+       COUNT(*)                          as Value
+FROM cx_screened
+where screening_type='Human Papillomavirus test'
+  and hpv_dna_screening_result='Positive'
+  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 25 AND 29
+--  30 - 49 years
+UNION ALL
+SELECT 'HIV_CXCA_SCRN.2.5. 4'                     AS S_NO,
+       '30 - 49 years' as Activity,
+       COUNT(*)                          as Value
+FROM cx_screened
+where screening_type='Human Papillomavirus test'
+  and hpv_dna_screening_result='Positive'
+  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 30 AND 49
+--  >= 50 years
+UNION ALL
+SELECT 'HIV_CXCA_SCRN.2.5. 5'                     AS S_NO,
+       '>= 50 years' as Activity,
+       COUNT(*)                          as Value
+FROM cx_screened
+where screening_type='Human Papillomavirus test'
+  and hpv_dna_screening_result='Positive'
+  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 50;
 END //
 
 DELIMITER ;

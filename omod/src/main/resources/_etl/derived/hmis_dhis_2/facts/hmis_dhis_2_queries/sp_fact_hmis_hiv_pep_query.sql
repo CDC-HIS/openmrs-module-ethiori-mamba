@@ -31,16 +31,16 @@ WITH PostExposure AS (select client_id,
      ),
      pep_agg AS (
          SELECT
-             COUNT(*) AS total,
+             COUNT(*) AS Value,
              SUM(CASE WHEN exposure_type = 'Occupational'                                THEN 1 ELSE 0 END) AS occupational,
              SUM(CASE WHEN exposure_type IN ('Sexual violence','Sexual assault')          THEN 1 ELSE 0 END) AS sexual_violence,
              SUM(CASE WHEN exposure_type IN ('Other','Non-occupational')                  THEN 1 ELSE 0 END) AS other_non_occ
          FROM tx_new
      )
-SELECT 'HIV_PEP'    AS S_NO, 'Number of persons provided with post-exposure prophylaxis (PEP) for risk of HIV infection by exposure type' AS Activity, total          FROM pep_agg
-UNION ALL SELECT 'HIV_PEP. 1', 'Occupational',          occupational     FROM pep_agg
-UNION ALL SELECT 'HIV_PEP. 2', 'Sexual violence',       sexual_violence  FROM pep_agg
-UNION ALL SELECT 'HIV_PEP. 3', 'Other Non occupational', other_non_occ  FROM pep_agg;
+SELECT 'HIV_PEP'    AS S_NO, 'Number of persons provided with post-exposure prophylaxis (PEP) for risk of HIV infection by exposure type' AS Activity, Value          FROM pep_agg
+UNION ALL SELECT 'HIV_PEP. 1', 'Occupational',          COALESCE(occupational,0)     FROM pep_agg
+UNION ALL SELECT 'HIV_PEP. 2', 'Sexual violence',       COALESCE(sexual_violence,0)  FROM pep_agg
+UNION ALL SELECT 'HIV_PEP. 3', 'Other Non occupational', COALESCE(other_non_occ,0)  FROM pep_agg;
 END //
 
 DELIMITER ;

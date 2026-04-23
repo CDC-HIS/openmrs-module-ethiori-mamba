@@ -127,46 +127,46 @@ BEGIN
     SELECT 'HIV_PrEP'    AS S_NO, 'Number of individuals receiving Pre-Exposure Prophylaxis'                              AS Activity, Value    AS Value FROM prep_new_agg
     UNION ALL SELECT 'HIV_PrEP.1',    'PrEP (New Number of individuals who were newly enrolled on PrEP)',                Value    FROM prep_new_agg
     UNION ALL SELECT 'HIV_PrEP.1.1',  'By age and Sex',                                                                  Value    FROM prep_new_agg
-    UNION ALL SELECT 'HIV_PrEP.1.1. 1',  '15 - 19 years, Male',   u19_m  FROM prep_new_agg
-    UNION ALL SELECT 'HIV_PrEP.1.1. 2',  '15 - 19 years, Female', u19_f  FROM prep_new_agg
-    UNION ALL SELECT 'HIV_PrEP.1.1. 3',  '20 - 24 years, Male',   u24_m  FROM prep_new_agg
-    UNION ALL SELECT 'HIV_PrEP.1.1. 4',  '20 - 24 years, Female', u24_f  FROM prep_new_agg
-    UNION ALL SELECT 'HIV_PrEP.1.1. 5',  '25 - 29 years, Male',   u29_m  FROM prep_new_agg
-    UNION ALL SELECT 'HIV_PrEP.1.1. 6',  '25 - 29 years, Female', u29_f  FROM prep_new_agg
-    UNION ALL SELECT 'HIV_PrEP.1.1. 7',  '30 - 34 years, Male',   u34_m  FROM prep_new_agg
-    UNION ALL SELECT 'HIV_PrEP.1.1. 8',  '30 - 34 years, Female', u34_f  FROM prep_new_agg
-    UNION ALL SELECT 'HIV_PrEP.1.1. 9',  '35 - 39 years, Male',   u39_m  FROM prep_new_agg
-    UNION ALL SELECT 'HIV_PrEP.1.1. 10', '35 - 39 years, Female', u39_f  FROM prep_new_agg
-    UNION ALL SELECT 'HIV_PrEP.1.1. 11', '40 - 44 years, Male',   u44_m  FROM prep_new_agg
-    UNION ALL SELECT 'HIV_PrEP.1.1. 12', '40 - 44 years, Female', u44_f  FROM prep_new_agg
-    UNION ALL SELECT 'HIV_PrEP.1.1. 13', '45 - 49 years, Male',   u49_m  FROM prep_new_agg
-    UNION ALL SELECT 'HIV_PrEP.1.1. 14', '45 - 49 years, Female', u49_f  FROM prep_new_agg
-    UNION ALL SELECT 'HIV_PrEP.1.1. 15', '>= 50 years, Male',     o50_m  FROM prep_new_agg
-    UNION ALL SELECT 'HIV_PrEP.1.1. 16', '>= 50 years, Female',   o50_f  FROM prep_new_agg
-    UNION ALL SELECT 'HIV_PrEP.1.2',  'By Client Category',        cat_total  FROM prep_new_agg
-    UNION ALL SELECT 'HIV_PrEP.1.2. 1', 'Discordant Couple',       discordant FROM prep_new_agg
-    UNION ALL SELECT 'HIV_PrEP.1.2. 2', 'Female sex worker[FSW]',  fsw        FROM prep_new_agg
-    UNION ALL SELECT 'HIV_PrEP_CURR.1', 'PrEP Curr (Number of individuals that received oral PrEP during the reporting period)', total FROM prep_curr_agg
+    UNION ALL SELECT 'HIV_PrEP.1.1. 1',  '15 - 19 years, Male',   COALESCE(u19_m, 0)  FROM prep_new_agg
+    UNION ALL SELECT 'HIV_PrEP.1.1. 2',  '15 - 19 years, Female', COALESCE(u19_f,0)  FROM prep_new_agg
+    UNION ALL SELECT 'HIV_PrEP.1.1. 3',  '20 - 24 years, Male',   COALESCE(u24_m,0)  FROM prep_new_agg
+    UNION ALL SELECT 'HIV_PrEP.1.1. 4',  '20 - 24 years, Female', COALESCE(u24_f,0)  FROM prep_new_agg
+    UNION ALL SELECT 'HIV_PrEP.1.1. 5',  '25 - 29 years, Male',   COALESCE(u29_m,0)  FROM prep_new_agg
+    UNION ALL SELECT 'HIV_PrEP.1.1. 6',  '25 - 29 years, Female', COALESCE(u29_f,0)  FROM prep_new_agg
+    UNION ALL SELECT 'HIV_PrEP.1.1. 7',  '30 - 34 years, Male',   COALESCE(u34_m,0)  FROM prep_new_agg
+    UNION ALL SELECT 'HIV_PrEP.1.1. 8',  '30 - 34 years, Female', COALESCE(u34_f,0)  FROM prep_new_agg
+    UNION ALL SELECT 'HIV_PrEP.1.1. 9',  '35 - 39 years, Male',   COALESCE(u39_m,0)  FROM prep_new_agg
+    UNION ALL SELECT 'HIV_PrEP.1.1. 10', '35 - 39 years, Female', COALESCE(u39_f,0)  FROM prep_new_agg
+    UNION ALL SELECT 'HIV_PrEP.1.1. 11', '40 - 44 years, Male',   COALESCE(u44_m,0)  FROM prep_new_agg
+    UNION ALL SELECT 'HIV_PrEP.1.1. 12', '40 - 44 years, Female', COALESCE(u44_f,0)  FROM prep_new_agg
+    UNION ALL SELECT 'HIV_PrEP.1.1. 13', '45 - 49 years, Male',   COALESCE(u49_m,0)  FROM prep_new_agg
+    UNION ALL SELECT 'HIV_PrEP.1.1. 14', '45 - 49 years, Female', COALESCE(u49_f,0)  FROM prep_new_agg
+    UNION ALL SELECT 'HIV_PrEP.1.1. 15', '>= 50 years, Male',     COALESCE(o50_m,0)  FROM prep_new_agg
+    UNION ALL SELECT 'HIV_PrEP.1.1. 16', '>= 50 years, Female',   COALESCE(o50_f,0)  FROM prep_new_agg
+    UNION ALL SELECT 'HIV_PrEP.1.2',  'By Client Category',        COALESCE(cat_total,0)  FROM prep_new_agg
+    UNION ALL SELECT 'HIV_PrEP.1.2. 1', 'Discordant Couple',       COALESCE(discordant,0) FROM prep_new_agg
+    UNION ALL SELECT 'HIV_PrEP.1.2. 2', 'Female sex worker[FSW]',  COALESCE(fsw,0)        FROM prep_new_agg
+    UNION ALL SELECT 'HIV_PrEP_CURR.1', 'PrEP Curr (Number of individuals that received oral PrEP during the reporting period)', Value FROM prep_curr_agg
     UNION ALL SELECT 'HIV_PrEP_CURR.1',  'By age and Sex',          Value  FROM prep_curr_agg
-    UNION ALL SELECT 'HIV_PrEP_CURR.1. 1',  '15 - 19 years, Male',   u19_m  FROM prep_curr_agg
-    UNION ALL SELECT 'HIV_PrEP_CURR.1. 2',  '15 - 19 years, Female', u19_f  FROM prep_curr_agg
-    UNION ALL SELECT 'HIV_PrEP_CURR.1. 3',  '20 - 24 years, Male',   u24_m  FROM prep_curr_agg
-    UNION ALL SELECT 'HIV_PrEP_CURR.1. 4',  '20 - 24 years, Female', u24_f  FROM prep_curr_agg
-    UNION ALL SELECT 'HIV_PrEP_CURR.1. 5',  '25 - 29 years, Male',   u29_m  FROM prep_curr_agg
-    UNION ALL SELECT 'HIV_PrEP_CURR.1. 6',  '25 - 29 years, Female', u29_f  FROM prep_curr_agg
-    UNION ALL SELECT 'HIV_PrEP_CURR.1. 7',  '30 - 34 years, Male',   u34_m  FROM prep_curr_agg
-    UNION ALL SELECT 'HIV_PrEP_CURR.1. 8',  '30 - 34 years, Female', u34_f  FROM prep_curr_agg
-    UNION ALL SELECT 'HIV_PrEP_CURR.1. 9',  '35 - 39 years, Male',   u39_m  FROM prep_curr_agg
-    UNION ALL SELECT 'HIV_PrEP_CURR.1. 10', '35 - 39 years, Female', u39_f  FROM prep_curr_agg
-    UNION ALL SELECT 'HIV_PrEP_CURR.1. 11', '40 - 44 years, Male',   u44_m  FROM prep_curr_agg
-    UNION ALL SELECT 'HIV_PrEP_CURR.1. 12', '40 - 44 years, Female', u44_f  FROM prep_curr_agg
-    UNION ALL SELECT 'HIV_PrEP_CURR.1. 13', '45 - 49 years, Male',   u49_m  FROM prep_curr_agg
-    UNION ALL SELECT 'HIV_PrEP_CURR.1. 14', '45 - 49 years, Female', u49_f  FROM prep_curr_agg
-    UNION ALL SELECT 'HIV_PrEP_CURR.1. 15', '>= 50 years, Male',     o50_m  FROM prep_curr_agg
-    UNION ALL SELECT 'HIV_PrEP_CURR.1. 16', '>= 50 years, Female',   o50_f  FROM prep_curr_agg
-    UNION ALL SELECT 'HIV_PrEP_CURR.2',   'By Client Category',      cat_total  FROM prep_curr_agg
-    UNION ALL SELECT 'HIV_PrEP_CURR.2. 1', 'Discordant Couple',      discordant FROM prep_curr_agg
-    UNION ALL SELECT 'HIV_PrEP_CURR.2. 2', 'Female sex worker[FSW]', fsw        FROM prep_curr_agg;
+    UNION ALL SELECT 'HIV_PrEP_CURR.1. 1',  '15 - 19 years, Male',   COALESCE(u19_m,0)  FROM prep_curr_agg
+    UNION ALL SELECT 'HIV_PrEP_CURR.1. 2',  '15 - 19 years, Female', COALESCE(u19_f,0)  FROM prep_curr_agg
+    UNION ALL SELECT 'HIV_PrEP_CURR.1. 3',  '20 - 24 years, Male',   COALESCE(u24_m,0)  FROM prep_curr_agg
+    UNION ALL SELECT 'HIV_PrEP_CURR.1. 4',  '20 - 24 years, Female', COALESCE(u24_f,0)  FROM prep_curr_agg
+    UNION ALL SELECT 'HIV_PrEP_CURR.1. 5',  '25 - 29 years, Male',   COALESCE(u29_m,0)  FROM prep_curr_agg
+    UNION ALL SELECT 'HIV_PrEP_CURR.1. 6',  '25 - 29 years, Female', COALESCE(u29_f,0)  FROM prep_curr_agg
+    UNION ALL SELECT 'HIV_PrEP_CURR.1. 7',  '30 - 34 years, Male',   COALESCE(u34_m,0)  FROM prep_curr_agg
+    UNION ALL SELECT 'HIV_PrEP_CURR.1. 8',  '30 - 34 years, Female', COALESCE(u34_f,0)  FROM prep_curr_agg
+    UNION ALL SELECT 'HIV_PrEP_CURR.1. 9',  '35 - 39 years, Male',   COALESCE(u39_m,0)  FROM prep_curr_agg
+    UNION ALL SELECT 'HIV_PrEP_CURR.1. 10', '35 - 39 years, Female', COALESCE(u39_f,0)  FROM prep_curr_agg
+    UNION ALL SELECT 'HIV_PrEP_CURR.1. 11', '40 - 44 years, Male',   COALESCE(u44_m,0)  FROM prep_curr_agg
+    UNION ALL SELECT 'HIV_PrEP_CURR.1. 12', '40 - 44 years, Female', COALESCE(u44_f,0)  FROM prep_curr_agg
+    UNION ALL SELECT 'HIV_PrEP_CURR.1. 13', '45 - 49 years, Male',   COALESCE(u49_m,0)  FROM prep_curr_agg
+    UNION ALL SELECT 'HIV_PrEP_CURR.1. 14', '45 - 49 years, Female', COALESCE(u49_f,0)  FROM prep_curr_agg
+    UNION ALL SELECT 'HIV_PrEP_CURR.1. 15', '>= 50 years, Male',     COALESCE(o50_m,0)  FROM prep_curr_agg
+    UNION ALL SELECT 'HIV_PrEP_CURR.1. 16', '>= 50 years, Female',   COALESCE(o50_f,0)  FROM prep_curr_agg
+    UNION ALL SELECT 'HIV_PrEP_CURR.2',   'By Client Category',      COALESCE(cat_total,0)  FROM prep_curr_agg
+    UNION ALL SELECT 'HIV_PrEP_CURR.2. 1', 'Discordant Couple',      COALESCE(discordant,0) FROM prep_curr_agg
+    UNION ALL SELECT 'HIV_PrEP_CURR.2. 2', 'Female sex worker[FSW]', COALESCE(fsw,0)        FROM prep_curr_agg;
 END //
 
 DELIMITER ;
