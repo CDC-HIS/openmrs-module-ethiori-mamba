@@ -47,49 +47,153 @@ WITH FollowUp as (select follow_up.encounter_id,
                       client.sex
                from tmp_cx_rx
                         left join mamba_dim_client client on tmp_cx_rx.client_id = client.client_id
-               where row_num = 1),
-     rx_agg AS (
-         SELECT
-             COUNT(*) AS total,
-             SUM(CASE WHEN treatment_of_precancerous_lesions = 'Cryosurgery of lesion of cervix'                            THEN 1 ELSE 0 END) AS cryo_total,
-             SUM(CASE WHEN treatment_of_precancerous_lesions = 'Cryosurgery of lesion of cervix'          AND age BETWEEN 15 AND 19 THEN 1 ELSE 0 END) AS cryo_u19,
-             SUM(CASE WHEN treatment_of_precancerous_lesions = 'Cryosurgery of lesion of cervix'          AND age BETWEEN 20 AND 24 THEN 1 ELSE 0 END) AS cryo_u24,
-             SUM(CASE WHEN treatment_of_precancerous_lesions = 'Cryosurgery of lesion of cervix'          AND age BETWEEN 25 AND 29 THEN 1 ELSE 0 END) AS cryo_u29,
-             SUM(CASE WHEN treatment_of_precancerous_lesions = 'Cryosurgery of lesion of cervix'          AND age BETWEEN 30 AND 49 THEN 1 ELSE 0 END) AS cryo_u49,
-             SUM(CASE WHEN treatment_of_precancerous_lesions = 'Cryosurgery of lesion of cervix'          AND age >= 50              THEN 1 ELSE 0 END) AS cryo_o50,
-             SUM(CASE WHEN treatment_of_precancerous_lesions = 'Loop electrosurgical excision procedure of cervix'                 THEN 1 ELSE 0 END) AS leep_total,
-             SUM(CASE WHEN treatment_of_precancerous_lesions = 'Loop electrosurgical excision procedure of cervix' AND age BETWEEN 15 AND 19 THEN 1 ELSE 0 END) AS leep_u19,
-             SUM(CASE WHEN treatment_of_precancerous_lesions = 'Loop electrosurgical excision procedure of cervix' AND age BETWEEN 20 AND 24 THEN 1 ELSE 0 END) AS leep_u24,
-             SUM(CASE WHEN treatment_of_precancerous_lesions = 'Loop electrosurgical excision procedure of cervix' AND age BETWEEN 25 AND 29 THEN 1 ELSE 0 END) AS leep_u29,
-             SUM(CASE WHEN treatment_of_precancerous_lesions = 'Loop electrosurgical excision procedure of cervix' AND age BETWEEN 30 AND 49 THEN 1 ELSE 0 END) AS leep_u49,
-             SUM(CASE WHEN treatment_of_precancerous_lesions = 'Loop electrosurgical excision procedure of cervix' AND age >= 50              THEN 1 ELSE 0 END) AS leep_o50,
-             SUM(CASE WHEN treatment_of_precancerous_lesions = 'Thermocauterization of cervix'                                     THEN 1 ELSE 0 END) AS thermo_total,
-             SUM(CASE WHEN treatment_of_precancerous_lesions = 'Thermocauterization of cervix'            AND age BETWEEN 15 AND 19 THEN 1 ELSE 0 END) AS thermo_u19,
-             SUM(CASE WHEN treatment_of_precancerous_lesions = 'Thermocauterization of cervix'            AND age BETWEEN 20 AND 24 THEN 1 ELSE 0 END) AS thermo_u24,
-             SUM(CASE WHEN treatment_of_precancerous_lesions = 'Thermocauterization of cervix'            AND age BETWEEN 25 AND 29 THEN 1 ELSE 0 END) AS thermo_u29,
-             SUM(CASE WHEN treatment_of_precancerous_lesions = 'Thermocauterization of cervix'            AND age BETWEEN 30 AND 49 THEN 1 ELSE 0 END) AS thermo_u49,
-             SUM(CASE WHEN treatment_of_precancerous_lesions = 'Thermocauterization of cervix'            AND age >= 50              THEN 1 ELSE 0 END) AS thermo_o50
-         FROM (SELECT *, TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) AS age FROM cx_rx) t
-     )
-SELECT 'HIV_CXCA_RX'  AS S_NO, 'Treatment of precancerous cervical lesion'        AS Activity, total        FROM rx_agg
-UNION ALL SELECT 'HIV_CXCA_RX.1',   'Treatment with Cryotherapy',                  cryo_total   FROM rx_agg
-UNION ALL SELECT 'HIV_CXCA_RX.1. 1','15 - 19 years',                               cryo_u19     FROM rx_agg
-UNION ALL SELECT 'HIV_CXCA_RX.1. 2','20 - 24 years',                               cryo_u24     FROM rx_agg
-UNION ALL SELECT 'HIV_CXCA_RX.1. 3','25 - 29 years',                               cryo_u29     FROM rx_agg
-UNION ALL SELECT 'HIV_CXCA_RX.1. 4','30 - 49 years',                               cryo_u49     FROM rx_agg
-UNION ALL SELECT 'HIV_CXCA_RX.1. 5','>= 50 years',                                 cryo_o50     FROM rx_agg
-UNION ALL SELECT 'HIV_CXCA_RX.2',   'Treatment with LEEP',                          leep_total   FROM rx_agg
-UNION ALL SELECT 'HIV_CXCA_RX.2. 1','15 - 19 years',                               leep_u19     FROM rx_agg
-UNION ALL SELECT 'HIV_CXCA_RX.2. 2','20 - 24 years',                               leep_u24     FROM rx_agg
-UNION ALL SELECT 'HIV_CXCA_RX.2. 3','25 - 29 years',                               leep_u29     FROM rx_agg
-UNION ALL SELECT 'HIV_CXCA_RX.2. 4','30 - 49 years',                               leep_u49     FROM rx_agg
-UNION ALL SELECT 'HIV_CXCA_RX.2. 5','>= 50 years',                                 leep_o50     FROM rx_agg
-UNION ALL SELECT 'HIV_CXCA_RX.3',   'Treatment with Thermal Ablation/Thermocoagulation', thermo_total FROM rx_agg
-UNION ALL SELECT 'HIV_CXCA_RX.3. 1','15 - 19 years',                               thermo_u19   FROM rx_agg
-UNION ALL SELECT 'HIV_CXCA_RX.3. 2','20 - 24 years',                               thermo_u24   FROM rx_agg
-UNION ALL SELECT 'HIV_CXCA_RX.3. 3','25 - 29 years',                               thermo_u29   FROM rx_agg
-UNION ALL SELECT 'HIV_CXCA_RX.3. 4','30 - 49 years',                               thermo_u49   FROM rx_agg
-UNION ALL SELECT 'HIV_CXCA_RX.3. 5','>= 50 years',                                 thermo_o50   FROM rx_agg;
+               where row_num = 1)
+--  Cervical Cancer screening by type of test
+SELECT 'HIV_CXCA_RX'                     AS S_NO,
+       'Treatment of precancerous cervical lesion' as Activity,
+       COUNT(*)                          as Value
+FROM cx_rx
+--  Treatment with Cryotherapy
+UNION ALL
+SELECT 'HIV_CXCA_RX.1'                     AS S_NO,
+       'Treatment with Cryotherapy' as Activity,
+       COUNT(*)                          as Value
+FROM cx_rx
+where treatment_of_precancerous_lesions = 'Cryosurgery of lesion of cervix'
+--  15 - 19 years
+UNION ALL
+SELECT 'HIV_CXCA_RX.1. 1'                     AS S_NO,
+       '15 - 19 years' as Activity,
+       COUNT(*)                          as Value
+FROM cx_rx
+where treatment_of_precancerous_lesions = 'Cryosurgery of lesion of cervix'
+  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
+--  20 - 24 years
+UNION ALL
+SELECT 'HIV_CXCA_RX.1. 2'                     AS S_NO,
+       '20 - 24 years' as Activity,
+       COUNT(*)                          as Value
+FROM cx_rx
+where treatment_of_precancerous_lesions = 'Cryosurgery of lesion of cervix'
+  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 20 AND 24
+--  25 - 29 years
+UNION ALL
+SELECT 'HIV_CXCA_RX.1. 3'                     AS S_NO,
+       '25 - 29 years' as Activity,
+       COUNT(*)                          as Value
+FROM cx_rx
+where treatment_of_precancerous_lesions = 'Cryosurgery of lesion of cervix'
+  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 25 AND 29
+--  30 - 49 years
+UNION ALL
+SELECT 'HIV_CXCA_RX.1. 4'                     AS S_NO,
+       '30 - 49 years' as Activity,
+       COUNT(*)                          as Value
+FROM cx_rx
+where treatment_of_precancerous_lesions = 'Cryosurgery of lesion of cervix'
+  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 30 AND 49
+--  >= 50 years
+UNION ALL
+SELECT 'HIV_CXCA_RX.1. 5'                     AS S_NO,
+       '>= 50 years' as Activity,
+       COUNT(*)                          as Value
+FROM cx_rx
+where treatment_of_precancerous_lesions = 'Cryosurgery of lesion of cervix'
+  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 50
+--  Treatment with LEEP
+UNION ALL
+SELECT 'HIV_CXCA_RX.2'                     AS S_NO,
+       'Treatment with LEEP' as Activity,
+       COUNT(*)                          as Value
+FROM cx_rx
+where treatment_of_precancerous_lesions = 'Loop electrosurgical excision procedure of cervix'
+--  15 - 19 years
+UNION ALL
+SELECT 'HIV_CXCA_RX.2. 1'                     AS S_NO,
+       '15 - 19 years' as Activity,
+       COUNT(*)                          as Value
+FROM cx_rx
+where treatment_of_precancerous_lesions = 'Loop electrosurgical excision procedure of cervix'
+  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
+--  20 - 24 years
+UNION ALL
+SELECT 'HIV_CXCA_RX.2. 2'                     AS S_NO,
+       '20 - 24 years' as Activity,
+       COUNT(*)                          as Value
+FROM cx_rx
+where treatment_of_precancerous_lesions = 'Loop electrosurgical excision procedure of cervix'
+  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 20 AND 24
+--  25 - 29 years
+UNION ALL
+SELECT 'HIV_CXCA_RX.2. 3'                     AS S_NO,
+       '25 - 29 years' as Activity,
+       COUNT(*)                          as Value
+FROM cx_rx
+where treatment_of_precancerous_lesions = 'Loop electrosurgical excision procedure of cervix'
+  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 25 AND 29
+--  30 - 49 years
+UNION ALL
+SELECT 'HIV_CXCA_RX.2. 4'                     AS S_NO,
+       '30 - 49 years' as Activity,
+       COUNT(*)                          as Value
+FROM cx_rx
+where treatment_of_precancerous_lesions = 'Loop electrosurgical excision procedure of cervix'
+  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 30 AND 49
+--  >= 50 years
+UNION ALL
+SELECT 'HIV_CXCA_RX.2. 5'                     AS S_NO,
+       '>= 50 years' as Activity,
+       COUNT(*)                          as Value
+FROM cx_rx
+where treatment_of_precancerous_lesions = 'Loop electrosurgical excision procedure of cervix'
+  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 50
+--  Treatment with Thermal Ablation/Thermocoagulation
+UNION ALL
+SELECT 'HIV_CXCA_RX.3'                     AS S_NO,
+       'Treatment with Thermal Ablation/Thermocoagulation' as Activity,
+       COUNT(*)                          as Value
+FROM cx_rx
+where treatment_of_precancerous_lesions = 'Thermocauterization of cervix'
+--  15 - 19 years
+UNION ALL
+SELECT 'HIV_CXCA_RX.3. 1'                     AS S_NO,
+       '15 - 19 years' as Activity,
+       COUNT(*)                          as Value
+FROM cx_rx
+where treatment_of_precancerous_lesions = 'Thermocauterization of cervix'
+  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
+--  20 - 24 years
+UNION ALL
+SELECT 'HIV_CXCA_RX.3. 2'                     AS S_NO,
+       '20 - 24 years' as Activity,
+       COUNT(*)                          as Value
+FROM cx_rx
+where treatment_of_precancerous_lesions = 'Thermocauterization of cervix'
+  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 20 AND 24
+--  25 - 29 years
+UNION ALL
+SELECT 'HIV_CXCA_RX.3. 3'                     AS S_NO,
+       '25 - 29 years' as Activity,
+       COUNT(*)                          as Value
+FROM cx_rx
+where treatment_of_precancerous_lesions = 'Thermocauterization of cervix'
+  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 25 AND 29
+--  30 - 49 years
+UNION ALL
+SELECT 'HIV_CXCA_RX.3. 4'                     AS S_NO,
+       '30 - 49 years' as Activity,
+       COUNT(*)                          as Value
+FROM cx_rx
+where treatment_of_precancerous_lesions = 'Thermocauterization of cervix'
+  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 30 AND 49
+--  >= 50 years
+UNION ALL
+SELECT 'HIV_CXCA_RX.3. 5'                     AS S_NO,
+       '>= 50 years' as Activity,
+       COUNT(*)                          as Value
+FROM cx_rx
+where treatment_of_precancerous_lesions = 'Thermocauterization of cervix'
+  and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 50;
 END //
 
 DELIMITER ;

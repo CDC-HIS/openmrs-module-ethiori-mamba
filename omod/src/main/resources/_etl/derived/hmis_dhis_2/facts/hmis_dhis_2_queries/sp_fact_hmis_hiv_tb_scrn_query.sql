@@ -81,58 +81,176 @@ BEGIN
                                       from latest_tb_screened_follow_up
                                       where art_start_date < REPORT_START_DATE
                                      --   and follow_up_status in ('Alive', 'Restart medication')
-         ),
-         tb_scrn_agg AS (
-             SELECT
-                 COUNT(*) AS total,
-                 SUM(CASE WHEN age < 15  AND sex = 'Male'                                THEN 1 ELSE 0 END) AS u15_male,
-                 SUM(CASE WHEN age < 15  AND sex = 'Female'                              THEN 1 ELSE 0 END) AS u15_female,
-                 SUM(CASE WHEN age >= 15 AND sex = 'Male'                                THEN 1 ELSE 0 END) AS o15_male,
-                 SUM(CASE WHEN age >= 15 AND sex = 'Female'                              THEN 1 ELSE 0 END) AS o15_female,
-                 SUM(CASE WHEN screening_result = 'Positive'                             THEN 1 ELSE 0 END) AS pos_total,
-                 SUM(CASE WHEN screening_result = 'Positive' AND age < 15  AND sex = 'Male'   THEN 1 ELSE 0 END) AS pos_u15_male,
-                 SUM(CASE WHEN screening_result = 'Positive' AND age < 15  AND sex = 'Female' THEN 1 ELSE 0 END) AS pos_u15_female,
-                 SUM(CASE WHEN screening_result = 'Positive' AND age >= 15 AND sex = 'Male'   THEN 1 ELSE 0 END) AS pos_o15_male,
-                 SUM(CASE WHEN screening_result = 'Positive' AND age >= 15 AND sex = 'Female' THEN 1 ELSE 0 END) AS pos_o15_female
-             FROM (SELECT *, TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) AS age FROM tx_new_tb_screened) t
-         ),
-         prev_agg AS (
-             SELECT
-                 COUNT(*) AS total,
-                 SUM(CASE WHEN age < 15  AND sex = 'Male'                                THEN 1 ELSE 0 END) AS u15_male,
-                 SUM(CASE WHEN age < 15  AND sex = 'Female'                              THEN 1 ELSE 0 END) AS u15_female,
-                 SUM(CASE WHEN age >= 15 AND sex = 'Male'                                THEN 1 ELSE 0 END) AS o15_male,
-                 SUM(CASE WHEN age >= 15 AND sex = 'Female'                              THEN 1 ELSE 0 END) AS o15_female,
-                 SUM(CASE WHEN screening_result = 'Positive'                             THEN 1 ELSE 0 END) AS pos_total,
-                 SUM(CASE WHEN screening_result = 'Positive' AND age < 15  AND sex = 'Male'   THEN 1 ELSE 0 END) AS pos_u15_male,
-                 SUM(CASE WHEN screening_result = 'Positive' AND age < 15  AND sex = 'Female' THEN 1 ELSE 0 END) AS pos_u15_female,
-                 SUM(CASE WHEN screening_result = 'Positive' AND age >= 15 AND sex = 'Male'   THEN 1 ELSE 0 END) AS pos_o15_male,
-                 SUM(CASE WHEN screening_result = 'Positive' AND age >= 15 AND sex = 'Female' THEN 1 ELSE 0 END) AS pos_o15_female
-             FROM (SELECT *, TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) AS age FROM prev_on_art_tb_screened) t
          )
-
-    SELECT 'HIV_TB_SCRN' AS S_NO, 'Proportion of patients enrolled in HIV care who were screened for TB (FD)' AS Activity, COUNT(*) AS Value
+    SELECT 'HIV_TB_SCRN'                                                               AS S_NO,
+           'Proportion of patients enrolled in HIV care who were screened for TB (FD)' as Activity,
+           COUNT(*)                                                                    as Value
     FROM latest_tb_screened_follow_up
-    UNION ALL SELECT 'HIV_TB_SCRN.1',       'Number of NEWLY Enrolled ART clients who were screened for TB during the reporting period', total          FROM tb_scrn_agg
-    UNION ALL SELECT 'HIV_TB_SCRN.1. 1',    '< 15 years, Male',         u15_male        FROM tb_scrn_agg
-    UNION ALL SELECT 'HIV_TB_SCRN.1. 2',    '< 15 years, Female',       u15_female      FROM tb_scrn_agg
-    UNION ALL SELECT 'HIV_TB_SCRN.1. 3',    '>= 15 years, Male',        o15_male        FROM tb_scrn_agg
-    UNION ALL SELECT 'HIV_TB_SCRN.1. 4',    '>= 15 years, Female',      o15_female      FROM tb_scrn_agg
-    UNION ALL SELECT 'HIV_TB_SCRN_P',       'Screened Positive for TB', pos_total       FROM tb_scrn_agg
-    UNION ALL SELECT 'HIV_TB_SCRN_P. 1',    '< 15 years, Male',         pos_u15_male    FROM tb_scrn_agg
-    UNION ALL SELECT 'HIV_TB_SCRN_P. 2',    '< 15 years, Female',       pos_u15_female  FROM tb_scrn_agg
-    UNION ALL SELECT 'HIV_TB_SCRN_P. 3',    '>= 15 years, Male',        pos_o15_male    FROM tb_scrn_agg
-    UNION ALL SELECT 'HIV_TB_SCRN_P. 4',    '>= 15 years, Female',      pos_o15_female  FROM tb_scrn_agg
-    UNION ALL SELECT 'HIV_TB_SCRN_ART',     'Number of PLHIVs PREVIOUSLY on ART and screened for TB', total  FROM prev_agg
-    UNION ALL SELECT 'HIV_TB_SCRN_ART. 1',  '< 15 years, Male',         u15_male        FROM prev_agg
-    UNION ALL SELECT 'HIV_TB_SCRN_ART. 2',  '< 15 years, Female',       u15_female      FROM prev_agg
-    UNION ALL SELECT 'HIV_TB_SCRN_ART. 3',  '>= 15 years, Male',        o15_male        FROM prev_agg
-    UNION ALL SELECT 'HIV_TB_SCRN_ART. 4',  '>= 15 years, Female',      o15_female      FROM prev_agg
-    UNION ALL SELECT 'HIV_TB_SCRN_ART_P',   'Screened Positive for TB', pos_total       FROM prev_agg
-    UNION ALL SELECT 'HIV_TB_SCRN_ART_P. 1','< 15 years, Male',         pos_u15_male    FROM prev_agg
-    UNION ALL SELECT 'HIV_TB_SCRN_ART_P. 2','< 15 years, Female',       pos_u15_female  FROM prev_agg
-    UNION ALL SELECT 'HIV_TB_SCRN_ART_P. 3','>= 15 years, Male',        pos_o15_male    FROM prev_agg
-    UNION ALL SELECT 'HIV_TB_SCRN_ART_P. 4','>= 15 years, Female',      pos_o15_female  FROM prev_agg;
+-- HIV_TB_SCRN.1
+    UNION ALL
+    SELECT 'HIV_TB_SCRN.1'                                                                             AS S_NO,
+           'Number of NEWLY Enrolled ART clients who were screened for TB during the reporting period' as Activity,
+           COUNT(*)                                                                                    as Value
+    FROM tx_new_tb_screened
+-- Less than  15 years, Male
+    UNION ALL
+    SELECT 'HIV_TB_SCRN.1. 1'            AS S_NO,
+           '< 15 years, Male' as Activity,
+           COUNT(*)                    as Value
+    FROM tx_new_tb_screened
+    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
+      AND sex = 'Male'
+-- Less than  15 years, Female
+    UNION ALL
+    SELECT 'HIV_TB_SCRN.1. 2'            AS S_NO,
+           '< 15 years, Female' as Activity,
+           COUNT(*)                    as Value
+    FROM tx_new_tb_screened
+    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
+      AND sex = 'Female'
+-- Greater than or equal to  15 years, Male
+    UNION ALL
+    SELECT 'HIV_TB_SCRN.1. 3'            AS S_NO,
+           '>= 15 years, Male' as Activity,
+           COUNT(*)                    as Value
+    FROM tx_new_tb_screened
+    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
+      AND sex = 'Male'
+-- Greater than or equal to  15 years, Female
+    UNION ALL
+    SELECT 'HIV_TB_SCRN.1. 4'            AS S_NO,
+           '>= 15 years, Female' as Activity,
+           COUNT(*)                    as Value
+    FROM tx_new_tb_screened
+    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
+      AND sex = 'Female'
+-- Screened Positive for TB
+    UNION ALL
+    SELECT 'HIV_TB_SCRN_P'            AS S_NO,
+           'Screened Positive for TB' as Activity,
+           COUNT(*)                    as Value
+    FROM tx_new_tb_screened
+    WHERE screening_result='Positive'
+-- < 15 years, Male
+    UNION ALL
+    SELECT 'HIV_TB_SCRN_P. 1'            AS S_NO,
+           '< 15 years, Male' as Activity,
+           COUNT(*)                    as Value
+    FROM tx_new_tb_screened
+    WHERE screening_result='Positive'
+      AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
+      AND sex='Male'
+-- < 15 years, Female
+    UNION ALL
+    SELECT 'HIV_TB_SCRN_P. 2'            AS S_NO,
+           '< 15 years, Female' as Activity,
+           COUNT(*)                    as Value
+    FROM tx_new_tb_screened
+    WHERE screening_result='Positive'
+      AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
+      AND sex='Female'
+
+-- >= 15 years, Male
+    UNION ALL
+    SELECT 'HIV_TB_SCRN_P. 3'            AS S_NO,
+           '>= 15 years, Male' as Activity,
+           COUNT(*)                    as Value
+    FROM tx_new_tb_screened
+    WHERE screening_result='Positive'
+      AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
+      AND sex='Male'
+-- >= 15 years, Female
+    UNION ALL
+    SELECT 'HIV_TB_SCRN_P. 4'            AS S_NO,
+           '>= 15 years, Female' as Activity,
+           COUNT(*)                    as Value
+    FROM tx_new_tb_screened
+    WHERE screening_result='Positive'
+      AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
+      AND sex='Female'
+
+-- Number of PLHIVs PREVIOUSLY on ART and screened for TB
+    UNION ALL
+    SELECT 'HIV_TB_SCRN_ART'            AS S_NO,
+           'Number of PLHIVs PREVIOUSLY on ART and screened for TB' as Activity,
+           COUNT(*)                    as Value
+    FROM prev_on_art_tb_screened
+-- < 15 years, Male
+    UNION ALL
+    SELECT 'HIV_TB_SCRN_ART. 1'            AS S_NO,
+           '< 15 years, Male' as Activity,
+           COUNT(*)                    as Value
+    FROM prev_on_art_tb_screened
+    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
+      AND sex='Male'
+-- < 15 years, Female
+    UNION ALL
+    SELECT 'HIV_TB_SCRN_ART. 2'            AS S_NO,
+           '< 15 years, Female' as Activity,
+           COUNT(*)                    as Value
+    FROM prev_on_art_tb_screened
+    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
+      AND sex='Female'
+-- >= 15 years, Male
+    UNION ALL
+    SELECT 'HIV_TB_SCRN_ART. 3'            AS S_NO,
+           '>= 15 years, Male' as Activity,
+           COUNT(*)                    as Value
+    FROM prev_on_art_tb_screened
+    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
+      AND sex='Male'
+-- >= 15 years, Female
+    UNION ALL
+    SELECT 'HIV_TB_SCRN_ART. 4'            AS S_NO,
+           '>= 15 years, Female' as Activity,
+           COUNT(*)                    as Value
+    FROM prev_on_art_tb_screened
+    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
+      AND sex='Female'
+-- Screened Positive for TB
+    UNION ALL
+    SELECT 'HIV_TB_SCRN_ART_P'            AS S_NO,
+           'Screened Positive for TB' as Activity,
+           COUNT(*)                    as Value
+    FROM prev_on_art_tb_screened
+    WHERE screening_result='Positive'
+-- < 15 years, Male
+    UNION ALL
+    SELECT 'HIV_TB_SCRN_ART_P. 1'            AS S_NO,
+           '< 15 years, Male' as Activity,
+           COUNT(*)                    as Value
+    FROM prev_on_art_tb_screened
+    WHERE screening_result='Positive'
+      AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
+      AND sex='Male'
+-- < 15 years, Female
+    UNION ALL
+    SELECT 'HIV_TB_SCRN_ART_P. 2'            AS S_NO,
+           '< 15 years, Female' as Activity,
+           COUNT(*)                    as Value
+    FROM prev_on_art_tb_screened
+    WHERE screening_result='Positive'
+      AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 15
+      AND sex='Female'
+
+-- >= 15 years, Male
+    UNION ALL
+    SELECT 'HIV_TB_SCRN_ART_P. 3'            AS S_NO,
+           '>= 15 years, Male' as Activity,
+           COUNT(*)                    as Value
+    FROM prev_on_art_tb_screened
+    WHERE screening_result='Positive'
+      AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
+      AND sex='Male'
+-- >= 15 years, Female
+    UNION ALL
+    SELECT 'HIV_TB_SCRN_ART_P. 4'            AS S_NO,
+           '>= 15 years, Female' as Activity,
+           COUNT(*)                    as Value
+    FROM prev_on_art_tb_screened
+    WHERE screening_result='Positive'
+      AND TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
+      AND sex='Female';
 END //
 
 DELIMITER ;
