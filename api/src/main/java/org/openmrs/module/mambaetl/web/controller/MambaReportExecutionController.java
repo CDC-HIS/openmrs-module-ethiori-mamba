@@ -1,7 +1,9 @@
 package org.openmrs.module.mambaetl.web.controller;
 
 import org.openmrs.module.mambaetl.service.DynamicReportExecutorService;
+import org.openmrs.module.mambaetl.service.ReportJobService;
 import org.openmrs.module.mambaetl.web.resource.ReportDataResponse;
+import org.openmrs.module.mambaetl.web.resource.ReportJob;
 import org.openmrs.module.webservices.rest.web.RestConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,6 +30,9 @@ public class MambaReportExecutionController {
 	
 	@Autowired
 	private DynamicReportExecutorService reportExecutorService;
+	
+	@Autowired
+	private ReportJobService reportJobService;
 	
 	@RequestMapping(value = "/execute/{procedureName}", method = RequestMethod.GET, produces = "application/json")
 	@ResponseBody
@@ -68,5 +73,40 @@ public class MambaReportExecutionController {
 			log.error("Error executing report procedure: " + procedureName, e);
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+	}
+	
+	// --- Async job endpoints ---
+	
+	@RequestMapping(value = "/submit/{procedureName}", method = RequestMethod.POST, produces = "application/json")
+	@ResponseBody
+	public ResponseEntity<ReportJob> submitReport(@PathVariable String procedureName,
+	        @RequestParam(required = false, defaultValue = "0") int offset,
+	        @RequestParam(required = false, defaultValue = "0") int limit,
+	        @RequestParam Map<String, String> allRequestParams) {
+		Map<String, String> params = new HashMap<>(allRequestParams);
+		params.remove("offset");
+		params.remove("limit");
+		ReportJob job = reportJobService.submitJob(procedureName, params, offset, limit);
+		return new ResponseEntity<>(job, HttpStatus.ACCEPTED);
+	}
+	
+	@RequestMapping(value = "/jobs/{jobId}", method = RequestMethod.GET, produces = "application/json")
+	@ResponseBody
+	public ResponseEntity<ReportJob> getJobStatus(@PathVariable String jobId) {
+		ReportJob job = reportJobService.getJob(jobId);
+		if (job == null) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		return new ResponseEntity<>(job, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/jobs/{jobId}", method = RequestMethod.DELETE)
+	@ResponseBody
+	public ResponseEntity<Void> cancelJob(@PathVariable String jobId) {
+		boolean found = reportJobService.cancelJob(jobId);
+		if (!found) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 }
