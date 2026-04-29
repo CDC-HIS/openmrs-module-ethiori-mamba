@@ -495,6 +495,94 @@ public class DynamicReportExecutorService {
 				    s.setDate(2, parseSqlDate(params.get("endDate")));
 			    }));
 		}
+		if ("sp_fact_hmis_all_v2".equalsIgnoreCase(name)) {
+			java.sql.Date vlStartDate = resolveVlStartDate(params);
+			return Arrays.asList(
+					// Materialise the shared follow-up temp table once for the whole session
+					// new ProcedureCall("{call sp_fact_hmis_create_follow_up_tmp()}", statement -> {}),
+
+					// Procedures that don't use the follow-up join — kept at original names
+					new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_hiv_hts_tst_index_query(?,?)}", statement -> {
+						statement.setDate(1, parseSqlDate(params.get("startDate")));
+						statement.setDate(2, parseSqlDate(params.get("endDate")));
+					}),
+					new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_hiv_linkage_query(?,?)}", statement -> {
+						statement.setDate(1, parseSqlDate(params.get("startDate")));
+						statement.setDate(2, parseSqlDate(params.get("endDate")));
+					}),
+					new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_hiv_prep_query(?,?)}", statement -> {
+						statement.setDate(1, parseSqlDate(params.get("startDate")));
+						statement.setDate(2, parseSqlDate(params.get("endDate")));
+					}),
+					new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_hiv_pep_query(?,?)}", statement -> {
+						statement.setDate(1, parseSqlDate(params.get("startDate")));
+						statement.setDate(2, parseSqlDate(params.get("endDate")));
+					}),
+					new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_mtct_query(?,?)}", statement -> {
+						statement.setDate(1, parseSqlDate(params.get("startDate")));
+						statement.setDate(2, parseSqlDate(params.get("endDate")));
+					}),
+
+					// Optimised v2 procedures — read from tmp_hmis_follow_up
+					new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_tx_curr_query_v2(?)}", statement -> {
+						statement.setDate(1, parseSqlDate(params.get("endDate")));
+					}),
+					new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_tx_new_query_v2(?,?)}", statement -> {
+						statement.setDate(1, parseSqlDate(params.get("startDate")));
+						statement.setDate(2, parseSqlDate(params.get("endDate")));
+					}),
+					new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_hiv_art_ret_query_v2(?,?)}", statement -> {
+						statement.setDate(1, parseSqlDate(params.get("startDate")));
+						statement.setDate(2, parseSqlDate(params.get("endDate")));
+					}),
+					new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_hiv_art_ret_net_query_v2(?,?)}", statement -> {
+						statement.setDate(1, parseSqlDate(params.get("startDate")));
+						statement.setDate(2, parseSqlDate(params.get("endDate")));
+					}),
+					new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_hiv_tx_pvls_query_v2(?,?)}", statement -> {
+						statement.setDate(1, vlStartDate);
+						statement.setDate(2, parseSqlDate(params.get("endDate")));
+					}),
+					new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_hiv_dsd_query_v2(?)}", statement -> {
+						statement.setDate(1, parseSqlDate(params.get("endDate")));
+					}),
+					new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_art_intr_query_v2(?,?)}", statement -> {
+						statement.setDate(1, parseSqlDate(params.get("startDate")));
+						statement.setDate(2, parseSqlDate(params.get("endDate")));
+					}),
+					new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_art_restart_query_v2(?,?)}", statement -> {
+						statement.setDate(1, parseSqlDate(params.get("startDate")));
+						statement.setDate(2, parseSqlDate(params.get("endDate")));
+					}),
+					new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_phliv_tsp_query_v2(?,?)}", statement -> {
+						statement.setDate(1, parseSqlDate(params.get("startDate")));
+						statement.setDate(2, parseSqlDate(params.get("endDate")));
+					}),
+					new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_hiv_fp_query_v2(?)}", statement -> {
+						statement.setDate(1, parseSqlDate(params.get("endDate")));
+					}),
+					new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_hiv_tb_scrn_query_v2(?,?)}", statement -> {
+						statement.setDate(1, parseSqlDate(params.get("startDate")));
+						statement.setDate(2, parseSqlDate(params.get("endDate")));
+					}),
+					new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_hiv_tpt_query_v2(?,?)}", statement -> {
+						statement.setDate(1, parseSqlDate(params.get("startDate")));
+						statement.setDate(2, parseSqlDate(params.get("endDate")));
+					}),
+					new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_cxca_scrn_query_v2(?,?)}", statement -> {
+						statement.setDate(1, parseSqlDate(params.get("startDate")));
+						statement.setDate(2, parseSqlDate(params.get("endDate")));
+					}),
+					new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_cxca_rx_query_v2(?,?)}", statement -> {
+						statement.setDate(1, parseSqlDate(params.get("startDate")));
+						statement.setDate(2, parseSqlDate(params.get("endDate")));
+					}),
+					new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_tb_lb_lf_lam_query_v2(?,?)}", statement -> {
+						statement.setDate(1, parseSqlDate(params.get("startDate")));
+						statement.setDate(2, parseSqlDate(params.get("endDate")));
+					})
+			);
+		}
 
 		if ("sp_fact_hmis_hiv_hts_tst_index_query".equalsIgnoreCase(name)) {
 			return dateRange("{call sp_fact_hmis_hiv_hts_tst_index_query(?,?)}", params);
