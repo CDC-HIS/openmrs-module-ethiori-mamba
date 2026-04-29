@@ -249,7 +249,7 @@ BEGIN
                  SUM(CASE WHEN age BETWEEN 5 AND 9 AND regimen = '6h - DRV/r+AZT+3TC+EFV' THEN 1 ELSE 0 END) AS u9_third_line_6h,
                  SUM(CASE WHEN age BETWEEN 5 AND 9 AND regimen not in ('6c - DRVr+DTG+AZT+3TC', '6d - DRVr+DTG+TDF+3TC', '6f - DRV/r+DTG+ABC+3TC','6g - DRV/r+ABC+3TC+EFV', '6h - DRV/r+AZT+3TC+EFV') AND (regimen_line = '3' or regimen_line = '6') THEN 1 ELSE 0 END) AS u9_third_line_other,
 
-                 SUM(CASE WHEN age BETWEEN 10 AND 14 AND regimen = '4d - AZT+3TC+EFV'THEN 1 ELSE 0 END) AS u14_first_line_4d,
+                 SUM(CASE WHEN age BETWEEN 10 AND 14 AND regimen = '4d - AZT+3TC+EFV' THEN 1 ELSE 0 END) AS u14_first_line_4d,
                  SUM(CASE WHEN age BETWEEN 10 AND 14 AND regimen = '4e - TDF+3TC+EFV' THEN 1 ELSE 0 END) AS u14_first_line_4e,
                  SUM(CASE WHEN age BETWEEN 10 AND 14 AND regimen = '4f - AZT+3TC+LPVr' THEN 1 ELSE 0 END) AS u14_first_line_4f,
                  SUM(CASE WHEN age BETWEEN 10 AND 14 AND regimen = '4g - ABC+3TC+LPVr' THEN 1 ELSE 0 END) AS u14_first_line_4g,
@@ -276,6 +276,22 @@ BEGIN
                  SUM(CASE WHEN age BETWEEN 10 AND 14 AND regimen = '6h - DRV/r+AZT+3TC+EFV' THEN 1 ELSE 0 END) AS u14_third_line_6h,
                  SUM(CASE WHEN age BETWEEN 10 AND 14 AND regimen not in ('6c - DRVr+DTG+AZT+3TC', '6d - DRVr+DTG+TDF+3TC', '6f - DRV/r+DTG+ABC+3TC','6g - DRV/r+ABC+3TC+EFV', '6h - DRV/r+AZT+3TC+EFV') AND (regimen_line = '3' or regimen_line = '6') THEN 1 ELSE 0 END) AS u14_third_line_other,
 
+                 SUM(CASE WHEN age BETWEEN 15 AND 19 AND regimen = '1d - AZT+3TC+EFV' THEN 1 ELSE 0 END) AS u19_first_line_1d,
+                 SUM(CASE WHEN age BETWEEN 15 AND 19 AND regimen = '1e - TDF+3TC+EFV' THEN 1 ELSE 0 END) AS u19_first_line_1e,
+                 SUM(CASE WHEN age BETWEEN 15 AND 19 AND regimen = '1g - ABC+3TC+EFV' THEN 1 ELSE 0 END) AS u19_first_line_1g,
+                 SUM(CASE WHEN age BETWEEN 15 AND 19 AND regimen = '1j - TDF+3TC+DTG' THEN 1 ELSE 0 END) AS u19_first_line_1j,
+                 SUM(CASE WHEN age BETWEEN 15 AND 19 AND regimen = '1k - AZT+3TC+DTG' THEN 1 ELSE 0 END) AS u19_first_line_1k,
+                 SUM(CASE WHEN age BETWEEN 15 AND 19 AND regimen = '4j - ABC+3TC+DTG' THEN 1 ELSE 0 END) AS u19_first_line_4d,
+                 SUM(CASE WHEN age BETWEEN 10 AND 14 AND regimen not in ('1d - AZT+3TC+EFV', '1e - TDF+3TC+EFV', '1g - ABC+3TC+EFV', '1j - TDF+3TC+DTG', '1k - AZT+3TC+DTG') AND (regimen_line = '1' or regimen_line = '4') THEN 1 ELSE 0 END) AS u19_first_line_other,
+
+                 SUM(CASE WHEN age BETWEEN 15 AND 19 AND regimen = '2e - AZT+3TC+LPVr' THEN 1 ELSE 0 END) AS u19_second_line_2e,
+                 SUM(CASE WHEN age BETWEEN 15 AND 19 AND regimen = '2f - AZT+3TC+ATVr' THEN 1 ELSE 0 END) AS u19_second_line_2f,
+                 SUM(CASE WHEN age BETWEEN 15 AND 19 AND regimen = '2g - TDF+3TC+LPVr' THEN 1 ELSE 0 END) AS u19_second_line_2g,
+                 SUM(CASE WHEN age BETWEEN 15 AND 19 AND regimen = '2h - TDF+3TC+ATVr' THEN 1 ELSE 0 END) AS u19_second_line_2h,
+                 SUM(CASE WHEN age BETWEEN 15 AND 19 AND regimen = '2i - ABC+3TC+LPVr' THEN 1 ELSE 0 END) AS u19_second_line_2i,
+                 SUM(CASE WHEN age BETWEEN 15 AND 19 AND regimen = '2j -TDF+3TC+DTG' THEN 1 ELSE 0 END) AS u19_second_line_2j,
+                 SUM(CASE WHEN age BETWEEN 15 AND 19 AND regimen = '2k - AZT+3TC+DTG' THEN 1 ELSE 0 END) AS u19_second_line_2k,
+                 SUM(CASE WHEN age BETWEEN 15 AND 19 AND regimen not in ('2e - AZT+3TC+LPVr', '2f - AZT+3TC+ATVr', '2g - TDF+3TC+LPVr', '2h - TDF+3TC+ATVr','2i - ABC+3TC+LPVr', '2j -TDF+3TC+DTG', '2k - AZT+3TC+DTG') AND (regimen_line = '2' or regimen_line = '5') THEN 1 ELSE 0 END) AS u19_second_line_other,
 
              FROM  tx_curr_with_client
          )
@@ -732,140 +748,39 @@ BEGIN
 -- 19.1 Adult currently on ART aged 15-19 on First line regimen by regimen type
     UNION ALL SELECT 'HIV_TX_CURR_REG_U19.1','Adult currently on ART aged 15-19 on First line regimen by regimen type',u19_first_line FROM tx_curr_agg
 -- 19.1.1 1d - AZT+3TC+EFV
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.1. 1','1d = AZT-3TC-EFV',u19_first_line_ FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
-      AND regimen = '1d - AZT+3TC+EFV'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.1. 1','1d = AZT-3TC-EFV',u19_first_line_1d FROM tx_curr_agg
 -- 19.1.2 1e - TDF+3TC+EFV
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U19.1. 2',
-           '1e = TDF-3TC-EFV'       ,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
-      AND regimen = '1e - TDF+3TC+EFV'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.1. 2','1e = TDF-3TC-EFV',u19_first_line_1e FROM tx_curr_agg
 -- 19.1.3 1g - ABC+3TC+EFV
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U19.1. 3',
-           '1g= ABC + 3TC + EFV'       ,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
-      AND regimen = '1g - ABC+3TC+EFV'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.1. 3','1g= ABC + 3TC + EFV',u19_first_line_1g FROM tx_curr_agg
 -- 19.1.4 1j - TDF+3TC+DTG
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U19.1. 4',
-           '1j=TDF + 3TC + DTG'       ,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
-      AND regimen = '1j - TDF+3TC+DTG'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.1. 4','1j=TDF + 3TC + DTG',u19_first_line_1j FROM tx_curr_agg
 -- 19.1.5 1k - AZT+3TC+DTG
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U19.1. 5',
-           '1k= AZT +3TC +DTG'       ,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
-      AND regimen = '1k - AZT+3TC+DTG'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.1. 5','1k= AZT +3TC +DTG',u19_first_line_1k FROM tx_curr_agg
 -- 19.1.6 1i - Other Adult 1st line regimen
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U19.1. 6'          ,
-           '1i = Other specify',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
-      AND regimen not in
-          ('1d - AZT+3TC+EFV', '1e - TDF+3TC+EFV', '1g - ABC+3TC+EFV', '1j - TDF+3TC+DTG', '1k - AZT+3TC+DTG')
-      AND (regimen_line = '1' or regimen_line = '4')
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.1. 6','1i = Other specify',u19_first_line_other FROM tx_curr_agg
 -- 19.2 Adult currently on ART aged 15-19 on Second line regimen by regimen type
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U19.2'                                                   ,
-           'Adult currently on ART aged 15-19 on Second line regimen by regimen type',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
-      AND (regimen_line = '2' or regimen_line = '5')
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.2','Adult currently on ART aged 15-19 on Second line regimen by regimen type',u19_second_line FROM tx_curr_agg
 -- 19.2.1 1d - AZT+3TC+EFV
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U19.2. 1',
-           '2e= AZT+3TC+LPV/r'      ,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
-      AND regimen = '2e - AZT+3TC+LPVr'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.2. 1','2e= AZT+3TC+LPV/r',u19_second_line_2e FROM tx_curr_agg
 -- 19.2.2 2f - AZT+3TC+ATVr
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U19.2. 2',
-           '2f=AZT+3TC+ATV/r'      ,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
-      AND regimen = '2f - AZT+3TC+ATVr'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.2. 2','2f=AZT+3TC+ATV/r',u19_second_line_2f FROM tx_curr_agg
 -- 19.2.3 2f - AZT+3TC+ATVr
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U19.2. 3',
-           '2g= TDF-3TC-LPV/r'      ,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
-      AND regimen = '2g - TDF+3TC+LPVr'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.2. 3','2g= TDF-3TC-LPV/r',u19_second_line_2g FROM tx_curr_agg
 -- 19.2.4 2f - AZT+3TC+ATVr
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U19.2. 4',
-           '2h =TDF-3TC-ATV/r'      ,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
-      AND regimen = '2h - TDF+3TC+ATVr'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.2. 4','2h =TDF-3TC-ATV/r',u19_second_line_2h FROM tx_curr_agg
 -- 19.2.5 2i - ABC+3TC+LPVr
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U19.2. 5',
-           '2i = ABC + 3TC + LPV/r'      ,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
-      AND regimen = '2i - ABC+3TC+LPVr'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.2. 5','2i = ABC + 3TC + LPV/r',u19_second_line_2i FROM tx_curr_agg
 -- 19.2.6 2j -TDF+3TC+DTG
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U19.2. 6',
-           '2j = TDF + 3TC + DTG'        ,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
-      AND regimen = '2j -TDF+3TC+DTG'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.2. 6','2j = TDF + 3TC + DTG',u19_second_line_2j FROM tx_curr_agg
 -- 19.2.7 2k - AZT+3TC+DTG
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U19.2. 7',
-           '2k = AZT + 3TC + DTG'       ,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
-      AND regimen = '2k - AZT+3TC+DTG'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.2. 7','2k = AZT + 3TC + DTG', u19_second_line_2k FROM tx_curr_agg
 -- 19.2.8 2L - Other Adult 2nd line regimen
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U19.2. 8'          ,
-           '2l=other secondline',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
-      AND regimen not in ('2e - AZT+3TC+LPVr', '2f - AZT+3TC+ATVr', '2g - TDF+3TC+LPVr', '2h - TDF+3TC+ATVr',
-                          '2i - ABC+3TC+LPVr', '2j -TDF+3TC+DTG', '2k - AZT+3TC+DTG')
-      AND (regimen_line = '2' or regimen_line = '5')
-
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.2. 8','2l=other secondline',u19_second_line_other FROM tx_curr_agg
 -- 19.3 Adult currently on ART aged 15-19 on Third Line regimen by regimen type
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U19.3'                                                  ,
-           'Adult currently on ART aged 15-19 on Third Line regimen by regimen type',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
-      AND (regimen_line = '3' or regimen_line = '6')
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.3','Adult currently on ART aged 15-19 on Third Line regimen by regimen type',u19_third_line FROM tx_curr_agg
 -- 19.3.1 3a -  DRV/r+DTG+AZT+3TC
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U19.3. 1',
-           '3a=DRV/r+DTG+AZT/3TC',
-           COUNT(*)
-    FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.3. 1','3a=DRV/r+DTG+AZT/3TC',u19_third_lin FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
       AND regimen = '3a -  DRV/r+DTG+AZT+3TC'
 -- 19.3.2 3b - DRV/r+DTG+TDF+3TC
