@@ -10,5 +10,6 @@ BEGIN
     DROP TABLE IF EXISTS mamba_fact_location_attribute_type;
     DROP TABLE IF EXISTS mamba_fact_location_tag;
     DROP TABLE IF EXISTS mamba_fact_location_tag_map;
+    DROP TABLE IF EXISTS tmp_hmis_follow_up;
 END //
 DELIMITER ;

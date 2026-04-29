@@ -95,7 +95,7 @@ public class HMISDHIS2V2DataSetEvaluator implements DataSetEvaluator {
 
 		return Arrays.asList(
 				// Materialise the shared follow-up temp table once for the whole session
-				new ProcedureCall("{call sp_fact_hmis_create_follow_up_tmp()}", statement -> {}),
+				// new ProcedureCall("{call sp_fact_hmis_create_follow_up_tmp()}", statement -> {}),
 
 				// Procedures that don't use the follow-up join — kept at original names
 				new ProcedureCall("{call sp_fact_hmis_hiv_hts_tst_index_query(?,?)}", statement -> {
