@@ -11,6 +11,7 @@ BEGIN
     CALL sp_mamba_drop_all_derived_tables();
     CALL sp_data_processing_derived_client();
     CALL sp_data_processing_derived_location_tag();
+    CALL sp_fact_hmis_create_follow_up_tmp()
 
 END //
 

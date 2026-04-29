@@ -62,16 +62,16 @@ BEGIN
                  SUM(CASE WHEN age < 1  AND (regimen_line = '3' or regimen_line = '6') AND sex='Male' THEN 1 ELSE 0 END) AS u1_third_line_male,
                  SUM(CASE WHEN age < 1  AND (regimen_line = '6' or regimen_line = '6') AND sex='Female' THEN 1 ELSE 0 END) AS u1_third_line_female,
 
-                 SUM(CASE WHEN age BETWEEN 1 AND 4  THEN 1 ELSE 0 END) AS u5,
-                 SUM(CASE WHEN age BETWEEN 1 AND 4  AND (regimen_line = '1' or regimen_line = '4') THEN 1 ELSE 0 END) AS u5_first_line,
-                 SUM(CASE WHEN age BETWEEN 1 AND 4  AND (regimen_line = '1' or regimen_line = '4') AND sex='Male' THEN 1 ELSE 0 END) AS u5_first_line_male,
-                 SUM(CASE WHEN age BETWEEN 1 AND 4  AND (regimen_line = '1' or regimen_line = '4') AND sex='Female' THEN 1 ELSE 0 END) AS u5_first_line_female,
-                 SUM(CASE WHEN age BETWEEN 1 AND 4  AND (regimen_line = '2' or regimen_line = '5') THEN 1 ELSE 0 END) AS u5_second_line,
-                 SUM(CASE WHEN age BETWEEN 1 AND 4  AND (regimen_line = '2' or regimen_line = '5') AND sex='Male' THEN 1 ELSE 0 END) AS u5_second_line_male,
-                 SUM(CASE WHEN age BETWEEN 1 AND 4  AND (regimen_line = '2' or regimen_line = '5') AND sex='Female' THEN 1 ELSE 0 END) AS u5_second_line_female,
-                 SUM(CASE WHEN age BETWEEN 1 AND 4  AND (regimen_line = '3' or regimen_line = '6') THEN 1 ELSE 0 END) AS u5_third_line,
-                 SUM(CASE WHEN age BETWEEN 1 AND 4  AND (regimen_line = '3' or regimen_line = '6') AND sex='Male' THEN 1 ELSE 0 END) AS u5_third_line_male,
-                 SUM(CASE WHEN age BETWEEN 1 AND 4  AND (regimen_line = '6' or regimen_line = '6') AND sex='Female' THEN 1 ELSE 0 END) AS u5_third_line_female,
+                 SUM(CASE WHEN age BETWEEN 1 AND 4  THEN 1 ELSE 0 END) AS u4,
+                 SUM(CASE WHEN age BETWEEN 1 AND 4  AND (regimen_line = '1' or regimen_line = '4') THEN 1 ELSE 0 END) AS u4_first_line,
+                 SUM(CASE WHEN age BETWEEN 1 AND 4  AND (regimen_line = '1' or regimen_line = '4') AND sex='Male' THEN 1 ELSE 0 END) AS u4_first_line_male,
+                 SUM(CASE WHEN age BETWEEN 1 AND 4  AND (regimen_line = '1' or regimen_line = '4') AND sex='Female' THEN 1 ELSE 0 END) AS u4_first_line_female,
+                 SUM(CASE WHEN age BETWEEN 1 AND 4  AND (regimen_line = '2' or regimen_line = '5') THEN 1 ELSE 0 END) AS u4_second_line,
+                 SUM(CASE WHEN age BETWEEN 1 AND 4  AND (regimen_line = '2' or regimen_line = '5') AND sex='Male' THEN 1 ELSE 0 END) AS u4_second_line_male,
+                 SUM(CASE WHEN age BETWEEN 1 AND 4  AND (regimen_line = '2' or regimen_line = '5') AND sex='Female' THEN 1 ELSE 0 END) AS u4_second_line_female,
+                 SUM(CASE WHEN age BETWEEN 1 AND 4  AND (regimen_line = '3' or regimen_line = '6') THEN 1 ELSE 0 END) AS u4_third_line,
+                 SUM(CASE WHEN age BETWEEN 1 AND 4  AND (regimen_line = '3' or regimen_line = '6') AND sex='Male' THEN 1 ELSE 0 END) AS u4_third_line_male,
+                 SUM(CASE WHEN age BETWEEN 1 AND 4  AND (regimen_line = '6' or regimen_line = '6') AND sex='Female' THEN 1 ELSE 0 END) AS u4_third_line_female,
 
                  SUM(CASE WHEN age BETWEEN 5 AND 9  THEN 1 ELSE 0 END) AS u9,
                  SUM(CASE WHEN age BETWEEN 5 AND 9  AND (regimen_line = '1' or regimen_line = '4') THEN 1 ELSE 0 END) AS u9_first_line,
@@ -185,7 +185,98 @@ BEGIN
 
                  SUM(CASE WHEN sex='Female' THEN 1 ELSE 0 END) AS female_total,
                  SUM(CASE WHEN sex='Female' AND pregnancy_status = 'Yes' THEN 1 ELSE 0 END) AS female_pregnant,
-                 SUM(CASE WHEN sex='Female' AND (pregnancy_status = 'No' or pregnancy_status is null) THEN 1 ELSE 0 END) AS female_non_pregnant
+                 SUM(CASE WHEN sex='Female' AND (pregnancy_status = 'No' or pregnancy_status is null) THEN 1 ELSE 0 END) AS female_non_pregnant,
+
+                 SUM(CASE WHEN age < 1  AND regimen = '4f - AZT+3TC+LPVr' THEN 1 ELSE 0 END) AS u1_first_line_4f,
+                 SUM(CASE WHEN age < 1  AND regimen = '4g - ABC+3TC+LPVr' THEN 1 ELSE 0 END) AS u1_first_line_4g,
+                 SUM(CASE WHEN age < 1  AND regimen = '4j - ABC+3TC+DTG' THEN 1 ELSE 0 END) AS u1_first_line_4j,
+                 SUM(CASE WHEN age < 1  AND regimen = '4K - AZT+3TC+DTG' THEN 1 ELSE 0 END) AS u1_first_line_4k,
+                 SUM(CASE WHEN age < 1  AND regimen not in ('4f - AZT+3TC+LPVr', '4g - ABC+3TC+LPVr', '4j - ABC+3TC+DTG', '4K - AZT+3TC+DTG') AND (regimen_line = '1' or regimen_line = '4') THEN 1 ELSE 0 END) AS u1_first_line_other,
+                 SUM(CASE WHEN age < 1  AND regimen = '5e - ABC+3TC+LPVr' THEN 1 ELSE 0 END) AS u1_second_line_5e,
+                 SUM(CASE WHEN age < 1  AND regimen = '5f - AZT+3TC+LPVr' THEN 1 ELSE 0 END) AS u1_second_line_5f,
+                 SUM(CASE WHEN age < 1  AND regimen = '5m - ABC+3TC+DTG' THEN 1 ELSE 0 END) AS u1_second_line_5m,
+                 SUM(CASE WHEN age < 1  AND regimen = '5n - AZT+3TC+DTG' THEN 1 ELSE 0 END) AS u1_second_line_5n,
+                 SUM(CASE WHEN age < 1  AND regimen not in ('5e - ABC+3TC+LPVr', '5f - AZT+3TC+LPVr', '5j - ABC+3TC+LPVr', '5m - ABC+3TC+DTG', '5n - AZT+3TC+DTG') AND (regimen_line = '2' or regimen_line = '5') THEN 1 ELSE 0 END) AS u1_second_line_other,
+                 SUM(CASE WHEN age < 1  AND regimen = '6c - DRVr+DTG+AZT+3TC' THEN 1 ELSE 0 END) AS u1_third_line_6c,
+                 SUM(CASE WHEN age < 1  AND regimen = '6f - DRV/r+DTG+ABC+3TC' THEN 1 ELSE 0 END) AS u1_third_line_6f,
+                 SUM(CASE WHEN age < 1  AND regimen not in ('6c - DRVr+DTG+AZT+3TC', '6f - DRV/r+DTG+ABC+3TC') AND (regimen_line = '3' or regimen_line = '6') THEN 1 ELSE 0 END) AS u1_third_line_other,
+
+                 SUM(CASE WHEN age BETWEEN 1 AND 4 AND regimen = '4d - AZT+3TC+EFV' THEN 1 ELSE 0 END) AS u4_first_line_4d,
+                 SUM(CASE WHEN age BETWEEN 1 AND 4 AND regimen = '4f - AZT+3TC+LPVr' THEN 1 ELSE 0 END) AS u4_first_line_4f,
+                 SUM(CASE WHEN age BETWEEN 1 AND 4 AND regimen = '4g - ABC+3TC+LPVr' THEN 1 ELSE 0 END) AS u4_first_line_4g,
+                 SUM(CASE WHEN age BETWEEN 1 AND 4 AND regimen = '4j - ABC+3TC+DTG' THEN 1 ELSE 0 END) AS u4_first_line_4j,
+                 SUM(CASE WHEN age BETWEEN 1 AND 4 AND regimen = '4K - AZT+3TC+DTG' THEN 1 ELSE 0 END) AS u4_first_line_4k,
+                 SUM(CASE WHEN age BETWEEN 1 AND 4 AND regimen = '4L - ABC+3TC+EFV' THEN 1 ELSE 0 END) AS u4_first_line_4l,
+                 SUM(CASE WHEN age BETWEEN 1 AND 4 AND regimen not in ('4d - AZT+3TC+EFV', '4f - AZT+3TC+LPVr', '4g - ABC+3TC+LPVr','4j - ABC+3TC+DTG', '4K - AZT+3TC+DTG', '4L - ABC+3TC+EFV') AND (regimen_line = '1' or regimen_line = '4') THEN 1 ELSE 0 END) AS u4_first_line_other,
+
+                 SUM(CASE WHEN age BETWEEN 1 AND 4 AND regimen = '5e - ABC+3TC+LPVr' THEN 1 ELSE 0 END) AS u4_second_line_5e,
+                 SUM(CASE WHEN age BETWEEN 1 AND 4 AND regimen = '5f - AZT+3TC+LPVr' THEN 1 ELSE 0 END) AS u4_second_line_5f,
+                 SUM(CASE WHEN age BETWEEN 1 AND 4 AND regimen = '5h - ABC+3TC+EFV' THEN 1 ELSE 0 END) AS u4_second_line_5h,
+                 SUM(CASE WHEN age BETWEEN 1 AND 4 AND regimen = '5m - ABC+3TC+DTG' THEN 1 ELSE 0 END) AS u4_second_line_5m,
+                 SUM(CASE WHEN age BETWEEN 1 AND 4 AND regimen = '5n - AZT+3TC+DTG' THEN 1 ELSE 0 END) AS u4_second_line_5n,
+                 SUM(CASE WHEN age BETWEEN 1 AND 4 AND regimen not in ('5e - ABC+3TC+LPVr', '5f - AZT+3TC+LPVr', '5h - ABC+3TC+EFV', '5m - ABC+3TC+DTG', '5n - AZT+3TC+DTG') AND (regimen_line = '2' or regimen_line = '5') THEN 1 ELSE 0 END) AS u4_second_line_other,
+
+                 SUM(CASE WHEN age BETWEEN 1 AND 4 AND regimen = '6c - DRVr+DTG+AZT+3TC' THEN 1 ELSE 0 END) AS u4_third_line_6c,
+                 SUM(CASE WHEN age BETWEEN 1 AND 4 AND regimen = '6f - DRV/r+DTG+ABC+3TC' THEN 1 ELSE 0 END) AS u4_third_line_6f,
+                 SUM(CASE WHEN age BETWEEN 1 AND 4 AND regimen = '6g - DRV/r+ABC+3TC+EFV' THEN 1 ELSE 0 END) AS u4_third_line_6g,
+                 SUM(CASE WHEN age BETWEEN 1 AND 4 AND regimen = '6h - DRV/r+AZT+3TC+EFV' THEN 1 ELSE 0 END) AS u4_third_line_6h,
+                 SUM(CASE WHEN age BETWEEN 1 AND 4 AND regimen not in ('6c - DRVr+DTG+AZT+3TC', '6f - DRV/r+DTG+ABC+3TC', '6g - DRV/r+ABC+3TC+EFV', '6h - DRV/r+AZT+3TC+EFV')  AND (regimen_line = '3' or regimen_line = '6') THEN 1 ELSE 0 END) AS u4_third_line_other,
+
+                 SUM(CASE WHEN age BETWEEN 5 AND 9 AND regimen = '4d - AZT+3TC+EFV' THEN 1 ELSE 0 END) AS u9_first_line_4d,
+                 SUM(CASE WHEN age BETWEEN 5 AND 9 AND regimen = '4e - TDF+3TC+EFV' THEN 1 ELSE 0 END) AS u9_first_line_4e,
+                 SUM(CASE WHEN age BETWEEN 5 AND 9 AND regimen = '4f - AZT+3TC+LPVr' THEN 1 ELSE 0 END) AS u9_first_line_4f,
+                 SUM(CASE WHEN age BETWEEN 5 AND 9 AND regimen = '4g - ABC+3TC+LPVr' THEN 1 ELSE 0 END) AS u9_first_line_4g,
+                 SUM(CASE WHEN age BETWEEN 5 AND 9 AND regimen = '4i - TDF+3TC+DTG' THEN 1 ELSE 0 END) AS u9_first_line_4i,
+                 SUM(CASE WHEN age BETWEEN 5 AND 9 AND regimen = '4j - ABC+3TC+DTG' THEN 1 ELSE 0 END) AS u9_first_line_4j,
+                 SUM(CASE WHEN age BETWEEN 5 AND 9 AND regimen = '4K - AZT+3TC+DTG' THEN 1 ELSE 0 END) AS u9_first_line_4k,
+                 SUM(CASE WHEN age BETWEEN 5 AND 9 AND regimen = '4L - ABC+3TC+EFV' THEN 1 ELSE 0 END) AS u9_first_line_4l,
+                 SUM(CASE WHEN age BETWEEN 5 AND 9 AND regimen not in ('4d - AZT+3TC+EFV', '4e - TDF+3TC+EFV', '4f - AZT+3TC+LPVr', '4g - ABC+3TC+LPVr','4i - TDF+3TC+DTG', '4j - ABC+3TC+DTG', '4K - AZT+3TC+DTG', '4L - ABC+3TC+EFV')  AND (regimen_line = '1' or regimen_line = '4') THEN 1 ELSE 0 END) AS u9_first_line_other,
+
+                 SUM(CASE WHEN age BETWEEN 5 AND 9 AND regimen = '5e - ABC+3TC+LPVr' THEN 1 ELSE 0 END) AS u9_second_line_5e,
+                 SUM(CASE WHEN age BETWEEN 5 AND 9 AND regimen = '5f - AZT+3TC+LPVr' THEN 1 ELSE 0 END) AS u9_second_line_5f,
+                 SUM(CASE WHEN age BETWEEN 5 AND 9 AND regimen = '5g - TDF+3TC+EFV' THEN 1 ELSE 0 END) AS u9_second_line_5g,
+                 SUM(CASE WHEN age BETWEEN 5 AND 9 AND regimen = '5h - ABC+3TC+EFV' THEN 1 ELSE 0 END) AS u9_second_line_5h,
+                 SUM(CASE WHEN age BETWEEN 5 AND 9 AND regimen = '5i - TDF+3TC+LPVr' THEN 1 ELSE 0 END) AS u9_second_line_5i,
+                 SUM(CASE WHEN age BETWEEN 5 AND 9 AND regimen = '5m - ABC+3TC+DTG' THEN 1 ELSE 0 END) AS u9_second_line_5m,
+                 SUM(CASE WHEN age BETWEEN 5 AND 9 AND regimen = '5n - AZT+3TC+DTG' THEN 1 ELSE 0 END) AS u9_second_line_5n,
+                 SUM(CASE WHEN age BETWEEN 5 AND 9 AND regimen = '5o - TDF+3TC+DTG' THEN 1 ELSE 0 END) AS u9_second_line_5o,
+                 SUM(CASE WHEN age BETWEEN 5 AND 9 AND regimen not in ('5e - ABC+3TC+LPVr', '5f - AZT+3TC+LPVr', '5g - TDF+3TC+EFV', '5h - ABC+3TC+EFV','5i - TDF+3TC+LPVr', '5m - ABC+3TC+DTG', '5n - AZT+3TC+DTG', '5o - TDF+3TC+DTG') AND (regimen_line = '2' or regimen_line = '5') THEN 1 ELSE 0 END) AS u9_second_line_other,
+
+                 SUM(CASE WHEN age BETWEEN 5 AND 9 AND regimen = '6c - DRVr+DTG+AZT+3TC' THEN 1 ELSE 0 END) AS u9_third_line_6c,
+                 SUM(CASE WHEN age BETWEEN 5 AND 9 AND regimen = '6d - DRVr+DTG+TDF+3TC' THEN 1 ELSE 0 END) AS u9_third_line_6d,
+                 SUM(CASE WHEN age BETWEEN 5 AND 9 AND regimen = '6f - DRV/r+DTG+ABC+3TC' THEN 1 ELSE 0 END) AS u9_third_line_6f,
+                 SUM(CASE WHEN age BETWEEN 5 AND 9 AND regimen = '6g - DRV/r+ABC+3TC+EFV' THEN 1 ELSE 0 END) AS u9_third_line_6g,
+                 SUM(CASE WHEN age BETWEEN 5 AND 9 AND regimen = '6h - DRV/r+AZT+3TC+EFV' THEN 1 ELSE 0 END) AS u9_third_line_6h,
+                 SUM(CASE WHEN age BETWEEN 5 AND 9 AND regimen not in ('6c - DRVr+DTG+AZT+3TC', '6d - DRVr+DTG+TDF+3TC', '6f - DRV/r+DTG+ABC+3TC','6g - DRV/r+ABC+3TC+EFV', '6h - DRV/r+AZT+3TC+EFV') AND (regimen_line = '3' or regimen_line = '6') THEN 1 ELSE 0 END) AS u9_third_line_other,
+
+                 SUM(CASE WHEN age BETWEEN 10 AND 14 AND regimen = '4d - AZT+3TC+EFV'THEN 1 ELSE 0 END) AS u14_first_line_4d,
+                 SUM(CASE WHEN age BETWEEN 10 AND 14 AND regimen = '4e - TDF+3TC+EFV' THEN 1 ELSE 0 END) AS u14_first_line_4e,
+                 SUM(CASE WHEN age BETWEEN 10 AND 14 AND regimen = '4f - AZT+3TC+LPVr' THEN 1 ELSE 0 END) AS u14_first_line_4f,
+                 SUM(CASE WHEN age BETWEEN 10 AND 14 AND regimen = '4g - ABC+3TC+LPVr' THEN 1 ELSE 0 END) AS u14_first_line_4g,
+                 SUM(CASE WHEN age BETWEEN 10 AND 14 AND regimen = '4i - TDF+3TC+DTG' THEN 1 ELSE 0 END) AS u14_first_line_4i,
+                 SUM(CASE WHEN age BETWEEN 10 AND 14 AND regimen = '4j - ABC+3TC+DTG' THEN 1 ELSE 0 END) AS u14_first_line_4j,
+                 SUM(CASE WHEN age BETWEEN 10 AND 14 AND regimen = '4K - AZT+3TC+DTG' THEN 1 ELSE 0 END) AS u14_first_line_4k,
+                 SUM(CASE WHEN age BETWEEN 10 AND 14 AND regimen = '4L - ABC+3TC+EFV' THEN 1 ELSE 0 END) AS u14_first_line_4L,
+                 SUM(CASE WHEN age BETWEEN 10 AND 14 AND regimen not in ('4d - AZT+3TC+EFV', '4e - TDF+3TC+EFV', '4f - AZT+3TC+LPVr', '4g - ABC+3TC+LPVr','4i - TDF+3TC+DTG', '4j - ABC+3TC+DTG', '4K - AZT+3TC+DTG', '4L - ABC+3TC+EFV')  AND (regimen_line = '1' or regimen_line = '4') THEN 1 ELSE 0 END) AS u14_first_line_other,
+
+                 SUM(CASE WHEN age BETWEEN 10 AND 14 AND regimen = '5e - ABC+3TC+LPVr' THEN 1 ELSE 0 END) AS u14_second_line_5e,
+                 SUM(CASE WHEN age BETWEEN 10 AND 14 AND regimen = '5f - AZT+3TC+LPVr' THEN 1 ELSE 0 END) AS u14_second_line_5f,
+                 SUM(CASE WHEN age BETWEEN 10 AND 14 AND regimen = '5g - TDF+3TC+EFV' THEN 1 ELSE 0 END) AS u14_second_line_5g,
+                 SUM(CASE WHEN age BETWEEN 10 AND 14 AND regimen = '5h - ABC+3TC+EFV' THEN 1 ELSE 0 END) AS u14_second_line_5h,
+                 SUM(CASE WHEN age BETWEEN 10 AND 14 AND regimen = '5i - TDF+3TC+LPVr' THEN 1 ELSE 0 END) AS u14_second_line_5i,
+                 SUM(CASE WHEN age BETWEEN 10 AND 14 AND regimen = '5m - ABC+3TC+DTG' THEN 1 ELSE 0 END) AS u14_second_line_5m,
+                 SUM(CASE WHEN age BETWEEN 10 AND 14 AND regimen = '5n - AZT+3TC+DTG' THEN 1 ELSE 0 END) AS u14_second_line_5n,
+                 SUM(CASE WHEN age BETWEEN 10 AND 14 AND regimen = '5o - TDF+3TC+DTG' THEN 1 ELSE 0 END) AS u14_second_line_5o,
+                 SUM(CASE WHEN age BETWEEN 10 AND 14 AND regimen not in ('5e - ABC+3TC+LPVr', '5f - AZT+3TC+LPVr', '5g - TDF+3TC+EFV', '5h - ABC+3TC+EFV','5i - TDF+3TC+LPVr', '5m - ABC+3TC+DTG', '5n - AZT+3TC+DTG', '5o - TDF+3TC+DTG') AND (regimen_line = '2' or regimen_line = '5') THEN 1 ELSE 0 END) AS u14_second_line_other,
+
+                 SUM(CASE WHEN age BETWEEN 10 AND 14 AND regimen = '6c - DRVr+DTG+AZT+3TC' THEN 1 ELSE 0 END) AS u14_third_line_6c,
+                 SUM(CASE WHEN age BETWEEN 10 AND 14 AND regimen = '6d - DRVr+DTG+TDF+3TC' THEN 1 ELSE 0 END) AS u14_third_line_6d,
+                 SUM(CASE WHEN age BETWEEN 10 AND 14 AND regimen = '6f - DRV/r+DTG+ABC+3TC' THEN 1 ELSE 0 END) AS u14_third_line_6f,
+                 SUM(CASE WHEN age BETWEEN 10 AND 14 AND regimen = '6g - DRV/r+ABC+3TC+EFV' THEN 1 ELSE 0 END) AS u14_third_line_6g,
+                 SUM(CASE WHEN age BETWEEN 10 AND 14 AND regimen = '6h - DRV/r+AZT+3TC+EFV' THEN 1 ELSE 0 END) AS u14_third_line_6h,
+                 SUM(CASE WHEN age BETWEEN 10 AND 14 AND regimen not in ('6c - DRVr+DTG+AZT+3TC', '6d - DRVr+DTG+TDF+3TC', '6f - DRV/r+DTG+ABC+3TC','6g - DRV/r+ABC+3TC+EFV', '6h - DRV/r+AZT+3TC+EFV') AND (regimen_line = '3' or regimen_line = '6') THEN 1 ELSE 0 END) AS u14_third_line_other,
+
+
              FROM  tx_curr_with_client
          )
 -- Does health facility provide Monthly PMTCT / ART Treatment Service?
@@ -214,25 +305,25 @@ BEGIN
 -- 1.3.2 Female
     UNION ALL SELECT 'HIV_TX_CURR_U1_3. 2','Female',u1_third_line_female    FROM tx_curr_agg
 -- 5 Children currently on ART aged 1-4 yr
-    UNION ALL SELECT 'HIV_TX_CURR_U5','Children currently on ART aged 1-4 yr',u5    FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U5','Children currently on ART aged 1-4 yr',u4    FROM tx_curr_agg
 -- 5.1 Children currently on ART aged 1-4 yr on First line  regimen by sex
-    UNION ALL SELECT 'HIV_TX_CURR_U5.1','Children currently on ART aged 1-4 yr on First line regimen by sex' ,u5_first_line    FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U5.1','Children currently on ART aged 1-4 yr on First line regimen by sex' ,u4_first_line    FROM tx_curr_agg
 -- 5.1.1 Male
-    UNION ALL SELECT 'HIV_TX_CURR_U5.1. 1','Male',u5_first_line_male    FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U5.1. 1','Male',u4_first_line_male    FROM tx_curr_agg
 -- 5.1.2 Female
-    UNION ALL SELECT 'HIV_TX_CURR_U5.1. 2','Female',u5_first_line_male    FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U5.1. 2','Female',u4_first_line_male    FROM tx_curr_agg
 -- 5.2 Children currently on ART aged 1-4 yr on Second-line  regimen by sex
-    UNION ALL SELECT 'HIV_TX_CURR_U5.2','Children currently on ART aged 1-4 yr on Second-line regimen by sex',u5_second_line   FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U5.2','Children currently on ART aged 1-4 yr on Second-line regimen by sex',u4_second_line   FROM tx_curr_agg
 -- 5.2.1 Male
-    UNION ALL SELECT 'HIV_TX_CURR_U5.2. 1','Male',u5_second_line_male    FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U5.2. 1','Male',u4_second_line_male    FROM tx_curr_agg
 -- 5.2.2 Female
-    UNION ALL SELECT 'HIV_TX_CURR_U5.2. 2','Female',u5_second_line_female    FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U5.2. 2','Female',u4_second_line_female    FROM tx_curr_agg
 -- 5.3 Children currently on ART aged 1-4 yr on Third line regimen by sex
-    UNION ALL SELECT 'HIV_TX_CURR_U5.3','Children currently on ART aged 1-4 yr on Third line regimen by sex',u5_third_line    FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U5.3','Children currently on ART aged 1-4 yr on Third line regimen by sex',u4_third_line    FROM tx_curr_agg
 -- 5.3.1 Male
-    UNION ALL SELECT 'HIV_TX_CURR_U5.3. 1','Male',u5_third_line_male  FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U5.3. 1','Male',u4_third_line_male  FROM tx_curr_agg
 -- Female 5.3.2
-    UNION ALL SELECT 'HIV_TX_CURR_U5.3. 2','Female',u5_third_line_female  FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U5.3. 2','Female',u4_third_line_female  FROM tx_curr_agg
 -- 9 Children currently on ART aged 5-9 yr
     UNION ALL SELECT 'HIV_TX_CURR_U9','Children currently on ART aged 5-9 yr',u9  FROM tx_curr_agg
 -- 9.1 Children currently on ART aged 5-9 yr on First line  regimen by sex
@@ -451,804 +542,203 @@ BEGIN
 -- 1.1 Children currently on ART aged <1 yr on First line  regimen by regimen type
     UNION ALL SELECT 'HIV_TX_CURR_REG_U1.1','Children currently on ART aged <1 yr on First line regimen by regimen type',u1_first_line FROM tx_curr_agg
 -- 1.1.1 4f - AZT+3TC+LPVr - 0343175a-e931-4f6c-a0c2-99e55637bda9
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U1.1. 1',
-           '4f=AZT + 3TC + LPV/r'      as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 1
-      AND regimen = '4f - AZT+3TC+LPVr'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.1. 1','4f=AZT + 3TC + LPV/r',u1_first_line_4f FROM tx_curr_agg
 -- 1.1.2 4g - ABC+3TC+LPVr - e4353cd1-5a0e-4870-8af4-f012ca0145fe
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U1.1. 2',
-           '4g=ABC + 3TC + LPV/r'      as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 1
-      AND regimen = '4g - ABC+3TC+LPVr'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.1. 2','4g=ABC + 3TC + LPV/r',u1_first_line_4g FROM tx_curr_agg
 -- 1.1.3 4j - ABC+3TC+DTG - eae01634-65ec-4174-a95c-622456663727
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U1.1. 3',
-           '4j= ABC +3TC + DTG'       as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 1
-      AND regimen = '4j - ABC+3TC+DTG'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.1. 3','4j= ABC +3TC + DTG',u1_first_line_4j FROM tx_curr_agg
 -- 1.1.4 4K - AZT+3TC+DTG - dabcfa6d-56e5-4e5d-a2f2-faf4e18b9211
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U1.1. 4',
-           '4k= AZT + 3TC + DTG'       as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 1
-      AND regimen = '4K - AZT+3TC+DTG'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.1. 4','4k= AZT + 3TC + DTG',u1_first_line_4k FROM tx_curr_agg
 -- 1.1.5 4h=other first line - 582c6b67-2f0a-4cc0-b7c0-632b4b387a17
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U1.1. 5'           ,
-           '4h=other first line' as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 1
-      AND regimen not in ('4f - AZT+3TC+LPVr', '4g - ABC+3TC+LPVr', '4j - ABC+3TC+DTG', '4K - AZT+3TC+DTG')
-      AND (regimen_line = '1' or regimen_line = '4')
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.1. 5','4h=other first line',u1_first_line_other FROM tx_curr_agg
 -- 1.2 Children currently on ART aged <1  on second line regimen by regimen type
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U1.2'                                                       ,
-           'Children currently on ART aged <1  on second line regimen by regimen type' as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 1
-      AND (regimen_line = '2' or regimen_line = '5')
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.2','Children currently on ART aged <1  on second line regimen by regimen type',u1_second_line FROM tx_curr_agg
 -- 1.2.1 5e - ABC+3TC+LPVr - fbb4db0f-4cf4-4ca3-bde0-e20eb065e7da
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U1.2. 1',
-           '5e=ABC + 3TC + LPV/r'      as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 1
-      AND regimen = '5e - ABC+3TC+LPVr'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.2. 1','5e=ABC + 3TC + LPV/r',u1_second_line_5e FROM tx_curr_agg
 -- 1.2.2 5f - AZT+3TC+LPV/r - 9ef4d67d-0e05-422a-aac5-80eaf71daadc
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U1.2. 2',
-           '5f=AZT + 3TC + LPV/r'      as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 1
-      AND regimen = '5f - AZT+3TC+LPVr'
-
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.2. 2','5f=AZT + 3TC + LPV/r',u1_second_line_5f FROM tx_curr_agg
 -- 1.2.4 5m - ABC+3TC+DTG - 3ed5d8a0-c957-4439-8f86-6c2538e69d3a
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U1.2. 4',
-           '5m = ABC + 3TC + DTG'       as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 1
-      AND regimen = '5m - ABC+3TC+DTG'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.2. 4','5m = ABC + 3TC + DTG',u1_second_line_5m FROM tx_curr_agg
 -- 1.2.5 5n - AZT+3TC+DTG - 10c0f78a-cd78-40cd-9824-8d24dc95bb90
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U1.2. 5',
-           '5n= AZT + 3TC + DTG'       as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 1
-      AND regimen = '5n - AZT+3TC+DTG'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.2. 5','5n= AZT + 3TC + DTG',u1_second_line_5n FROM tx_curr_agg
 -- 1.2.6 5j - Other Child 2nd line regimen (5j=other secondline) - 0cc9e467-c1ce-4eff-879d-8936a81b6ea3
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U1.2. 6'           ,
-           '5j=other secondline' as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 1
-      AND regimen not in
-          ('5e - ABC+3TC+LPVr', '5f - AZT+3TC+LPVr', '5j - ABC+3TC+LPVr', '5m - ABC+3TC+DTG', '5n - AZT+3TC+DTG')
-      AND (regimen_line = '2' or regimen_line = '5')
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.2. 6','5j=other secondline',u1_second_line_other FROM tx_curr_agg
 -- 1.3 Children currently on ART aged <1  on Third line regimen by regimen type
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U1.3'                                                      ,
-           'Children currently on ART aged <1  on third line regimen by regimen type' as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 1
-      AND (regimen_line = '3' or regimen_line = '6')
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.3','Children currently on ART aged <1  on third line regimen by regimen type',u1_third_line FROM tx_curr_agg
 -- 1.3.1 6c - DRVr+DTG+AZT+3TC - 5c8d27eb-4642-4c6f-b131-1182df8d1276
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U1.3. 1',
-           '6c=DRV/r+DTG+AZT+3TC'  as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 1
-      AND regimen = '6c - DRVr+DTG+AZT+3TC'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.3. 1','6c=DRV/r+DTG+AZT+3TC',u1_third_line_6c   FROM tx_curr_agg
 -- 1.3.2 6f - DRV/r+DTG+ABC+3TC - e3eb6ae1-fd70-47b2-b1a6-702fae87b061
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U1.3. 2',
-           '6f= DRV/r + DTG + ABC + 3TC' as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 1
-      AND regimen = '6f - DRV/r+DTG+ABC+3TC'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.3. 2','6f= DRV/r + DTG + ABC + 3TC',u1_third_line_6f FROM tx_curr_agg
 -- 1.3.3 6e - Other Child 3rd line regimen - 57eef726-e977-4efd-996b-a94860341320
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U1.3. 3'           ,
-           '6e=Other thirdline regimen' as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) < 1
-      AND regimen not in ('6c - DRVr+DTG+AZT+3TC', '6f - DRV/r+DTG+ABC+3TC')
-      AND (regimen_line = '3' or regimen_line = '6')
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.3. 3','6e=Other thirdline regimen',u1_third_line_other FROM tx_curr_agg
 -- 4 Children currently on ART aged 1-4  by regimen type
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U4'                                   ,
-           'Children currently on ART aged 1-4  by regimen type' as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 1 AND 4
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U4','Children currently on ART aged 1-4  by regimen type',u4 FROM tx_curr_agg
 -- 4.1 Children currently on ART aged 1-4  on First line regimen by regimen type
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U4.1'                                                       ,
-           'Children currently on ART aged 1-4  on First line regimen by regimen type' as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 1 AND 4
-      AND (regimen_line = '1' or regimen_line = '4')
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.1','Children currently on ART aged 1-4  on First line regimen by regimen type',u4_first_line FROM tx_curr_agg
 -- 4.1.1 4d - AZT+3TC+EFV
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U4.1. 1',
-           '4d = AZT+3TC+EFV'       as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 1 AND 4
-      AND regimen = '4d - AZT+3TC+EFV'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.1. 1','4d = AZT+3TC+EFV',u4_first_line_4d FROM tx_curr_agg
 -- 4.1.2 4f - AZT+3TC+LPVr
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U4.1. 2',
-           '4f=AZT + 3TC + LPV/r'      as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 1 AND 4
-      AND regimen = '4f - AZT+3TC+LPVr'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.1. 2','4f=AZT + 3TC + LPV/r',u4_first_line_4f FROM tx_curr_agg
 -- 4.1.3 4g - ABC+3TC+LPVr
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U4.1. 3',
-           '4g=ABC + 3TC + LPV/r'      as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 1 AND 4
-      AND regimen = '4g - ABC+3TC+LPVr'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.1. 3','4g=ABC + 3TC + LPV/r',u4_first_line_4g FROM tx_curr_agg
 -- 4.1.4 4g - ABC+3TC+LPVr
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U4.1. 4',
-           '4j= ABC +3TC + DTG'       as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 1 AND 4
-      AND regimen = '4j - ABC+3TC+DTG'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.1. 4','4j= ABC +3TC + DTG',u4_first_line_4j FROM tx_curr_agg
 -- 4.1.5 4K - AZT+3TC+DTG
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U4.1. 5',
-           '4k= AZT + 3TC + DTG'       as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 1 AND 4
-      AND regimen = '4K - AZT+3TC+DTG'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.1. 5','4k= AZT + 3TC + DTG',u4_first_line_4k FROM tx_curr_agg
 -- 4.1.6 4L - ABC+3TC+EFV
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U4.1. 6',
-           '4L= ABC + 3TC + EFV'       as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 1 AND 4
-      AND regimen = '4L - ABC+3TC+EFV'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.1. 6','4L= ABC + 3TC + EFV',u4_first_line_4l FROM tx_curr_agg
 -- 4.1.7 4L - ABC+3TC+EFV
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U4.1. 7'           ,
-           '4h=other first line' as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 1 AND 4
-      AND regimen not in ('4d - AZT+3TC+EFV', '4f - AZT+3TC+LPVr', '4g - ABC+3TC+LPVr',
-                          '4j - ABC+3TC+DTG', '4K - AZT+3TC+DTG', '4L - ABC+3TC+EFV')
-      AND (regimen_line = '1' or regimen_line = '4')
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.1. 7','4h=other first line',u4_first_line_other FROM tx_curr_agg
 -- 4.2 Children currently on ART aged 1-4  on Second line regimen by regimen type
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U4.2'                                                        ,
-           'Children currently on ART aged 1-4  on Second line regimen by regimen type' as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 1 AND 4
-      AND (regimen_line = '2' or regimen_line = '5')
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.2','Children currently on ART aged 1-4  on Second line regimen by regimen type',u4_second_line FROM tx_curr_agg
 -- 4.2.1 5e - ABC+3TC+LPVr
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U4.2. 1',
-           '5e=ABC + 3TC + LPV/r'      as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 1 AND 4
-      AND regimen = '5e - ABC+3TC+LPVr'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.2. 1','5e=ABC + 3TC + LPV/r',u4_second_line_5e FROM tx_curr_agg
 -- 4.2.2 5f - AZT+3TC+LPVr
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U4.2. 2',
-           '5f=AZT + 3TC + LPV/r'      as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 1 AND 4
-      AND regimen = '5f - AZT+3TC+LPVr'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.2. 2','5f=AZT + 3TC + LPV/r',u4_second_line_5f FROM tx_curr_agg
 -- 4.2.3 5h - ABC+3TC+EFV
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U4.2. 3',
-           '5h=ABC + 3TC + EFV'       as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 1 AND 4
-      AND regimen = '5h - ABC+3TC+EFV'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.2. 3','5h=ABC + 3TC + EFV',u4_second_line_5h FROM tx_curr_agg
 -- 4.2.4 5m - ABC+3TC+DTG
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U4.2. 4',
-           '5m = ABC + 3TC + DTG'       as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 1 AND 4
-      AND regimen = '5m - ABC+3TC+DTG'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.2. 4','5m = ABC + 3TC + DTG',u4_second_line_5m FROM tx_curr_agg
 -- 4.2.5 5n - AZT+3TC+DTG
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U4.2. 5',
-           '5n= AZT + 3TC + DTG'       as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 1 AND 4
-      AND regimen = '5n - AZT+3TC+DTG'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.2. 5','5n= AZT + 3TC + DTG',u4_second_line_5n FROM tx_curr_agg
 -- 4.2.6 5j - Other Child 2nd line regimen
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U4.2. 6'           ,
-           '5j=other secondline' as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 1 AND 4
-      AND regimen not in
-          ('5e - ABC+3TC+LPVr', '5f - AZT+3TC+LPVr', '5h - ABC+3TC+EFV', '5m - ABC+3TC+DTG', '5n - AZT+3TC+DTG')
-      AND (regimen_line = '2' or regimen_line = '5')
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.2. 6','5j=other secondline',u4_second_line_other FROM tx_curr_agg
 -- 4.3 Children currently on ART aged 1-4  on Third Line regimen by regimen type
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U4.3'                                                       ,
-           'Children currently on ART aged 1-4  on Third Line regimen by regimen type' as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 1 AND 4
-      AND (regimen_line = '3' or regimen_line = '6')
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.3','Children currently on ART aged 1-4  on Third Line regimen by regimen type',u4_third_line FROM tx_curr_agg
 -- 4.3.1 6c - DRVr+DTG+AZT+3TC
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U4.3. 1',
-           '6c=DRV/r+DTG+AZT+3TC'  as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 1 AND 4
-      AND regimen = '6c - DRVr+DTG+AZT+3TC'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.3. 1','6c=DRV/r+DTG+AZT+3TC',u4_third_line_6c FROM tx_curr_agg
 -- 4.3.2 6f - DRV/r+DTG+ABC+3TC
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U4.3. 2',
-           '6f= DRV/r + DTG + ABC + 3TC' as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 1 AND 4
-      AND regimen = '6f - DRV/r+DTG+ABC+3TC'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.3. 2','6f= DRV/r + DTG + ABC + 3TC',u4_third_line_6f FROM tx_curr_agg
 -- 4.3.3 6g - DRV/r+ABC+3TC+EFV
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U4.3. 3',
-           '6g= DRV/r +ABC+3TC+ EFV' as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 1 AND 4
-      AND regimen = '6g - DRV/r+ABC+3TC+EFV'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.3. 3','6g= DRV/r +ABC+3TC+ EFV',u4_third_line_6g FROM tx_curr_agg
 -- 4.3.4 6h - DRV/r+AZT+3TC+EFV
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U4.3. 4',
-           '6h= DRV/r +AZT+3TC+EFV' as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 1 AND 4
-      AND regimen = '6h - DRV/r+AZT+3TC+EFV'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.3. 4','6h= DRV/r +AZT+3TC+EFV',u4_third_line_6h FROM tx_curr_agg
 -- 4.3.5 6e - Other Child 3rd line regimen
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U4.3. 5'           ,
-           '6e=Other thirdline regimen' as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 1 AND 4
-      AND regimen not in
-          ('6c - DRVr+DTG+AZT+3TC', '6f - DRV/r+DTG+ABC+3TC', '6g - DRV/r+ABC+3TC+EFV', '6h - DRV/r+AZT+3TC+EFV')
-      AND (regimen_line = '3' or regimen_line = '6')
-
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.3. 5','6e=Other thirdline regimen',u4_third_line_other FROM tx_curr_agg
 -- 9 Children currently on ART aged 5-9  on by regimen type
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U9'                                      ,
-           'Children currently on ART aged 5-9  on by regimen type' as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 5 AND 9
-
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9','Children currently on ART aged 5-9  on by regimen type',u9 FROM tx_curr_agg
 -- 9.1 Children currently on ART aged 5-9  on First line regimen by regimen type
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U9.1'                                                       ,
-           'Children currently on ART aged 5-9  on First line regimen by regimen type' as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 5 AND 9
-      AND (regimen_line = '1' or regimen_line = '4')
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.1','Children currently on ART aged 5-9  on First line regimen by regimen type',u9_first_line FROM tx_curr_agg
 -- 9.1.1 4d - AZT+3TC+EFV
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U9.1. 1',
-           '4d = AZT+3TC+EFV'       as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 5 AND 9
-      AND regimen = '4d - AZT+3TC+EFV'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.1. 1','4d = AZT+3TC+EFV',u9_first_line_4d FROM tx_curr_agg
 -- 9.1.2 4e - TDF+3TC+EFV
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U9.1. 2',
-           '4e= TDF+3TC+EFV'       as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 5 AND 9
-      AND regimen = '4e - TDF+3TC+EFV'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.1. 2','4e= TDF+3TC+EFV',u9_first_line_4e FROM tx_curr_agg
 -- 9.1.3 4f - AZT+3TC+LPVr
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U9.1. 3',
-           '4f=AZT + 3TC + LPV/r'      as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 5 AND 9
-      AND regimen = '4f - AZT+3TC+LPVr'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.1. 3','4f=AZT + 3TC + LPV/r',u9_first_line_4f FROM tx_curr_agg
 -- 9.1.4 4g - ABC+3TC+LPVr
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U9.1. 4',
-           '4g=ABC + 3TC + LPV/r'      as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 5 AND 9
-      AND regimen = '4g - ABC+3TC+LPVr'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.1. 4','4g=ABC + 3TC + LPV/r',u9_first_line_4g FROM tx_curr_agg
 -- 9.1.5 4i - TDF+3TC+DTG
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U9.1. 5',
-           '4i= TDF + 3TC + DTG'       as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 5 AND 9
-      AND regimen = '4i - TDF+3TC+DTG'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.1. 5','4i= TDF + 3TC + DTG',u9_first_line_4i FROM tx_curr_agg
 -- 9.1.6 4j - ABC+3TC+DTG
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U9.1. 6',
-           '4j= ABC +3TC + DTG'       as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 5 AND 9
-      AND regimen = '4j - ABC+3TC+DTG'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.1. 6','4j= ABC +3TC + DTG',u9_first_line_4j FROM tx_curr_agg
 -- 9.1.7 4K - AZT+3TC+DTG
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U9.1. 7',
-           '4k= AZT + 3TC + DTG'       as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 5 AND 9
-      AND regimen = '4K - AZT+3TC+DTG'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.1. 7','4k= AZT + 3TC + DTG',u9_first_line_4k FROM tx_curr_agg
 -- 9.1.8 4L - ABC+3TC+EFV
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U9.1. 8',
-           '4L= ABC + 3TC + EFV'       as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 5 AND 9
-      AND regimen = '4L - ABC+3TC+EFV'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.1. 8','4L= ABC + 3TC + EFV',u9_first_line_4l FROM tx_curr_agg
 -- 9.1.9 4h - Other Child 1st line regimen
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U9.1. 9'           ,
-           '4h=other first line' as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 5 AND 9
-      AND regimen not in ('4d - AZT+3TC+EFV', '4e - TDF+3TC+EFV', '4f - AZT+3TC+LPVr', '4g - ABC+3TC+LPVr',
-                          '4i - TDF+3TC+DTG', '4j - ABC+3TC+DTG', '4K - AZT+3TC+DTG', '4L - ABC+3TC+EFV')
-      AND (regimen_line = '1' or regimen_line = '4')
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.1. 9','4h=other first line',u9_first_line_other FROM tx_curr_agg
 -- 9.2 Children currently on ART aged 5-9  on Second line regimen by regimen type
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U9.2'                                                        ,
-           'Children currently on ART aged 5-9  on Second line regimen by regimen type' as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 5 AND 9
-      AND (regimen_line = '2' or regimen_line = '5')
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.2','Children currently on ART aged 5-9  on Second line regimen by regimen type',u9_second_line FROM tx_curr_agg
 -- 9.2.1 5e - ABC+3TC+LPVr
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U9.2. 1',
-           '5e=ABC + 3TC + LPV/r'      as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 5 AND 9
-      AND regimen = '5e - ABC+3TC+LPVr'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.2. 1','5e=ABC + 3TC + LPV/r',u9_second_line_5e FROM tx_curr_agg
 -- 9.2.2 5f - AZT+3TC+LPVr
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U9.2. 2',
-           '5f=AZT + 3TC + LPV/r'      as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 5 AND 9
-      AND regimen = '5f - AZT+3TC+LPVr'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.2. 2','5f=AZT + 3TC + LPV/r',u9_second_line_5f FROM tx_curr_agg
 -- 9.2.3 5g - TDF+3TC+EFV
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U9.2. 3',
-           '5g= TDF + 3TC + EFV'       as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 5 AND 9
-      AND regimen = '5g - TDF+3TC+EFV'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.2. 3','5g= TDF + 3TC + EFV',u9_second_line_5g FROM tx_curr_agg
 -- 9.2.4 5h - ABC+3TC+EFV
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U9.2. 4',
-           '5h=ABC + 3TC + EFV'       as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 5 AND 9
-      AND regimen = '5h - ABC+3TC+EFV'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.2. 4','5h=ABC + 3TC + EFV',u9_second_line_5h FROM tx_curr_agg
 -- 9.2.5 5i - TDF+3TC+LPVr
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U9.2. 5',
-           '5i=TDF + 3TC+ LPV/r'      as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 5 AND 9
-      AND regimen = '5i - TDF+3TC+LPVr'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.2. 5','5i=TDF + 3TC+ LPV/r',u9_second_line_5i FROM tx_curr_agg
 -- 9.2.6 5m - ABC+3TC+DTG
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U9.2. 6',
-           '5m = ABC + 3TC + DTG'       as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 5 AND 9
-      AND regimen = '5m - ABC+3TC+DTG'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.2. 6','5m = ABC + 3TC + DTG',u9_second_line_5m FROM tx_curr_agg
 -- 9.2.7 5n - AZT+3TC+DTG
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U9.2. 7',
-           '5n= AZT + 3TC + DTG'       as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 5 AND 9
-      AND regimen = '5n - AZT+3TC+DTG'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.2. 7','5n= AZT + 3TC + DTG',u9_second_line_5n FROM tx_curr_agg
 -- 9.2.8 5o - TDF+3TC+DTG
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U9.2. 8',
-           '5o= TDF + 3TC + DTG'       as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 5 AND 9
-      AND regimen = '5o - TDF+3TC+DTG'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.2. 8','5o= TDF + 3TC + DTG',u9_second_line_5o FROM tx_curr_agg
 -- 9.2.9 5j - Other Child 2nd line regimen
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U9.2. 9'           ,
-           '5j=other secondline' as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 5 AND 9
-      AND regimen not in ('5e - ABC+3TC+LPVr', '5f - AZT+3TC+LPVr', '5g - TDF+3TC+EFV', '5h - ABC+3TC+EFV',
-                          '5i - TDF+3TC+LPVr', '5m - ABC+3TC+DTG', '5n - AZT+3TC+DTG', '5o - TDF+3TC+DTG')
-      AND (regimen_line = '2' or regimen_line = '5')
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.2. 9','5j=other secondline',u9_second_line_other FROM tx_curr_agg
 -- 9.3 Children currently on ART aged 5-9  on Third Line regimen by regimen type
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U9.3'                                                       ,
-           'Children currently on ART aged 5-9  on Third Line regimen by regimen type' as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 5 AND 9
-      AND (regimen_line = '3' or regimen_line = '6')
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.3','Children currently on ART aged 5-9  on Third Line regimen by regimen type',u9_third_line FROM tx_curr_agg
 -- 9.3.1 6c - DRVr+DTG+AZT+3TC
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U9.3. 1',
-           '6c=DRV/r+DTG+AZT+3TC'  as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 5 AND 9
-      AND regimen = '6c - DRVr+DTG+AZT+3TC'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.3. 1','6c=DRV/r+DTG+AZT+3TC' ,u9_third_line_6c FROM tx_curr_agg
 -- 9.3.2 6d - DRVr+DTG+TDF+3TC
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U9.3. 2',
-           '6d=DRV/r+DTG+TDF+3TC'  as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 5 AND 9
-      AND regimen = '6d - DRVr+DTG+TDF+3TC'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.3. 2','6d=DRV/r+DTG+TDF+3TC',u9_third_line_6d FROM tx_curr_agg
 -- 9.3.3 6f - DRV/r+DTG+ABC+3TC
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U9.3. 3',
-           '6f= DRV/r + DTG + ABC + 3TC' as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 5 AND 9
-      AND regimen = '6f - DRV/r+DTG+ABC+3TC'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.3. 3','6f= DRV/r + DTG + ABC + 3TC',u9_third_line_6f FROM tx_curr_agg
 -- 9.3.4 6g - DRV/r+ABC+3TC+EFV
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U9.3. 4',
-           '6g= DRV/r +ABC+3TC+ EFV' as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 5 AND 9
-      AND regimen = '6g - DRV/r+ABC+3TC+EFV'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.3. 4','6g= DRV/r +ABC+3TC+ EFV',u9_third_line_6g FROM tx_curr_agg
 -- 9.3.5 6h - DRV/r+AZT+3TC+EFV
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U9.3. 5',
-           '6h= DRV/r +AZT+3TC+EFV' as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 5 AND 9
-      AND regimen = '6h - DRV/r+AZT+3TC+EFV'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.3. 5','6h= DRV/r +AZT+3TC+EFV',u9_third_line_6h FROM tx_curr_agg
 -- 9.3.6 6e - Other Child 3rd line regimen
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U9.3. 6'           ,
-           '6e=Other thirdline regimen' as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 5 AND 9
-      AND regimen not in ('6c - DRVr+DTG+AZT+3TC', '6d - DRVr+DTG+TDF+3TC', '6f - DRV/r+DTG+ABC+3TC',
-                          '6g - DRV/r+ABC+3TC+EFV', '6h - DRV/r+AZT+3TC+EFV')
-
-      AND (regimen_line = '3' or regimen_line = '6')
-
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.3. 6','6e=Other thirdline regimen',u9_third_line_other FROM tx_curr_agg
 -- 14 Children currently on ART aged 10-14 year by regimen type
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U14'                                      ,
-           'Children currently on ART aged 10-14 year by regimen type' as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 10 AND 14
-
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14','Children currently on ART aged 10-14 year by regimen type',u14 FROM tx_curr_agg
 -- 14.1 Children currently on ART aged 10-14 year on First line regimen by regimen type
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U14.1'                                                          ,
-           'Children currently on ART aged 10-14 year on First line regimen by regimen type' as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 10 AND 14
-      AND (regimen_line = '1' or regimen_line = '4')
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.1','Children currently on ART aged 10-14 year on First line regimen by regimen type',u14_first_line FROM tx_curr_agg
 -- 14.1.1 4d - AZT+3TC+EFV
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U14.1. 1',
-           '4d = AZT+3TC+EFV'        as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 10 AND 14
-      AND regimen = '4d - AZT+3TC+EFV'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.1. 1','4d = AZT+3TC+EFV',u14_first_line_4d FROM tx_curr_agg
 -- 14.1.2 4e - TDF+3TC+EFV
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U14.1. 2',
-           '4e= TDF+3TC+EFV'        as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 10 AND 14
-      AND regimen = '4e - TDF+3TC+EFV'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.1. 2','4e= TDF+3TC+EFV',u14_first_line_4e FROM tx_curr_agg
 -- 14.1.3 4f - AZT+3TC+LPVr
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U14.1. 3',
-           '4f=AZT + 3TC + LPV/r'       as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 10 AND 14
-      AND regimen = '4f - AZT+3TC+LPVr'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.1. 3','4f=AZT + 3TC + LPV/r',u14_first_line_4f FROM tx_curr_agg
 -- 14.1.4 4g - ABC+3TC+LPVr
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U14.1. 4',
-           '4g=ABC + 3TC + LPV/r'       as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 10 AND 14
-      AND regimen = '4g - ABC+3TC+LPVr'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.1. 4','4g=ABC + 3TC + LPV/r',u14_first_line_4g FROM tx_curr_agg
 -- 14.1.5 4i - TDF+3TC+DTG
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U14.1. 5',
-           '4i= TDF + 3TC + DTG'        as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 10 AND 14
-      AND regimen = '4i - TDF+3TC+DTG'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.1. 5','4i= TDF + 3TC + DTG',u14_first_line_4i FROM tx_curr_agg
 -- 14.1.6 4j - ABC+3TC+DTG
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U14.1. 6',
-           '4j= ABC +3TC + DTG'        as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 10 AND 14
-      AND regimen = '4j - ABC+3TC+DTG'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.1. 6','4j= ABC +3TC + DTG',u14_first_line_4j FROM tx_curr_agg
 -- 14.1.7 4K - AZT+3TC+DTG
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U14.1. 7',
-           '4k= AZT + 3TC + DTG'        as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 10 AND 14
-      AND regimen = '4K - AZT+3TC+DTG'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.1. 7', '4k= AZT + 3TC + DTG',u14_first_line_4k FROM tx_curr_agg
 -- 14.1.8 4L - ABC+3TC+EFV
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U14.1. 8',
-           '4L= ABC + 3TC + EFV'        as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 10 AND 14
-      AND regimen = '4L - ABC+3TC+EFV'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.1. 8','4L= ABC + 3TC + EFV',u14_first_line_4L FROM tx_curr_agg
 -- 14.1.9 4h - Other Child 1st line regimen
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U14.1. 9'          ,
-           '4h=other first line' as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 10 AND 14
-      AND regimen not in ('4d - AZT+3TC+EFV', '4e - TDF+3TC+EFV', '4f - AZT+3TC+LPVr', '4g - ABC+3TC+LPVr',
-                          '4i - TDF+3TC+DTG', '4j - ABC+3TC+DTG', '4K - AZT+3TC+DTG', '4L - ABC+3TC+EFV')
-      AND (regimen_line = '1' or regimen_line = '4')
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.1. 9','4h=other first line',u14_first_line_other FROM tx_curr_agg
 -- 14.2 Children currently on ART aged 10-14 year on Second line regimen by regimen type
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U14.2'                                                           ,
-           'Children currently on ART aged 10-14 year on Second line regimen by regimen type' as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 10 AND 14
-      AND (regimen_line = '2' or regimen_line = '5')
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.2','Children currently on ART aged 10-14 year on Second line regimen by regimen type',u14_second_line FROM tx_curr_agg
 -- 14.2.1 5e - ABC+3TC+LPVr
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U14.2. 1',
-           '5e=ABC + 3TC + LPV/r'       as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 10 AND 14
-      AND regimen = '5e - ABC+3TC+LPVr'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.2. 1','5e=ABC + 3TC + LPV/r',u14_second_line_5e FROM tx_curr_agg
 -- 14.2.2 5f - AZT+3TC+LPVr
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U14.2. 2',
-           '5f=AZT + 3TC + LPV/r'       as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 10 AND 14
-      AND regimen = '5f - AZT+3TC+LPVr'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.2. 2','5f=AZT + 3TC + LPV/r',u14_second_line_5f FROM tx_curr_agg
 -- 14.2.3 5g - TDF+3TC+EFV
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U14.2. 3',
-           '5g= TDF + 3TC + EFV'        as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 10 AND 14
-      AND regimen = '5g - TDF+3TC+EFV'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.2. 3','5g= TDF + 3TC + EFV',u14_second_line_5g FROM tx_curr_agg
 -- 14.2.4 5h - ABC+3TC+EFV
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U14.2. 4',
-           '5h=ABC + 3TC + EFV'        as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 10 AND 14
-      AND regimen = '5h - ABC+3TC+EFV'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.2. 4','5h=ABC + 3TC + EFV',u14_second_line_5h FROM tx_curr_agg
 -- 14.2.5 5h - ABC+3TC+EFV
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U14.2. 5',
-           '5i=TDF + 3TC+ LPV/r'       as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 10 AND 14
-      AND regimen = '5i - TDF+3TC+LPVr'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.2. 5','5i=TDF + 3TC+ LPV/r',u14_second_line_5i FROM tx_curr_agg
 -- 14.2.6 5m - ABC+3TC+DTG
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U14.2. 6',
-           '5m = ABC + 3TC + DTG'        as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 10 AND 14
-      AND regimen = '5m - ABC+3TC+DTG'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.2. 6','5m = ABC + 3TC + DTG',u14_second_line_5m FROM tx_curr_agg
 -- 14.2.7 5n - AZT+3TC+DTG
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U14.2. 7',
-           '5n= AZT + 3TC + DTG'        as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 10 AND 14
-      AND regimen = '5n - AZT+3TC+DTG'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.2. 7','5n= AZT + 3TC + DTG',u14_second_line_5n FROM tx_curr_agg
 -- 14.2.8 5o - TDF+3TC+DTG
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U14.2. 8',
-           '5o= TDF + 3TC + DTG'        as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 10 AND 14
-      AND regimen = '5o - TDF+3TC+DTG'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.2. 8','5o= TDF + 3TC + DTG',u14_second_line_5o FROM tx_curr_agg
 -- 14.2.9 5j - Other Child 2nd line regimen
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U14.2. 9'          ,
-           '5j=other secondline' as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 10 AND 14
-      AND regimen not in ('5e - ABC+3TC+LPVr', '5f - AZT+3TC+LPVr', '5g - TDF+3TC+EFV', '5h - ABC+3TC+EFV',
-                          '5i - TDF+3TC+LPVr', '5m - ABC+3TC+DTG', '5n - AZT+3TC+DTG', '5o - TDF+3TC+DTG')
-      AND (regimen_line = '2' or regimen_line = '5')
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.2. 9','5j=other secondline',u14_second_line_other FROM tx_curr_agg
 -- 14.3 Children currently on ART aged 10-14 year on Third Line regimen by regimen type
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U14.3'                                                          ,
-           'Children currently on ART aged 10-14 year on Third Line regimen by regimen type' as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 10 AND 14
-      AND (regimen_line = '3' or regimen_line = '6')
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.3','Children currently on ART aged 10-14 year on Third Line regimen by regimen type',u14_third_line FROM tx_curr_agg
 -- 14.3.1 6c - DRVr+DTG+AZT+3TC
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U14.3. 1',
-           '6c=DRV/r+DTG+AZT+3TC'   as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 10 AND 14
-      AND regimen = '6c - DRVr+DTG+AZT+3TC'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.3. 1','6c=DRV/r+DTG+AZT+3TC',u14_third_line_6c FROM tx_curr_agg
 -- 14.3.2 6d - DRVr+DTG+TDF+3TC
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U14.3. 2',
-           '6d=DRV/r+DTG+TDF+3TC'   as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 10 AND 14
-      AND regimen = '6d - DRVr+DTG+TDF+3TC'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.3. 2','6d=DRV/r+DTG+TDF+3TC',u14_third_line_6d FROM tx_curr_agg
 -- 14.3.3 6f - DRV/r+DTG+ABC+3TC
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U14.3. 3',
-           '6f= DRV/r + DTG + ABC + 3TC'  as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 10 AND 14
-      AND regimen = '6f - DRV/r+DTG+ABC+3TC'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.3. 3','6f= DRV/r + DTG + ABC + 3TC',u14_third_line_6f FROM tx_curr_agg
 -- 14.3.4 6g - DRV/r+ABC+3TC+EFV
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U14.3. 4',
-           '6g= DRV/r +ABC+3TC+ EFV'  as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 10 AND 14
-      AND regimen = '6g - DRV/r+ABC+3TC+EFV'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.3. 4','6g= DRV/r +ABC+3TC+ EFV',u14_third_line_6g FROM tx_curr_agg
 -- 14.3.5 6h - DRV/r+AZT+3TC+EFV
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U14.3. 5',
-           '6h= DRV/r +AZT+3TC+EFV'  as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 10 AND 14
-      AND regimen = '6h - DRV/r+AZT+3TC+EFV'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.3. 5','6h= DRV/r +AZT+3TC+EFV',u14_third_line_6h FROM tx_curr_agg
 -- 14.3.6 6e - Other Child 3rd line regimen
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U14.3. 6'          ,
-           '6e=Other thirdline regimen' as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 10 AND 14
-      AND regimen not in
-          ('6c - DRVr+DTG+AZT+3TC', '6d - DRVr+DTG+TDF+3TC', '6f - DRV/r+DTG+ABC+3TC', '6g - DRV/r+ABC+3TC+EFV',
-           '6h - DRV/r+AZT+3TC+EFV')
-      AND (regimen_line = '3' or regimen_line = '6')
-
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.3. 6','6e=Other thirdline regimen',u14_third_line_other FROM tx_curr_agg
 -- 19 Adult currently on ART aged 15-19 by regimen type
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U19'                              ,
-           'Adult currently on ART aged 15-19 by regimen type' as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
-
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19','Adult currently on ART aged 15-19 by regimen type',u19 FROM tx_curr_agg
 -- 19.1 Adult currently on ART aged 15-19 on First line regimen by regimen type
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U19.1'                                                  ,
-           'Adult currently on ART aged 15-19 on First line regimen by regimen type' as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
-      AND (regimen_line = '1' or regimen_line = '4')
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.1','Adult currently on ART aged 15-19 on First line regimen by regimen type',u19_first_line FROM tx_curr_agg
 -- 19.1.1 1d - AZT+3TC+EFV
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U19.1. 1',
-           '1d = AZT-3TC-EFV'        as Activity,
-           COUNT(*)
-    FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.1. 1','1d = AZT-3TC-EFV',u19_first_line_ FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
       AND regimen = '1d - AZT+3TC+EFV'
 -- 19.1.2 1e - TDF+3TC+EFV
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_U19.1. 2',
-           '1e = TDF-3TC-EFV'        as Activity,
+           '1e = TDF-3TC-EFV'       ,
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
@@ -1256,7 +746,7 @@ BEGIN
 -- 19.1.3 1g - ABC+3TC+EFV
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_U19.1. 3',
-           '1g= ABC + 3TC + EFV'        as Activity,
+           '1g= ABC + 3TC + EFV'       ,
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
@@ -1264,7 +754,7 @@ BEGIN
 -- 19.1.4 1j - TDF+3TC+DTG
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_U19.1. 4',
-           '1j=TDF + 3TC + DTG'        as Activity,
+           '1j=TDF + 3TC + DTG'       ,
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
@@ -1272,7 +762,7 @@ BEGIN
 -- 19.1.5 1k - AZT+3TC+DTG
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_U19.1. 5',
-           '1k= AZT +3TC +DTG'        as Activity,
+           '1k= AZT +3TC +DTG'       ,
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
@@ -1280,7 +770,7 @@ BEGIN
 -- 19.1.6 1i - Other Adult 1st line regimen
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_U19.1. 6'          ,
-           '1i = Other specify' as Activity,
+           '1i = Other specify',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
@@ -1290,7 +780,7 @@ BEGIN
 -- 19.2 Adult currently on ART aged 15-19 on Second line regimen by regimen type
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_U19.2'                                                   ,
-           'Adult currently on ART aged 15-19 on Second line regimen by regimen type' as Activity,
+           'Adult currently on ART aged 15-19 on Second line regimen by regimen type',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
@@ -1298,7 +788,7 @@ BEGIN
 -- 19.2.1 1d - AZT+3TC+EFV
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_U19.2. 1',
-           '2e= AZT+3TC+LPV/r'       as Activity,
+           '2e= AZT+3TC+LPV/r'      ,
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
@@ -1306,7 +796,7 @@ BEGIN
 -- 19.2.2 2f - AZT+3TC+ATVr
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_U19.2. 2',
-           '2f=AZT+3TC+ATV/r'       as Activity,
+           '2f=AZT+3TC+ATV/r'      ,
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
@@ -1314,7 +804,7 @@ BEGIN
 -- 19.2.3 2f - AZT+3TC+ATVr
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_U19.2. 3',
-           '2g= TDF-3TC-LPV/r'       as Activity,
+           '2g= TDF-3TC-LPV/r'      ,
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
@@ -1322,7 +812,7 @@ BEGIN
 -- 19.2.4 2f - AZT+3TC+ATVr
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_U19.2. 4',
-           '2h =TDF-3TC-ATV/r'       as Activity,
+           '2h =TDF-3TC-ATV/r'      ,
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
@@ -1330,7 +820,7 @@ BEGIN
 -- 19.2.5 2i - ABC+3TC+LPVr
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_U19.2. 5',
-           '2i = ABC + 3TC + LPV/r'       as Activity,
+           '2i = ABC + 3TC + LPV/r'      ,
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
@@ -1338,7 +828,7 @@ BEGIN
 -- 19.2.6 2j -TDF+3TC+DTG
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_U19.2. 6',
-           '2j = TDF + 3TC + DTG'         as Activity,
+           '2j = TDF + 3TC + DTG'        ,
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
@@ -1346,7 +836,7 @@ BEGIN
 -- 19.2.7 2k - AZT+3TC+DTG
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_U19.2. 7',
-           '2k = AZT + 3TC + DTG'        as Activity,
+           '2k = AZT + 3TC + DTG'       ,
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
@@ -1354,7 +844,7 @@ BEGIN
 -- 19.2.8 2L - Other Adult 2nd line regimen
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_U19.2. 8'          ,
-           '2l=other secondline' as Activity,
+           '2l=other secondline',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
@@ -1365,7 +855,7 @@ BEGIN
 -- 19.3 Adult currently on ART aged 15-19 on Third Line regimen by regimen type
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_U19.3'                                                  ,
-           'Adult currently on ART aged 15-19 on Third Line regimen by regimen type' as Activity,
+           'Adult currently on ART aged 15-19 on Third Line regimen by regimen type',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
@@ -1373,7 +863,7 @@ BEGIN
 -- 19.3.1 3a -  DRV/r+DTG+AZT+3TC
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_U19.3. 1',
-           '3a=DRV/r+DTG+AZT/3TC' as Activity,
+           '3a=DRV/r+DTG+AZT/3TC',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
@@ -1381,7 +871,7 @@ BEGIN
 -- 19.3.2 3b - DRV/r+DTG+TDF+3TC
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_U19.3. 2',
-           '3b=DRV/r+DTG+TDF/3TC'  as Activity,
+           '3b=DRV/r+DTG+TDF/3TC' ,
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
@@ -1389,7 +879,7 @@ BEGIN
 -- 19.3.3 3c - DRV/r+ABC+3TC+DTG
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_U19.3. 3',
-           '3c=DRV/r+ABC+3TC+DTG'  as Activity,
+           '3c=DRV/r+ABC+3TC+DTG' ,
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
@@ -1397,7 +887,7 @@ BEGIN
 -- 19.3.4 3e - DRV/r+TDF+3TC+EFV
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_U19.3. 4',
-           '3e= DRV/r+TDF+3TC+EFV'  as Activity,
+           '3e= DRV/r+TDF+3TC+EFV' ,
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
@@ -1405,7 +895,7 @@ BEGIN
 -- 19.3.5 3f - DRV/r+AZT+3TC+EFV
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_U19.3. 5',
-           '3f= DRV/r+AZT+3TC +EFV'  as Activity,
+           '3f= DRV/r+AZT+3TC +EFV' ,
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
@@ -1413,7 +903,7 @@ BEGIN
 -- 19.3.6 3d - Other Adult 3rd line regimen
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_U19.3. 6'          ,
-           '3d=Other thirdline' as Activity,
+           '3d=Other thirdline',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
@@ -1423,14 +913,14 @@ BEGIN
 -- 20 Adults >=20 years currently on ART by regimen type
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20'                               ,
-           'Adults >=20 years currently on ART by regimen type' as Activity,
+           'Adults >=20 years currently on ART by regimen type',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
 -- 20.1 Adults >=20 years currently on First line regimen by regimen type
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.1'                                            ,
-           'Adults >=20 years currently on First line regimen by regimen type' as Activity,
+           'Adults >=20 years currently on First line regimen by regimen type',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1438,7 +928,7 @@ BEGIN
 -- 20.1.1 1d - AZT+3TC+EFV, Male
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.1. 1',
-           '1d = AZT-3TC-EFV, Male'  as Activity,
+           '1d = AZT-3TC-EFV, Male' ,
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1447,7 +937,7 @@ BEGIN
 -- 20.1.2 1d - AZT+3TC+EFV, Female - pregnant
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.1. 2'            ,
-           '1d = AZT-3TC-EFV, Female - pregnant' as Activity,
+           '1d = AZT-3TC-EFV, Female - pregnant',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1457,7 +947,7 @@ BEGIN
 -- 20.1.3 1d - AZT+3TC+EFV, Female - non-pregnant
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.1. 3'                ,
-           '1d = AZT-3TC-EFV, Female - non-pregnant' as Activity,
+           '1d = AZT-3TC-EFV, Female - non-pregnant',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1467,7 +957,7 @@ BEGIN
 -- 20.1.4 1e - TDF+3TC+EFV, Male
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.1. 4',
-           '1e = TDF-3TC-EFV, Male'  as Activity,
+           '1e = TDF-3TC-EFV, Male' ,
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1476,7 +966,7 @@ BEGIN
 -- 20.1.5 1e - TDF+3TC+EFV, Female - pregnant
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.1. 5'            ,
-           '1e = TDF-3TC-EFV, Female - pregnant' as Activity,
+           '1e = TDF-3TC-EFV, Female - pregnant',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1486,7 +976,7 @@ BEGIN
 -- 20.1.6 1e - TDF+3TC+EFV, Female - non-pregnant
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.1. 6'                ,
-           '1e = TDF-3TC-EFV, Female - non-pregnant' as Activity,
+           '1e = TDF-3TC-EFV, Female - non-pregnant',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1496,7 +986,7 @@ BEGIN
 -- 20.1.7 1g - ABC+3TC+EFV, Male
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.1. 7',
-           '1g= ABC + 3TC + EFV, Male'  as Activity,
+           '1g= ABC + 3TC + EFV, Male' ,
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1505,7 +995,7 @@ BEGIN
 -- 20.1.8 1g - ABC+3TC+EFV, Female - pregnant
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.1. 8'            ,
-           '1g= ABC + 3TC + EFV, Female - pregnant' as Activity,
+           '1g= ABC + 3TC + EFV, Female - pregnant',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1515,7 +1005,7 @@ BEGIN
 -- 20.1.9 1g - ABC+3TC+EFV, Female - non-pregnant
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.1. 9'                ,
-           '1g= ABC + 3TC + EFV, Female - non-pregnant' as Activity,
+           '1g= ABC + 3TC + EFV, Female - non-pregnant',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1525,7 +1015,7 @@ BEGIN
 -- 20.1.10 1j - TDF+3TC+DTG, Male
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.1. 10',
-           '1j=TDF + 3TC + DTG, Male'   as Activity,
+           '1j=TDF + 3TC + DTG, Male'  ,
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1534,7 +1024,7 @@ BEGIN
 -- 20.1.11 1j - TDF+3TC+DTG, Female - pregnant
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.1. 11'           ,
-           '1j=TDF + 3TC + DTG, Female - pregnant' as Activity,
+           '1j=TDF + 3TC + DTG, Female - pregnant',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1544,7 +1034,7 @@ BEGIN
 -- 20.1.12 1j - TDF+3TC+DTG, Female - non-pregnant
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.1. 12'               ,
-           '1j=TDF + 3TC + DTG, Female - non-pregnant' as Activity,
+           '1j=TDF + 3TC + DTG, Female - non-pregnant',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1554,7 +1044,7 @@ BEGIN
 -- 20.1.13 1k - AZT+3TC+DTG, Male
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.1. 13',
-           '1k= AZT +3TC +DTG, Male'   as Activity,
+           '1k= AZT +3TC +DTG, Male'  ,
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1563,7 +1053,7 @@ BEGIN
 -- 20.1.14 1k - AZT+3TC+DTG, Female - pregnant
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.1. 14'           ,
-           '1k= AZT +3TC +DTG, Female - pregnant' as Activity,
+           '1k= AZT +3TC +DTG, Female - pregnant',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1573,7 +1063,7 @@ BEGIN
 -- 20.1.15 1k - AZT+3TC+DTG, Female - non-pregnant
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.1. 15'               ,
-           '1k= AZT +3TC +DTG, Female - non-pregnant' as Activity,
+           '1k= AZT +3TC +DTG, Female - non-pregnant',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1583,7 +1073,7 @@ BEGIN
 -- 20.1.16 1i - Other Adult 1st line regimen, Male
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.1. 16'               ,
-           '1i = Other specify, Male' as Activity,
+           '1i = Other specify, Male',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1594,7 +1084,7 @@ BEGIN
 -- 20.1.17 1i - Other Adult 1st line regimen, Female - pregnant
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.1. 17'                            ,
-           '1i = Other specify, Female - pregnant' as Activity,
+           '1i = Other specify, Female - pregnant',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1606,7 +1096,7 @@ BEGIN
 -- 20.1.18 1i - Other Adult 1st line regimen, Female - non-pregnant
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.1. 18'                                ,
-           '1i = Other specify, Female - non-pregnant' as Activity,
+           '1i = Other specify, Female - non-pregnant',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1618,7 +1108,7 @@ BEGIN
 -- 20.2  Adults >=20 years currently on Second line regimen by regimen type
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.2'                                             ,
-           'Adults >=20 years currently on Second line regimen by regimen type' as Activity,
+           'Adults >=20 years currently on Second line regimen by regimen type',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1626,7 +1116,7 @@ BEGIN
 -- 20.2.1 2e - AZT+3TC+LPVr, Male
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.2. 1',
-           '2e= AZT+3TC+LPV/r, Male' as Activity,
+           '2e= AZT+3TC+LPV/r, Male',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1635,7 +1125,7 @@ BEGIN
 -- 20.2.2 2e - AZT+3TC+LPVr, Female - pregnant
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.2. 2'             ,
-           '2e= AZT+3TC+LPV/r, Female - pregnant' as Activity,
+           '2e= AZT+3TC+LPV/r, Female - pregnant',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1645,7 +1135,7 @@ BEGIN
 -- 20.2.3 2e - AZT+3TC+LPVr, Female - non-pregnant
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.2. 3'                 ,
-           '2e= AZT+3TC+LPV/r, Female - non-pregnant' as Activity,
+           '2e= AZT+3TC+LPV/r, Female - non-pregnant',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1655,7 +1145,7 @@ BEGIN
 -- 20.2.4 2f - AZT+3TC+ATVr, Male
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.2. 4',
-           '2f=AZT+3TC+ATV/r, Male' as Activity,
+           '2f=AZT+3TC+ATV/r, Male',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1664,7 +1154,7 @@ BEGIN
 -- 20.2.5 2f - AZT+3TC+ATVr, Female - pregnant
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.2. 5'             ,
-           '2f=AZT+3TC+ATV/r, Female - pregnant' as Activity,
+           '2f=AZT+3TC+ATV/r, Female - pregnant',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1674,7 +1164,7 @@ BEGIN
 -- 20.2.6 2f - AZT+3TC+ATVr, Female - non-pregnant
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.2. 6'                 ,
-           '2f=AZT+3TC+ATV/r, Female - non-pregnant' as Activity,
+           '2f=AZT+3TC+ATV/r, Female - non-pregnant',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1684,7 +1174,7 @@ BEGIN
 -- 20.2.7 2g - TDF+3TC+LPVr, Male
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.2. 7',
-           '2g= TDF-3TC-LPV/r, Male' as Activity,
+           '2g= TDF-3TC-LPV/r, Male',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1693,7 +1183,7 @@ BEGIN
 -- 20.2.8 2g - TDF+3TC+LPVr, Female - pregnant
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.2. 8'             ,
-           '2g= TDF-3TC-LPV/r, Female - pregnant' as Activity,
+           '2g= TDF-3TC-LPV/r, Female - pregnant',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1703,7 +1193,7 @@ BEGIN
 -- 20.2.9 2g - TDF+3TC+LPVr, Female - non-pregnant
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.2. 9'                 ,
-           '2g= TDF-3TC-LPV/r, Female - non-pregnant' as Activity,
+           '2g= TDF-3TC-LPV/r, Female - non-pregnant',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1713,7 +1203,7 @@ BEGIN
 -- 20.2.10 2h - TDF+3TC+ATVr, Male
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.2. 10',
-           '2h =TDF-3TC-ATV/r, Male'  as Activity,
+           '2h =TDF-3TC-ATV/r, Male' ,
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1722,7 +1212,7 @@ BEGIN
 -- 20.2.11 2h - TDF+3TC+ATVr, Female - pregnant
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.2. 11'            ,
-           '2h =TDF-3TC-ATV/r, Female - pregnant' as Activity,
+           '2h =TDF-3TC-ATV/r, Female - pregnant',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1732,7 +1222,7 @@ BEGIN
 -- 20.2.12 2h - TDF+3TC+ATVr, Female - non-pregnant
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.2. 12'                ,
-           '2h =TDF-3TC-ATV/r, Female - non-pregnant' as Activity,
+           '2h =TDF-3TC-ATV/r, Female - non-pregnant',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1742,7 +1232,7 @@ BEGIN
 -- 20.2.13 2i - ABC+3TC+LPVr, Male
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.2. 13',
-           '2i = ABC + 3TC + LPV/r, Male'  as Activity,
+           '2i = ABC + 3TC + LPV/r, Male' ,
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1751,7 +1241,7 @@ BEGIN
 -- 20.2.14 2i - ABC+3TC+LPVr, Female - pregnant
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.2. 14'            ,
-           '2i = ABC + 3TC + LPV/r, Female - pregnant' as Activity,
+           '2i = ABC + 3TC + LPV/r, Female - pregnant',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1761,7 +1251,7 @@ BEGIN
 -- 20.2.15 2i - ABC+3TC+LPVr, Female - non-pregnant
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.2. 15'                ,
-           '2i = ABC + 3TC + LPV/r, Female - non-pregnant' as Activity,
+           '2i = ABC + 3TC + LPV/r, Female - non-pregnant',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1771,7 +1261,7 @@ BEGIN
 -- 20.2.16 2j -TDF+3TC+DTG, Male
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.2. 16',
-           '2j = TDF + 3TC + DTG, Male'    as Activity,
+           '2j = TDF + 3TC + DTG, Male'   ,
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1780,7 +1270,7 @@ BEGIN
 -- 20.2.17 2j -TDF+3TC+DTG, Female - pregnant
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.2. 17'          ,
-           '2j = TDF + 3TC + DTG, Female - pregnant' as Activity,
+           '2j = TDF + 3TC + DTG, Female - pregnant',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1790,7 +1280,7 @@ BEGIN
 -- 20.2.18 2j -TDF+3TC+DTG, Female - non-pregnant
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.2. 18'              ,
-           '2j = TDF + 3TC + DTG, Female - non-pregnant' as Activity,
+           '2j = TDF + 3TC + DTG, Female - non-pregnant',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1800,7 +1290,7 @@ BEGIN
 -- 20.2.19 2k - AZT+3TC+DTG, Male
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.2. 19',
-           '2k = AZT + 3TC + DTG, Male'   as Activity,
+           '2k = AZT + 3TC + DTG, Male'  ,
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1809,7 +1299,7 @@ BEGIN
 -- 20.2.20 2k - AZT+3TC+DTG, Female - pregnant
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.2. 20'           ,
-           '2k = AZT + 3TC + DTG, Female - pregnant' as Activity,
+           '2k = AZT + 3TC + DTG, Female - pregnant',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1819,7 +1309,7 @@ BEGIN
 -- 20.2.21 2k - AZT+3TC+DTG, Female - non-pregnant
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.2. 21'               ,
-           '2k = AZT + 3TC + DTG, Female - non-pregnant' as Activity,
+           '2k = AZT + 3TC + DTG, Female - non-pregnant',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1829,7 +1319,7 @@ BEGIN
 -- 20.2.22 2L - Other Adult 2nd line regimen, Male
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.2. 22'               ,
-           '2l=other secondline, Male' as Activity,
+           '2l=other secondline, Male',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1840,7 +1330,7 @@ BEGIN
 -- 20.2.23 2L - Other Adult 2nd line regimen, Female - pregnant
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.2. 23'                            ,
-           '2l=other secondline, Female - pregnant' as Activity,
+           '2l=other secondline, Female - pregnant',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1852,7 +1342,7 @@ BEGIN
 -- 20.2.24 2L - Other Adult 2nd line regimen, Female - non-pregnant
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.2. 24'                                ,
-           '2l=other secondline, Female - non-pregnant' as Activity,
+           '2l=other secondline, Female - non-pregnant',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1865,7 +1355,7 @@ BEGIN
 -- 20.3 Adults >=20 years currently on Third Line regimen by regimen type
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.3'                                            ,
-           'Adults >=20 years currently on Third Line regimen by regimen type' as Activity,
+           'Adults >=20 years currently on Third Line regimen by regimen type',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1873,7 +1363,7 @@ BEGIN
 -- 20.3.1 3a -  DRV/r+DTG+AZT+3TC, Male
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.3. 1'      ,
-           '3a=DRV/r+DTG+AZT/3TC, Male' as Activity,
+           '3a=DRV/r+DTG+AZT/3TC, Male',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1882,7 +1372,7 @@ BEGIN
 -- 20.3.2 3a -  DRV/r+DTG+AZT+3TC, Female - pregnant
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.3. 2'                   ,
-           '3a=DRV/r+DTG+AZT/3TC, Female - pregnant' as Activity,
+           '3a=DRV/r+DTG+AZT/3TC, Female - pregnant',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1892,7 +1382,7 @@ BEGIN
 -- 20.3.3 3a -  DRV/r+DTG+AZT+3TC, Female - non-pregnant
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.3. 3'                       ,
-           '3a=DRV/r+DTG+AZT/3TC, Female - non-pregnant' as Activity,
+           '3a=DRV/r+DTG+AZT/3TC, Female - non-pregnant',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1902,7 +1392,7 @@ BEGIN
 -- 20.3.4 3b - DRV/r+DTG+TDF+3TC, Male
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.3. 4'     ,
-           '3b=DRV/r+DTG+TDF/3TC, Male' as Activity,
+           '3b=DRV/r+DTG+TDF/3TC, Male',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1911,7 +1401,7 @@ BEGIN
 -- 20.3.5 3b - DRV/r+DTG+TDF+3TC, Female - pregnant
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.3. 5'                  ,
-           '3b=DRV/r+DTG+TDF/3TC, Female - pregnant' as Activity,
+           '3b=DRV/r+DTG+TDF/3TC, Female - pregnant',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1921,7 +1411,7 @@ BEGIN
 -- 20.3.6 3b - DRV/r+DTG+TDF+3TC, Female - non-pregnant
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.3. 6'                      ,
-           '3b=DRV/r+DTG+TDF/3TC, Female - non-pregnant' as Activity,
+           '3b=DRV/r+DTG+TDF/3TC, Female - non-pregnant',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1931,7 +1421,7 @@ BEGIN
 -- 20.3.7 3c - DRV/r+ABC+3TC+DTG, Male
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.3. 7'     ,
-           '3c=DRV/r+ABC+3TC+DTG, Male' as Activity,
+           '3c=DRV/r+ABC+3TC+DTG, Male',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1940,7 +1430,7 @@ BEGIN
 -- 20.3.8 3c - DRV/r+ABC+3TC+DTG, Female - pregnant
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.3. 8'                  ,
-           '3c=DRV/r+ABC+3TC+DTG, Female - pregnant' as Activity,
+           '3c=DRV/r+ABC+3TC+DTG, Female - pregnant',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1950,7 +1440,7 @@ BEGIN
 -- 20.3.9 3c - DRV/r+ABC+3TC+DTG, Female - non-pregnant
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.3. 9'                      ,
-           '3c=DRV/r+ABC+3TC+DTG, Female - non-pregnant' as Activity,
+           '3c=DRV/r+ABC+3TC+DTG, Female - non-pregnant',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1960,7 +1450,7 @@ BEGIN
 -- 20.3.10 3e - DRV/r+TDF+3TC+EFV, Male
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.3. 10'    ,
-           '3e= DRV/r+TDF+3TC+EFV, Male' as Activity,
+           '3e= DRV/r+TDF+3TC+EFV, Male',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1969,7 +1459,7 @@ BEGIN
 -- 20.3.11 3e - DRV/r+TDF+3TC+EFV, Female - pregnant
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.3. 11'                 ,
-           '3e= DRV/r+TDF+3TC+EFV, Female - pregnant' as Activity,
+           '3e= DRV/r+TDF+3TC+EFV, Female - pregnant',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1979,7 +1469,7 @@ BEGIN
 -- 20.3.12 3e - DRV/r+TDF+3TC+EFV, Female - non-pregnant
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.3. 12'                     ,
-           '3e= DRV/r+TDF+3TC+EFV, Female - non-pregnant' as Activity,
+           '3e= DRV/r+TDF+3TC+EFV, Female - non-pregnant',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1989,7 +1479,7 @@ BEGIN
 -- 20.3.13 3f - DRV/r+AZT+3TC+EFV, Male
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.3. 13'    ,
-           '3f= DRV/r+AZT+3TC +EFV, Male' as Activity,
+           '3f= DRV/r+AZT+3TC +EFV, Male',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -1998,7 +1488,7 @@ BEGIN
 -- 20.3.14 3f - DRV/r+AZT+3TC+EFV, Female - pregnant
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.3. 14'                 ,
-           '3f= DRV/r+AZT+3TC +EFV, Female - pregnant' as Activity,
+           '3f= DRV/r+AZT+3TC +EFV, Female - pregnant',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -2008,7 +1498,7 @@ BEGIN
 -- 20.3.15 3f - DRV/r+AZT+3TC+EFV, Female - non-pregnant
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.3. 15'                     ,
-           '3f= DRV/r+AZT+3TC +EFV, Female - non-pregnant' as Activity,
+           '3f= DRV/r+AZT+3TC +EFV, Female - non-pregnant',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -2019,7 +1509,7 @@ BEGIN
 -- 20.3.16 3d - Other Adult 3rd line regimen, Male
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.3. 16'               ,
-           '3d=Other thirdline, Male' as Activity,
+           '3d=Other thirdline, Male',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -2030,7 +1520,7 @@ BEGIN
 -- 20.3.17 3d - Other Adult 3rd line regimen, Female - pregnant
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.3. 17'                            ,
-           '3d=Other thirdline, Female - pregnant' as Activity,
+           '3d=Other thirdline, Female - pregnant',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
@@ -2042,7 +1532,7 @@ BEGIN
 -- 20.3.18 3d - Other Adult 3rd line regimen, Female - non-pregnant
     UNION ALL
     SELECT 'HIV_TX_CURR_REG_20.3. 18'                                ,
-           '3d=Other thirdline, Female - non-pregnant' as Activity,
+           '3d=Other thirdline, Female - non-pregnant',
            COUNT(*)
     FROM tx_curr_agg
     WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
