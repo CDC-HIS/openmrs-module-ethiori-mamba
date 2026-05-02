@@ -24,6 +24,17 @@ jobs:
           distribution: 'corretto'
           cache: 'maven'
 
+      - name: Checkout mamba-core
+        uses: actions/checkout@v4
+        with:
+          repository: samuelabebayehu/openmrs-module-mamba-core
+          ref: palladium_uprade
+          token: ${{ secrets.MAMBA_CORE_PAT }}
+          path: mamba-core
+
+      - name: Build and install mamba-core
+        run: mvn install -DskipTests -f mamba-core/pom.xml
+
       # Pass 1: Run the ETL compiler so it generates the *.sql files and copies them
       # into api/src/main/resources/mamba/ (via the copy-final-build-script install-phase step).
       # On a fresh checkout that directory is empty (gitignored), so the api jar built in
