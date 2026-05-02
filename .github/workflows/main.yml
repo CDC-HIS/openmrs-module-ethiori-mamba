@@ -2,7 +2,7 @@ name: Compile & Avail OMOD Artifact (GitHub Hosted)
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "master", "palladium_uprade" ]
   pull_request:
     branches: [ "master" ]
   workflow_dispatch:
