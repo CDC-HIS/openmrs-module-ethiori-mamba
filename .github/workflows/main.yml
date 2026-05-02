@@ -32,7 +32,20 @@ jobs:
           path: mamba-core
           # token: ${{ secrets.MAMBA_CORE_PAT }}  # uncomment if repo is private
 
+      - name: Get mamba-core commit SHA
+        id: mamba_sha
+        working-directory: mamba-core
+        run: echo "sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Cache mamba-core installed artifacts
+        id: cache_mamba
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository/org/openmrs/module/mamba-core-api
+          key: mamba-core-${{ steps.mamba_sha.outputs.sha }}
+
       - name: Build and install mamba-core
+        if: steps.cache_mamba.outputs.cache-hit != 'true'
         run: mvn install -DskipTests -f mamba-core/pom.xml
 
       # Pass 1: Run the ETL compiler so it generates the *.sql files and copies them
