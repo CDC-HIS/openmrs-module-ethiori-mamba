@@ -51,9 +51,9 @@ jobs:
       - name: Find .omod file
         id: find_omod
         run: |
-          OMOD_PATH=$(find "${{ github.workspace }}" -name "*.omod" | head -n 1)
+          OMOD_PATH=$(find "${{ github.workspace }}/omod/target" -name "*.omod" | head -n 1)
           if [ -z "$OMOD_PATH" ]; then
-            echo "Error: No .omod file found after build."
+            echo "Error: No .omod file found in omod/target after build."
             exit 1
           fi
           echo "Found .omod at: $OMOD_PATH"
@@ -61,14 +61,20 @@ jobs:
 
       - name: Verify SQL scripts are inside the OMOD
         run: |
+          set -euo pipefail
           OMOD_FILE="${{ steps.find_omod.outputs.omod_file_path }}"
-          mkdir -p /tmp/omod_verify
-          unzip -q "$OMOD_FILE" -d /tmp/omod_verify
-          API_JAR=$(find /tmp/omod_verify -name "*api*.jar" | head -1)
+          VERIFY_DIR=$(mktemp -d)
+          trap 'rm -rf "$VERIFY_DIR"' EXIT
+          unzip -q "$OMOD_FILE" -d "$VERIFY_DIR"
+          # Derive module name from OMOD filename (e.g. ethiohri-mamba-2.1.0.omod -> ethiohri-mamba)
+          MODULE_NAME=$(basename "$OMOD_FILE" | sed 's/-[0-9].*//')
+          API_JAR=$(find "$VERIFY_DIR/lib" -name "${MODULE_NAME}-api-*.jar" | head -1)
           if [ -z "$API_JAR" ]; then
-            echo "Error: api jar not found inside OMOD."
+            echo "Error: ${MODULE_NAME}-api jar not found inside OMOD lib/. Contents:"
+            ls "$VERIFY_DIR/lib"
             exit 1
           fi
+          echo "Checking api jar: $API_JAR"
           if jar tf "$API_JAR" | grep -q "mamba/jdbc_create_stored_procedures.sql"; then
             echo "OK: jdbc_create_stored_procedures.sql is present in the api jar inside the OMOD."
           else
