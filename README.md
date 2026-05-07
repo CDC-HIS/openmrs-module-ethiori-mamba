@@ -49,3 +49,25 @@
 - Next run `sp_mamba_data_processing_etl.sql` which contains the entry point stored procedure to orchestrate and run all defiled stored procedures to automatically flatten the data. This will create and populate all the tables that come from base core modules that are common structures and the ones from config folder JSON definitions. You should see tables like `mamba_z_encounter_obs` populated automatically and others like mamba_flat_encounter_followup from the config.
 
 ![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/0b910770-d281-487f-8ea6-2ed41b2c46cf/668df185-6842-41c9-8913-a623990ed912/Untitled.png)
+
+All configurable settings — OpenMRS Admin → Global Properties
+
+┌────────────────────────────────────────┬─────────────────┬──────────────┬───────────────┬─────────────────────────────────────────────────────────┐                                                                                                       
+│            Global Property             │ Default (16 GB) │ 8 GB desktop │ 32 GB server  │                          Notes                          │                                                                                                       
+├────────────────────────────────────────┼─────────────────┼──────────────┼───────────────┼─────────────────────────────────────────────────────────┤
+│ mambaetl.report.executor.corePoolSize  │ 4               │ 2            │ 8             │ Persistent async worker threads                         │                                                                                                       
+├────────────────────────────────────────┼─────────────────┼──────────────┼───────────────┼─────────────────────────────────────────────────────────┤
+│ mambaetl.report.executor.maxPoolSize   │ 8               │ 4            │ 16            │ Burst capacity                                          │                                                                                                       
+├────────────────────────────────────────┼─────────────────┼──────────────┼───────────────┼─────────────────────────────────────────────────────────┤                                                                                                       
+│ mambaetl.report.executor.queueCapacity │ 50              │ 25           │ 100           │ Pending job queue depth                                 │                                                                                                       
+├────────────────────────────────────────┼─────────────────┼──────────────┼───────────────┼─────────────────────────────────────────────────────────┤                                                                                                       
+│ mambaetl.analysis.db.pool.maxTotal     │ 15              │ 10           │ 25            │ Max DB connections (takes effect on next module reload) │
+├────────────────────────────────────────┼─────────────────┼──────────────┼───────────────┼─────────────────────────────────────────────────────────┤                                                                                                       
+│ mambaetl.analysis.db.pool.maxIdle      │ 6               │ 4            │ 10            │ Idle connections kept open                              │
+├────────────────────────────────────────┼─────────────────┼──────────────┼───────────────┼─────────────────────────────────────────────────────────┤                                                                                                       
+│ mambaetl.report.max.rows               │ 100000          │ 20000        │ 0 (unlimited) │ Per-SP row cap                                          │
+├────────────────────────────────────────┼─────────────────┼──────────────┼───────────────┼─────────────────────────────────────────────────────────┤                                                                                                       
+│ mambaetl.report.job.ttl.seconds        │ 1800            │ 900          │ 3600          │ How long results stay in memory                         │
+├────────────────────────────────────────┼─────────────────┼──────────────┼───────────────┼─────────────────────────────────────────────────────────┤                                                                                                       
+│ mambaetl.report.query.timeout.seconds  │ (not set)       │ 120          │ (not set)     │ Per-statement timeout                                   │
+└────────────────────────────────────────┴─────────────────┴──────────────┴───────────────┴─────────────────────────────────────────────────────────┘                                                                                                       
