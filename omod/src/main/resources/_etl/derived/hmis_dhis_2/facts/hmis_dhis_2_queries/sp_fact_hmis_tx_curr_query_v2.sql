@@ -24,6 +24,9 @@ BEGIN
                                 encounter_id,
                                 follow_up_status,
                                 treatment_end_date,
+                                pregnancy_status,
+                                regimen,
+                                left(regimen, 1)                                                   as regimen_line,
                                 ROW_NUMBER() OVER (PARTITION BY PatientId ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
                          FROM FollowUp
                          WHERE follow_up_status IS NOT NULL
@@ -38,12 +41,8 @@ BEGIN
          tx_curr_with_client as (select tx_curr.*,
                                         client.sex,
                                         client.date_of_birth,
-                                        pregnancy_status,
-                                        regimen,
-                                        left(regimen, 1)                                                   as regimen_line,
                                         TIMESTAMPDIFF(YEAR, client.date_of_birth, REPORT_END_DATE)         as age
-                                 from FollowUp
-                                          inner join tx_curr on FollowUp.encounter_id = tx_curr.encounter_id
+                                 from tx_curr
                                           left join mamba_dim_client client on tx_curr.PatientId = client.client_id),
          tx_curr_agg AS (
              SELECT
