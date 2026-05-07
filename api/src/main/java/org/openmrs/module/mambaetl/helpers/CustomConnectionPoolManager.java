@@ -10,13 +10,17 @@
 package org.openmrs.module.mambaetl.helpers;
 
 import org.apache.commons.dbcp2.BasicDataSource;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openmrs.api.context.Context;
 
 import java.sql.SQLException;
 import java.util.Properties;
 
 public class CustomConnectionPoolManager {
-	
+
+	private static final Log log = LogFactory.getLog(CustomConnectionPoolManager.class);
+
 	private static volatile CustomConnectionPoolManager instance = null;
 	
 	private final BasicDataSource dataSource;
@@ -38,10 +42,17 @@ public class CustomConnectionPoolManager {
 		dataSource.setPassword(password != null ? password : properties.getProperty("connection.password"));
 		dataSource.setUrl(resolvedUrl);
 		
+		// Pool sizes read from OpenMRS global properties at pool creation time.
+		// Override via Admin > Global Properties:
+		//   mambaetl.analysis.db.pool.maxTotal  (default 15, 16 GB target)
+		//   mambaetl.analysis.db.pool.maxIdle   (default 6)
+		int maxTotal = getIntGlobalProperty("mambaetl.analysis.db.pool.maxTotal", 15);
+		int maxIdle = getIntGlobalProperty("mambaetl.analysis.db.pool.maxIdle", 6);
+
 		dataSource.setInitialSize(2);
 		dataSource.setMinIdle(2);
-		dataSource.setMaxIdle(10);
-		dataSource.setMaxTotal(20);
+		dataSource.setMaxIdle(maxIdle);
+		dataSource.setMaxTotal(maxTotal);
 		
 		dataSource.setMaxWait(java.time.Duration.ofSeconds(30));
 		
@@ -89,5 +100,18 @@ public class CustomConnectionPoolManager {
 		}
 		catch (SQLException ignored) {}
 		instance = null;
+	}
+
+	private static int getIntGlobalProperty(String key, int defaultValue) {
+		try {
+			String val = Context.getAdministrationService().getGlobalProperty(key);
+			if (val != null && !val.trim().isEmpty()) {
+				return Integer.parseInt(val.trim());
+			}
+		}
+		catch (Exception e) {
+			log.warn("Could not read global property " + key + ", using default " + defaultValue);
+		}
+		return defaultValue;
 	}
 }
