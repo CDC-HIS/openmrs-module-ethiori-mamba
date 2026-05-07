@@ -51,7 +51,7 @@ BEGIN
                  SUM(CASE WHEN age < 15  THEN 1 ELSE 0 END) AS u15,
                  SUM(CASE WHEN age >= 15  THEN 1 ELSE 0 END) AS greater_than_15,
                  SUM(CASE WHEN age < 1  THEN 1 ELSE 0 END) AS u1,
-                 SUM(CASE WHEN age <= 1  THEN 1 ELSE 0 END) AS under_19,
+                  SUM(CASE WHEN age < 19  THEN 1 ELSE 0 END) AS under_19,
                  SUM(CASE WHEN age < 1  AND (regimen_line = '1' or regimen_line = '4') THEN 1 ELSE 0 END) AS u1_first_line,
                  SUM(CASE WHEN age < 1  AND (regimen_line = '1' or regimen_line = '4') AND sex='Male' THEN 1 ELSE 0 END) AS u1_first_line_male,
                  SUM(CASE WHEN age < 1  AND (regimen_line = '1' or regimen_line = '4') AND sex='Female' THEN 1 ELSE 0 END) AS u1_first_line_female,
@@ -60,7 +60,7 @@ BEGIN
                  SUM(CASE WHEN age < 1  AND (regimen_line = '2' or regimen_line = '5') AND sex='Female' THEN 1 ELSE 0 END) AS u1_second_line_female,
                  SUM(CASE WHEN age < 1  AND (regimen_line = '3' or regimen_line = '6') THEN 1 ELSE 0 END) AS u1_third_line,
                  SUM(CASE WHEN age < 1  AND (regimen_line = '3' or regimen_line = '6') AND sex='Male' THEN 1 ELSE 0 END) AS u1_third_line_male,
-                 SUM(CASE WHEN age < 1  AND (regimen_line = '6' or regimen_line = '6') AND sex='Female' THEN 1 ELSE 0 END) AS u1_third_line_female,
+                 SUM(CASE WHEN age < 1  AND (regimen_line = '3' or regimen_line = '6') AND sex='Female' THEN 1 ELSE 0 END) AS u1_third_line_female,
 
                  SUM(CASE WHEN age BETWEEN 1 AND 4  THEN 1 ELSE 0 END) AS u4,
                  SUM(CASE WHEN age BETWEEN 1 AND 4  AND (regimen_line = '1' or regimen_line = '4') THEN 1 ELSE 0 END) AS u4_first_line,
@@ -71,7 +71,7 @@ BEGIN
                  SUM(CASE WHEN age BETWEEN 1 AND 4  AND (regimen_line = '2' or regimen_line = '5') AND sex='Female' THEN 1 ELSE 0 END) AS u4_second_line_female,
                  SUM(CASE WHEN age BETWEEN 1 AND 4  AND (regimen_line = '3' or regimen_line = '6') THEN 1 ELSE 0 END) AS u4_third_line,
                  SUM(CASE WHEN age BETWEEN 1 AND 4  AND (regimen_line = '3' or regimen_line = '6') AND sex='Male' THEN 1 ELSE 0 END) AS u4_third_line_male,
-                 SUM(CASE WHEN age BETWEEN 1 AND 4  AND (regimen_line = '6' or regimen_line = '6') AND sex='Female' THEN 1 ELSE 0 END) AS u4_third_line_female,
+                 SUM(CASE WHEN age BETWEEN 1 AND 4  AND (regimen_line = '3' or regimen_line = '6') AND sex='Female' THEN 1 ELSE 0 END) AS u4_third_line_female,
 
                  SUM(CASE WHEN age BETWEEN 5 AND 9  THEN 1 ELSE 0 END) AS u9,
                  SUM(CASE WHEN age BETWEEN 5 AND 9  AND (regimen_line = '1' or regimen_line = '4') THEN 1 ELSE 0 END) AS u9_first_line,
@@ -82,7 +82,7 @@ BEGIN
                  SUM(CASE WHEN age BETWEEN 5 AND 9  AND (regimen_line = '2' or regimen_line = '5') AND sex='Female' THEN 1 ELSE 0 END) AS u9_second_line_female,
                  SUM(CASE WHEN age BETWEEN 5 AND 9  AND (regimen_line = '3' or regimen_line = '6') THEN 1 ELSE 0 END) AS u9_third_line,
                  SUM(CASE WHEN age BETWEEN 5 AND 9  AND (regimen_line = '3' or regimen_line = '6') AND sex='Male' THEN 1 ELSE 0 END) AS u9_third_line_male,
-                 SUM(CASE WHEN age BETWEEN 5 AND 9  AND (regimen_line = '6' or regimen_line = '6') AND sex='Female' THEN 1 ELSE 0 END) AS u9_third_line_female,
+                 SUM(CASE WHEN age BETWEEN 5 AND 9  AND (regimen_line = '3' or regimen_line = '6') AND sex='Female' THEN 1 ELSE 0 END) AS u9_third_line_female,
 
                  SUM(CASE WHEN age BETWEEN 10 AND 14  THEN 1 ELSE 0 END) AS u14,
                  SUM(CASE WHEN age BETWEEN 10 AND 14  AND (regimen_line = '1' or regimen_line = '4') THEN 1 ELSE 0 END) AS u14_first_line,
@@ -93,7 +93,7 @@ BEGIN
                  SUM(CASE WHEN age BETWEEN 10 AND 14  AND (regimen_line = '2' or regimen_line = '5') AND sex='Female' THEN 1 ELSE 0 END) AS u14_second_line_female,
                  SUM(CASE WHEN age BETWEEN 10 AND 14  AND (regimen_line = '3' or regimen_line = '6') THEN 1 ELSE 0 END) AS u14_third_line,
                  SUM(CASE WHEN age BETWEEN 10 AND 14  AND (regimen_line = '3' or regimen_line = '6') AND sex='Male' THEN 1 ELSE 0 END) AS u14_third_line_male,
-                 SUM(CASE WHEN age BETWEEN 10 AND 14  AND (regimen_line = '6' or regimen_line = '6') AND sex='Female' THEN 1 ELSE 0 END) AS u14_third_line_female,
+                 SUM(CASE WHEN age BETWEEN 10 AND 14  AND (regimen_line = '3' or regimen_line = '6') AND sex='Female' THEN 1 ELSE 0 END) AS u14_third_line_female,
 
                  SUM(CASE WHEN age BETWEEN 15 AND 19  THEN 1 ELSE 0 END) AS u19,
                  SUM(CASE WHEN age BETWEEN 15 AND 19  AND (regimen_line = '1' or regimen_line = '4') THEN 1 ELSE 0 END) AS u19_first_line,
@@ -104,7 +104,7 @@ BEGIN
                  SUM(CASE WHEN age BETWEEN 15 AND 19  AND (regimen_line = '2' or regimen_line = '5') AND sex='Female' THEN 1 ELSE 0 END) AS u19_second_line_female,
                  SUM(CASE WHEN age BETWEEN 15 AND 19  AND (regimen_line = '3' or regimen_line = '6') THEN 1 ELSE 0 END) AS u19_third_line,
                  SUM(CASE WHEN age BETWEEN 15 AND 19  AND (regimen_line = '3' or regimen_line = '6') AND sex='Male' THEN 1 ELSE 0 END) AS u19_third_line_male,
-                 SUM(CASE WHEN age BETWEEN 15 AND 19  AND (regimen_line = '6' or regimen_line = '6') AND sex='Female' THEN 1 ELSE 0 END) AS u19_third_line_female,
+                 SUM(CASE WHEN age BETWEEN 15 AND 19  AND (regimen_line = '3' or regimen_line = '6') AND sex='Female' THEN 1 ELSE 0 END) AS u19_third_line_female,
 
                  SUM(CASE WHEN age BETWEEN 20 AND 24  THEN 1 ELSE 0 END) AS u24,
                  SUM(CASE WHEN age BETWEEN 20 AND 24  AND (regimen_line = '1' or regimen_line = '4') THEN 1 ELSE 0 END) AS u24_first_line,
@@ -115,7 +115,7 @@ BEGIN
                  SUM(CASE WHEN age BETWEEN 20 AND 24  AND (regimen_line = '2' or regimen_line = '5') AND sex='Female' THEN 1 ELSE 0 END) AS u24_second_line_female,
                  SUM(CASE WHEN age BETWEEN 20 AND 24  AND (regimen_line = '3' or regimen_line = '6') THEN 1 ELSE 0 END) AS u24_third_line,
                  SUM(CASE WHEN age BETWEEN 20 AND 24  AND (regimen_line = '3' or regimen_line = '6') AND sex='Male' THEN 1 ELSE 0 END) AS u24_third_line_male,
-                 SUM(CASE WHEN age BETWEEN 20 AND 24  AND (regimen_line = '6' or regimen_line = '6') AND sex='Female' THEN 1 ELSE 0 END) AS u24_third_line_female,
+                 SUM(CASE WHEN age BETWEEN 20 AND 24  AND (regimen_line = '3' or regimen_line = '6') AND sex='Female' THEN 1 ELSE 0 END) AS u24_third_line_female,
 
                  SUM(CASE WHEN age BETWEEN 25 AND 29  THEN 1 ELSE 0 END) AS u29,
                  SUM(CASE WHEN age BETWEEN 25 AND 29  AND (regimen_line = '1' or regimen_line = '4') THEN 1 ELSE 0 END) AS u29_first_line,
@@ -126,7 +126,7 @@ BEGIN
                  SUM(CASE WHEN age BETWEEN 25 AND 29  AND (regimen_line = '2' or regimen_line = '5') AND sex='Female' THEN 1 ELSE 0 END) AS u29_second_line_female,
                  SUM(CASE WHEN age BETWEEN 25 AND 29  AND (regimen_line = '3' or regimen_line = '6') THEN 1 ELSE 0 END) AS u29_third_line,
                  SUM(CASE WHEN age BETWEEN 25 AND 29  AND (regimen_line = '3' or regimen_line = '6') AND sex='Male' THEN 1 ELSE 0 END) AS u29_third_line_male,
-                 SUM(CASE WHEN age BETWEEN 25 AND 29  AND (regimen_line = '6' or regimen_line = '6') AND sex='Female' THEN 1 ELSE 0 END) AS u29_third_line_female,
+                 SUM(CASE WHEN age BETWEEN 25 AND 29  AND (regimen_line = '3' or regimen_line = '6') AND sex='Female' THEN 1 ELSE 0 END) AS u29_third_line_female,
 
                  SUM(CASE WHEN age BETWEEN 30 AND 34  THEN 1 ELSE 0 END) AS u34,
                  SUM(CASE WHEN age BETWEEN 30 AND 34  AND (regimen_line = '1' or regimen_line = '4') THEN 1 ELSE 0 END) AS u34_first_line,
@@ -137,7 +137,7 @@ BEGIN
                  SUM(CASE WHEN age BETWEEN 30 AND 34  AND (regimen_line = '2' or regimen_line = '5') AND sex='Female' THEN 1 ELSE 0 END) AS u34_second_line_female,
                  SUM(CASE WHEN age BETWEEN 30 AND 34  AND (regimen_line = '3' or regimen_line = '6') THEN 1 ELSE 0 END) AS u34_third_line,
                  SUM(CASE WHEN age BETWEEN 30 AND 34  AND (regimen_line = '3' or regimen_line = '6') AND sex='Male' THEN 1 ELSE 0 END) AS u34_third_line_male,
-                 SUM(CASE WHEN age BETWEEN 30 AND 34  AND (regimen_line = '6' or regimen_line = '6') AND sex='Female' THEN 1 ELSE 0 END) AS u34_third_line_female,
+                 SUM(CASE WHEN age BETWEEN 30 AND 34  AND (regimen_line = '3' or regimen_line = '6') AND sex='Female' THEN 1 ELSE 0 END) AS u34_third_line_female,
 
                  SUM(CASE WHEN age BETWEEN 35 AND 39  THEN 1 ELSE 0 END) AS u39,
                  SUM(CASE WHEN age BETWEEN 35 AND 39  AND (regimen_line = '1' or regimen_line = '4') THEN 1 ELSE 0 END) AS u39_first_line,
@@ -148,7 +148,7 @@ BEGIN
                  SUM(CASE WHEN age BETWEEN 35 AND 39  AND (regimen_line = '2' or regimen_line = '5') AND sex='Female' THEN 1 ELSE 0 END) AS u39_second_line_female,
                  SUM(CASE WHEN age BETWEEN 35 AND 39  AND (regimen_line = '3' or regimen_line = '6') THEN 1 ELSE 0 END) AS u39_third_line,
                  SUM(CASE WHEN age BETWEEN 35 AND 39  AND (regimen_line = '3' or regimen_line = '6') AND sex='Male' THEN 1 ELSE 0 END) AS u39_third_line_male,
-                 SUM(CASE WHEN age BETWEEN 35 AND 39  AND (regimen_line = '6' or regimen_line = '6') AND sex='Female' THEN 1 ELSE 0 END) AS u39_third_line_female,
+                 SUM(CASE WHEN age BETWEEN 35 AND 39  AND (regimen_line = '3' or regimen_line = '6') AND sex='Female' THEN 1 ELSE 0 END) AS u39_third_line_female,
 
                  SUM(CASE WHEN age BETWEEN 40 AND 44  THEN 1 ELSE 0 END) AS u44,
                  SUM(CASE WHEN age BETWEEN 40 AND 44  AND (regimen_line = '1' or regimen_line = '4') THEN 1 ELSE 0 END) AS u44_first_line,
@@ -159,7 +159,7 @@ BEGIN
                  SUM(CASE WHEN age BETWEEN 40 AND 44  AND (regimen_line = '2' or regimen_line = '5') AND sex='Female' THEN 1 ELSE 0 END) AS u44_second_line_female,
                  SUM(CASE WHEN age BETWEEN 40 AND 44  AND (regimen_line = '3' or regimen_line = '6') THEN 1 ELSE 0 END) AS u44_third_line,
                  SUM(CASE WHEN age BETWEEN 40 AND 44  AND (regimen_line = '3' or regimen_line = '6') AND sex='Male' THEN 1 ELSE 0 END) AS u44_third_line_male,
-                 SUM(CASE WHEN age BETWEEN 40 AND 44  AND (regimen_line = '6' or regimen_line = '6') AND sex='Female' THEN 1 ELSE 0 END) AS u44_third_line_female,
+                 SUM(CASE WHEN age BETWEEN 40 AND 44  AND (regimen_line = '3' or regimen_line = '6') AND sex='Female' THEN 1 ELSE 0 END) AS u44_third_line_female,
 
                  SUM(CASE WHEN age BETWEEN 45 AND 49  THEN 1 ELSE 0 END) AS u49,
                  SUM(CASE WHEN age BETWEEN 45 AND 49  AND (regimen_line = '1' or regimen_line = '4') THEN 1 ELSE 0 END) AS u49_first_line,
@@ -170,7 +170,7 @@ BEGIN
                  SUM(CASE WHEN age BETWEEN 45 AND 49  AND (regimen_line = '2' or regimen_line = '5') AND sex='Female' THEN 1 ELSE 0 END) AS u49_second_line_female,
                  SUM(CASE WHEN age BETWEEN 45 AND 49  AND (regimen_line = '3' or regimen_line = '6') THEN 1 ELSE 0 END) AS u49_third_line,
                  SUM(CASE WHEN age BETWEEN 45 AND 49  AND (regimen_line = '3' or regimen_line = '6') AND sex='Male' THEN 1 ELSE 0 END) AS u49_third_line_male,
-                 SUM(CASE WHEN age BETWEEN 45 AND 49  AND (regimen_line = '6' or regimen_line = '6') AND sex='Female' THEN 1 ELSE 0 END) AS u49_third_line_female,
+                 SUM(CASE WHEN age BETWEEN 45 AND 49  AND (regimen_line = '3' or regimen_line = '6') AND sex='Female' THEN 1 ELSE 0 END) AS u49_third_line_female,
 
                  SUM(CASE WHEN age >= 50  THEN 1 ELSE 0 END) AS greater_than_50,
                  SUM(CASE WHEN age >= 50  AND (regimen_line = '1' or regimen_line = '4') THEN 1 ELSE 0 END) AS greater_than_50_first_line,
@@ -181,7 +181,7 @@ BEGIN
                  SUM(CASE WHEN age >= 50  AND (regimen_line = '2' or regimen_line = '5') AND sex='Female' THEN 1 ELSE 0 END) AS greater_than_50_second_line_female,
                  SUM(CASE WHEN age >= 50  AND (regimen_line = '3' or regimen_line = '6') THEN 1 ELSE 0 END) AS greater_than_50_third_line,
                  SUM(CASE WHEN age >= 50  AND (regimen_line = '3' or regimen_line = '6') AND sex='Male' THEN 1 ELSE 0 END) AS greater_than_50_third_line_male,
-                 SUM(CASE WHEN age >= 50  AND (regimen_line = '6' or regimen_line = '6') AND sex='Female' THEN 1 ELSE 0 END) AS greater_than_50_third_line_female,
+                 SUM(CASE WHEN age >= 50  AND (regimen_line = '3' or regimen_line = '6') AND sex='Female' THEN 1 ELSE 0 END) AS greater_than_50_third_line_female,
 
                  SUM(CASE WHEN sex='Female' THEN 1 ELSE 0 END) AS female_total,
                  SUM(CASE WHEN sex='Female' AND pregnancy_status = 'Yes' THEN 1 ELSE 0 END) AS female_pregnant,
@@ -281,8 +281,8 @@ BEGIN
                  SUM(CASE WHEN age BETWEEN 15 AND 19 AND regimen = '1g - ABC+3TC+EFV' THEN 1 ELSE 0 END) AS u19_first_line_1g,
                  SUM(CASE WHEN age BETWEEN 15 AND 19 AND regimen = '1j - TDF+3TC+DTG' THEN 1 ELSE 0 END) AS u19_first_line_1j,
                  SUM(CASE WHEN age BETWEEN 15 AND 19 AND regimen = '1k - AZT+3TC+DTG' THEN 1 ELSE 0 END) AS u19_first_line_1k,
-                 SUM(CASE WHEN age BETWEEN 15 AND 19 AND regimen = '4j - ABC+3TC+DTG' THEN 1 ELSE 0 END) AS u19_first_line_4d,
-                 SUM(CASE WHEN age BETWEEN 10 AND 14 AND regimen not in ('1d - AZT+3TC+EFV', '1e - TDF+3TC+EFV', '1g - ABC+3TC+EFV', '1j - TDF+3TC+DTG', '1k - AZT+3TC+DTG') AND (regimen_line = '1' or regimen_line = '4') THEN 1 ELSE 0 END) AS u19_first_line_other,
+                 SUM(CASE WHEN age BETWEEN 15 AND 19 AND regimen = '4j - ABC+3TC+DTG' THEN 1 ELSE 0 END) AS u19_first_line_4j,
+                 SUM(CASE WHEN age BETWEEN 15 AND 19 AND regimen not in ('1d - AZT+3TC+EFV', '1e - TDF+3TC+EFV', '1g - ABC+3TC+EFV', '1j - TDF+3TC+DTG', '1k - AZT+3TC+DTG', '4j - ABC+3TC+DTG') AND (regimen_line = '1' or regimen_line = '4') THEN 1 ELSE 0 END) AS u19_first_line_other,
 
                  SUM(CASE WHEN age BETWEEN 15 AND 19 AND regimen = '2e - AZT+3TC+LPVr' THEN 1 ELSE 0 END) AS u19_second_line_2e,
                  SUM(CASE WHEN age BETWEEN 15 AND 19 AND regimen = '2f - AZT+3TC+ATVr' THEN 1 ELSE 0 END) AS u19_second_line_2f,
@@ -293,7 +293,83 @@ BEGIN
                  SUM(CASE WHEN age BETWEEN 15 AND 19 AND regimen = '2k - AZT+3TC+DTG' THEN 1 ELSE 0 END) AS u19_second_line_2k,
                  SUM(CASE WHEN age BETWEEN 15 AND 19 AND regimen not in ('2e - AZT+3TC+LPVr', '2f - AZT+3TC+ATVr', '2g - TDF+3TC+LPVr', '2h - TDF+3TC+ATVr','2i - ABC+3TC+LPVr', '2j -TDF+3TC+DTG', '2k - AZT+3TC+DTG') AND (regimen_line = '2' or regimen_line = '5') THEN 1 ELSE 0 END) AS u19_second_line_other,
 
-             FROM  tx_curr_with_client
+             
+                  SUM(CASE WHEN age BETWEEN 15 AND 19 AND regimen = '3a -  DRV/r+DTG+AZT+3TC' THEN 1 ELSE 0 END) AS u19_third_line_3a,
+                  SUM(CASE WHEN age BETWEEN 15 AND 19 AND regimen = '3b - DRV/r+DTG+TDF+3TC' THEN 1 ELSE 0 END) AS u19_third_line_3b,
+                  SUM(CASE WHEN age BETWEEN 15 AND 19 AND regimen = '3c - DRV/r+ABC+3TC+DTG' THEN 1 ELSE 0 END) AS u19_third_line_3c,
+                  SUM(CASE WHEN age BETWEEN 15 AND 19 AND regimen = '3e - DRV/r+TDF+3TC+EFV' THEN 1 ELSE 0 END) AS u19_third_line_3e,
+                  SUM(CASE WHEN age BETWEEN 15 AND 19 AND regimen = '3f - DRV/r+AZT+3TC+EFV' THEN 1 ELSE 0 END) AS u19_third_line_3f,
+                  SUM(CASE WHEN age BETWEEN 15 AND 19 AND regimen not in ('3a -  DRV/r+DTG+AZT+3TC', '3b - DRV/r+DTG+TDF+3TC', '3c - DRV/r+ABC+3TC+DTG', '3e - DRV/r+TDF+3TC+EFV', '3f - DRV/r+AZT+3TC+EFV') AND (regimen_line = '3' or regimen_line = '6') THEN 1 ELSE 0 END) AS u19_third_line_other,
+
+                  SUM(CASE WHEN age >= 20 THEN 1 ELSE 0 END) AS greater_than_20,
+                  SUM(CASE WHEN age >= 20 AND (regimen_line = '1' or regimen_line = '4') THEN 1 ELSE 0 END) AS greater_than_20_first_line,
+                  SUM(CASE WHEN age >= 20 AND (regimen_line = '2' or regimen_line = '5') THEN 1 ELSE 0 END) AS greater_than_20_second_line,
+                  SUM(CASE WHEN age >= 20 AND (regimen_line = '3' or regimen_line = '6') THEN 1 ELSE 0 END) AS greater_than_20_third_line,
+
+                  SUM(CASE WHEN age >= 20 AND regimen = '1d - AZT+3TC+EFV' AND sex='Male' THEN 1 ELSE 0 END) AS greater_than_20_first_line_1d_male,
+                  SUM(CASE WHEN age >= 20 AND regimen = '1d - AZT+3TC+EFV' AND sex='Female' AND pregnancy_status = 'Yes' THEN 1 ELSE 0 END) AS greater_than_20_first_line_1d_female_pregnant,
+                  SUM(CASE WHEN age >= 20 AND regimen = '1d - AZT+3TC+EFV' AND sex='Female' AND (pregnancy_status = 'No' or pregnancy_status is null) THEN 1 ELSE 0 END) AS greater_than_20_first_line_1d_female_non_pregnant,
+                  SUM(CASE WHEN age >= 20 AND regimen = '1e - TDF+3TC+EFV' AND sex='Male' THEN 1 ELSE 0 END) AS greater_than_20_first_line_1e_male,
+                  SUM(CASE WHEN age >= 20 AND regimen = '1e - TDF+3TC+EFV' AND sex='Female' AND pregnancy_status = 'Yes' THEN 1 ELSE 0 END) AS greater_than_20_first_line_1e_female_pregnant,
+                  SUM(CASE WHEN age >= 20 AND regimen = '1e - TDF+3TC+EFV' AND sex='Female' AND (pregnancy_status = 'No' or pregnancy_status is null) THEN 1 ELSE 0 END) AS greater_than_20_first_line_1e_female_non_pregnant,
+                  SUM(CASE WHEN age >= 20 AND regimen = '1g - ABC+3TC+EFV' AND sex='Male' THEN 1 ELSE 0 END) AS greater_than_20_first_line_1g_male,
+                  SUM(CASE WHEN age >= 20 AND regimen = '1g - ABC+3TC+EFV' AND sex='Female' AND pregnancy_status = 'Yes' THEN 1 ELSE 0 END) AS greater_than_20_first_line_1g_female_pregnant,
+                  SUM(CASE WHEN age >= 20 AND regimen = '1g - ABC+3TC+EFV' AND sex='Female' AND (pregnancy_status = 'No' or pregnancy_status is null) THEN 1 ELSE 0 END) AS greater_than_20_first_line_1g_female_non_pregnant,
+                  SUM(CASE WHEN age >= 20 AND regimen = '1j - TDF+3TC+DTG' AND sex='Male' THEN 1 ELSE 0 END) AS greater_than_20_first_line_1j_male,
+                  SUM(CASE WHEN age >= 20 AND regimen = '1j - TDF+3TC+DTG' AND sex='Female' AND pregnancy_status = 'Yes' THEN 1 ELSE 0 END) AS greater_than_20_first_line_1j_female_pregnant,
+                  SUM(CASE WHEN age >= 20 AND regimen = '1j - TDF+3TC+DTG' AND sex='Female' AND (pregnancy_status = 'No' or pregnancy_status is null) THEN 1 ELSE 0 END) AS greater_than_20_first_line_1j_female_non_pregnant,
+                  SUM(CASE WHEN age >= 20 AND regimen = '1k - AZT+3TC+DTG' AND sex='Male' THEN 1 ELSE 0 END) AS greater_than_20_first_line_1k_male,
+                  SUM(CASE WHEN age >= 20 AND regimen = '1k - AZT+3TC+DTG' AND sex='Female' AND pregnancy_status = 'Yes' THEN 1 ELSE 0 END) AS greater_than_20_first_line_1k_female_pregnant,
+                  SUM(CASE WHEN age >= 20 AND regimen = '1k - AZT+3TC+DTG' AND sex='Female' AND (pregnancy_status = 'No' or pregnancy_status is null) THEN 1 ELSE 0 END) AS greater_than_20_first_line_1k_female_non_pregnant,
+                  SUM(CASE WHEN age >= 20 AND regimen not in ('1d - AZT+3TC+EFV', '1e - TDF+3TC+EFV', '1g - ABC+3TC+EFV', '1j - TDF+3TC+DTG', '1k - AZT+3TC+DTG') AND (regimen_line = '1' or regimen_line = '4') AND sex='Male' THEN 1 ELSE 0 END) AS greater_than_20_first_line_other_male,
+                  SUM(CASE WHEN age >= 20 AND regimen not in ('1d - AZT+3TC+EFV', '1e - TDF+3TC+EFV', '1g - ABC+3TC+EFV', '1j - TDF+3TC+DTG', '1k - AZT+3TC+DTG') AND (regimen_line = '1' or regimen_line = '4') AND sex='Female' AND pregnancy_status = 'Yes' THEN 1 ELSE 0 END) AS greater_than_20_first_line_other_female_pregnant,
+                  SUM(CASE WHEN age >= 20 AND regimen not in ('1d - AZT+3TC+EFV', '1e - TDF+3TC+EFV', '1g - ABC+3TC+EFV', '1j - TDF+3TC+DTG', '1k - AZT+3TC+DTG') AND (regimen_line = '1' or regimen_line = '4') AND sex='Female' AND (pregnancy_status = 'No' or pregnancy_status is null) THEN 1 ELSE 0 END) AS greater_than_20_first_line_other_female_non_pregnant,
+
+                  SUM(CASE WHEN age >= 20 AND regimen = '2e - AZT+3TC+LPVr' AND sex='Male' THEN 1 ELSE 0 END) AS greater_than_20_second_line_2e_male,
+                  SUM(CASE WHEN age >= 20 AND regimen = '2e - AZT+3TC+LPVr' AND sex='Female' AND pregnancy_status = 'Yes' THEN 1 ELSE 0 END) AS greater_than_20_second_line_2e_female_pregnant,
+                  SUM(CASE WHEN age >= 20 AND regimen = '2e - AZT+3TC+LPVr' AND sex='Female' AND (pregnancy_status = 'No' or pregnancy_status is null) THEN 1 ELSE 0 END) AS greater_than_20_second_line_2e_female_non_pregnant,
+                  SUM(CASE WHEN age >= 20 AND regimen = '2f - AZT+3TC+ATVr' AND sex='Male' THEN 1 ELSE 0 END) AS greater_than_20_second_line_2f_male,
+                  SUM(CASE WHEN age >= 20 AND regimen = '2f - AZT+3TC+ATVr' AND sex='Female' AND pregnancy_status = 'Yes' THEN 1 ELSE 0 END) AS greater_than_20_second_line_2f_female_pregnant,
+                  SUM(CASE WHEN age >= 20 AND regimen = '2f - AZT+3TC+ATVr' AND sex='Female' AND (pregnancy_status = 'No' or pregnancy_status is null) THEN 1 ELSE 0 END) AS greater_than_20_second_line_2f_female_non_pregnant,
+                  SUM(CASE WHEN age >= 20 AND regimen = '2g - TDF+3TC+LPVr' AND sex='Male' THEN 1 ELSE 0 END) AS greater_than_20_second_line_2g_male,
+                  SUM(CASE WHEN age >= 20 AND regimen = '2g - TDF+3TC+LPVr' AND sex='Female' AND pregnancy_status = 'Yes' THEN 1 ELSE 0 END) AS greater_than_20_second_line_2g_female_pregnant,
+                  SUM(CASE WHEN age >= 20 AND regimen = '2g - TDF+3TC+LPVr' AND sex='Female' AND (pregnancy_status = 'No' or pregnancy_status is null) THEN 1 ELSE 0 END) AS greater_than_20_second_line_2g_female_non_pregnant,
+                  SUM(CASE WHEN age >= 20 AND regimen = '2h - TDF+3TC+ATVr' AND sex='Male' THEN 1 ELSE 0 END) AS greater_than_20_second_line_2h_male,
+                  SUM(CASE WHEN age >= 20 AND regimen = '2h - TDF+3TC+ATVr' AND sex='Female' AND pregnancy_status = 'Yes' THEN 1 ELSE 0 END) AS greater_than_20_second_line_2h_female_pregnant,
+                  SUM(CASE WHEN age >= 20 AND regimen = '2h - TDF+3TC+ATVr' AND sex='Female' AND (pregnancy_status = 'No' or pregnancy_status is null) THEN 1 ELSE 0 END) AS greater_than_20_second_line_2h_female_non_pregnant,
+                  SUM(CASE WHEN age >= 20 AND regimen = '2i - ABC+3TC+LPVr' AND sex='Male' THEN 1 ELSE 0 END) AS greater_than_20_second_line_2i_male,
+                  SUM(CASE WHEN age >= 20 AND regimen = '2i - ABC+3TC+LPVr' AND sex='Female' AND pregnancy_status = 'Yes' THEN 1 ELSE 0 END) AS greater_than_20_second_line_2i_female_pregnant,
+                  SUM(CASE WHEN age >= 20 AND regimen = '2i - ABC+3TC+LPVr' AND sex='Female' AND (pregnancy_status = 'No' or pregnancy_status is null) THEN 1 ELSE 0 END) AS greater_than_20_second_line_2i_female_non_pregnant,
+                  SUM(CASE WHEN age >= 20 AND regimen = '2j -TDF+3TC+DTG' AND sex='Male' THEN 1 ELSE 0 END) AS greater_than_20_second_line_2j_male,
+                  SUM(CASE WHEN age >= 20 AND regimen = '2j -TDF+3TC+DTG' AND sex='Female' AND pregnancy_status = 'Yes' THEN 1 ELSE 0 END) AS greater_than_20_second_line_2j_female_pregnant,
+                  SUM(CASE WHEN age >= 20 AND regimen = '2j -TDF+3TC+DTG' AND sex='Female' AND (pregnancy_status = 'No' or pregnancy_status is null) THEN 1 ELSE 0 END) AS greater_than_20_second_line_2j_female_non_pregnant,
+                  SUM(CASE WHEN age >= 20 AND regimen = '2k - AZT+3TC+DTG' AND sex='Male' THEN 1 ELSE 0 END) AS greater_than_20_second_line_2k_male,
+                  SUM(CASE WHEN age >= 20 AND regimen = '2k - AZT+3TC+DTG' AND sex='Female' AND pregnancy_status = 'Yes' THEN 1 ELSE 0 END) AS greater_than_20_second_line_2k_female_pregnant,
+                  SUM(CASE WHEN age >= 20 AND regimen = '2k - AZT+3TC+DTG' AND sex='Female' AND (pregnancy_status = 'No' or pregnancy_status is null) THEN 1 ELSE 0 END) AS greater_than_20_second_line_2k_female_non_pregnant,
+                  SUM(CASE WHEN age >= 20 AND regimen not in ('2e - AZT+3TC+LPVr', '2f - AZT+3TC+ATVr', '2g - TDF+3TC+LPVr', '2h - TDF+3TC+ATVr', '2i - ABC+3TC+LPVr', '2j -TDF+3TC+DTG', '2k - AZT+3TC+DTG') AND (regimen_line = '2' or regimen_line = '5') AND sex='Male' THEN 1 ELSE 0 END) AS greater_than_20_second_line_other_male,
+                  SUM(CASE WHEN age >= 20 AND regimen not in ('2e - AZT+3TC+LPVr', '2f - AZT+3TC+ATVr', '2g - TDF+3TC+LPVr', '2h - TDF+3TC+ATVr', '2i - ABC+3TC+LPVr', '2j -TDF+3TC+DTG', '2k - AZT+3TC+DTG') AND (regimen_line = '2' or regimen_line = '5') AND sex='Female' AND pregnancy_status = 'Yes' THEN 1 ELSE 0 END) AS greater_than_20_second_line_other_female_pregnant,
+                  SUM(CASE WHEN age >= 20 AND regimen not in ('2e - AZT+3TC+LPVr', '2f - AZT+3TC+ATVr', '2g - TDF+3TC+LPVr', '2h - TDF+3TC+ATVr', '2i - ABC+3TC+LPVr', '2j -TDF+3TC+DTG', '2k - AZT+3TC+DTG') AND (regimen_line = '2' or regimen_line = '5') AND sex='Female' AND (pregnancy_status = 'No' or pregnancy_status is null) THEN 1 ELSE 0 END) AS greater_than_20_second_line_other_female_non_pregnant,
+
+                  SUM(CASE WHEN age >= 20 AND regimen = '3a -  DRV/r+DTG+AZT+3TC' AND sex='Male' THEN 1 ELSE 0 END) AS greater_than_20_third_line_3a_male,
+                  SUM(CASE WHEN age >= 20 AND regimen = '3a -  DRV/r+DTG+AZT+3TC' AND sex='Female' AND pregnancy_status = 'Yes' THEN 1 ELSE 0 END) AS greater_than_20_third_line_3a_female_pregnant,
+                  SUM(CASE WHEN age >= 20 AND regimen = '3a -  DRV/r+DTG+AZT+3TC' AND sex='Female' AND (pregnancy_status = 'No' or pregnancy_status is null) THEN 1 ELSE 0 END) AS greater_than_20_third_line_3a_female_non_pregnant,
+                  SUM(CASE WHEN age >= 20 AND regimen = '3b - DRV/r+DTG+TDF+3TC' AND sex='Male' THEN 1 ELSE 0 END) AS greater_than_20_third_line_3b_male,
+                  SUM(CASE WHEN age >= 20 AND regimen = '3b - DRV/r+DTG+TDF+3TC' AND sex='Female' AND pregnancy_status = 'Yes' THEN 1 ELSE 0 END) AS greater_than_20_third_line_3b_female_pregnant,
+                  SUM(CASE WHEN age >= 20 AND regimen = '3b - DRV/r+DTG+TDF+3TC' AND sex='Female' AND (pregnancy_status = 'No' or pregnancy_status is null) THEN 1 ELSE 0 END) AS greater_than_20_third_line_3b_female_non_pregnant,
+                  SUM(CASE WHEN age >= 20 AND regimen = '3c - DRV/r+ABC+3TC+DTG' AND sex='Male' THEN 1 ELSE 0 END) AS greater_than_20_third_line_3c_male,
+                  SUM(CASE WHEN age >= 20 AND regimen = '3c - DRV/r+ABC+3TC+DTG' AND sex='Female' AND pregnancy_status = 'Yes' THEN 1 ELSE 0 END) AS greater_than_20_third_line_3c_female_pregnant,
+                  SUM(CASE WHEN age >= 20 AND regimen = '3c - DRV/r+ABC+3TC+DTG' AND sex='Female' AND (pregnancy_status = 'No' or pregnancy_status is null) THEN 1 ELSE 0 END) AS greater_than_20_third_line_3c_female_non_pregnant,
+                  SUM(CASE WHEN age >= 20 AND regimen = '3e - DRV/r+TDF+3TC+EFV' AND sex='Male' THEN 1 ELSE 0 END) AS greater_than_20_third_line_3e_male,
+                  SUM(CASE WHEN age >= 20 AND regimen = '3e - DRV/r+TDF+3TC+EFV' AND sex='Female' AND pregnancy_status = 'Yes' THEN 1 ELSE 0 END) AS greater_than_20_third_line_3e_female_pregnant,
+                  SUM(CASE WHEN age >= 20 AND regimen = '3e - DRV/r+TDF+3TC+EFV' AND sex='Female' AND (pregnancy_status = 'No' or pregnancy_status is null) THEN 1 ELSE 0 END) AS greater_than_20_third_line_3e_female_non_pregnant,
+                  SUM(CASE WHEN age >= 20 AND regimen = '3f - DRV/r+AZT+3TC+EFV' AND sex='Male' THEN 1 ELSE 0 END) AS greater_than_20_third_line_3f_male,
+                  SUM(CASE WHEN age >= 20 AND regimen = '3f - DRV/r+AZT+3TC+EFV' AND sex='Female' AND pregnancy_status = 'Yes' THEN 1 ELSE 0 END) AS greater_than_20_third_line_3f_female_pregnant,
+                  SUM(CASE WHEN age >= 20 AND regimen = '3f - DRV/r+AZT+3TC+EFV' AND sex='Female' AND (pregnancy_status = 'No' or pregnancy_status is null) THEN 1 ELSE 0 END) AS greater_than_20_third_line_3f_female_non_pregnant,
+                  SUM(CASE WHEN age >= 20 AND regimen not in ('3a -  DRV/r+DTG+AZT+3TC', '3b - DRV/r+DTG+TDF+3TC', '3c - DRV/r+ABC+3TC+DTG', '3e - DRV/r+TDF+3TC+EFV', '3f - DRV/r+AZT+3TC+EFV') AND (regimen_line = '3' or regimen_line = '6') AND sex='Male' THEN 1 ELSE 0 END) AS greater_than_20_third_line_other_male,
+                  SUM(CASE WHEN age >= 20 AND regimen not in ('3a -  DRV/r+DTG+AZT+3TC', '3b - DRV/r+DTG+TDF+3TC', '3c - DRV/r+ABC+3TC+DTG', '3e - DRV/r+TDF+3TC+EFV', '3f - DRV/r+AZT+3TC+EFV') AND (regimen_line = '3' or regimen_line = '6') AND sex='Female' AND pregnancy_status = 'Yes' THEN 1 ELSE 0 END) AS greater_than_20_third_line_other_female_pregnant,
+                  SUM(CASE WHEN age >= 20 AND regimen not in ('3a -  DRV/r+DTG+AZT+3TC', '3b - DRV/r+DTG+TDF+3TC', '3c - DRV/r+ABC+3TC+DTG', '3e - DRV/r+TDF+3TC+EFV', '3f - DRV/r+AZT+3TC+EFV') AND (regimen_line = '3' or regimen_line = '6') AND sex='Female' AND (pregnancy_status = 'No' or pregnancy_status is null) THEN 1 ELSE 0 END) AS greater_than_20_third_line_other_female_non_pregnant,
+
+              FROM  tx_curr_with_client
          )
 -- Does health facility provide Monthly PMTCT / ART Treatment Service?
     SELECT 'HIV_HIV_Treatement.' AS S_NO, 'Does health facility provide Monthly PMTCT / ART Treatment Service?' as Activity, '' as Value
@@ -780,682 +856,145 @@ BEGIN
 -- 19.3 Adult currently on ART aged 15-19 on Third Line regimen by regimen type
     UNION ALL SELECT 'HIV_TX_CURR_REG_U19.3','Adult currently on ART aged 15-19 on Third Line regimen by regimen type',u19_third_line FROM tx_curr_agg
 -- 19.3.1 3a -  DRV/r+DTG+AZT+3TC
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.3. 1','3a=DRV/r+DTG+AZT/3TC',u19_third_lin FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
-      AND regimen = '3a -  DRV/r+DTG+AZT+3TC'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.3. 1','3a=DRV/r+DTG+AZT/3TC',u19_third_line_3a FROM tx_curr_agg
 -- 19.3.2 3b - DRV/r+DTG+TDF+3TC
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U19.3. 2',
-           '3b=DRV/r+DTG+TDF/3TC' ,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
-      AND regimen = '3b - DRV/r+DTG+TDF+3TC'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.3. 2','3b=DRV/r+DTG+TDF/3TC',u19_third_line_3b FROM tx_curr_agg
 -- 19.3.3 3c - DRV/r+ABC+3TC+DTG
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U19.3. 3',
-           '3c=DRV/r+ABC+3TC+DTG' ,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
-      AND regimen = '3c - DRV/r+ABC+3TC+DTG'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.3. 3','3c=DRV/r+ABC+3TC+DTG',u19_third_line_3c FROM tx_curr_agg
 -- 19.3.4 3e - DRV/r+TDF+3TC+EFV
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U19.3. 4',
-           '3e= DRV/r+TDF+3TC+EFV' ,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
-      AND regimen = '3e - DRV/r+TDF+3TC+EFV'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.3. 4','3e= DRV/r+TDF+3TC+EFV',u19_third_line_3e FROM tx_curr_agg
 -- 19.3.5 3f - DRV/r+AZT+3TC+EFV
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U19.3. 5',
-           '3f= DRV/r+AZT+3TC +EFV' ,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
-      AND regimen = '3f - DRV/r+AZT+3TC+EFV'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.3. 5','3f= DRV/r+AZT+3TC +EFV',u19_third_line_3f FROM tx_curr_agg
 -- 19.3.6 3d - Other Adult 3rd line regimen
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_U19.3. 6'          ,
-           '3d=Other thirdline',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 15 AND 19
-      AND regimen not in ('3a -  DRV/r+DTG+AZT+3TC', '3b - DRV/r+DTG+TDF+3TC', '3c - DRV/r+ABC+3TC+DTG',
-                          '3e - DRV/r+TDF+3TC+EFV', '3f - DRV/r+AZT+3TC+EFV')
-      AND (regimen_line = '3' or regimen_line = '6')
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.3. 6','3d=Other thirdline',u19_third_line_other FROM tx_curr_agg
 -- 20 Adults >=20 years currently on ART by regimen type
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20'                               ,
-           'Adults >=20 years currently on ART by regimen type',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20','Adults >=20 years currently on ART by regimen type',greater_than_20 FROM tx_curr_agg
 -- 20.1 Adults >=20 years currently on First line regimen by regimen type
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.1'                                            ,
-           'Adults >=20 years currently on First line regimen by regimen type',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND (regimen_line = '1' or regimen_line = '4')
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1','Adults >=20 years currently on First line regimen by regimen type',greater_than_20_first_line FROM tx_curr_agg
 -- 20.1.1 1d - AZT+3TC+EFV, Male
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.1. 1',
-           '1d = AZT-3TC-EFV, Male' ,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '1d - AZT+3TC+EFV'
-      AND sex = 'Male'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 1','1d = AZT-3TC-EFV, Male',greater_than_20_first_line_1d_male FROM tx_curr_agg
 -- 20.1.2 1d - AZT+3TC+EFV, Female - pregnant
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.1. 2'            ,
-           '1d = AZT-3TC-EFV, Female - pregnant',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '1d - AZT+3TC+EFV'
-      AND sex = 'Female'
-      AND pregnancy_status = 'Yes'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 2','1d = AZT-3TC-EFV, Female - pregnant',greater_than_20_first_line_1d_female_pregnant FROM tx_curr_agg
 -- 20.1.3 1d - AZT+3TC+EFV, Female - non-pregnant
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.1. 3'                ,
-           '1d = AZT-3TC-EFV, Female - non-pregnant',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '1d - AZT+3TC+EFV'
-      AND sex = 'Female'
-      AND (pregnancy_status = 'No' or pregnancy_status is null)
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 3','1d = AZT-3TC-EFV, Female - non-pregnant',greater_than_20_first_line_1d_female_non_pregnant FROM tx_curr_agg
 -- 20.1.4 1e - TDF+3TC+EFV, Male
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.1. 4',
-           '1e = TDF-3TC-EFV, Male' ,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '1e - TDF+3TC+EFV'
-      AND sex = 'Male'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 4','1e = TDF-3TC-EFV, Male',greater_than_20_first_line_1e_male FROM tx_curr_agg
 -- 20.1.5 1e - TDF+3TC+EFV, Female - pregnant
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.1. 5'            ,
-           '1e = TDF-3TC-EFV, Female - pregnant',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '1e - TDF+3TC+EFV'
-      AND sex = 'Female'
-      AND pregnancy_status = 'Yes'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 5','1e = TDF-3TC-EFV, Female - pregnant',greater_than_20_first_line_1e_female_pregnant FROM tx_curr_agg
 -- 20.1.6 1e - TDF+3TC+EFV, Female - non-pregnant
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.1. 6'                ,
-           '1e = TDF-3TC-EFV, Female - non-pregnant',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '1e - TDF+3TC+EFV'
-      AND sex = 'Female'
-      AND (pregnancy_status = 'No' or pregnancy_status is null)
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 6','1e = TDF-3TC-EFV, Female - non-pregnant',greater_than_20_first_line_1e_female_non_pregnant FROM tx_curr_agg
 -- 20.1.7 1g - ABC+3TC+EFV, Male
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.1. 7',
-           '1g= ABC + 3TC + EFV, Male' ,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '1g - ABC+3TC+EFV'
-      AND sex = 'Male'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 7','1g= ABC + 3TC + EFV, Male',greater_than_20_first_line_1g_male FROM tx_curr_agg
 -- 20.1.8 1g - ABC+3TC+EFV, Female - pregnant
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.1. 8'            ,
-           '1g= ABC + 3TC + EFV, Female - pregnant',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '1g - ABC+3TC+EFV'
-      AND sex = 'Female'
-      AND pregnancy_status = 'Yes'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 8','1g= ABC + 3TC + EFV, Female - pregnant',greater_than_20_first_line_1g_female_pregnant FROM tx_curr_agg
 -- 20.1.9 1g - ABC+3TC+EFV, Female - non-pregnant
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.1. 9'                ,
-           '1g= ABC + 3TC + EFV, Female - non-pregnant',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '1g - ABC+3TC+EFV'
-      AND sex = 'Female'
-      AND (pregnancy_status = 'No' or pregnancy_status is null)
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 9','1g= ABC + 3TC + EFV, Female - non-pregnant',greater_than_20_first_line_1g_female_non_pregnant FROM tx_curr_agg
 -- 20.1.10 1j - TDF+3TC+DTG, Male
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.1. 10',
-           '1j=TDF + 3TC + DTG, Male'  ,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '1j - TDF+3TC+DTG'
-      AND sex = 'Male'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 10','1j=TDF + 3TC + DTG, Male',greater_than_20_first_line_1j_male FROM tx_curr_agg
 -- 20.1.11 1j - TDF+3TC+DTG, Female - pregnant
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.1. 11'           ,
-           '1j=TDF + 3TC + DTG, Female - pregnant',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '1j - TDF+3TC+DTG'
-      AND sex = 'Female'
-      AND pregnancy_status = 'Yes'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 11','1j=TDF + 3TC + DTG, Female - pregnant',greater_than_20_first_line_1j_female_pregnant FROM tx_curr_agg
 -- 20.1.12 1j - TDF+3TC+DTG, Female - non-pregnant
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.1. 12'               ,
-           '1j=TDF + 3TC + DTG, Female - non-pregnant',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '1j - TDF+3TC+DTG'
-      AND sex = 'Female'
-      AND (pregnancy_status = 'No' or pregnancy_status is null)
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 12','1j=TDF + 3TC + DTG, Female - non-pregnant',greater_than_20_first_line_1j_female_non_pregnant FROM tx_curr_agg
 -- 20.1.13 1k - AZT+3TC+DTG, Male
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.1. 13',
-           '1k= AZT +3TC +DTG, Male'  ,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '1k - AZT+3TC+DTG'
-      AND sex = 'Male'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 13','1k= AZT +3TC +DTG, Male',greater_than_20_first_line_1k_male FROM tx_curr_agg
 -- 20.1.14 1k - AZT+3TC+DTG, Female - pregnant
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.1. 14'           ,
-           '1k= AZT +3TC +DTG, Female - pregnant',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '1k - AZT+3TC+DTG'
-      AND sex = 'Female'
-      AND pregnancy_status = 'Yes'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 14','1k= AZT +3TC +DTG, Female - pregnant',greater_than_20_first_line_1k_female_pregnant FROM tx_curr_agg
 -- 20.1.15 1k - AZT+3TC+DTG, Female - non-pregnant
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.1. 15'               ,
-           '1k= AZT +3TC +DTG, Female - non-pregnant',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '1k - AZT+3TC+DTG'
-      AND sex = 'Female'
-      AND (pregnancy_status = 'No' or pregnancy_status is null)
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 15','1k= AZT +3TC +DTG, Female - non-pregnant',greater_than_20_first_line_1k_female_non_pregnant FROM tx_curr_agg
 -- 20.1.16 1i - Other Adult 1st line regimen, Male
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.1. 16'               ,
-           '1i = Other specify, Male',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen not in
-          ('1d - AZT+3TC+EFV', '1e - TDF+3TC+EFV', '1g - ABC+3TC+EFV', '1j - TDF+3TC+DTG', '1k - AZT+3TC+DTG')
-      AND (regimen_line = '1' or regimen_line = '4')
-      AND sex = 'Male'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 16','1i = Other specify, Male',greater_than_20_first_line_other_male FROM tx_curr_agg
 -- 20.1.17 1i - Other Adult 1st line regimen, Female - pregnant
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.1. 17'                            ,
-           '1i = Other specify, Female - pregnant',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen not in
-          ('1d - AZT+3TC+EFV', '1e - TDF+3TC+EFV', '1g - ABC+3TC+EFV', '1j - TDF+3TC+DTG', '1k - AZT+3TC+DTG')
-      AND (regimen_line = '1' or regimen_line = '4')
-      AND sex = 'Female'
-      AND pregnancy_status = 'Yes'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 17','1i = Other specify, Female - pregnant',greater_than_20_first_line_other_female_pregnant FROM tx_curr_agg
 -- 20.1.18 1i - Other Adult 1st line regimen, Female - non-pregnant
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.1. 18'                                ,
-           '1i = Other specify, Female - non-pregnant',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen not in
-          ('1d - AZT+3TC+EFV', '1e - TDF+3TC+EFV', '1g - ABC+3TC+EFV', '1j - TDF+3TC+DTG', '1k - AZT+3TC+DTG')
-      AND (regimen_line = '1' or regimen_line = '4')
-      AND sex = 'Female'
-      AND (pregnancy_status = 'No' or pregnancy_status is null)
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 18','1i = Other specify, Female - non-pregnant',greater_than_20_first_line_other_female_non_pregnant FROM tx_curr_agg
 -- 20.2  Adults >=20 years currently on Second line regimen by regimen type
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.2'                                             ,
-           'Adults >=20 years currently on Second line regimen by regimen type',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND (regimen_line = '2' or regimen_line = '5')
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2','Adults >=20 years currently on Second line regimen by regimen type',greater_than_20_second_line FROM tx_curr_agg
 -- 20.2.1 2e - AZT+3TC+LPVr, Male
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.2. 1',
-           '2e= AZT+3TC+LPV/r, Male',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '2e - AZT+3TC+LPVr'
-      AND sex = 'Male'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 1','2e= AZT+3TC+LPV/r, Male',greater_than_20_second_line_2e_male FROM tx_curr_agg
 -- 20.2.2 2e - AZT+3TC+LPVr, Female - pregnant
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.2. 2'             ,
-           '2e= AZT+3TC+LPV/r, Female - pregnant',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '2e - AZT+3TC+LPVr'
-      AND sex = 'Female'
-      AND pregnancy_status = 'Yes'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 2','2e= AZT+3TC+LPV/r, Female - pregnant',greater_than_20_second_line_2e_female_pregnant FROM tx_curr_agg
 -- 20.2.3 2e - AZT+3TC+LPVr, Female - non-pregnant
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.2. 3'                 ,
-           '2e= AZT+3TC+LPV/r, Female - non-pregnant',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '2e - AZT+3TC+LPVr'
-      AND sex = 'Female'
-      AND (pregnancy_status = 'No' or pregnancy_status is null)
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 3','2e= AZT+3TC+LPV/r, Female - non-pregnant',greater_than_20_second_line_2e_female_non_pregnant FROM tx_curr_agg
 -- 20.2.4 2f - AZT+3TC+ATVr, Male
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.2. 4',
-           '2f=AZT+3TC+ATV/r, Male',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '2f - AZT+3TC+ATVr'
-      AND sex = 'Male'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 4','2f=AZT+3TC+ATV/r, Male',greater_than_20_second_line_2f_male FROM tx_curr_agg
 -- 20.2.5 2f - AZT+3TC+ATVr, Female - pregnant
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.2. 5'             ,
-           '2f=AZT+3TC+ATV/r, Female - pregnant',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '2f - AZT+3TC+ATVr'
-      AND sex = 'Female'
-      AND pregnancy_status = 'Yes'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 5','2f=AZT+3TC+ATV/r, Female - pregnant',greater_than_20_second_line_2f_female_pregnant FROM tx_curr_agg
 -- 20.2.6 2f - AZT+3TC+ATVr, Female - non-pregnant
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.2. 6'                 ,
-           '2f=AZT+3TC+ATV/r, Female - non-pregnant',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '2f - AZT+3TC+ATVr'
-      AND sex = 'Female'
-      AND (pregnancy_status = 'No' or pregnancy_status is null)
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 6','2f=AZT+3TC+ATV/r, Female - non-pregnant',greater_than_20_second_line_2f_female_non_pregnant FROM tx_curr_agg
 -- 20.2.7 2g - TDF+3TC+LPVr, Male
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.2. 7',
-           '2g= TDF-3TC-LPV/r, Male',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '2g - TDF+3TC+LPVr'
-      AND sex = 'Male'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 7','2g= TDF-3TC-LPV/r, Male',greater_than_20_second_line_2g_male FROM tx_curr_agg
 -- 20.2.8 2g - TDF+3TC+LPVr, Female - pregnant
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.2. 8'             ,
-           '2g= TDF-3TC-LPV/r, Female - pregnant',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '2g - TDF+3TC+LPVr'
-      AND sex = 'Female'
-      AND pregnancy_status = 'Yes'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 8','2g= TDF-3TC-LPV/r, Female - pregnant',greater_than_20_second_line_2g_female_pregnant FROM tx_curr_agg
 -- 20.2.9 2g - TDF+3TC+LPVr, Female - non-pregnant
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.2. 9'                 ,
-           '2g= TDF-3TC-LPV/r, Female - non-pregnant',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '2g - TDF+3TC+LPVr'
-      AND sex = 'Female'
-      AND (pregnancy_status = 'No' or pregnancy_status is null)
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 9','2g= TDF-3TC-LPV/r, Female - non-pregnant',greater_than_20_second_line_2g_female_non_pregnant FROM tx_curr_agg
 -- 20.2.10 2h - TDF+3TC+ATVr, Male
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.2. 10',
-           '2h =TDF-3TC-ATV/r, Male' ,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '2h - TDF+3TC+ATVr'
-      AND sex = 'Male'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 10','2h =TDF-3TC-ATV/r, Male',greater_than_20_second_line_2h_male FROM tx_curr_agg
 -- 20.2.11 2h - TDF+3TC+ATVr, Female - pregnant
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.2. 11'            ,
-           '2h =TDF-3TC-ATV/r, Female - pregnant',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '2h - TDF+3TC+ATVr'
-      AND sex = 'Female'
-      AND pregnancy_status = 'Yes'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 11','2h =TDF-3TC-ATV/r, Female - pregnant',greater_than_20_second_line_2h_female_pregnant FROM tx_curr_agg
 -- 20.2.12 2h - TDF+3TC+ATVr, Female - non-pregnant
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.2. 12'                ,
-           '2h =TDF-3TC-ATV/r, Female - non-pregnant',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '2h - TDF+3TC+ATVr'
-      AND sex = 'Female'
-      AND (pregnancy_status = 'No' or pregnancy_status is null)
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 12','2h =TDF-3TC-ATV/r, Female - non-pregnant',greater_than_20_second_line_2h_female_non_pregnant FROM tx_curr_agg
 -- 20.2.13 2i - ABC+3TC+LPVr, Male
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.2. 13',
-           '2i = ABC + 3TC + LPV/r, Male' ,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '2i - ABC+3TC+LPVr'
-      AND sex = 'Male'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 13','2i = ABC + 3TC + LPV/r, Male',greater_than_20_second_line_2i_male FROM tx_curr_agg
 -- 20.2.14 2i - ABC+3TC+LPVr, Female - pregnant
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.2. 14'            ,
-           '2i = ABC + 3TC + LPV/r, Female - pregnant',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '2i - ABC+3TC+LPVr'
-      AND sex = 'Female'
-      AND pregnancy_status = 'Yes'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 14','2i = ABC + 3TC + LPV/r, Female - pregnant',greater_than_20_second_line_2i_female_pregnant FROM tx_curr_agg
 -- 20.2.15 2i - ABC+3TC+LPVr, Female - non-pregnant
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.2. 15'                ,
-           '2i = ABC + 3TC + LPV/r, Female - non-pregnant',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '2i - ABC+3TC+LPVr'
-      AND sex = 'Female'
-      AND (pregnancy_status = 'No' or pregnancy_status is null)
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 15','2i = ABC + 3TC + LPV/r, Female - non-pregnant',greater_than_20_second_line_2i_female_non_pregnant FROM tx_curr_agg
 -- 20.2.16 2j -TDF+3TC+DTG, Male
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.2. 16',
-           '2j = TDF + 3TC + DTG, Male'   ,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '2j -TDF+3TC+DTG'
-      AND sex = 'Male'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 16','2j = TDF + 3TC + DTG, Male',greater_than_20_second_line_2j_male FROM tx_curr_agg
 -- 20.2.17 2j -TDF+3TC+DTG, Female - pregnant
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.2. 17'          ,
-           '2j = TDF + 3TC + DTG, Female - pregnant',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '2j -TDF+3TC+DTG'
-      AND sex = 'Female'
-      AND pregnancy_status = 'Yes'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 17','2j = TDF + 3TC + DTG, Female - pregnant',greater_than_20_second_line_2j_female_pregnant FROM tx_curr_agg
 -- 20.2.18 2j -TDF+3TC+DTG, Female - non-pregnant
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.2. 18'              ,
-           '2j = TDF + 3TC + DTG, Female - non-pregnant',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '2j -TDF+3TC+DTG'
-      AND sex = 'Female'
-      AND (pregnancy_status = 'No' or pregnancy_status is null)
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 18','2j = TDF + 3TC + DTG, Female - non-pregnant',greater_than_20_second_line_2j_female_non_pregnant FROM tx_curr_agg
 -- 20.2.19 2k - AZT+3TC+DTG, Male
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.2. 19',
-           '2k = AZT + 3TC + DTG, Male'  ,
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '2k - AZT+3TC+DTG'
-      AND sex = 'Male'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 19','2k = AZT + 3TC + DTG, Male',greater_than_20_second_line_2k_male FROM tx_curr_agg
 -- 20.2.20 2k - AZT+3TC+DTG, Female - pregnant
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.2. 20'           ,
-           '2k = AZT + 3TC + DTG, Female - pregnant',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '2k - AZT+3TC+DTG'
-      AND sex = 'Female'
-      AND pregnancy_status = 'Yes'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 20','2k = AZT + 3TC + DTG, Female - pregnant',greater_than_20_second_line_2k_female_pregnant FROM tx_curr_agg
 -- 20.2.21 2k - AZT+3TC+DTG, Female - non-pregnant
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.2. 21'               ,
-           '2k = AZT + 3TC + DTG, Female - non-pregnant',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '2k - AZT+3TC+DTG'
-      AND sex = 'Female'
-      AND (pregnancy_status = 'No' or pregnancy_status is null)
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 21','2k = AZT + 3TC + DTG, Female - non-pregnant',greater_than_20_second_line_2k_female_non_pregnant FROM tx_curr_agg
 -- 20.2.22 2L - Other Adult 2nd line regimen, Male
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.2. 22'               ,
-           '2l=other secondline, Male',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen not in ('2e - AZT+3TC+LPVr', '2f - AZT+3TC+ATVr', '2g - TDF+3TC+LPVr', '2h - TDF+3TC+ATVr',
-                          '2i - ABC+3TC+LPVr', '2j -TDF+3TC+DTG', '2k - AZT+3TC+DTG')
-      AND (regimen_line = '2' or regimen_line = '5')
-      AND sex = 'Male'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 22','2l=other secondline, Male',greater_than_20_second_line_other_male FROM tx_curr_agg
 -- 20.2.23 2L - Other Adult 2nd line regimen, Female - pregnant
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.2. 23'                            ,
-           '2l=other secondline, Female - pregnant',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen not in ('2e - AZT+3TC+LPVr', '2f - AZT+3TC+ATVr', '2g - TDF+3TC+LPVr', '2h - TDF+3TC+ATVr',
-                          '2i - ABC+3TC+LPVr', '2j -TDF+3TC+DTG', '2k - AZT+3TC+DTG')
-      AND (regimen_line = '2' or regimen_line = '5')
-      AND sex = 'Female'
-      AND pregnancy_status = 'Yes'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 23','2l=other secondline, Female - pregnant',greater_than_20_second_line_other_female_pregnant FROM tx_curr_agg
 -- 20.2.24 2L - Other Adult 2nd line regimen, Female - non-pregnant
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.2. 24'                                ,
-           '2l=other secondline, Female - non-pregnant',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen not in ('2e - AZT+3TC+LPVr', '2f - AZT+3TC+ATVr', '2g - TDF+3TC+LPVr', '2h - TDF+3TC+ATVr',
-                          '2i - ABC+3TC+LPVr', '2j -TDF+3TC+DTG', '2k - AZT+3TC+DTG')
-      AND (regimen_line = '2' or regimen_line = '5')
-      AND sex = 'Female'
-      AND (pregnancy_status = 'No' or pregnancy_status is null)
-
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 24','2l=other secondline, Female - non-pregnant',greater_than_20_second_line_other_female_non_pregnant FROM tx_curr_agg
 -- 20.3 Adults >=20 years currently on Third Line regimen by regimen type
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.3'                                            ,
-           'Adults >=20 years currently on Third Line regimen by regimen type',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND (regimen_line = '3' or regimen_line = '6')
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3','Adults >=20 years currently on Third Line regimen by regimen type',greater_than_20_third_line FROM tx_curr_agg
 -- 20.3.1 3a -  DRV/r+DTG+AZT+3TC, Male
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.3. 1'      ,
-           '3a=DRV/r+DTG+AZT/3TC, Male',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '3a -  DRV/r+DTG+AZT+3TC'
-      AND sex = 'Male'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 1','3a=DRV/r+DTG+AZT/3TC, Male',greater_than_20_third_line_3a_male FROM tx_curr_agg
 -- 20.3.2 3a -  DRV/r+DTG+AZT+3TC, Female - pregnant
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.3. 2'                   ,
-           '3a=DRV/r+DTG+AZT/3TC, Female - pregnant',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '3a -  DRV/r+DTG+AZT+3TC'
-      AND sex = 'Female'
-      AND pregnancy_status = 'Yes'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 2','3a=DRV/r+DTG+AZT/3TC, Female - pregnant',greater_than_20_third_line_3a_female_pregnant FROM tx_curr_agg
 -- 20.3.3 3a -  DRV/r+DTG+AZT+3TC, Female - non-pregnant
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.3. 3'                       ,
-           '3a=DRV/r+DTG+AZT/3TC, Female - non-pregnant',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '3a -  DRV/r+DTG+AZT+3TC'
-      AND sex = 'Female'
-      AND (pregnancy_status = 'No' or pregnancy_status is null)
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 3','3a=DRV/r+DTG+AZT/3TC, Female - non-pregnant',greater_than_20_third_line_3a_female_non_pregnant FROM tx_curr_agg
 -- 20.3.4 3b - DRV/r+DTG+TDF+3TC, Male
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.3. 4'     ,
-           '3b=DRV/r+DTG+TDF/3TC, Male',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '3b - DRV/r+DTG+TDF+3TC'
-      AND sex = 'Male'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 4','3b=DRV/r+DTG+TDF/3TC, Male',greater_than_20_third_line_3b_male FROM tx_curr_agg
 -- 20.3.5 3b - DRV/r+DTG+TDF+3TC, Female - pregnant
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.3. 5'                  ,
-           '3b=DRV/r+DTG+TDF/3TC, Female - pregnant',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '3b - DRV/r+DTG+TDF+3TC'
-      AND sex = 'Female'
-      AND pregnancy_status = 'Yes'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 5','3b=DRV/r+DTG+TDF/3TC, Female - pregnant',greater_than_20_third_line_3b_female_pregnant FROM tx_curr_agg
 -- 20.3.6 3b - DRV/r+DTG+TDF+3TC, Female - non-pregnant
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.3. 6'                      ,
-           '3b=DRV/r+DTG+TDF/3TC, Female - non-pregnant',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '3b - DRV/r+DTG+TDF+3TC'
-      AND sex = 'Female'
-      AND (pregnancy_status = 'No' or pregnancy_status is null)
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 6','3b=DRV/r+DTG+TDF/3TC, Female - non-pregnant',greater_than_20_third_line_3b_female_non_pregnant FROM tx_curr_agg
 -- 20.3.7 3c - DRV/r+ABC+3TC+DTG, Male
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.3. 7'     ,
-           '3c=DRV/r+ABC+3TC+DTG, Male',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '3c - DRV/r+ABC+3TC+DTG'
-      AND sex = 'Male'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 7','3c=DRV/r+ABC+3TC+DTG, Male',greater_than_20_third_line_3c_male FROM tx_curr_agg
 -- 20.3.8 3c - DRV/r+ABC+3TC+DTG, Female - pregnant
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.3. 8'                  ,
-           '3c=DRV/r+ABC+3TC+DTG, Female - pregnant',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '3c - DRV/r+ABC+3TC+DTG'
-      AND sex = 'Female'
-      AND pregnancy_status = 'Yes'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 8','3c=DRV/r+ABC+3TC+DTG, Female - pregnant',greater_than_20_third_line_3c_female_pregnant FROM tx_curr_agg
 -- 20.3.9 3c - DRV/r+ABC+3TC+DTG, Female - non-pregnant
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.3. 9'                      ,
-           '3c=DRV/r+ABC+3TC+DTG, Female - non-pregnant',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '3c - DRV/r+ABC+3TC+DTG'
-      AND sex = 'Female'
-      AND (pregnancy_status = 'No' or pregnancy_status is null)
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 9','3c=DRV/r+ABC+3TC+DTG, Female - non-pregnant',greater_than_20_third_line_3c_female_non_pregnant FROM tx_curr_agg
 -- 20.3.10 3e - DRV/r+TDF+3TC+EFV, Male
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.3. 10'    ,
-           '3e= DRV/r+TDF+3TC+EFV, Male',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '3e - DRV/r+TDF+3TC+EFV'
-      AND sex = 'Male'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 10','3e= DRV/r+TDF+3TC+EFV, Male',greater_than_20_third_line_3e_male FROM tx_curr_agg
 -- 20.3.11 3e - DRV/r+TDF+3TC+EFV, Female - pregnant
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.3. 11'                 ,
-           '3e= DRV/r+TDF+3TC+EFV, Female - pregnant',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '3e - DRV/r+TDF+3TC+EFV'
-      AND sex = 'Female'
-      AND pregnancy_status = 'Yes'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 11','3e= DRV/r+TDF+3TC+EFV, Female - pregnant',greater_than_20_third_line_3e_female_pregnant FROM tx_curr_agg
 -- 20.3.12 3e - DRV/r+TDF+3TC+EFV, Female - non-pregnant
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.3. 12'                     ,
-           '3e= DRV/r+TDF+3TC+EFV, Female - non-pregnant',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '3e - DRV/r+TDF+3TC+EFV'
-      AND sex = 'Female'
-      AND (pregnancy_status = 'No' or pregnancy_status is null)
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 12','3e= DRV/r+TDF+3TC+EFV, Female - non-pregnant',greater_than_20_third_line_3e_female_non_pregnant FROM tx_curr_agg
 -- 20.3.13 3f - DRV/r+AZT+3TC+EFV, Male
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.3. 13'    ,
-           '3f= DRV/r+AZT+3TC +EFV, Male',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '3f - DRV/r+AZT+3TC+EFV'
-      AND sex = 'Male'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 13','3f= DRV/r+AZT+3TC +EFV, Male',greater_than_20_third_line_3f_male FROM tx_curr_agg
 -- 20.3.14 3f - DRV/r+AZT+3TC+EFV, Female - pregnant
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.3. 14'                 ,
-           '3f= DRV/r+AZT+3TC +EFV, Female - pregnant',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '3f - DRV/r+AZT+3TC+EFV'
-      AND sex = 'Female'
-      AND pregnancy_status = 'Yes'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 14','3f= DRV/r+AZT+3TC +EFV, Female - pregnant',greater_than_20_third_line_3f_female_pregnant FROM tx_curr_agg
 -- 20.3.15 3f - DRV/r+AZT+3TC+EFV, Female - non-pregnant
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.3. 15'                     ,
-           '3f= DRV/r+AZT+3TC +EFV, Female - non-pregnant',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen = '3f - DRV/r+AZT+3TC+EFV'
-      AND sex = 'Female'
-      AND (pregnancy_status = 'No' or pregnancy_status is null)
-
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 15','3f= DRV/r+AZT+3TC +EFV, Female - non-pregnant',greater_than_20_third_line_3f_female_non_pregnant FROM tx_curr_agg
 -- 20.3.16 3d - Other Adult 3rd line regimen, Male
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.3. 16'               ,
-           '3d=Other thirdline, Male',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen not in ('3a -  DRV/r+DTG+AZT+3TC', '3b - DRV/r+DTG+TDF+3TC', '3c - DRV/r+ABC+3TC+DTG',
-                          '3e - DRV/r+TDF+3TC+EFV', '3f - DRV/r+AZT+3TC+EFV')
-      AND (regimen_line = '3' or regimen_line = '6')
-      AND sex = 'Male'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 16','3d=Other thirdline, Male',greater_than_20_third_line_other_male FROM tx_curr_agg
 -- 20.3.17 3d - Other Adult 3rd line regimen, Female - pregnant
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.3. 17'                            ,
-           '3d=Other thirdline, Female - pregnant',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen not in ('3a -  DRV/r+DTG+AZT+3TC', '3b - DRV/r+DTG+TDF+3TC', '3c - DRV/r+ABC+3TC+DTG',
-                          '3e - DRV/r+TDF+3TC+EFV', '3f - DRV/r+AZT+3TC+EFV')
-      AND (regimen_line = '3' or regimen_line = '6')
-      AND sex = 'Female'
-      AND pregnancy_status = 'Yes'
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 17','3d=Other thirdline, Female - pregnant',greater_than_20_third_line_other_female_pregnant FROM tx_curr_agg
 -- 20.3.18 3d - Other Adult 3rd line regimen, Female - non-pregnant
-    UNION ALL
-    SELECT 'HIV_TX_CURR_REG_20.3. 18'                                ,
-           '3d=Other thirdline, Female - non-pregnant',
-           COUNT(*)
-    FROM tx_curr_agg
-    WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 20
-      AND regimen not in ('3a -  DRV/r+DTG+AZT+3TC', '3b - DRV/r+DTG+TDF+3TC', '3c - DRV/r+ABC+3TC+DTG',
-                          '3e - DRV/r+TDF+3TC+EFV', '3f - DRV/r+AZT+3TC+EFV')
-      AND (regimen_line = '3' or regimen_line = '6')
-      AND sex = 'Female'
-      AND (pregnancy_status = 'No' or pregnancy_status is null);
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 18','3d=Other thirdline, Female - non-pregnant',greater_than_20_third_line_other_female_non_pregnant FROM tx_curr_agg
 END //
 
 DELIMITER ;
