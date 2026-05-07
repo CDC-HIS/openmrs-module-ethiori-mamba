@@ -103,9 +103,14 @@ public class MambaReportExecutionController {
 	@RequestMapping(value = "/jobs/{jobId}", method = RequestMethod.DELETE)
 	@ResponseBody
 	public ResponseEntity<Void> cancelJob(@PathVariable String jobId) {
-		boolean found = reportJobService.cancelJob(jobId);
-		if (!found) {
+		ReportJob job = reportJobService.getJob(jobId);
+		if (job == null) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		boolean cancelled = reportJobService.cancelJob(jobId);
+		if (!cancelled) {
+			// Job exists but is already COMPLETE or ERROR — cannot be cancelled
+			return new ResponseEntity<>(HttpStatus.CONFLICT);
 		}
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}

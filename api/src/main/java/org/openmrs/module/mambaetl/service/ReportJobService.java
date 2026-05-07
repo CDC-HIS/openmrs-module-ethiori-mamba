@@ -62,7 +62,12 @@ public class ReportJobService implements ApplicationContextAware {
 		}
 		try {
 			DynamicReportExecutorService.ReportExecutionResult result = reportExecutorService.executeReport(
-			    job.getProcedureName(), params, offset, limit);
+			    job.getProcedureName(), params, offset, limit, (completed, total) -> {
+				    synchronized (job) {
+					    job.setTotalSteps(total);
+					    job.setCompletedSteps(completed);
+				    }
+			    });
 			synchronized (job) {
 				job.setResult(new ReportDataResponse(job.getProcedureName(), result.getData()));
 				job.setCompletedAt(Instant.now());
@@ -106,7 +111,8 @@ public class ReportJobService implements ApplicationContextAware {
 
 	@Scheduled(fixedDelay = 600_000)
 	public void cleanupExpiredJobs() {
-		Instant cutoff = Instant.now().minusSeconds(7200);
+		long ttlSeconds = getJobTtlSeconds();
+		Instant cutoff = Instant.now().minusSeconds(ttlSeconds);
 		jobs.entrySet().removeIf(entry -> {
 			ReportJob job = entry.getValue();
 			ReportJobStatus status = job.getStatus();
@@ -114,5 +120,25 @@ public class ReportJobService implements ApplicationContextAware {
 			return (status == ReportJobStatus.COMPLETE || status == ReportJobStatus.ERROR)
 			        && completedAt != null && completedAt.isBefore(cutoff);
 		});
+	}
+
+	/**
+	 * How long completed/failed jobs stay in memory. Default 1800 s (30 min) for 16 GB machines.
+	 * Override via global property mambaetl.report.job.ttl.seconds:
+	 *   900   — 8 GB desktop (free memory faster)
+	 *   3600  — 32 GB server (keep results longer for slow clients)
+	 */
+	private long getJobTtlSeconds() {
+		try {
+			String val = org.openmrs.api.context.Context.getAdministrationService()
+			        .getGlobalProperty("mambaetl.report.job.ttl.seconds");
+			if (val != null && !val.trim().isEmpty()) {
+				return Long.parseLong(val.trim());
+			}
+		}
+		catch (Exception e) {
+			log.warn("Could not read mambaetl.report.job.ttl.seconds, using default 1800 s", e);
+		}
+		return 1800L;
 	}
 }
