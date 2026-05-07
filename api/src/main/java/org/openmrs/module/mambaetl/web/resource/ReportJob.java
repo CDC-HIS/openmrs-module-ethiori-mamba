@@ -29,6 +29,10 @@ public class ReportJob {
 	@JsonIgnore
 	private volatile Future<?> future;
 	
+	private volatile Integer totalSteps;
+
+	private volatile Integer completedSteps;
+	
 	public ReportJob(String jobId, String procedureName) {
 		this.jobId = jobId;
 		this.procedureName = procedureName;
@@ -109,5 +113,28 @@ public class ReportJob {
 	
 	public void setFuture(Future<?> future) {
 		this.future = future;
+	}
+	
+	public Integer getTotalSteps() {
+		return totalSteps;
+	}
+
+	public void setTotalSteps(int totalSteps) {
+		this.totalSteps = totalSteps;
+	}
+
+	public Integer getCompletedSteps() {
+		return completedSteps;
+	}
+
+	public void setCompletedSteps(int completedSteps) {
+		this.completedSteps = completedSteps;
+	}
+
+	public Integer getProgressPercent() {
+		if (totalSteps == null || totalSteps <= 0) {
+			return null;
+		}
+		return ((completedSteps == null ? 0 : completedSteps) * 100) / totalSteps;
 	}
 }

@@ -41,6 +41,11 @@ public class DynamicReportExecutorService {
 	
 	public ReportExecutionResult executeReport(String procedureName, Map<String, String> params, int offset, int limit)
 	        throws SQLException {
+		return executeReport(procedureName, params, offset, limit, null);
+	}
+	
+	public ReportExecutionResult executeReport(String procedureName, Map<String, String> params, int offset, int limit,
+	        DataSetEvaluatorHelper.ProgressReporter progressReporter) throws SQLException {
 
 		validateProcedureName(procedureName);
 
@@ -51,11 +56,14 @@ public class DynamicReportExecutorService {
 			connection.setAutoCommit(false);
 
 			List<DataSetEvaluatorHelper.ProcedureCall> procedureCalls = getProcedureCalls(procedureName, params);
+			int queryTimeout = getQueryTimeoutSeconds();
+			int maxRows = getMaxRows();
 
 			try (DataSetEvaluatorHelper.CallableStatementContainer statementContainer = DataSetEvaluatorHelper
 			        .prepareStatements(connection, procedureCalls)) {
 
-				DataSetEvaluatorHelper.executeStatements(statementContainer, procedureCalls);
+				DataSetEvaluatorHelper.executeStatements(statementContainer, procedureCalls, queryTimeout,
+				    progressReporter, maxRows);
 
 				ResultSet[] allResultSets = statementContainer.getResultSets();
 
@@ -1017,6 +1025,38 @@ public class DynamicReportExecutorService {
 			log.warn("Could not read _viralLoad12MSetting global property, using startDate", e);
 		}
 		return parseSqlDate(params.get("startDate"));
+	}
+	
+	private int getQueryTimeoutSeconds() {
+		try {
+			String timeout = Context.getAdministrationService().getGlobalProperty("mambaetl.report.query.timeout.seconds");
+			if (timeout != null && !timeout.trim().isEmpty()) {
+				return Integer.parseInt(timeout.trim());
+			}
+		}
+		catch (Exception e) {
+			log.warn("Could not read mambaetl.report.query.timeout.seconds, using no timeout", e);
+		}
+		return 0;
+	}
+
+	/**
+	 * Limits rows fetched per stored-procedure call to protect JVM heap. Default 100 000 (16 GB).
+	 * Override via global property mambaetl.report.max.rows:
+	 *   20000  — 8 GB desktop
+	 *   0      — unlimited (high-end server or trusted large exports)
+	 */
+	private int getMaxRows() {
+		try {
+			String val = Context.getAdministrationService().getGlobalProperty("mambaetl.report.max.rows");
+			if (val != null && !val.trim().isEmpty()) {
+				return Integer.parseInt(val.trim());
+			}
+		}
+		catch (Exception e) {
+			log.warn("Could not read mambaetl.report.max.rows, using default", e);
+		}
+		return 100_000;
 	}
 	
 	private String[] resolveSideBySideLabels(String procedureName, Map<String, String> params) {
