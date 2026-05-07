@@ -42,17 +42,38 @@ public class DataSetEvaluatorHelper {
 	
 	public static void executeStatements(CallableStatementContainer statementContainer, List<ProcedureCall> procedureCalls)
 	        throws SQLException {
+		executeStatements(statementContainer, procedureCalls, 0, null, 0);
+	}
+
+	public static void executeStatements(CallableStatementContainer statementContainer, List<ProcedureCall> procedureCalls,
+	        int queryTimeoutSeconds, ProgressReporter progressReporter, int maxRows) throws SQLException {
 		CallableStatement[] statements = statementContainer.getStatements();
 		ResultSet[] resultSets = statementContainer.getResultSets();
-		
-		for (int i = 0; i < procedureCalls.size(); i++) {
+		int total = procedureCalls.size();
+
+		for (int i = 0; i < total; i++) {
 			ProcedureCall call = procedureCalls.get(i);
 			CallableStatement statement = statements[i];
 			if (statement != null) {
+				if (queryTimeoutSeconds > 0) {
+					statement.setQueryTimeout(queryTimeoutSeconds);
+				}
+				if (maxRows > 0) {
+					statement.setMaxRows(maxRows);
+				}
 				call.getParameterSetter().setParameters(statement);
 				resultSets[i] = statement.executeQuery();
+				if (progressReporter != null) {
+					progressReporter.report(i + 1, total);
+				}
 			}
 		}
+	}
+	
+	@FunctionalInterface
+	public interface ProgressReporter {
+		
+		void report(int completedSteps, int totalSteps);
 	}
 	
 	public static void mapResultSet(SimpleDataSet data, ResultSetMapper resultSetMapper, ResultSet[] resultSets,
