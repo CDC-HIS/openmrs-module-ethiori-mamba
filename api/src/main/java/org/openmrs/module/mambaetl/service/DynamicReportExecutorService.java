@@ -41,6 +41,11 @@ public class DynamicReportExecutorService {
 	
 	public ReportExecutionResult executeReport(String procedureName, Map<String, String> params, int offset, int limit)
 	        throws SQLException {
+		return executeReport(procedureName, params, offset, limit, null);
+	}
+	
+	public ReportExecutionResult executeReport(String procedureName, Map<String, String> params, int offset, int limit,
+	        DataSetEvaluatorHelper.ProgressReporter progressReporter) throws SQLException {
 
 		validateProcedureName(procedureName);
 
@@ -51,11 +56,14 @@ public class DynamicReportExecutorService {
 			connection.setAutoCommit(false);
 
 			List<DataSetEvaluatorHelper.ProcedureCall> procedureCalls = getProcedureCalls(procedureName, params);
+			int queryTimeout = getQueryTimeoutSeconds();
+			int maxRows = getMaxRows();
 
 			try (DataSetEvaluatorHelper.CallableStatementContainer statementContainer = DataSetEvaluatorHelper
 			        .prepareStatements(connection, procedureCalls)) {
 
-				DataSetEvaluatorHelper.executeStatements(statementContainer, procedureCalls);
+				DataSetEvaluatorHelper.executeStatements(statementContainer, procedureCalls, queryTimeout,
+				    progressReporter, maxRows);
 
 				ResultSet[] allResultSets = statementContainer.getResultSets();
 
@@ -495,6 +503,94 @@ public class DynamicReportExecutorService {
 				    s.setDate(2, parseSqlDate(params.get("endDate")));
 			    }));
 		}
+		if ("sp_fact_hmis_all_v2".equalsIgnoreCase(name)) {
+			java.sql.Date vlStartDate = resolveVlStartDate(params);
+			return Arrays.asList(
+					// Materialise the shared follow-up temp table once for the whole session
+					// new ProcedureCall("{call sp_fact_hmis_create_follow_up_tmp()}", statement -> {}),
+
+					// Procedures that don't use the follow-up join — kept at original names
+					new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_hiv_hts_tst_index_query(?,?)}", statement -> {
+						statement.setDate(1, parseSqlDate(params.get("startDate")));
+						statement.setDate(2, parseSqlDate(params.get("endDate")));
+					}),
+					new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_hiv_linkage_query(?,?)}", statement -> {
+						statement.setDate(1, parseSqlDate(params.get("startDate")));
+						statement.setDate(2, parseSqlDate(params.get("endDate")));
+					}),
+					new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_hiv_prep_query(?,?)}", statement -> {
+						statement.setDate(1, parseSqlDate(params.get("startDate")));
+						statement.setDate(2, parseSqlDate(params.get("endDate")));
+					}),
+					new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_hiv_pep_query(?,?)}", statement -> {
+						statement.setDate(1, parseSqlDate(params.get("startDate")));
+						statement.setDate(2, parseSqlDate(params.get("endDate")));
+					}),
+					new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_mtct_query(?,?)}", statement -> {
+						statement.setDate(1, parseSqlDate(params.get("startDate")));
+						statement.setDate(2, parseSqlDate(params.get("endDate")));
+					}),
+
+					// Optimised v2 procedures — read from tmp_hmis_follow_up
+					new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_tx_curr_query_v2(?)}", statement -> {
+						statement.setDate(1, parseSqlDate(params.get("endDate")));
+					}),
+					new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_tx_new_query_v2(?,?)}", statement -> {
+						statement.setDate(1, parseSqlDate(params.get("startDate")));
+						statement.setDate(2, parseSqlDate(params.get("endDate")));
+					}),
+					new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_hiv_art_ret_query_v2(?,?)}", statement -> {
+						statement.setDate(1, parseSqlDate(params.get("startDate")));
+						statement.setDate(2, parseSqlDate(params.get("endDate")));
+					}),
+					new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_hiv_art_ret_net_query_v2(?,?)}", statement -> {
+						statement.setDate(1, parseSqlDate(params.get("startDate")));
+						statement.setDate(2, parseSqlDate(params.get("endDate")));
+					}),
+					new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_hiv_tx_pvls_query_v2(?,?)}", statement -> {
+						statement.setDate(1, vlStartDate);
+						statement.setDate(2, parseSqlDate(params.get("endDate")));
+					}),
+					new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_hiv_dsd_query_v2(?)}", statement -> {
+						statement.setDate(1, parseSqlDate(params.get("endDate")));
+					}),
+					new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_art_intr_query_v2(?,?)}", statement -> {
+						statement.setDate(1, parseSqlDate(params.get("startDate")));
+						statement.setDate(2, parseSqlDate(params.get("endDate")));
+					}),
+					new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_art_restart_query_v2(?,?)}", statement -> {
+						statement.setDate(1, parseSqlDate(params.get("startDate")));
+						statement.setDate(2, parseSqlDate(params.get("endDate")));
+					}),
+					new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_phliv_tsp_query_v2(?,?)}", statement -> {
+						statement.setDate(1, parseSqlDate(params.get("startDate")));
+						statement.setDate(2, parseSqlDate(params.get("endDate")));
+					}),
+					new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_hiv_fp_query_v2(?)}", statement -> {
+						statement.setDate(1, parseSqlDate(params.get("endDate")));
+					}),
+					new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_hiv_tb_scrn_query_v2(?,?)}", statement -> {
+						statement.setDate(1, parseSqlDate(params.get("startDate")));
+						statement.setDate(2, parseSqlDate(params.get("endDate")));
+					}),
+					new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_hiv_tpt_query_v2(?,?)}", statement -> {
+						statement.setDate(1, parseSqlDate(params.get("startDate")));
+						statement.setDate(2, parseSqlDate(params.get("endDate")));
+					}),
+					new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_cxca_scrn_query_v2(?,?)}", statement -> {
+						statement.setDate(1, parseSqlDate(params.get("startDate")));
+						statement.setDate(2, parseSqlDate(params.get("endDate")));
+					}),
+					new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_cxca_rx_query_v2(?,?)}", statement -> {
+						statement.setDate(1, parseSqlDate(params.get("startDate")));
+						statement.setDate(2, parseSqlDate(params.get("endDate")));
+					}),
+					new DataSetEvaluatorHelper.ProcedureCall("{call sp_fact_hmis_tb_lb_lf_lam_query_v2(?,?)}", statement -> {
+						statement.setDate(1, parseSqlDate(params.get("startDate")));
+						statement.setDate(2, parseSqlDate(params.get("endDate")));
+					})
+			);
+		}
 
 		if ("sp_fact_hmis_hiv_hts_tst_index_query".equalsIgnoreCase(name)) {
 			return dateRange("{call sp_fact_hmis_hiv_hts_tst_index_query(?,?)}", params);
@@ -929,6 +1025,38 @@ public class DynamicReportExecutorService {
 			log.warn("Could not read _viralLoad12MSetting global property, using startDate", e);
 		}
 		return parseSqlDate(params.get("startDate"));
+	}
+	
+	private int getQueryTimeoutSeconds() {
+		try {
+			String timeout = Context.getAdministrationService().getGlobalProperty("mambaetl.report.query.timeout.seconds");
+			if (timeout != null && !timeout.trim().isEmpty()) {
+				return Integer.parseInt(timeout.trim());
+			}
+		}
+		catch (Exception e) {
+			log.warn("Could not read mambaetl.report.query.timeout.seconds, using no timeout", e);
+		}
+		return 0;
+	}
+
+	/**
+	 * Limits rows fetched per stored-procedure call to protect JVM heap. Default 100 000 (16 GB).
+	 * Override via global property mambaetl.report.max.rows:
+	 *   20000  — 8 GB desktop
+	 *   0      — unlimited (high-end server or trusted large exports)
+	 */
+	private int getMaxRows() {
+		try {
+			String val = Context.getAdministrationService().getGlobalProperty("mambaetl.report.max.rows");
+			if (val != null && !val.trim().isEmpty()) {
+				return Integer.parseInt(val.trim());
+			}
+		}
+		catch (Exception e) {
+			log.warn("Could not read mambaetl.report.max.rows, using default", e);
+		}
+		return 100_000;
 	}
 	
 	private String[] resolveSideBySideLabels(String procedureName, Map<String, String> params) {
