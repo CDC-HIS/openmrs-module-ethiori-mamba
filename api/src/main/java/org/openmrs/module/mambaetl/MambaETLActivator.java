@@ -10,12 +10,14 @@
 package org.openmrs.module.mambaetl;
 
 import org.openmrs.api.context.Context;
+import org.openmrs.module.BaseModuleActivator;
 import org.openmrs.module.mambacore.api.FlattenDatabaseService;
+import org.openmrs.module.mambaetl.config.AsyncConfig;
 import org.openmrs.module.reporting.report.manager.ReportManager;
 import org.openmrs.module.reporting.report.manager.ReportManagerUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.openmrs.module.BaseModuleActivator;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 /**
  * This class contains the logic that is run every time this module is either started or shutdown

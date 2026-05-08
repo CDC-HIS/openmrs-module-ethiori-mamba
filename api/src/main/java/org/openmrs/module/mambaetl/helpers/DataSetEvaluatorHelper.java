@@ -1,6 +1,7 @@
 package org.openmrs.module.mambaetl.helpers;
 
 import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
 import org.openmrs.module.reporting.dataset.DataSetColumn;
 import org.openmrs.module.reporting.dataset.DataSetRow;
@@ -15,7 +16,9 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class DataSetEvaluatorHelper {
-	
+
+	private static final Log log = LogFactory.getLog(DataSetEvaluatorHelper.class);
+
 	public static DataSource getDataSource() {
 		return CustomConnectionPoolManager.getInstance().getDataSource();
 	}
@@ -44,13 +47,13 @@ public class DataSetEvaluatorHelper {
 	        throws SQLException {
 		executeStatements(statementContainer, procedureCalls, 0, null, 0);
 	}
-
+	
 	public static void executeStatements(CallableStatementContainer statementContainer, List<ProcedureCall> procedureCalls,
 	        int queryTimeoutSeconds, ProgressReporter progressReporter, int maxRows) throws SQLException {
 		CallableStatement[] statements = statementContainer.getStatements();
 		ResultSet[] resultSets = statementContainer.getResultSets();
 		int total = procedureCalls.size();
-
+		
 		for (int i = 0; i < total; i++) {
 			ProcedureCall call = procedureCalls.get(i);
 			CallableStatement statement = statements[i];
@@ -62,7 +65,15 @@ public class DataSetEvaluatorHelper {
 					statement.setMaxRows(maxRows);
 				}
 				call.getParameterSetter().setParameters(statement);
-				resultSets[i] = statement.executeQuery();
+				log.debug("Executing procedure [" + (i + 1) + "/" + total + "]: " + call.getProcedureName());
+				try {
+					resultSets[i] = statement.executeQuery();
+				}
+				catch (SQLException e) {
+					log.error("SQL error executing procedure [" + (i + 1) + "/" + total + "]: "
+					        + call.getProcedureName() + " — " + e.getMessage());
+					throw e;
+				}
 				if (progressReporter != null) {
 					progressReporter.report(i + 1, total);
 				}
