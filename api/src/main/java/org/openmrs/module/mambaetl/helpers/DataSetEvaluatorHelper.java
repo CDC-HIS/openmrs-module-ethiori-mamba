@@ -16,9 +16,9 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class DataSetEvaluatorHelper {
-
+	
 	private static final Log log = LogFactory.getLog(DataSetEvaluatorHelper.class);
-
+	
 	public static DataSource getDataSource() {
 		return CustomConnectionPoolManager.getInstance().getDataSource();
 	}
@@ -70,8 +70,8 @@ public class DataSetEvaluatorHelper {
 					resultSets[i] = statement.executeQuery();
 				}
 				catch (SQLException e) {
-					log.error("SQL error executing procedure [" + (i + 1) + "/" + total + "]: "
-					        + call.getProcedureName() + " — " + e.getMessage());
+					log.error("SQL error executing procedure [" + (i + 1) + "/" + total + "]: " + call.getProcedureName()
+					        + " — " + e.getMessage());
 					throw e;
 				}
 				if (progressReporter != null) {
