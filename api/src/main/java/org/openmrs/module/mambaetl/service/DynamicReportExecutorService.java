@@ -1039,12 +1039,11 @@ public class DynamicReportExecutorService {
 		}
 		return 0;
 	}
-
+	
 	/**
 	 * Limits rows fetched per stored-procedure call to protect JVM heap. Default 100 000 (16 GB).
-	 * Override via global property mambaetl.report.max.rows:
-	 *   20000  — 8 GB desktop
-	 *   0      — unlimited (high-end server or trusted large exports)
+	 * Override via global property mambaetl.report.max.rows: 20000 — 8 GB desktop 0 — unlimited
+	 * (high-end server or trusted large exports)
 	 */
 	private int getMaxRows() {
 		try {

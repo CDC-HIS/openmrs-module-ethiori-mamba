@@ -122,23 +122,7 @@ public class ReportJobService implements ApplicationContextAware {
 		});
 	}
 
-	/**
-	 * How long completed/failed jobs stay in memory. Default 1800 s (30 min) for 16 GB machines.
-	 * Override via global property mambaetl.report.job.ttl.seconds:
-	 *   900   — 8 GB desktop (free memory faster)
-	 *   3600  — 32 GB server (keep results longer for slow clients)
-	 */
 	private long getJobTtlSeconds() {
-		try {
-			String val = org.openmrs.api.context.Context.getAdministrationService()
-			        .getGlobalProperty("mambaetl.report.job.ttl.seconds");
-			if (val != null && !val.trim().isEmpty()) {
-				return Long.parseLong(val.trim());
-			}
-		}
-		catch (Exception e) {
-			log.warn("Could not read mambaetl.report.job.ttl.seconds, using default 1800 s", e);
-		}
 		return 1800L;
 	}
 }
