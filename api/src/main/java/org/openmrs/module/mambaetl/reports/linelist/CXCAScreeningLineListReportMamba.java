@@ -50,7 +50,7 @@ public class CXCAScreeningLineListReportMamba implements ReportManager {
 		cxcaScreeningLineListDatasetDefinition.addParameters(getParameters());
 		
 		reportDefinition.addDataSetDefinition("List of Patients for Cervical Screening",
-		    EthiOhriUtil.map(cxcaScreeningLineListDatasetDefinition, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(cxcaScreeningLineListDatasetDefinition, "startDate=${startDate},endDate=${endDate}"));
 		return reportDefinition;
 	}
 	

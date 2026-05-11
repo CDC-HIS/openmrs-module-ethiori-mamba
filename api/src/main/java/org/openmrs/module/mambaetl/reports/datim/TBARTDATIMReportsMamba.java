@@ -49,7 +49,7 @@ public class TBARTDATIMReportsMamba implements ReportManager {
 		HeaderDataSetDefinitionMamba headerDefinition = new HeaderDataSetDefinitionMamba();
 		headerDefinition.setDescription("DSD: TB_ART");
 		headerDefinition.setParameters(getParameters());
-		reportDefinition.addDataSetDefinition("DSD: TB_ART", EthiOhriUtil.map(headerDefinition, "endDate=${endDateGC}"));
+		reportDefinition.addDataSetDefinition("DSD: TB_ART", EthiOhriUtil.map(headerDefinition, "endDate=${endDate}"));
 		
 		TBArtDataSetDefinitionMamba tbArtTotalDataSetDefinitionMamba = new TBArtDataSetDefinitionMamba();
 		tbArtTotalDataSetDefinitionMamba.addParameters(getParameters());
@@ -59,21 +59,21 @@ public class TBARTDATIMReportsMamba implements ReportManager {
 		reportDefinition
 		        .addDataSetDefinition(
 		            "Number of TB cases with documented HIV-positive status who start or continue ART during the reporting period. Numerator will auto-calculate from Age/Sex/Result Disaggregates",
-		            EthiOhriUtil.map(tbArtTotalDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		            EthiOhriUtil.map(tbArtTotalDataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate}"));
 		
 		TBArtDataSetDefinitionMamba tbArtDataSetDefinitionMamba = new TBArtDataSetDefinitionMamba();
 		tbArtDataSetDefinitionMamba.addParameters(getParameters());
 		tbArtDataSetDefinitionMamba.setTbArtAggregationTypes(TBArtAggregationTypes.ALREADY_ON_ART);
 		tbArtDataSetDefinitionMamba.setDescription("Already on ART");
 		reportDefinition.addDataSetDefinition("Already on ART",
-		    EthiOhriUtil.map(tbArtDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(tbArtDataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate}"));
 		
 		TBArtDataSetDefinitionMamba tbArtNewDataSetDefinitionMamba = new TBArtDataSetDefinitionMamba();
 		tbArtNewDataSetDefinitionMamba.addParameters(getParameters());
 		tbArtNewDataSetDefinitionMamba.setTbArtAggregationTypes(TBArtAggregationTypes.NEW_ON_ART);
 		tbArtNewDataSetDefinitionMamba.setDescription("New on ART");
 		reportDefinition.addDataSetDefinition("New on ART",
-		    EthiOhriUtil.map(tbArtNewDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(tbArtNewDataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate}"));
 		
 		return reportDefinition;
 	}

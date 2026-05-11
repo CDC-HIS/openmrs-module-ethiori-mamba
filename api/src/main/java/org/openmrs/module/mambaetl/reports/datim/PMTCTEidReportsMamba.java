@@ -49,7 +49,7 @@ public class PMTCTEidReportsMamba implements ReportManager {
 		HeaderDataSetDefinitionMamba headerDefinition = new HeaderDataSetDefinitionMamba();
 		headerDefinition.setDescription("DSD: PMTCT_EID");
 		headerDefinition.setParameters(getParameters());
-		reportDefinition.addDataSetDefinition("DSD: PMTCT_EID", EthiOhriUtil.map(headerDefinition, "endDate=${endDateGC}"));
+		reportDefinition.addDataSetDefinition("DSD: PMTCT_EID", EthiOhriUtil.map(headerDefinition, "endDate=${endDate}"));
 		
 		// Numerator: Auto-Calculate
 		PmtctEidDataSetDefinitionMamba numeratorDataSet = new PmtctEidDataSetDefinitionMamba();
@@ -57,7 +57,7 @@ public class PMTCTEidReportsMamba implements ReportManager {
 		numeratorDataSet.setDescription("Auto-Calculate");
 		numeratorDataSet.setReportType("NUMERATOR");
 		reportDefinition.addDataSetDefinition("Numerator",
-		    EthiOhriUtil.map(numeratorDataSet, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(numeratorDataSet, "startDate=${startDate},endDate=${endDate}"));
 		
 		// Disaggregated by infant age at test
 		PmtctEidDataSetDefinitionMamba disaggregatedDataSet = new PmtctEidDataSetDefinitionMamba();
@@ -65,7 +65,7 @@ public class PMTCTEidReportsMamba implements ReportManager {
 		disaggregatedDataSet.setDescription("Disaggregated by infant age at test.");
 		disaggregatedDataSet.setReportType("DISAGGREGATED");
 		reportDefinition.addDataSetDefinition("Disaggregated by infant age at test.",
-		    EthiOhriUtil.map(disaggregatedDataSet, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(disaggregatedDataSet, "startDate=${startDate},endDate=${endDate}"));
 		
 		return reportDefinition;
 	}

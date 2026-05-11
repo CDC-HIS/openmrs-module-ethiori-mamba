@@ -49,7 +49,7 @@ public class PMTCTFoReportsMamba implements ReportManager {
 		HeaderDataSetDefinitionMamba headerDefinition = new HeaderDataSetDefinitionMamba();
 		headerDefinition.setDescription("DSD: PMTCT_FO");
 		headerDefinition.setParameters(getParameters());
-		reportDefinition.addDataSetDefinition("DSD: PMTCT_FO", EthiOhriUtil.map(headerDefinition, "endDate=${endDateGC}"));
+		reportDefinition.addDataSetDefinition("DSD: PMTCT_FO", EthiOhriUtil.map(headerDefinition, "endDate=${endDate}"));
 		
 		// Denominator: Auto-Calculate
 		PmtctFoDataSetDefinitionMamba denominatorDataSet = new PmtctFoDataSetDefinitionMamba();
@@ -57,7 +57,7 @@ public class PMTCTFoReportsMamba implements ReportManager {
 		denominatorDataSet.setDescription("Auto-Calculate");
 		denominatorDataSet.setReportType("DENOMINATOR");
 		reportDefinition.addDataSetDefinition("Denominator",
-		    EthiOhriUtil.map(denominatorDataSet, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(denominatorDataSet, "startDate=${startDate},endDate=${endDate}"));
 		
 		// Numerator: Disaggregated by Outcome Type
 		PmtctFoDataSetDefinitionMamba numeratorDataSet = new PmtctFoDataSetDefinitionMamba();
@@ -65,7 +65,7 @@ public class PMTCTFoReportsMamba implements ReportManager {
 		numeratorDataSet.setDescription("Numerator: Disaggregated by Outcome Type");
 		numeratorDataSet.setReportType("DISAGGREGATED");
 		reportDefinition.addDataSetDefinition("Numerator: Disaggregated by Outcome Type",
-		    EthiOhriUtil.map(numeratorDataSet, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(numeratorDataSet, "startDate=${startDate},endDate=${endDate}"));
 		
 		return reportDefinition;
 	}

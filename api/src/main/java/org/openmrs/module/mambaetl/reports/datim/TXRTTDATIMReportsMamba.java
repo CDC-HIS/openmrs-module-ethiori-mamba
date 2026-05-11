@@ -49,7 +49,7 @@ public class TXRTTDATIMReportsMamba implements ReportManager {
 		HeaderDataSetDefinitionMamba headerDefinition = new HeaderDataSetDefinitionMamba();
 		headerDefinition.setDescription("DSD: TX_RTT");
 		headerDefinition.setParameters(getParameters());
-		reportDefinition.addDataSetDefinition("DSD: TX_RTT", EthiOhriUtil.map(headerDefinition, "endDate=${endDateGC}"));
+		reportDefinition.addDataSetDefinition("DSD: TX_RTT", EthiOhriUtil.map(headerDefinition, "endDate=${endDate}"));
 		
 		TxRTTDataSetDefinitionMamba txRTTTotalDataSetDefinitionMamba = new TxRTTDataSetDefinitionMamba();
 		txRTTTotalDataSetDefinitionMamba.addParameters(getParameters());
@@ -63,48 +63,48 @@ public class TXRTTDATIMReportsMamba implements ReportManager {
 		            "Number of ART patients who experienced an interruption in treatment (IIT) during any previous reporting\n"
 		                    + "period, who successfully restarted ARVs within the reporting period and remained on treatment until the end of\n"
 		                    + "the reporting period. The Numerator will auto-calculate from Age/Sex Disaggregates.",
-		            EthiOhriUtil.map(txRTTTotalDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		            EthiOhriUtil.map(txRTTTotalDataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate}"));
 		
 		HeaderDataSetDefinitionMamba header2Definition = new HeaderDataSetDefinitionMamba();
 		header2Definition.setDescription("Disaggregated by Age/Sex and CD4");
 		header2Definition.setParameters(getParameters());
 		reportDefinition.addDataSetDefinition("Disaggregated by Age/Sex and CD4",
-		    EthiOhriUtil.map(header2Definition, "endDate=${endDateGC}"));
+		    EthiOhriUtil.map(header2Definition, "endDate=${endDate}"));
 		
 		TxRTTDataSetDefinitionMamba txRTTDataSetDefinitionMamba = new TxRTTDataSetDefinitionMamba();
 		txRTTDataSetDefinitionMamba.addParameters(getParameters());
 		txRTTDataSetDefinitionMamba.setTxRTTAggregationTypes(TxRTTAggregationTypes.CD4_LESS_THAN_200);
 		txRTTDataSetDefinitionMamba.setDescription("<200 CD4");
 		reportDefinition.addDataSetDefinition("<200 CD4",
-		    EthiOhriUtil.map(txRTTDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(txRTTDataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate}"));
 		
 		TxRTTDataSetDefinitionMamba txRTTGreaterThan200DataSetDefinitionMamba = new TxRTTDataSetDefinitionMamba();
 		txRTTGreaterThan200DataSetDefinitionMamba.addParameters(getParameters());
 		txRTTGreaterThan200DataSetDefinitionMamba.setTxRTTAggregationTypes(TxRTTAggregationTypes.CD4_GREATER_THAN_200);
 		txRTTGreaterThan200DataSetDefinitionMamba.setDescription("≥200 CD4");
 		reportDefinition.addDataSetDefinition("≥200 CD4",
-		    EthiOhriUtil.map(txRTTGreaterThan200DataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(txRTTGreaterThan200DataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate}"));
 		
 		TxRTTDataSetDefinitionMamba txRTTUnknownDataSetDefinitionMamba = new TxRTTDataSetDefinitionMamba();
 		txRTTUnknownDataSetDefinitionMamba.addParameters(getParameters());
 		txRTTUnknownDataSetDefinitionMamba.setTxRTTAggregationTypes(TxRTTAggregationTypes.CD4_UNKNOWN);
 		txRTTUnknownDataSetDefinitionMamba.setDescription("Unknown CD4");
 		reportDefinition.addDataSetDefinition("Unknown CD4",
-		    EthiOhriUtil.map(txRTTUnknownDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(txRTTUnknownDataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate}"));
 		
 		TxRTTDataSetDefinitionMamba txRTTNotEligibleDataSetDefinitionMamba = new TxRTTDataSetDefinitionMamba();
 		txRTTNotEligibleDataSetDefinitionMamba.addParameters(getParameters());
 		txRTTNotEligibleDataSetDefinitionMamba.setTxRTTAggregationTypes(TxRTTAggregationTypes.CD4_NOT_ELIGIBLE);
 		txRTTNotEligibleDataSetDefinitionMamba.setDescription("Not Eligible for CD4");
 		reportDefinition.addDataSetDefinition("Not Eligible for CD4",
-		    EthiOhriUtil.map(txRTTNotEligibleDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(txRTTNotEligibleDataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate}"));
 		
 		TxRTTDataSetDefinitionMamba txRTTIITDataSetDefinitionMamba = new TxRTTDataSetDefinitionMamba();
 		txRTTIITDataSetDefinitionMamba.addParameters(getParameters());
 		txRTTIITDataSetDefinitionMamba.setTxRTTAggregationTypes(TxRTTAggregationTypes.IIT);
 		txRTTIITDataSetDefinitionMamba.setDescription("Disaggregated by IIT");
 		reportDefinition.addDataSetDefinition("Disaggregated by IIT",
-		    EthiOhriUtil.map(txRTTIITDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(txRTTIITDataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate}"));
 		
 		return reportDefinition;
 	}

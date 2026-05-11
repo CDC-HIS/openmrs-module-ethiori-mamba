@@ -51,7 +51,7 @@ public class TxPvlsNumeratorDATIMReportsMamba implements ReportManager {
 		headerDefinition.setDescription("DSD: TX_PVLS (Numerator)");
 		headerDefinition.setParameters(getParameters());
 		reportDefinition.addDataSetDefinition("DSD: TX_PVLS (Numerator)",
-		    EthiOhriUtil.map(headerDefinition, "endDate=${endDateGC}"));
+		    EthiOhriUtil.map(headerDefinition, "endDate=${endDate}"));
 		
 		TxCurrPvlsDataSetDefinitionMamba txCurrPvlsDataSetDefinitionNumeratorTotalMamba = new TxCurrPvlsDataSetDefinitionMamba();
 		txCurrPvlsDataSetDefinitionNumeratorTotalMamba.addParameters(getParameters());
@@ -59,7 +59,7 @@ public class TxPvlsNumeratorDATIMReportsMamba implements ReportManager {
 		        .setTxCurrPvlsAggregationTypes(TxCurrPvlsAggregationTypes.NUMERATOR_TOTAL);
 		txCurrPvlsDataSetDefinitionNumeratorTotalMamba.setDescription("Numerator");
 		reportDefinition.addDataSetDefinition("Numerator",
-		    EthiOhriUtil.map(txCurrPvlsDataSetDefinitionNumeratorTotalMamba, "endDate=${endDateGC}"));
+		    EthiOhriUtil.map(txCurrPvlsDataSetDefinitionNumeratorTotalMamba, "endDate=${endDate}"));
 		
 		TxCurrPvlsDataSetDefinitionMamba txCurrPvlsDataSetDefinitionNumeratorMamba = new TxCurrPvlsDataSetDefinitionMamba();
 		txCurrPvlsDataSetDefinitionNumeratorMamba.addParameters(getParameters());
@@ -69,7 +69,7 @@ public class TxPvlsNumeratorDATIMReportsMamba implements ReportManager {
 		reportDefinition
 		        .addDataSetDefinition(
 		            "Disaggregated by Age / Sex (Fine Disaggregate). Must complete finer disaggregates unless permitted by program.",
-		            EthiOhriUtil.map(txCurrPvlsDataSetDefinitionNumeratorMamba, "endDate=${endDateGC}"));
+		            EthiOhriUtil.map(txCurrPvlsDataSetDefinitionNumeratorMamba, "endDate=${endDate}"));
 		
 		TxCurrPvlsDataSetDefinitionMamba txCurrPvlsDataSetDefinitionNumeratorBreastFeedingPregnantMamba = new TxCurrPvlsDataSetDefinitionMamba();
 		txCurrPvlsDataSetDefinitionNumeratorBreastFeedingPregnantMamba.addParameters(getParameters());
@@ -78,7 +78,7 @@ public class TxPvlsNumeratorDATIMReportsMamba implements ReportManager {
 		txCurrPvlsDataSetDefinitionNumeratorBreastFeedingPregnantMamba
 		        .setDescription("Disaggregated by Pregnant/Breastfeeding.");
 		reportDefinition.addDataSetDefinition("Disaggregated by Pregnant/Breastfeeding.",
-		    EthiOhriUtil.map(txCurrPvlsDataSetDefinitionNumeratorBreastFeedingPregnantMamba, "endDate=${endDateGC}"));
+		    EthiOhriUtil.map(txCurrPvlsDataSetDefinitionNumeratorBreastFeedingPregnantMamba, "endDate=${endDate}"));
 		return reportDefinition;
 	}
 	

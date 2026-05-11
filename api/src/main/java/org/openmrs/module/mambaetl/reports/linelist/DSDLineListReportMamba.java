@@ -35,13 +35,9 @@ public class DSDLineListReportMamba implements ReportManager {
 	public List<Parameter> getParameters() {
 		Parameter startDate = new Parameter("startDate", "Start Date", Date.class);
 		startDate.setRequired(false);
-		Parameter startDateGC = new Parameter("startDateGC", " ", Date.class);
-		startDateGC.setRequired(false);
 		Parameter endDate = new Parameter("endDate", "End Date", Date.class);
 		endDate.setRequired(false);
-		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
-		endDateGC.setRequired(false);
-		return Arrays.asList(startDate, startDateGC, endDate, endDateGC);
+		return Arrays.asList(startDate, endDate);
 	}
 	
 	@Override
@@ -57,7 +53,7 @@ public class DSDLineListReportMamba implements ReportManager {
 		dataSetDefinitionMamba.addParameters(getParameters());
 		
 		reportDefinition.addDataSetDefinition("DSD Report",
-		    map(dataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    map(dataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate}"));
 		return reportDefinition;
 	}
 	

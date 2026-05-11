@@ -62,7 +62,7 @@ public class PMTCTEIDLineListReport implements ReportManager {
 		EIDLineListDatasetDefinition eidLineListDatasetDefinition = new EIDLineListDatasetDefinition();
 		eidLineListDatasetDefinition.addParameters(getParameters());
 		reportDefinition.addDataSetDefinition("List of EID Clients", EthiOhriUtil.map(eidLineListDatasetDefinition,
-		    "startDate=${startDateGC},endDate=${endDateGC},reportType=${reportType}"));
+		    "startDate=${startDate},endDate=${endDate},reportType=${reportType}"));
 		
 		return reportDefinition;
 	}

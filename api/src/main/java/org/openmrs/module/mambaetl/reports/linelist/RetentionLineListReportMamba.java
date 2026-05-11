@@ -48,7 +48,7 @@ public class RetentionLineListReportMamba implements ReportManager {
 		ARTRetentionDataSetDefinitionMamba retentionDataSetDefinitionMamba = new ARTRetentionDataSetDefinitionMamba();
 		retentionDataSetDefinitionMamba.addParameters(getParameters());
 		reportDefinition.addDataSetDefinition("List of Patients with ART Retention",
-		    EthiOhriUtil.map(retentionDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(retentionDataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate}"));
 		
 		return reportDefinition;
 	}

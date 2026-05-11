@@ -52,7 +52,7 @@ public class TxCurrLineListReportMamba implements ReportManager {
 		txCurrDataSetDefinition.addParameters(getParameters());
 		
 		reportDefinition.addDataSetDefinition("List of Patients Currently on ART",
-		    map(txCurrDataSetDefinition, "endDate=${endDateGC}"));
+		    map(txCurrDataSetDefinition, "endDate=${endDate}"));
 		return reportDefinition;
 	}
 	

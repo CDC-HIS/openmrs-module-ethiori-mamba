@@ -41,18 +41,14 @@ public class TXTBReportMamba implements ReportManager {
 	public List<Parameter> getParameters() {
 		Parameter startDate = new Parameter("startDate", "Start Date", Date.class);
 		startDate.setRequired(false);
-		Parameter startDateGC = new Parameter("startDateGC", " ", Date.class);
-		startDateGC.setRequired(false);
 		Parameter endDate = new Parameter("endDate", "End Date", Date.class);
 		endDate.setRequired(false);
-		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
-		endDateGC.setRequired(false);
 		
 		Parameter types = new Parameter("type", "Report type", String.class);
 		types.addToWidgetConfiguration("codedOptions", numerator + "," + denominator + "," + tb_art);
 		types.setRequired(false);
 		
-		return Arrays.asList(startDate, startDateGC, endDate, endDateGC, types);
+		return Arrays.asList(startDate, endDate, types);
 	}
 	
 	@Override
@@ -68,7 +64,7 @@ public class TXTBReportMamba implements ReportManager {
 		dataSetDefinitionMamba.addParameters(getParameters());
 		
 		reportDefinition.addDataSetDefinition("TX_TB (Denominator/Numerator) & TB_ART",
-		    map(dataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC},type=${type}"));
+		    map(dataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate},type=${type}"));
 		return reportDefinition;
 	}
 	
