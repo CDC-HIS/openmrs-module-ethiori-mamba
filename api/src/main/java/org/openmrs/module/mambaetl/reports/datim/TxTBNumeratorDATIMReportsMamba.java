@@ -52,7 +52,7 @@ public class TxTBNumeratorDATIMReportsMamba implements ReportManager {
 		headerDefinition.setDescription("DSD: TX_TB (Numerator)");
 		headerDefinition.setParameters(getParameters());
 		reportDefinition.addDataSetDefinition("DSD: TX_TB (Numerator)",
-		    EthiOhriUtil.map(headerDefinition, "endDate=${endDateGC}"));
+		    EthiOhriUtil.map(headerDefinition, "endDate=${endDate}"));
 		
 		TxTBNumeratorDataSetDefinitionMamba txTBNewNumeratorTotalDataSetDefinitionMamba = new TxTBNumeratorDataSetDefinitionMamba();
 		txTBNewNumeratorTotalDataSetDefinitionMamba.addParameters(getParameters());
@@ -63,7 +63,7 @@ public class TxTBNumeratorDATIMReportsMamba implements ReportManager {
 		        .addDataSetDefinition(
 		            "Number of ART patients who were started on TB treatment during the reporting period. Numerator will auto-calculate from Already/New on ART by Age/Sex",
 		            EthiOhriUtil.map(txTBNewNumeratorTotalDataSetDefinitionMamba,
-		                "startDate=${startDateGC},endDate=${endDateGC}"));
+		                "startDate=${startDate},endDate=${endDate}"));
 		
 		TxTBNumeratorDataSetDefinitionMamba txTBNewNumeratorDataSetDefinitionMamba = new TxTBNumeratorDataSetDefinitionMamba();
 		txTBNewNumeratorDataSetDefinitionMamba.addParameters(getParameters());
@@ -72,7 +72,7 @@ public class TxTBNumeratorDATIMReportsMamba implements ReportManager {
 		        .setDescription("The number of patients starting TB treatment who newly started ART during reporting period");
 		reportDefinition.addDataSetDefinition(
 		    "The number of patients starting TB treatment who newly started ART during reporting period",
-		    EthiOhriUtil.map(txTBNewNumeratorDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(txTBNewNumeratorDataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate}"));
 		
 		TxTBNumeratorDataSetDefinitionMamba txTBPrevNumeratorDataSetDefinitionMamba = new TxTBNumeratorDataSetDefinitionMamba();
 		txTBPrevNumeratorDataSetDefinitionMamba.addParameters(getParameters());
@@ -82,8 +82,7 @@ public class TxTBNumeratorDATIMReportsMamba implements ReportManager {
 		reportDefinition
 		        .addDataSetDefinition(
 		            "The number of patients starting TB treatment who were already on ART prior to the start of the reporting period",
-		            EthiOhriUtil.map(txTBPrevNumeratorDataSetDefinitionMamba,
-		                "startDate=${startDateGC},endDate=${endDateGC}"));
+		            EthiOhriUtil.map(txTBPrevNumeratorDataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate}"));
 		
 		return reportDefinition;
 	}

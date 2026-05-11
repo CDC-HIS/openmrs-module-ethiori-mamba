@@ -48,7 +48,7 @@ public class PMTCTHEILineListReport implements ReportManager {
 		HEILineListDatasetDefinition heiLineListDatasetDefinition = new HEILineListDatasetDefinition();
 		heiLineListDatasetDefinition.addParameters(getParameters());
 		reportDefinition.addDataSetDefinition("List of HEI Clients",
-		    EthiOhriUtil.map(heiLineListDatasetDefinition, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(heiLineListDatasetDefinition, "startDate=${startDate},endDate=${endDate}"));
 		
 		return reportDefinition;
 	}

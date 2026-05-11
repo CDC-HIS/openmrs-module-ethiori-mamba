@@ -35,19 +35,15 @@ public class ArtCohortAnalysisLineListReportMamba implements ReportManager {
 	public List<Parameter> getParameters() {
 		Parameter startDate = new Parameter("startDate", "Start Date", Date.class);
 		startDate.setRequired(true);
-		Parameter startDateGC = new Parameter("startDateGC", " ", Date.class);
-		startDateGC.setRequired(false);
 		Parameter endDate = new Parameter("endDate", "End Date", Date.class);
 		endDate.setRequired(true);
-		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
-		endDateGC.setRequired(false);
 		
 		Parameter type = new Parameter("type", "Cohort Report Type", String.class);
 		type.setRequired(true);
 		type.addToWidgetConfiguration("codedOptions", "SUMMARY,LineList");
 		type.setDefaultValue("SUMMARY");
 		
-		return Arrays.asList(startDate, startDateGC, endDate, endDateGC, type);
+		return Arrays.asList(startDate, endDate, type);
 		
 	}
 	
@@ -63,10 +59,8 @@ public class ArtCohortAnalysisLineListReportMamba implements ReportManager {
 		ArtCohortAnalysisLineListDataSetDefinitionMamba artCohortAnalysisLineListDataSetDefinitionMamba = new ArtCohortAnalysisLineListDataSetDefinitionMamba();
 		artCohortAnalysisLineListDataSetDefinitionMamba.addParameters(getParameters());
 		
-		reportDefinition.addDataSetDefinition(
-		    "ART Cohort Report",
-		    map(artCohortAnalysisLineListDataSetDefinitionMamba,
-		        "startDate=${startDateGC},endDate=${endDateGC},type=${type}"));
+		reportDefinition.addDataSetDefinition("ART Cohort Report",
+		    map(artCohortAnalysisLineListDataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate},type=${type}"));
 		return reportDefinition;
 	}
 	

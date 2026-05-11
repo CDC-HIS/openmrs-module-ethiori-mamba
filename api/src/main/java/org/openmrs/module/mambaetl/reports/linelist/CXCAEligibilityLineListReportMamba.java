@@ -50,7 +50,7 @@ public class CXCAEligibilityLineListReportMamba implements ReportManager {
 		cxcaEligibilityListDatasetDefinition.addParameters(getParameters());
 		
 		reportDefinition.addDataSetDefinition("List of Patients Eligible For Cervical Cancer Screening",
-		    EthiOhriUtil.map(cxcaEligibilityListDatasetDefinition, "endDate=${endDateGC}"));
+		    EthiOhriUtil.map(cxcaEligibilityListDatasetDefinition, "endDate=${endDate}"));
 		return reportDefinition;
 	}
 	

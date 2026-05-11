@@ -50,7 +50,7 @@ public class TxMLDATIMReportsMamba implements ReportManager {
 		HeaderDataSetDefinitionMamba headerDefinition = new HeaderDataSetDefinitionMamba();
 		headerDefinition.setDescription("DSD: TX_ML");
 		headerDefinition.setParameters(getParameters());
-		reportDefinition.addDataSetDefinition("DSD: TX_ML", EthiOhriUtil.map(headerDefinition, "endDate=${endDateGC}"));
+		reportDefinition.addDataSetDefinition("DSD: TX_ML", EthiOhriUtil.map(headerDefinition, "endDate=${endDate}"));
 		
 		TxMLDataSetDefinitionMamba txMLTotalDataSetDefinitionMamba = new TxMLDataSetDefinitionMamba();
 		txMLTotalDataSetDefinitionMamba.addParameters(getParameters());
@@ -64,20 +64,20 @@ public class TxMLDATIMReportsMamba implements ReportManager {
 		            "Number of ART patients who were on ART at the beginning of the quarterly reporting period or initiated\n"
 		                    + "treatment during the reporting period and then had no clinical contact since their last expected contact. The\n"
 		                    + "numerator auto-calculates from the sum of Age/Sex Outcome",
-		            EthiOhriUtil.map(txMLTotalDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		            EthiOhriUtil.map(txMLTotalDataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate}"));
 		
 		HeaderDataSetDefinitionMamba secondHeader = new HeaderDataSetDefinitionMamba();
 		secondHeader.setDescription("Disaggregated Outcome by Age/Sex");
 		secondHeader.setParameters(getParameters());
 		reportDefinition.addDataSetDefinition("Disaggregated Outcome by Age/Sex",
-		    EthiOhriUtil.map(secondHeader, "endDate=${endDateGC}"));
+		    EthiOhriUtil.map(secondHeader, "endDate=${endDate}"));
 		
 		TxMLDataSetDefinitionMamba txMLDiedDataSetDefinitionMamba = new TxMLDataSetDefinitionMamba();
 		txMLDiedDataSetDefinitionMamba.addParameters(getParameters());
 		txMLDiedDataSetDefinitionMamba.setTxMLAggregationTypes(TxMLAggregationTypes.DIED);
 		txMLDiedDataSetDefinitionMamba.setDescription("Died");
 		reportDefinition.addDataSetDefinition("Died",
-		    EthiOhriUtil.map(txMLDiedDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(txMLDiedDataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate}"));
 		
 		TxMLDataSetDefinitionMamba txMLLessThan3MDataSetDefinitionMamba = new TxMLDataSetDefinitionMamba();
 		txMLLessThan3MDataSetDefinitionMamba.addParameters(getParameters());
@@ -85,35 +85,35 @@ public class TxMLDATIMReportsMamba implements ReportManager {
 		txMLLessThan3MDataSetDefinitionMamba
 		        .setDescription("Interruption in Treatment After being on Treatment for < 3 months");
 		reportDefinition.addDataSetDefinition("Interruption in Treatment After being on Treatment for < 3 months",
-		    EthiOhriUtil.map(txMLLessThan3MDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(txMLLessThan3MDataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate}"));
 		
 		TxMLDataSetDefinitionMamba txML3TO5MDataSetDefinitionMamba = new TxMLDataSetDefinitionMamba();
 		txML3TO5MDataSetDefinitionMamba.addParameters(getParameters());
 		txML3TO5MDataSetDefinitionMamba.setTxMLAggregationTypes(TxMLAggregationTypes.THREE_TO_FIVE_MONTHS);
 		txML3TO5MDataSetDefinitionMamba.setDescription("Interruption in Treatment After being on Treatment for 3-5 months");
 		reportDefinition.addDataSetDefinition("Interruption in Treatment After being on Treatment for 3-5 months",
-		    EthiOhriUtil.map(txML3TO5MDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(txML3TO5MDataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate}"));
 		
 		TxMLDataSetDefinitionMamba txMLM6MDataSetDefinitionMamba = new TxMLDataSetDefinitionMamba();
 		txMLM6MDataSetDefinitionMamba.addParameters(getParameters());
 		txMLM6MDataSetDefinitionMamba.setTxMLAggregationTypes(TxMLAggregationTypes.MORE_THAN_SIX_MONTHS);
 		txMLM6MDataSetDefinitionMamba.setDescription("Interruption in Treatment After being on Treatment for 6+ months");
 		reportDefinition.addDataSetDefinition("Interruption in Treatment After being on Treatment for 6+ months",
-		    EthiOhriUtil.map(txMLM6MDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(txMLM6MDataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate}"));
 		
 		TxMLDataSetDefinitionMamba txMLTODataSetDefinitionMamba = new TxMLDataSetDefinitionMamba();
 		txMLTODataSetDefinitionMamba.addParameters(getParameters());
 		txMLTODataSetDefinitionMamba.setTxMLAggregationTypes(TxMLAggregationTypes.TRANSFERRED_OUT);
 		txMLTODataSetDefinitionMamba.setDescription("Transferred Out");
 		reportDefinition.addDataSetDefinition("Transferred Out",
-		    EthiOhriUtil.map(txMLTODataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(txMLTODataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate}"));
 		
 		TxMLDataSetDefinitionMamba txMLRefusedDataSetDefinitionMamba = new TxMLDataSetDefinitionMamba();
 		txMLRefusedDataSetDefinitionMamba.addParameters(getParameters());
 		txMLRefusedDataSetDefinitionMamba.setTxMLAggregationTypes(TxMLAggregationTypes.REFUSED);
 		txMLRefusedDataSetDefinitionMamba.setDescription("Refused (Stopped) Treatment");
 		reportDefinition.addDataSetDefinition("Refused (Stopped) Treatment",
-		    EthiOhriUtil.map(txMLRefusedDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(txMLRefusedDataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate}"));
 		
 		return reportDefinition;
 	}

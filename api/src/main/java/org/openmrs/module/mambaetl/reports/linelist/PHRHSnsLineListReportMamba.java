@@ -37,18 +37,14 @@ public class PHRHSnsLineListReportMamba implements ReportManager {
 	public List<Parameter> getParameters() {
 		Parameter startDate = new Parameter("startDate", "Start Date", Date.class);
 		startDate.setRequired(false);
-		Parameter startDateGC = new Parameter("startDateGC", " ", Date.class);
-		startDateGC.setRequired(false);
 		
 		Parameter endDate = new Parameter("endDate", "End Date", Date.class);
 		endDate.setRequired(false);
-		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
-		endDateGC.setRequired(false);
 		
 		Parameter phrhCode = new Parameter("phrhCode", "PHRH Code", String.class);
 		phrhCode.setRequired(false);
 		
-		return Arrays.asList(startDate, startDateGC, endDate, endDateGC, phrhCode);
+		return Arrays.asList(startDate, endDate, phrhCode);
 		
 	}
 	
@@ -63,7 +59,7 @@ public class PHRHSnsLineListReportMamba implements ReportManager {
 		PHRHSnsLineListDataSetDefinitionMamba phrhSnsLineListDataSetDefinitionMamba = new PHRHSnsLineListDataSetDefinitionMamba();
 		phrhSnsLineListDataSetDefinitionMamba.addParameters(getParameters());
 		reportDefinition.addDataSetDefinition("PHRH SNS Report", EthiOhriUtil.map(phrhSnsLineListDataSetDefinitionMamba,
-		    "startDate=${startDateGC},endDate=${endDateGC},phrhCode=${phrhCode}"));
+		    "startDate=${startDate},endDate=${endDate},phrhCode=${phrhCode}"));
 		
 		return reportDefinition;
 	}

@@ -50,7 +50,7 @@ public class TBPrevNumeratorDATIMReportsMamba implements ReportManager {
 		headerDefinition.setDescription("DSD: TB_PREV(NUMERATOR)");
 		headerDefinition.setParameters(getParameters());
 		reportDefinition.addDataSetDefinition("DSD: TB_PREV(NUMERATOR)",
-		    EthiOhriUtil.map(headerDefinition, "endDate=${endDateGC}"));
+		    EthiOhriUtil.map(headerDefinition, "endDate=${endDate}"));
 		
 		TBPrevNumeratorDataSetDefinitionMamba tbPrevTotalNumeratorDataSetDefinitionMamba = new TBPrevNumeratorDataSetDefinitionMamba();
 		tbPrevTotalNumeratorDataSetDefinitionMamba.addParameters(getParameters());
@@ -60,15 +60,15 @@ public class TBPrevNumeratorDATIMReportsMamba implements ReportManager {
 		reportDefinition
 		        .addDataSetDefinition(
 		            "Among those who started a course of TPT in the previous reporting period, the number that completed a full course of therapy. (for continuous IPT programs, this includes the patients who have completed the first 6 months of isoniazid preventive therapy (IPT), or any other standard course of TPT such as 3 months of weekly isoniazid and rifapentine, or 3-HP)",
-		            EthiOhriUtil.map(tbPrevTotalNumeratorDataSetDefinitionMamba,
-		                "startDate=${startDateGC},endDate=${endDateGC}"));
+		            EthiOhriUtil
+		                    .map(tbPrevTotalNumeratorDataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate}"));
 		
 		TBPrevNumeratorDataSetDefinitionMamba tbPrevNumeratorDataSetDefinitionMamba = new TBPrevNumeratorDataSetDefinitionMamba();
 		tbPrevNumeratorDataSetDefinitionMamba.addParameters(getParameters());
 		tbPrevNumeratorDataSetDefinitionMamba.setTbPrevAggregationTypes(TBPrevAggregationTypes.PREV_ART); // TBPrevAggregationTypes.PREV_ART is set to avoid NPE (actual logic in evaluator)
 		tbPrevNumeratorDataSetDefinitionMamba.setDescription("Disaggregated By ART Start by Age/Sex");
 		reportDefinition.addDataSetDefinition("Disaggregated By ART Start by Age/Sex",
-		    EthiOhriUtil.map(tbPrevNumeratorDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(tbPrevNumeratorDataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate}"));
 		
 		return reportDefinition;
 	}

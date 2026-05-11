@@ -41,10 +41,7 @@ public class MissedAppointmentLineListReportMamba implements ReportManager {
 		Parameter endDate = new Parameter("endDate", "End Date", Date.class);
 		endDate.setRequired(true);
 		endDate.setDefaultValue(date.getMonth() + "/" + date.getDay() + "/" + date.getYear());
-		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
-		endDateGC.setRequired(false);
-		endDateGC.setDefaultValue(from);
-		return Arrays.asList(endDate, endDateGC);
+		return Arrays.asList(endDate);
 	}
 	
 	@Override
@@ -60,7 +57,7 @@ public class MissedAppointmentLineListReportMamba implements ReportManager {
 		dataSetDefinitionMamba.addParameters(getParameters());
 		
 		reportDefinition.addDataSetDefinition("Missed Appointment line list",
-		    map(dataSetDefinitionMamba, "endDate=${endDateGC}"));
+		    map(dataSetDefinitionMamba, "endDate=${endDate}"));
 		return reportDefinition;
 	}
 	

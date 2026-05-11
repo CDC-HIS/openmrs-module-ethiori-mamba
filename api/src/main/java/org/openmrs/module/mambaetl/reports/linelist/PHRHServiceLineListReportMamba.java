@@ -37,19 +37,15 @@ public class PHRHServiceLineListReportMamba implements ReportManager {
 	public List<Parameter> getParameters() {
 		Parameter startDate = new Parameter("startDate", "Start Date", Date.class);
 		startDate.setRequired(false);
-		Parameter startDateGC = new Parameter("startDateGC", " ", Date.class);
-		startDateGC.setRequired(false);
 		
 		Parameter endDate = new Parameter("endDate", "End Date", Date.class);
 		endDate.setRequired(false);
-		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
-		endDateGC.setRequired(false);
 		
 		Parameter targetGroup = new Parameter("targetGroup", "Target Group", String.class);
 		targetGroup.setRequired(false);
 		targetGroup.addToWidgetConfiguration("codedOptions", "ALL,WECSW,PWID,High Risk AGYW,Other KPP,General Population");
 		targetGroup.setDefaultValue("ALL");
-		return Arrays.asList(startDate, startDateGC, endDate, endDateGC, targetGroup);
+		return Arrays.asList(startDate, endDate, targetGroup);
 		
 	}
 	
@@ -65,7 +61,7 @@ public class PHRHServiceLineListReportMamba implements ReportManager {
 		phrhServiceLineListDataSetDefinitionMamba.addParameters(getParameters());
 		reportDefinition.addDataSetDefinition("PHRH Service Report", EthiOhriUtil.map(
 		    phrhServiceLineListDataSetDefinitionMamba,
-		    "startDate=${startDateGC},endDate=${endDateGC},targetGroup=${targetGroup}"));
+		    "startDate=${startDate},endDate=${endDate},targetGroup=${targetGroup}"));
 		
 		return reportDefinition;
 	}
