@@ -47,19 +47,19 @@ public class DataSetEvaluatorHelper {
 	        throws SQLException {
 		executeStatements(statementContainer, procedureCalls, 0, null, 0, null);
 	}
-
+	
 	public static void executeStatements(CallableStatementContainer statementContainer, List<ProcedureCall> procedureCalls,
 	        int queryTimeoutSeconds, ProgressReporter progressReporter, int maxRows) throws SQLException {
 		executeStatements(statementContainer, procedureCalls, queryTimeoutSeconds, progressReporter, maxRows, null);
 	}
-
+	
 	public static void executeStatements(CallableStatementContainer statementContainer, List<ProcedureCall> procedureCalls,
 	        int queryTimeoutSeconds, ProgressReporter progressReporter, int maxRows, StatementRegistrar statementRegistrar)
 	        throws SQLException {
 		CallableStatement[] statements = statementContainer.getStatements();
 		ResultSet[] resultSets = statementContainer.getResultSets();
 		int total = procedureCalls.size();
-
+		
 		for (int i = 0; i < total; i++) {
 			ProcedureCall call = procedureCalls.get(i);
 			CallableStatement statement = statements[i];
@@ -97,14 +97,17 @@ public class DataSetEvaluatorHelper {
 	
 	@FunctionalInterface
 	public interface ProgressReporter {
-
+		
 		void report(int completedSteps, int totalSteps);
 	}
-
+	
 	@FunctionalInterface
 	public interface StatementRegistrar {
-
-		/** Called with the active statement before executeQuery(); called with null once it completes. */
+		
+		/**
+		 * Called with the active statement before executeQuery(); called with null once it
+		 * completes.
+		 */
 		void register(CallableStatement statement);
 	}
 	
