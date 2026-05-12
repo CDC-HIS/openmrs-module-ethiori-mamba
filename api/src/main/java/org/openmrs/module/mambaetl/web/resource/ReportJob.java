@@ -29,7 +29,7 @@ public class ReportJob {
 	
 	@JsonIgnore
 	private volatile Future<?> future;
-
+	
 	@JsonIgnore
 	private volatile CallableStatement activeStatement;
 	
@@ -118,12 +118,12 @@ public class ReportJob {
 	public void setFuture(Future<?> future) {
 		this.future = future;
 	}
-
+	
 	@JsonIgnore
 	public CallableStatement getActiveStatement() {
 		return activeStatement;
 	}
-
+	
 	public void setActiveStatement(CallableStatement statement) {
 		this.activeStatement = statement;
 	}

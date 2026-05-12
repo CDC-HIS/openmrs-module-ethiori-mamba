@@ -43,12 +43,12 @@ public class DynamicReportExecutorService {
 	        throws SQLException {
 		return executeReport(procedureName, params, offset, limit, null, null);
 	}
-
+	
 	public ReportExecutionResult executeReport(String procedureName, Map<String, String> params, int offset, int limit,
 	        DataSetEvaluatorHelper.ProgressReporter progressReporter) throws SQLException {
 		return executeReport(procedureName, params, offset, limit, progressReporter, null);
 	}
-
+	
 	public ReportExecutionResult executeReport(String procedureName, Map<String, String> params, int offset, int limit,
 	        DataSetEvaluatorHelper.ProgressReporter progressReporter,
 	        DataSetEvaluatorHelper.StatementRegistrar statementRegistrar) throws SQLException {
