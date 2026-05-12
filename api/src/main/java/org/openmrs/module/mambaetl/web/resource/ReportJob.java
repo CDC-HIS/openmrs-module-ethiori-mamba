@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.sql.CallableStatement;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,9 @@ public class ReportJob {
 	
 	@JsonIgnore
 	private volatile Future<?> future;
+
+	@JsonIgnore
+	private volatile CallableStatement activeStatement;
 	
 	private volatile Integer totalSteps;
 	
@@ -113,6 +117,15 @@ public class ReportJob {
 	
 	public void setFuture(Future<?> future) {
 		this.future = future;
+	}
+
+	@JsonIgnore
+	public CallableStatement getActiveStatement() {
+		return activeStatement;
+	}
+
+	public void setActiveStatement(CallableStatement statement) {
+		this.activeStatement = statement;
 	}
 	
 	public Integer getTotalSteps() {

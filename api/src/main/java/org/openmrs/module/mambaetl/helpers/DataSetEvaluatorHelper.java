@@ -45,15 +45,21 @@ public class DataSetEvaluatorHelper {
 	
 	public static void executeStatements(CallableStatementContainer statementContainer, List<ProcedureCall> procedureCalls)
 	        throws SQLException {
-		executeStatements(statementContainer, procedureCalls, 0, null, 0);
+		executeStatements(statementContainer, procedureCalls, 0, null, 0, null);
 	}
-	
+
 	public static void executeStatements(CallableStatementContainer statementContainer, List<ProcedureCall> procedureCalls,
 	        int queryTimeoutSeconds, ProgressReporter progressReporter, int maxRows) throws SQLException {
+		executeStatements(statementContainer, procedureCalls, queryTimeoutSeconds, progressReporter, maxRows, null);
+	}
+
+	public static void executeStatements(CallableStatementContainer statementContainer, List<ProcedureCall> procedureCalls,
+	        int queryTimeoutSeconds, ProgressReporter progressReporter, int maxRows, StatementRegistrar statementRegistrar)
+	        throws SQLException {
 		CallableStatement[] statements = statementContainer.getStatements();
 		ResultSet[] resultSets = statementContainer.getResultSets();
 		int total = procedureCalls.size();
-		
+
 		for (int i = 0; i < total; i++) {
 			ProcedureCall call = procedureCalls.get(i);
 			CallableStatement statement = statements[i];
@@ -66,6 +72,9 @@ public class DataSetEvaluatorHelper {
 				}
 				call.getParameterSetter().setParameters(statement);
 				log.debug("Executing procedure [" + (i + 1) + "/" + total + "]: " + call.getProcedureName());
+				if (statementRegistrar != null) {
+					statementRegistrar.register(statement);
+				}
 				try {
 					resultSets[i] = statement.executeQuery();
 				}
@@ -73,6 +82,11 @@ public class DataSetEvaluatorHelper {
 					log.error("SQL error executing procedure [" + (i + 1) + "/" + total + "]: " + call.getProcedureName()
 					        + " — " + e.getMessage());
 					throw e;
+				}
+				finally {
+					if (statementRegistrar != null) {
+						statementRegistrar.register(null);
+					}
 				}
 				if (progressReporter != null) {
 					progressReporter.report(i + 1, total);
@@ -83,8 +97,15 @@ public class DataSetEvaluatorHelper {
 	
 	@FunctionalInterface
 	public interface ProgressReporter {
-		
+
 		void report(int completedSteps, int totalSteps);
+	}
+
+	@FunctionalInterface
+	public interface StatementRegistrar {
+
+		/** Called with the active statement before executeQuery(); called with null once it completes. */
+		void register(CallableStatement statement);
 	}
 	
 	public static void mapResultSet(SimpleDataSet data, ResultSetMapper resultSetMapper, ResultSet[] resultSets,
