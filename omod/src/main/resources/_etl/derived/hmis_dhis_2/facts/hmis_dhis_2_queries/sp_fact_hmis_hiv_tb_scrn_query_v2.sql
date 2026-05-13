@@ -105,7 +105,7 @@ BEGIN
     UNION ALL SELECT 'HIV_TB_SCRN_P. 2',    '< 15 years, Female',       COALESCE(pos_u15_female,0)  FROM tb_scrn_agg
     UNION ALL SELECT 'HIV_TB_SCRN_P. 3',    '>= 15 years, Male',        COALESCE(pos_o15_male,0)    FROM tb_scrn_agg
     UNION ALL SELECT 'HIV_TB_SCRN_P. 4',    '>= 15 years, Female',      COALESCE(pos_o15_female,0)  FROM tb_scrn_agg
-    UNION ALL SELECT 'HIV_TB_SCRN_ART',     'Number of PLHIVs PREVIOUSLY on ART and screened for TB', Value  FROM prev_agg
+    UNION ALL SELECT 'HIV_TB_SCRN_ART',     'Number of PLHIVs PREVIOUSLY on ART and screened for TB', total  FROM prev_agg
     UNION ALL SELECT 'HIV_TB_SCRN_ART. 1',  '< 15 years, Male',         COALESCE(u15_male,0)        FROM prev_agg
     UNION ALL SELECT 'HIV_TB_SCRN_ART. 2',  '< 15 years, Female',       COALESCE(u15_female,0)      FROM prev_agg
     UNION ALL SELECT 'HIV_TB_SCRN_ART. 3',  '>= 15 years, Male',        COALESCE(o15_male,0)        FROM prev_agg
