@@ -181,121 +181,121 @@ BEGIN
 
     SELECT 'HIV_HTS_TST_INDEX'                                                                                           AS S_NO,
            'Number of individuals who were identified and tested using Index testing services and received their result' as Activity,
-           total                                                                                                          AS Value
+           COALESCE(total, 0)                                                                                             AS Value
     FROM contact_tested_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1',      'Number of index cases offered',  total      FROM offer_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 1',   '< 1 year, Male',                u1_male    FROM offer_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 2',   '< 1 year, Female',              u1_female  FROM offer_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 3',   '1 - 4 years, Male',             u4_male    FROM offer_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 4',   '1 - 4 years, Female',           u4_female  FROM offer_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 5',   '5 - 9 years, Male',             u9_male    FROM offer_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 6',   '5 - 9 years, Female',           u9_female  FROM offer_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 7',   '10 - 14 years, Male',           u14_male   FROM offer_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 8',   '10 - 14 years, Female',         u14_female FROM offer_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 9',   '15 - 19 years, Male',           u19_male   FROM offer_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 10',  '15 - 19 years, Female',         u19_female FROM offer_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 11',  '20 - 24 years, Male',           u24_male   FROM offer_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 12',  '20 - 24 years, Female',         u24_female FROM offer_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 13',  '25 - 29 years, Male',           u29_male   FROM offer_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 14',  '25 - 29 years, Female',         u29_female FROM offer_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 15',  '30 - 34 years, Male',           u34_male   FROM offer_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 16',  '30 - 34 years, Female',         u34_female FROM offer_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 17',  '35 - 39 years, Male',           u39_male   FROM offer_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 18',  '35 - 39 years, Female',         u39_female FROM offer_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 19',  '40 - 44 years, Male',           u44_male   FROM offer_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 20',  '40 - 44 years, Female',         u44_female FROM offer_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 21',  '45 - 49 years, Male',           u49_male   FROM offer_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 22',  '45 - 49 years, Female',         u49_female FROM offer_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 23',  '>= 50 years, Male',             o50_male   FROM offer_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 24',  '>= 50 years, Female',           o50_female FROM offer_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.2',      'Number of contacts elicited',   total      FROM contact_elicited_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.2. 1',   '< 15 years, Male',              u15_male   FROM contact_elicited_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.2. 2',   '< 15 years, Female',            u15_female FROM contact_elicited_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.2. 3',   '>= 15 years, Male',             o15_male   FROM contact_elicited_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.2. 4',   '>= 15 years, Female',           o15_female FROM contact_elicited_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3',      'Number of contacts tested',     total      FROM contact_tested_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 1',   '< 1 year, Male',                u1_male    FROM contact_tested_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 2',   '< 1 year, Female',              u1_female  FROM contact_tested_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 3',   '1 - 4 years, Male',             u4_male    FROM contact_tested_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 4',   '1 - 4 years, Female',           u4_female  FROM contact_tested_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 5',   '5 - 9 years, Male',             u9_male    FROM contact_tested_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 6',   '5 - 9 years, Female',           u9_female  FROM contact_tested_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 7',   '10 - 14 years, Male',           u14_male   FROM contact_tested_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 8',   '10 - 14 years, Female',         u14_female FROM contact_tested_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 9',   '15 - 19 years, Male',           u19_male   FROM contact_tested_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 10',  '15 - 19 years, Female',         u19_female FROM contact_tested_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 11',  '20 - 24 years, Male',           u24_male   FROM contact_tested_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 12',  '20 - 24 years, Female',         u24_female FROM contact_tested_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 13',  '25 - 29 years, Male',           u29_male   FROM contact_tested_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 14',  '25 - 29 years, Female',         u29_female FROM contact_tested_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 15',  '30 - 34 years, Male',           u34_male   FROM contact_tested_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 16',  '30 - 34 years, Female',         u34_female FROM contact_tested_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 17',  '35 - 39 years, Male',           u39_male   FROM contact_tested_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 18',  '35 - 39 years, Female',         u39_female FROM contact_tested_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 19',  '40 - 44 years, Male',           u44_male   FROM contact_tested_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 20',  '40 - 44 years, Female',         u44_female FROM contact_tested_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 21',  '45 - 49 years, Male',           u49_male   FROM contact_tested_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 22',  '45 - 49 years, Female',         u49_female FROM contact_tested_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 23',  '>= 50 years, Male',             o50_male   FROM contact_tested_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 24',  '>= 50 years, Female',           o50_female FROM contact_tested_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1',      'Number of index cases offered',  COALESCE(total, 0)      FROM offer_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 1',   '< 1 year, Male',                COALESCE(u1_male, 0)    FROM offer_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 2',   '< 1 year, Female',              COALESCE(u1_female, 0)  FROM offer_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 3',   '1 - 4 years, Male',             COALESCE(u4_male, 0)    FROM offer_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 4',   '1 - 4 years, Female',           COALESCE(u4_female, 0)  FROM offer_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 5',   '5 - 9 years, Male',             COALESCE(u9_male, 0)    FROM offer_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 6',   '5 - 9 years, Female',           COALESCE(u9_female, 0)  FROM offer_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 7',   '10 - 14 years, Male',           COALESCE(u14_male, 0)   FROM offer_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 8',   '10 - 14 years, Female',         COALESCE(u14_female, 0) FROM offer_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 9',   '15 - 19 years, Male',           COALESCE(u19_male, 0)   FROM offer_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 10',  '15 - 19 years, Female',         COALESCE(u19_female, 0) FROM offer_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 11',  '20 - 24 years, Male',           COALESCE(u24_male, 0)   FROM offer_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 12',  '20 - 24 years, Female',         COALESCE(u24_female, 0) FROM offer_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 13',  '25 - 29 years, Male',           COALESCE(u29_male, 0)   FROM offer_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 14',  '25 - 29 years, Female',         COALESCE(u29_female, 0) FROM offer_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 15',  '30 - 34 years, Male',           COALESCE(u34_male, 0)   FROM offer_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 16',  '30 - 34 years, Female',         COALESCE(u34_female, 0) FROM offer_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 17',  '35 - 39 years, Male',           COALESCE(u39_male, 0)   FROM offer_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 18',  '35 - 39 years, Female',         COALESCE(u39_female, 0) FROM offer_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 19',  '40 - 44 years, Male',           COALESCE(u44_male, 0)   FROM offer_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 20',  '40 - 44 years, Female',         COALESCE(u44_female, 0) FROM offer_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 21',  '45 - 49 years, Male',           COALESCE(u49_male, 0)   FROM offer_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 22',  '45 - 49 years, Female',         COALESCE(u49_female, 0) FROM offer_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 23',  '>= 50 years, Male',             COALESCE(o50_male, 0)   FROM offer_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.1. 24',  '>= 50 years, Female',           COALESCE(o50_female, 0) FROM offer_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.2',      'Number of contacts elicited',   COALESCE(total, 0)      FROM contact_elicited_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.2. 1',   '< 15 years, Male',              COALESCE(u15_male, 0)   FROM contact_elicited_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.2. 2',   '< 15 years, Female',            COALESCE(u15_female, 0) FROM contact_elicited_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.2. 3',   '>= 15 years, Male',             COALESCE(o15_male, 0)   FROM contact_elicited_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.2. 4',   '>= 15 years, Female',           COALESCE(o15_female, 0) FROM contact_elicited_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3',      'Number of contacts tested',     COALESCE(total, 0)      FROM contact_tested_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 1',   '< 1 year, Male',                COALESCE(u1_male, 0)    FROM contact_tested_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 2',   '< 1 year, Female',              COALESCE(u1_female, 0)  FROM contact_tested_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 3',   '1 - 4 years, Male',             COALESCE(u4_male, 0)    FROM contact_tested_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 4',   '1 - 4 years, Female',           COALESCE(u4_female, 0)  FROM contact_tested_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 5',   '5 - 9 years, Male',             COALESCE(u9_male, 0)    FROM contact_tested_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 6',   '5 - 9 years, Female',           COALESCE(u9_female, 0)  FROM contact_tested_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 7',   '10 - 14 years, Male',           COALESCE(u14_male, 0)   FROM contact_tested_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 8',   '10 - 14 years, Female',         COALESCE(u14_female, 0) FROM contact_tested_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 9',   '15 - 19 years, Male',           COALESCE(u19_male, 0)   FROM contact_tested_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 10',  '15 - 19 years, Female',         COALESCE(u19_female, 0) FROM contact_tested_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 11',  '20 - 24 years, Male',           COALESCE(u24_male, 0)   FROM contact_tested_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 12',  '20 - 24 years, Female',         COALESCE(u24_female, 0) FROM contact_tested_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 13',  '25 - 29 years, Male',           COALESCE(u29_male, 0)   FROM contact_tested_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 14',  '25 - 29 years, Female',         COALESCE(u29_female, 0) FROM contact_tested_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 15',  '30 - 34 years, Male',           COALESCE(u34_male, 0)   FROM contact_tested_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 16',  '30 - 34 years, Female',         COALESCE(u34_female, 0) FROM contact_tested_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 17',  '35 - 39 years, Male',           COALESCE(u39_male, 0)   FROM contact_tested_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 18',  '35 - 39 years, Female',         COALESCE(u39_female, 0) FROM contact_tested_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 19',  '40 - 44 years, Male',           COALESCE(u44_male, 0)   FROM contact_tested_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 20',  '40 - 44 years, Female',         COALESCE(u44_female, 0) FROM contact_tested_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 21',  '45 - 49 years, Male',           COALESCE(u49_male, 0)   FROM contact_tested_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 22',  '45 - 49 years, Female',         COALESCE(u49_female, 0) FROM contact_tested_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 23',  '>= 50 years, Male',             COALESCE(o50_male, 0)   FROM contact_tested_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX.3. 24',  '>= 50 years, Female',           COALESCE(o50_female, 0) FROM contact_tested_agg
     UNION ALL
     SELECT 'HIV_HTS_TST_INDEX_4'                          AS S_NO,
            'Number of contacts by test result (Positive)' as Activity,
-           COUNT(*)                                       AS Value
+           COALESCE(COUNT(*), 0)                                       AS Value
     FROM contact_list
     where (hiv_test_result = 'Positive'
         and coalesce(hiv_test_date, date_of_case_closure, elicited_date) BETWEEN REPORT_START_DATE AND REPORT_END_DATE)
        OR (prior_hiv_test_result = 'Positive' and elicited_date between REPORT_START_DATE AND REPORT_END_DATE and hiv_test_result is null)
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1',      'New positive',      total      FROM new_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 1',   '< 1 year, Male',   u1_male    FROM new_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 2',   '< 1 year, Female', u1_female  FROM new_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 3',   '1 - 4 years, Male',     u4_male    FROM new_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 4',   '1 - 4 years, Female',   u4_female  FROM new_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 5',   '5 - 9 years, Male',     u9_male    FROM new_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 6',   '5 - 9 years, Female',   u9_female  FROM new_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 7',   '10 - 14 years, Male',   u14_male   FROM new_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 8',   '10 - 14 years, Female', u14_female FROM new_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 9',   '15 - 19 years, Male',   u19_male   FROM new_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 10',  '15 - 19 years, Female', u19_female FROM new_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 11',  '20 - 24 years, Male',   u24_male   FROM new_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 12',  '20 - 24 years, Female', u24_female FROM new_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 13',  '25 - 29 years, Male',   u29_male   FROM new_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 14',  '25 - 29 years, Female', u29_female FROM new_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 15',  '30 - 34 years, Male',   u34_male   FROM new_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 16',  '30 - 34 years, Female', u34_female FROM new_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 17',  '35 - 39 years, Male',   u39_male   FROM new_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 18',  '35 - 39 years, Female', u39_female FROM new_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 19',  '40 - 44 years, Male',   u44_male   FROM new_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 20',  '40 - 44 years, Female', u44_female FROM new_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 21',  '45 - 49 years, Male',   u49_male   FROM new_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 22',  '45 - 49 years, Female', u49_female FROM new_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 23',  '>= 50 years, Male',     o50_male   FROM new_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 24',  '>= 50 years, Female',   o50_female FROM new_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2',      'Known positive',    total      FROM known_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 1',   '< 1 year, Male',   u1_male    FROM known_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 2',   '< 1 year, Female', u1_female  FROM known_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 3',   '1 - 4 years, Male',     u4_male    FROM known_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 4',   '1 - 4 years, Female',   u4_female  FROM known_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 5',   '5 - 9 years, Male',     u9_male    FROM known_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 6',   '5 - 9 years, Female',   u9_female  FROM known_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 7',   '10 - 14 years, Male',   u14_male   FROM known_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 8',   '10 - 14 years, Female', u14_female FROM known_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 9',   '15 - 19 years, Male',   u19_male   FROM known_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 10',  '15 - 19 years, Female', u19_female FROM known_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 11',  '20 - 24 years, Male',   u24_male   FROM known_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 12',  '20 - 24 years, Female', u24_female FROM known_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 13',  '25 - 29 years, Male',   u29_male   FROM known_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 14',  '25 - 29 years, Female', u29_female FROM known_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 15',  '30 - 34 years, Male',   u34_male   FROM known_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 16',  '30 - 34 years, Female', u34_female FROM known_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 17',  '35 - 39 years, Male',   u39_male   FROM known_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 18',  '35 - 39 years, Female', u39_female FROM known_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 19',  '40 - 44 years, Male',   u44_male   FROM known_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 20',  '40 - 44 years, Female', u44_female FROM known_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 21',  '45 - 49 years, Male',   u49_male   FROM known_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 22',  '45 - 49 years, Female', u49_female FROM known_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 23',  '>= 50 years, Male',     o50_male   FROM known_positive_agg
-    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 24',  '>= 50 years, Female',   o50_female FROM known_positive_agg;
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1',      'New positive',      COALESCE(total, 0)      FROM new_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 1',   '< 1 year, Male',   COALESCE(u1_male, 0)    FROM new_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 2',   '< 1 year, Female', COALESCE(u1_female, 0)  FROM new_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 3',   '1 - 4 years, Male',     COALESCE(u4_male, 0)    FROM new_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 4',   '1 - 4 years, Female',   COALESCE(u4_female, 0)  FROM new_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 5',   '5 - 9 years, Male',     COALESCE(u9_male, 0)    FROM new_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 6',   '5 - 9 years, Female',   COALESCE(u9_female, 0)  FROM new_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 7',   '10 - 14 years, Male',   COALESCE(u14_male, 0)   FROM new_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 8',   '10 - 14 years, Female', COALESCE(u14_female, 0) FROM new_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 9',   '15 - 19 years, Male',   COALESCE(u19_male, 0)   FROM new_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 10',  '15 - 19 years, Female', COALESCE(u19_female, 0) FROM new_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 11',  '20 - 24 years, Male',   COALESCE(u24_male, 0)   FROM new_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 12',  '20 - 24 years, Female', COALESCE(u24_female, 0) FROM new_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 13',  '25 - 29 years, Male',   COALESCE(u29_male, 0)   FROM new_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 14',  '25 - 29 years, Female', COALESCE(u29_female, 0) FROM new_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 15',  '30 - 34 years, Male',   COALESCE(u34_male, 0)   FROM new_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 16',  '30 - 34 years, Female', COALESCE(u34_female, 0) FROM new_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 17',  '35 - 39 years, Male',   COALESCE(u39_male, 0)   FROM new_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 18',  '35 - 39 years, Female', COALESCE(u39_female, 0) FROM new_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 19',  '40 - 44 years, Male',   COALESCE(u44_male, 0)   FROM new_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 20',  '40 - 44 years, Female', COALESCE(u44_female, 0) FROM new_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 21',  '45 - 49 years, Male',   COALESCE(u49_male, 0)   FROM new_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 22',  '45 - 49 years, Female', COALESCE(u49_female, 0) FROM new_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 23',  '>= 50 years, Male',     COALESCE(o50_male, 0)   FROM new_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.1. 24',  '>= 50 years, Female',   COALESCE(o50_female, 0) FROM new_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2',      'Known positive',    COALESCE(total, 0)      FROM known_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 1',   '< 1 year, Male',   COALESCE(u1_male, 0)    FROM known_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 2',   '< 1 year, Female', COALESCE(u1_female, 0)  FROM known_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 3',   '1 - 4 years, Male',     COALESCE(u4_male, 0)    FROM known_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 4',   '1 - 4 years, Female',   COALESCE(u4_female, 0)  FROM known_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 5',   '5 - 9 years, Male',     COALESCE(u9_male, 0)    FROM known_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 6',   '5 - 9 years, Female',   COALESCE(u9_female, 0)  FROM known_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 7',   '10 - 14 years, Male',   COALESCE(u14_male, 0)   FROM known_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 8',   '10 - 14 years, Female', COALESCE(u14_female, 0) FROM known_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 9',   '15 - 19 years, Male',   COALESCE(u19_male, 0)   FROM known_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 10',  '15 - 19 years, Female', COALESCE(u19_female, 0) FROM known_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 11',  '20 - 24 years, Male',   COALESCE(u24_male, 0)   FROM known_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 12',  '20 - 24 years, Female', COALESCE(u24_female, 0) FROM known_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 13',  '25 - 29 years, Male',   COALESCE(u29_male, 0)   FROM known_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 14',  '25 - 29 years, Female', COALESCE(u29_female, 0) FROM known_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 15',  '30 - 34 years, Male',   COALESCE(u34_male, 0)   FROM known_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 16',  '30 - 34 years, Female', COALESCE(u34_female, 0) FROM known_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 17',  '35 - 39 years, Male',   COALESCE(u39_male, 0)   FROM known_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 18',  '35 - 39 years, Female', COALESCE(u39_female, 0) FROM known_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 19',  '40 - 44 years, Male',   COALESCE(u44_male, 0)   FROM known_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 20',  '40 - 44 years, Female', COALESCE(u44_female, 0) FROM known_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 21',  '45 - 49 years, Male',   COALESCE(u49_male, 0)   FROM known_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 22',  '45 - 49 years, Female', COALESCE(u49_female, 0) FROM known_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 23',  '>= 50 years, Male',     COALESCE(o50_male, 0)   FROM known_positive_agg
+    UNION ALL SELECT 'HIV_HTS_TST_INDEX_4.2. 24',  '>= 50 years, Female',   COALESCE(o50_female, 0) FROM known_positive_agg;
 END //
 
 DELIMITER ;
