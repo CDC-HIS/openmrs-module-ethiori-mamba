@@ -171,106 +171,106 @@ WITH FollowUp AS (SELECT encounter_id,
 
 SELECT 'HIV_TX_PVLS' AS S_NO,
        'Viral load Suppression (Percentage of ART clients with a suppressed viral load among those with a viral load test at 12 month in the reporting period)' AS Activity,
-       CASE WHEN total = 0 THEN '0%'
-            ELSE CONCAT(CAST(ROUND((CAST(suppressed_or_lv AS REAL) * 100.0) / total, 2) AS CHAR), '%')
+       CASE WHEN COALESCE(total, 0) = 0 THEN '0%'
+            ELSE CONCAT(CAST(ROUND((CAST(COALESCE(suppressed_or_lv, 0) AS REAL) * 100.0) / COALESCE(total, 0), 2) AS CHAR), '%')
             END AS Value
 FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS.1',      'Number of adult and pediatric ART patients for whom viral load test result received in the reporting period (with in the past 12 months)', total          FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS.1. 1',  '< 1 year, Male',                       t_u1_male        FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS.1. 3',  '< 1 year, Female - non-pregnant',       t_u1_female_np   FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS.1. 4',  '1 - 4 years, Male',                     t_u4_male        FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS.1. 6',  '1 - 4 years, Female - non-pregnant',    t_u4_female_np   FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS.1. 7',  '5 - 9 years, Male',                     t_u9_male        FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS.1. 9',  '5 - 9 years, Female - non-pregnant',    t_u9_female_np   FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS.1. 10', '10 - 14 years, Male',                   t_u14_male       FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS.1. 12', '10 - 14 years, Female - non-pregnant',  t_u14_female_np  FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS.1. 13', '15 - 19 years, Male',                   t_u19_male       FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS.1. 14', '15 - 19 years, Female - pregnant',      t_u19_female_p   FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS.1. 15', '15 - 19 years, Female - non-pregnant',  t_u19_female_np  FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS.1. 16', '20 - 24 years, Male',                   t_u24_male       FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS.1. 17', '20 - 24 years, Female - pregnant',      t_u24_female_p   FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS.1. 18', '20 - 24 years, Female - non-pregnant',  t_u24_female_np  FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS.1. 19', '25 - 29 years, Male',                   t_u29_male       FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS.1. 20', '25 - 29 years, Female - pregnant',      t_u29_female_p   FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS.1. 21', '25 - 29 years, Female - non-pregnant',  t_u29_female_np  FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS.1. 22', '30 - 34 years, Male',                   t_u34_male       FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS.1. 23', '30 - 34 years, Female - pregnant',      t_u34_female_p   FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS.1. 24', '30 - 34 years, Female - non-pregnant',  t_u34_female_np  FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS.1. 25', '35 - 39 years, Male',                   t_u39_male       FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS.1. 26', '35 - 39 years, Female - pregnant',      t_u39_female_p   FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS.1. 27', '35 - 39 years, Female - non-pregnant',  t_u39_female_np  FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS.1. 28', '40 - 44 years, Male',                   t_u44_male       FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS.1. 29', '40 - 44 years, Female - pregnant',      t_u44_female_p   FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS.1. 30', '40 - 44 years, Female - non-pregnant',  t_u44_female_np  FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS.1. 31', '45 - 49 years, Male',                   t_u49_male       FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS.1. 32', '45 - 49 years, Female - pregnant',      t_u49_female_p   FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS.1. 33', '45 - 49 years, Female - non-pregnant',  t_u49_female_np  FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS.1. 34', '>= 50 years, Male',                     t_o50_male       FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS.1. 36', '>= 50 years, Female - non-pregnant',    t_o50_female_np  FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_UN',    'Total number of adult and paediatric ART patients with an undetectable viral load(<50 copies/ml) in the reporting period  (with in the past 12 months)', un_total FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_UN. 1',  '< 1 year, Male',                       un_u1_male       FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_UN. 3',  '< 1 year, Female - non-pregnant',       un_u1_female_np  FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_UN. 4',  '1 - 4 years, Male',                     un_u4_male       FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_UN. 6',  '1 - 4 years, Female - non-pregnant',    un_u4_female_np  FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_UN. 7',  '5 - 9 years, Male',                     un_u9_male       FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_UN. 9',  '5 - 9 years, Female - non-pregnant',    un_u9_female_np  FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_UN. 10', '10 - 14 years, Male',                   un_u14_male      FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_UN. 12', '10 - 14 years, Female - non-pregnant',  un_u14_female_np FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_UN. 13', '15 - 19 years, Male',                   un_u19_male      FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_UN. 14', '15 - 19 years, Female - pregnant',      un_u19_female_p  FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_UN. 15', '15 - 19 years, Female - non-pregnant',  un_u19_female_np FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_UN. 16', '20 - 24 years, Male',                   un_u24_male      FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_UN. 17', '20 - 24 years, Female - pregnant',      un_u24_female_p  FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_UN. 18', '20 - 24 years, Female - non-pregnant',  un_u24_female_np FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_UN. 19', '25 - 29 years, Male',                   un_u29_male      FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_UN. 20', '25 - 29 years, Female - pregnant',      un_u29_female_p  FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_UN. 21', '25 - 29 years, Female - non-pregnant',  un_u29_female_np FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_UN. 22', '30 - 34 years, Male',                   un_u34_male      FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_UN. 23', '30 - 34 years, Female - pregnant',      un_u34_female_p  FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_UN. 24', '30 - 34 years, Female - non-pregnant',  un_u34_female_np FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_UN. 25', '35 - 39 years, Male',                   un_u39_male      FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_UN. 26', '35 - 39 years, Female - pregnant',      un_u39_female_p  FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_UN. 27', '35 - 39 years, Female - non-pregnant',  un_u39_female_np FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_UN. 28', '40 - 44 years, Male',                   un_u44_male      FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_UN. 29', '40 - 44 years, Female - pregnant',      un_u44_female_p  FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_UN. 30', '40 - 44 years, Female - non-pregnant',  un_u44_female_np FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_UN. 31', '45 - 49 years, Male',                   un_u49_male      FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_UN. 32', '45 - 49 years, Female - pregnant',      un_u49_female_p  FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_UN. 33', '45 - 49 years, Female - non-pregnant',  un_u49_female_np FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_UN. 34', '>= 50 years, Male',                     un_o50_male      FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_UN. 36', '>= 50 years, Female - non-pregnant',    un_o50_female_np FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_LV',    'Total number of adult and paediatric ART patients with low level viremia (50 -1000 copies/ml) in the reporting period  (with in the past 12 months)', lv_total FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_LV. 1',  '< 1 year, Male',                       lv_u1_male       FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_LV. 3',  '< 1 year, Female - non-pregnant',       lv_u1_female_np  FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_LV. 4',  '1 - 4 years, Male',                     lv_u4_male       FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_LV. 6',  '1 - 4 years, Female - non-pregnant',    lv_u4_female_np  FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_LV. 7',  '5 - 9 years, Male',                     lv_u9_male       FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_LV. 9',  '5 - 9 years, Female - non-pregnant',    lv_u9_female_np  FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_LV. 10', '10 - 14 years, Male',                   lv_u14_male      FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_LV. 12', '10 - 14 years, Female - non-pregnant',  lv_u14_female_np FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_LV. 13', '15 - 19 years, Male',                   lv_u19_male      FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_LV. 14', '15 - 19 years, Female - pregnant',      lv_u19_female_p  FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_LV. 15', '15 - 19 years, Female - non-pregnant',  lv_u19_female_np FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_LV. 16', '20 - 24 years, Male',                   lv_u24_male      FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_LV. 17', '20 - 24 years, Female - pregnant',      lv_u24_female_p  FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_LV. 18', '20 - 24 years, Female - non-pregnant',  lv_u24_female_np FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_LV. 19', '25 - 29 years, Male',                   lv_u29_male      FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_LV. 20', '25 - 29 years, Female - pregnant',      lv_u29_female_p  FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_LV. 21', '25 - 29 years, Female - non-pregnant',  lv_u29_female_np FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_LV. 22', '30 - 34 years, Male',                   lv_u34_male      FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_LV. 23', '30 - 34 years, Female - pregnant',      lv_u34_female_p  FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_LV. 24', '30 - 34 years, Female - non-pregnant',  lv_u34_female_np FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_LV. 25', '35 - 39 years, Male',                   lv_u39_male      FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_LV. 26', '35 - 39 years, Female - pregnant',      lv_u39_female_p  FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_LV. 27', '35 - 39 years, Female - non-pregnant',  lv_u39_female_np FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_LV. 28', '40 - 44 years, Male',                   lv_u44_male      FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_LV. 29', '40 - 44 years, Female - pregnant',      lv_u44_female_p  FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_LV. 30', '40 - 44 years, Female - non-pregnant',  lv_u44_female_np FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_LV. 31', '45 - 49 years, Male',                   lv_u49_male      FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_LV. 32', '45 - 49 years, Female - pregnant',      lv_u49_female_p  FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_LV. 33', '45 - 49 years, Female - non-pregnant',  lv_u49_female_np FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_LV. 34', '>= 50 years, Male',                     lv_o50_male      FROM pvls_agg
-UNION ALL SELECT 'HIV_TX_PVLS_LV. 36', '>= 50 years, Female - non-pregnant',    lv_o50_female_np FROM pvls_agg;
+UNION ALL SELECT 'HIV_TX_PVLS.1',      'Number of adult and pediatric ART patients for whom viral load test result received in the reporting period (with in the past 12 months)', COALESCE(total, 0)          FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS.1. 1',  '< 1 year, Male',                       COALESCE(t_u1_male, 0)        FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS.1. 3',  '< 1 year, Female - non-pregnant',       COALESCE(t_u1_female_np, 0)   FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS.1. 4',  '1 - 4 years, Male',                     COALESCE(t_u4_male, 0)        FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS.1. 6',  '1 - 4 years, Female - non-pregnant',    COALESCE(t_u4_female_np, 0)   FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS.1. 7',  '5 - 9 years, Male',                     COALESCE(t_u9_male, 0)        FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS.1. 9',  '5 - 9 years, Female - non-pregnant',    COALESCE(t_u9_female_np, 0)   FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS.1. 10', '10 - 14 years, Male',                   COALESCE(t_u14_male, 0)       FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS.1. 12', '10 - 14 years, Female - non-pregnant',  COALESCE(t_u14_female_np, 0)  FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS.1. 13', '15 - 19 years, Male',                   COALESCE(t_u19_male, 0)       FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS.1. 14', '15 - 19 years, Female - pregnant',      COALESCE(t_u19_female_p, 0)   FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS.1. 15', '15 - 19 years, Female - non-pregnant',  COALESCE(t_u19_female_np, 0)  FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS.1. 16', '20 - 24 years, Male',                   COALESCE(t_u24_male, 0)       FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS.1. 17', '20 - 24 years, Female - pregnant',      COALESCE(t_u24_female_p, 0)   FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS.1. 18', '20 - 24 years, Female - non-pregnant',  COALESCE(t_u24_female_np, 0)  FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS.1. 19', '25 - 29 years, Male',                   COALESCE(t_u29_male, 0)       FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS.1. 20', '25 - 29 years, Female - pregnant',      COALESCE(t_u29_female_p, 0)   FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS.1. 21', '25 - 29 years, Female - non-pregnant',  COALESCE(t_u29_female_np, 0)  FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS.1. 22', '30 - 34 years, Male',                   COALESCE(t_u34_male, 0)       FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS.1. 23', '30 - 34 years, Female - pregnant',      COALESCE(t_u34_female_p, 0)   FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS.1. 24', '30 - 34 years, Female - non-pregnant',  COALESCE(t_u34_female_np, 0)  FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS.1. 25', '35 - 39 years, Male',                   COALESCE(t_u39_male, 0)       FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS.1. 26', '35 - 39 years, Female - pregnant',      COALESCE(t_u39_female_p, 0)   FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS.1. 27', '35 - 39 years, Female - non-pregnant',  COALESCE(t_u39_female_np, 0)  FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS.1. 28', '40 - 44 years, Male',                   COALESCE(t_u44_male, 0)       FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS.1. 29', '40 - 44 years, Female - pregnant',      COALESCE(t_u44_female_p, 0)   FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS.1. 30', '40 - 44 years, Female - non-pregnant',  COALESCE(t_u44_female_np, 0)  FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS.1. 31', '45 - 49 years, Male',                   COALESCE(t_u49_male, 0)       FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS.1. 32', '45 - 49 years, Female - pregnant',      COALESCE(t_u49_female_p, 0)   FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS.1. 33', '45 - 49 years, Female - non-pregnant',  COALESCE(t_u49_female_np, 0)  FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS.1. 34', '>= 50 years, Male',                     COALESCE(t_o50_male, 0)       FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS.1. 36', '>= 50 years, Female - non-pregnant',    COALESCE(t_o50_female_np, 0)  FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_UN',    'Total number of adult and paediatric ART patients with an undetectable viral load(<50 copies/ml) in the reporting period  (with in the past 12 months)', COALESCE(un_total, 0) FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_UN. 1',  '< 1 year, Male',                       COALESCE(un_u1_male, 0)       FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_UN. 3',  '< 1 year, Female - non-pregnant',       COALESCE(un_u1_female_np, 0)  FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_UN. 4',  '1 - 4 years, Male',                     COALESCE(un_u4_male, 0)       FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_UN. 6',  '1 - 4 years, Female - non-pregnant',    COALESCE(un_u4_female_np, 0)  FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_UN. 7',  '5 - 9 years, Male',                     COALESCE(un_u9_male, 0)       FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_UN. 9',  '5 - 9 years, Female - non-pregnant',    COALESCE(un_u9_female_np, 0)  FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_UN. 10', '10 - 14 years, Male',                   COALESCE(un_u14_male, 0)      FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_UN. 12', '10 - 14 years, Female - non-pregnant',  COALESCE(un_u14_female_np, 0) FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_UN. 13', '15 - 19 years, Male',                   COALESCE(un_u19_male, 0)      FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_UN. 14', '15 - 19 years, Female - pregnant',      COALESCE(un_u19_female_p, 0)  FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_UN. 15', '15 - 19 years, Female - non-pregnant',  COALESCE(un_u19_female_np, 0) FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_UN. 16', '20 - 24 years, Male',                   COALESCE(un_u24_male, 0)      FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_UN. 17', '20 - 24 years, Female - pregnant',      COALESCE(un_u24_female_p, 0)  FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_UN. 18', '20 - 24 years, Female - non-pregnant',  COALESCE(un_u24_female_np, 0) FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_UN. 19', '25 - 29 years, Male',                   COALESCE(un_u29_male, 0)      FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_UN. 20', '25 - 29 years, Female - pregnant',      COALESCE(un_u29_female_p, 0)  FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_UN. 21', '25 - 29 years, Female - non-pregnant',  COALESCE(un_u29_female_np, 0) FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_UN. 22', '30 - 34 years, Male',                   COALESCE(un_u34_male, 0)      FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_UN. 23', '30 - 34 years, Female - pregnant',      COALESCE(un_u34_female_p, 0)  FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_UN. 24', '30 - 34 years, Female - non-pregnant',  COALESCE(un_u34_female_np, 0) FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_UN. 25', '35 - 39 years, Male',                   COALESCE(un_u39_male, 0)      FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_UN. 26', '35 - 39 years, Female - pregnant',      COALESCE(un_u39_female_p, 0)  FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_UN. 27', '35 - 39 years, Female - non-pregnant',  COALESCE(un_u39_female_np, 0) FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_UN. 28', '40 - 44 years, Male',                   COALESCE(un_u44_male, 0)      FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_UN. 29', '40 - 44 years, Female - pregnant',      COALESCE(un_u44_female_p, 0)  FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_UN. 30', '40 - 44 years, Female - non-pregnant',  COALESCE(un_u44_female_np, 0) FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_UN. 31', '45 - 49 years, Male',                   COALESCE(un_u49_male, 0)      FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_UN. 32', '45 - 49 years, Female - pregnant',      COALESCE(un_u49_female_p, 0)  FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_UN. 33', '45 - 49 years, Female - non-pregnant',  COALESCE(un_u49_female_np, 0) FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_UN. 34', '>= 50 years, Male',                     COALESCE(un_o50_male, 0)      FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_UN. 36', '>= 50 years, Female - non-pregnant',    COALESCE(un_o50_female_np, 0) FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_LV',    'Total number of adult and paediatric ART patients with low level viremia (50 -1000 copies/ml) in the reporting period  (with in the past 12 months)', COALESCE(lv_total, 0) FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_LV. 1',  '< 1 year, Male',                       COALESCE(lv_u1_male, 0)       FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_LV. 3',  '< 1 year, Female - non-pregnant',       COALESCE(lv_u1_female_np, 0)  FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_LV. 4',  '1 - 4 years, Male',                     COALESCE(lv_u4_male, 0)       FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_LV. 6',  '1 - 4 years, Female - non-pregnant',    COALESCE(lv_u4_female_np, 0)  FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_LV. 7',  '5 - 9 years, Male',                     COALESCE(lv_u9_male, 0)       FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_LV. 9',  '5 - 9 years, Female - non-pregnant',    COALESCE(lv_u9_female_np, 0)  FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_LV. 10', '10 - 14 years, Male',                   COALESCE(lv_u14_male, 0)      FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_LV. 12', '10 - 14 years, Female - non-pregnant',  COALESCE(lv_u14_female_np, 0) FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_LV. 13', '15 - 19 years, Male',                   COALESCE(lv_u19_male, 0)      FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_LV. 14', '15 - 19 years, Female - pregnant',      COALESCE(lv_u19_female_p, 0)  FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_LV. 15', '15 - 19 years, Female - non-pregnant',  COALESCE(lv_u19_female_np, 0) FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_LV. 16', '20 - 24 years, Male',                   COALESCE(lv_u24_male, 0)      FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_LV. 17', '20 - 24 years, Female - pregnant',      COALESCE(lv_u24_female_p, 0)  FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_LV. 18', '20 - 24 years, Female - non-pregnant',  COALESCE(lv_u24_female_np, 0) FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_LV. 19', '25 - 29 years, Male',                   COALESCE(lv_u29_male, 0)      FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_LV. 20', '25 - 29 years, Female - pregnant',      COALESCE(lv_u29_female_p, 0)  FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_LV. 21', '25 - 29 years, Female - non-pregnant',  COALESCE(lv_u29_female_np, 0) FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_LV. 22', '30 - 34 years, Male',                   COALESCE(lv_u34_male, 0)      FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_LV. 23', '30 - 34 years, Female - pregnant',      COALESCE(lv_u34_female_p, 0)  FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_LV. 24', '30 - 34 years, Female - non-pregnant',  COALESCE(lv_u34_female_np, 0) FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_LV. 25', '35 - 39 years, Male',                   COALESCE(lv_u39_male, 0)      FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_LV. 26', '35 - 39 years, Female - pregnant',      COALESCE(lv_u39_female_p, 0)  FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_LV. 27', '35 - 39 years, Female - non-pregnant',  COALESCE(lv_u39_female_np, 0) FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_LV. 28', '40 - 44 years, Male',                   COALESCE(lv_u44_male, 0)      FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_LV. 29', '40 - 44 years, Female - pregnant',      COALESCE(lv_u44_female_p, 0)  FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_LV. 30', '40 - 44 years, Female - non-pregnant',  COALESCE(lv_u44_female_np, 0) FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_LV. 31', '45 - 49 years, Male',                   COALESCE(lv_u49_male, 0)      FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_LV. 32', '45 - 49 years, Female - pregnant',      COALESCE(lv_u49_female_p, 0)  FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_LV. 33', '45 - 49 years, Female - non-pregnant',  COALESCE(lv_u49_female_np, 0) FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_LV. 34', '>= 50 years, Male',                     COALESCE(lv_o50_male, 0)      FROM pvls_agg
+UNION ALL SELECT 'HIV_TX_PVLS_LV. 36', '>= 50 years, Female - non-pregnant',    COALESCE(lv_o50_female_np, 0) FROM pvls_agg;
 END //
 
 DELIMITER ;
