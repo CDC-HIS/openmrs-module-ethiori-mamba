@@ -65,7 +65,8 @@ BEGIN
                  fu.tpt_completed_date,
                  fu.tb_prophylaxis_type
              FROM FollowUp fu
-                      JOIN tx_curr ON fu.client_id = tx_curr.client_id
+                     -- JOIN tx_curr ON fu.client_id = tx_curr.client_id
+             where fu.art_start_date is not null and (tpt_start_date is not null or tpt_completed_date is not null )
          ),
 
          tmp_art_tpt AS (
