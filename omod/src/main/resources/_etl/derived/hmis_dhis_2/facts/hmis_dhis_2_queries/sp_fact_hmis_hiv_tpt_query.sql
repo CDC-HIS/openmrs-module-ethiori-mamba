@@ -391,10 +391,10 @@ BEGIN
     WHERE tb_prophylaxis_type = '3HR'
       and TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) >= 15
       and sex = 'Female'
--- Number of ART patients who started TPT 12 months prior to the reproting period that completed a full course of therapy
+-- Number of ART patients who started TPT 12 months prior to the reporting period that completed a full course of therapy
     UNION ALL
     SELECT 'HIV_ART_TPT_CR.2'                                                                                                       AS S_NO,
-           'Number of ART patients who started TPT 12 months prior to the reproting period that completed a full course of therapy' as Activity,
+           'Number of ART patients who started TPT 12 months prior to the reporting period that completed a full course of therapy' as Activity,
            COUNT(*)                                                                                                                 as Value
     FROM art_tpt_cr
     WHERE tpt_completed_date is not null
