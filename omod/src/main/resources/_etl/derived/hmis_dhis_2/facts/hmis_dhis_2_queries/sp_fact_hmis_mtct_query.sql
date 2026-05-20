@@ -90,7 +90,7 @@ BEGIN
            'Number of HIV positive women who received ART to reduce the risk of mother to child transmission during ANC for the first time' as Activity,
            COUNT(*)                                                                                                                         as Value
     FROM Enrollment
-    where art_clinic is not null
+    where antenatal_care_provider is not null
 -- Number of HIV positive Pregnant women who received ART to reduce the risk of mother to child transmission during L&D for the first time
     UNION ALL
     SELECT 'MTCT_ART.2.'                                                                                                                             AS S_NO,
@@ -111,7 +111,7 @@ BEGIN
            'Number of HIV-positive women who get pregnant while on ART and linked to ANC' as Activity,
            COUNT(*)                                                                       as Value
     FROM Enrollment
-    where antenatal_care_provider is not null
+    where  art_clinic is not null
 -- Percentage of  HIV exposed infants who received a virologic HIV test (sample collected) within 12 month
     UNION ALL
     SELECT 'MTCT_HEI_EID.'                                                                                           AS S_NO,
