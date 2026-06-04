@@ -52,7 +52,7 @@ public class MonthlyVisitLineListReportMamba implements ReportManager {
 		dataSetDefinitionMamba.addParameters(getParameters());
 		
 		reportDefinition.addDataSetDefinition("ART Patients Monthly Visit List ",
-		    map(dataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    map(dataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate}"));
 		return reportDefinition;
 	}
 	

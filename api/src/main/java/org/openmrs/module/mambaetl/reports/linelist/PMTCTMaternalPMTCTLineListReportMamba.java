@@ -48,7 +48,7 @@ public class PMTCTMaternalPMTCTLineListReportMamba implements ReportManager {
 		MaternalPMTCTLineListDataSetDefinitionMamba maternalPMTCTLineListDataSetDefinitionMamba = new MaternalPMTCTLineListDataSetDefinitionMamba();
 		maternalPMTCTLineListDataSetDefinitionMamba.addParameters(getParameters());
 		reportDefinition.addDataSetDefinition("Line List of ART Clients on PMTCT",
-		    EthiOhriUtil.map(maternalPMTCTLineListDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(maternalPMTCTLineListDataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate}"));
 		
 		return reportDefinition;
 	}

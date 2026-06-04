@@ -18,9 +18,9 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 public class CustomConnectionPoolManager {
-
+	
 	private static final Log log = LogFactory.getLog(CustomConnectionPoolManager.class);
-
+	
 	private static volatile CustomConnectionPoolManager instance = null;
 	
 	private final BasicDataSource dataSource;
@@ -48,7 +48,7 @@ public class CustomConnectionPoolManager {
 		//   mambaetl.analysis.db.pool.maxIdle   (default 6)
 		int maxTotal = getIntGlobalProperty("mambaetl.analysis.db.pool.maxTotal", 15);
 		int maxIdle = getIntGlobalProperty("mambaetl.analysis.db.pool.maxIdle", 6);
-
+		
 		dataSource.setInitialSize(2);
 		dataSource.setMinIdle(2);
 		dataSource.setMaxIdle(maxIdle);
@@ -101,7 +101,7 @@ public class CustomConnectionPoolManager {
 		catch (SQLException ignored) {}
 		instance = null;
 	}
-
+	
 	private static int getIntGlobalProperty(String key, int defaultValue) {
 		try {
 			String val = Context.getAdministrationService().getGlobalProperty(key);

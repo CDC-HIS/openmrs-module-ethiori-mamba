@@ -48,7 +48,7 @@ public class ICTContactLineListReport implements ReportManager {
 		ICTContactLineListDataSetDefinitionMamba ictContactLineListDataSetDefinitionMamba = new ICTContactLineListDataSetDefinitionMamba();
 		ictContactLineListDataSetDefinitionMamba.addParameters(getParameters());
 		reportDefinition.addDataSetDefinition("List of ICT Contacts",
-		    EthiOhriUtil.map(ictContactLineListDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(ictContactLineListDataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate}"));
 		
 		return reportDefinition;
 	}

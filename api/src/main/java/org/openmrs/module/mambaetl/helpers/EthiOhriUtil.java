@@ -14,13 +14,9 @@ public class EthiOhriUtil {
 	public static List<Parameter> getDateRangeParameters(Boolean required) {
 		Parameter startDate = new Parameter("startDate", "Start Date", Date.class);
 		startDate.setRequired(required);
-		Parameter startDateGC = new Parameter("startDateGC", " ", Date.class);
-		startDateGC.setRequired(false);
 		Parameter endDate = new Parameter("endDate", "End Date", Date.class);
 		endDate.setRequired(required);
-		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
-		endDateGC.setRequired(false);
-		return Arrays.asList(startDate, startDateGC, endDate, endDateGC);
+		return Arrays.asList(startDate, endDate);
 	}
 	
 	public static DefaultDateParameter getDefaultDateParameter(java.util.Date startDate, java.util.Date endDate) {
@@ -34,13 +30,9 @@ public class EthiOhriUtil {
 	}
 	
 	public static List<Parameter> getEndDateParameters(Boolean required) {
-		
 		Parameter endDate = new Parameter("endDate", "On Month", Date.class);
 		endDate.setRequired(required);
-		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
-		endDateGC.setRequired(false);
-		return Arrays.asList(endDate, endDateGC);
-		
+		return Collections.singletonList(endDate);
 	}
 	
 	public static <T extends Parameterizable> Mapped<T> map(T parameterizable, String mappings) {

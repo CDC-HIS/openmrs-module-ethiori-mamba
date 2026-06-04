@@ -37,19 +37,15 @@ public class TPTLineListReportMamba implements ReportManager {
 	public List<Parameter> getParameters() {
 		Parameter startDate = new Parameter("startDate", "Start Date", Date.class);
 		startDate.setRequired(true);
-		Parameter startDateGC = new Parameter("startDateGC", " ", Date.class);
-		startDateGC.setRequired(false);
 		Parameter endDate = new Parameter("endDate", "End Date", Date.class);
 		endDate.setRequired(true);
-		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
-		endDateGC.setRequired(false);
 		
 		Parameter tptType = new Parameter("tptType", "Preventive Therapy Type", String.class);
 		tptType.setRequired(true);
 		tptType.addToWidgetConfiguration("codedOptions", "ALL,CPT,TPT,FPT");
 		tptType.setDefaultValue("all");
 		
-		return Arrays.asList(startDate, startDateGC, endDate, endDateGC, tptType);
+		return Arrays.asList(startDate, endDate, tptType);
 	}
 	
 	@Override
@@ -65,7 +61,7 @@ public class TPTLineListReportMamba implements ReportManager {
 		tptLineListDataSetDefinitionMamba.addParameters(getParameters());
 		
 		reportDefinition.addDataSetDefinition("TPT/FPT/CPT Line List Report.", EthiOhriUtil.map(
-		    tptLineListDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC},tptType=${tptType}"));
+		    tptLineListDataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate},tptType=${tptType}"));
 		return reportDefinition;
 	}
 	

@@ -39,14 +39,10 @@ public class TITOLineListReportMamba implements ReportManager {
 		
 		Parameter startDate = new Parameter("startDate", "Start Date", Date.class);
 		startDate.setRequired(false);
-		Parameter startDateGC = new Parameter("startDateGC", " ", Date.class);
-		startDateGC.setRequired(false);
 		Parameter endDate = new Parameter("endDate", "End Date", Date.class);
 		endDate.setRequired(false);
-		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
-		endDateGC.setRequired(false);
 		
-		return Arrays.asList(startDate, startDateGC, endDate, endDateGC, status);
+		return Arrays.asList(startDate, endDate, status);
 		
 	}
 	
@@ -63,7 +59,7 @@ public class TITOLineListReportMamba implements ReportManager {
 		dataSetDefinitionMamba.addParameters(getParameters());
 		
 		reportDefinition.addDataSetDefinition("Transferred In/Out",
-		    map(dataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC},status=${status}"));
+		    map(dataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate},status=${status}"));
 		return reportDefinition;
 	}
 	

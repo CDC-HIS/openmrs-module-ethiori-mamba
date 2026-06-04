@@ -36,9 +36,7 @@ public class PrEPLineListReportMamba implements ReportManager {
 		
 		Parameter endDate = new Parameter("endDate", "End Date", Date.class);
 		endDate.setRequired(false);
-		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
-		endDateGC.setRequired(false);
-		return Arrays.asList(endDate, endDateGC);
+		return Arrays.asList(endDate);
 		
 	}
 	
@@ -54,8 +52,7 @@ public class PrEPLineListReportMamba implements ReportManager {
 		PrEPLineListDataSetDefinitionMamba dataSetDefinitionMamba = new PrEPLineListDataSetDefinitionMamba();
 		dataSetDefinitionMamba.addParameters(getParameters());
 		
-		reportDefinition.addDataSetDefinition("Pre-Exposure Prophylaxis",
-		    map(dataSetDefinitionMamba, "endDate=${endDateGC}"));
+		reportDefinition.addDataSetDefinition("Pre-Exposure Prophylaxis", map(dataSetDefinitionMamba, "endDate=${endDate}"));
 		return reportDefinition;
 	}
 	

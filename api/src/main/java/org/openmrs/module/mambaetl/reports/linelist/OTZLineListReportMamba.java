@@ -48,7 +48,7 @@ public class OTZLineListReportMamba implements ReportManager {
 		OTZLineListDataSetDefinitionMamba otzLineListDataSetDefinitionMamba = new OTZLineListDataSetDefinitionMamba();
 		otzLineListDataSetDefinitionMamba.addParameters(getParameters());
 		reportDefinition.addDataSetDefinition("List of OTZ Clients",
-		    EthiOhriUtil.map(otzLineListDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(otzLineListDataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate}"));
 		
 		return reportDefinition;
 	}

@@ -153,7 +153,8 @@ BEGIN
            dsd.dsd_category                                           as `DSD`,
            ew.start_date                                              as `PMTCT Booking Date`,
            ew.start_date                                              as `PMTCT Booking Date EC.`,
-           CASE
+           CASE COALESCE(ew.art_clinic, ew.antenatal_care_provider, ew.ld_client,
+                         ew.post_natal_care)
                WHEN ew.art_clinic is not null THEN 'Known +ve - on ART at Entry'
                WHEN ew.antenatal_care_provider is not null THEN 'New from ANC'
                WHEN ew.ld_client is not null THEN 'New from L&D'

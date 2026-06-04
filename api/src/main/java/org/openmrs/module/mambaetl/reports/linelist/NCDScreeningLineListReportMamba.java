@@ -48,7 +48,7 @@ public class NCDScreeningLineListReportMamba implements ReportManager {
 		NCDScreeningLineListDataSetDefinitionMamba ncdLineListDataSetDefinitionMamba = new NCDScreeningLineListDataSetDefinitionMamba();
 		ncdLineListDataSetDefinitionMamba.addParameters(getParameters());
 		reportDefinition.addDataSetDefinition("NCD Screening & Diagnosis Line List Report",
-		    EthiOhriUtil.map(ncdLineListDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(ncdLineListDataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate}"));
 		
 		return reportDefinition;
 	}

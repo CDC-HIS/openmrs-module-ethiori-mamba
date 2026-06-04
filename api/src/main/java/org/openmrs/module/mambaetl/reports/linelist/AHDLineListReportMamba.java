@@ -51,8 +51,7 @@ public class AHDLineListReportMamba implements ReportManager {
 		AHDLineListDataSetDefinitionMamba ahdLineListDataSetDefinitionMamba = new AHDLineListDataSetDefinitionMamba();
 		ahdLineListDataSetDefinitionMamba.addParameters(getParameters());
 		
-		reportDefinition.addDataSetDefinition("AHD line list",
-		    map(ahdLineListDataSetDefinitionMamba, "endDate=${endDateGC}"));
+		reportDefinition.addDataSetDefinition("AHD line list", map(ahdLineListDataSetDefinitionMamba, "endDate=${endDate}"));
 		return reportDefinition;
 	}
 	

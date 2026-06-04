@@ -35,18 +35,14 @@ public class ChildCohortAnalysisLineListReportMamba implements ReportManager {
 	public List<Parameter> getParameters() {
 		Parameter startDate = new Parameter("startDate", "Start Date", Date.class);
 		startDate.setRequired(true);
-		Parameter startDateGC = new Parameter("startDateGC", " ", Date.class);
-		startDateGC.setRequired(false);
 		Parameter endDate = new Parameter("endDate", "End Date", Date.class);
 		endDate.setRequired(true);
-		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
-		endDateGC.setRequired(false);
 		
 		Parameter type = new Parameter("type", "Cohort Report Type", String.class);
 		type.setRequired(true);
 		type.addToWidgetConfiguration("codedOptions", "SUMMARY,LineList");
 		type.setDefaultValue("SUMMARY");
-		return Arrays.asList(startDate, startDateGC, endDate, endDateGC, type);
+		return Arrays.asList(startDate, endDate, type);
 		
 	}
 	
@@ -63,7 +59,7 @@ public class ChildCohortAnalysisLineListReportMamba implements ReportManager {
 		dataSetDefinitionMamba.addParameters(getParameters());
 		
 		reportDefinition.addDataSetDefinition("Child Cohort Analysis LineList",
-		    map(dataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC},type=${type}"));
+		    map(dataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate},type=${type}"));
 		return reportDefinition;
 	}
 	

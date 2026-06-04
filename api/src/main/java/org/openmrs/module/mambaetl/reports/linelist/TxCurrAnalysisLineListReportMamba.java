@@ -66,7 +66,7 @@ public class TxCurrAnalysisLineListReportMamba implements ReportManager {
 		
 		reportDefinition.addDataSetDefinition("List of Patients for TX Curr Analysis", EthiOhriUtil.map(
 		    txCurrAnalysisDataSetDefinition,
-		    "startDate=${startDateGC},endDate=${endDateGC},txCurrAnalysisCategories=${txCurrAnalysisCategories}"));
+		    "startDate=${startDate},endDate=${endDate},txCurrAnalysisCategories=${txCurrAnalysisCategories}"));
 		return reportDefinition;
 	}
 	

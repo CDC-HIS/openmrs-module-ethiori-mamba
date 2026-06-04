@@ -48,7 +48,7 @@ public class NCDTreatmentLineListReportMamba implements ReportManager {
 		NCDTreatmentLineListDataSetDefinitionMamba ncdTreatmentLineListDataSetDefinitionMamba = new NCDTreatmentLineListDataSetDefinitionMamba();
 		ncdTreatmentLineListDataSetDefinitionMamba.addParameters(getParameters());
 		reportDefinition.addDataSetDefinition("NCD Treatment Line List Report",
-		    EthiOhriUtil.map(ncdTreatmentLineListDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(ncdTreatmentLineListDataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate}"));
 		
 		return reportDefinition;
 	}

@@ -50,7 +50,7 @@ public class PediatricAgeOutLineListReportMamba implements ReportManager {
 		pediatricAgeOutLineListDatasetDefinition.addParameters(getParameters());
 		
 		reportDefinition.addDataSetDefinition("List of Patients with pediatric age out",
-		    EthiOhriUtil.map(pediatricAgeOutLineListDatasetDefinition, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(pediatricAgeOutLineListDatasetDefinition, "startDate=${startDate},endDate=${endDate}"));
 		return reportDefinition;
 	}
 	

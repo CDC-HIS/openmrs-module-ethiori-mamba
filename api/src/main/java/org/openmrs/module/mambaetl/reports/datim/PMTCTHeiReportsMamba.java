@@ -50,7 +50,7 @@ public class PMTCTHeiReportsMamba implements ReportManager {
 		HeaderDataSetDefinitionMamba headerDefinition = new HeaderDataSetDefinitionMamba();
 		headerDefinition.setDescription("DSD: PMTCT_HEI");
 		headerDefinition.setParameters(getParameters());
-		reportDefinition.addDataSetDefinition("DSD: PMTCT_HEI", EthiOhriUtil.map(headerDefinition, "endDate=${endDateGC}"));
+		reportDefinition.addDataSetDefinition("DSD: PMTCT_HEI", EthiOhriUtil.map(headerDefinition, "endDate=${endDate}"));
 		
 		// Numerator: Auto-Calculate
 		PmtctHeiDataSetDefinitionMamba numeratorDataSet = new PmtctHeiDataSetDefinitionMamba();
@@ -58,7 +58,7 @@ public class PMTCTHeiReportsMamba implements ReportManager {
 		numeratorDataSet.setDescription("Auto-Calculate");
 		numeratorDataSet.setReportType("NUMERATOR");
 		reportDefinition.addDataSetDefinition("Numerator",
-		    EthiOhriUtil.map(numeratorDataSet, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(numeratorDataSet, "startDate=${startDate},endDate=${endDate}"));
 		
 		// Disaggregated by infant age at virologic sample collection and result
 		// returned
@@ -69,7 +69,7 @@ public class PMTCTHeiReportsMamba implements ReportManager {
 		        .setDescription("Disaggregated by infant age at virologic sample collection and result returned.");
 		disaggregatedDataSet.setReportType("DISAGGREGATED");
 		reportDefinition.addDataSetDefinition("Infants who had a first virologic HIV test (sample collected) by:",
-		    EthiOhriUtil.map(disaggregatedDataSet, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(disaggregatedDataSet, "startDate=${startDate},endDate=${endDate}"));
 		
 		return reportDefinition;
 	}

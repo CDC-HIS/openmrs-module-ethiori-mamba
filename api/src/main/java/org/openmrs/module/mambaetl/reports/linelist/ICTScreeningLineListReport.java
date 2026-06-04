@@ -48,7 +48,7 @@ public class ICTScreeningLineListReport implements ReportManager {
 		ICTScreeningLineListDataSetDefinitionMamba ictScreeningLineListDataSetDefinitionMamba = new ICTScreeningLineListDataSetDefinitionMamba();
 		ictScreeningLineListDataSetDefinitionMamba.addParameters(getParameters());
 		reportDefinition.addDataSetDefinition("List of ICT Screening",
-		    EthiOhriUtil.map(ictScreeningLineListDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(ictScreeningLineListDataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate}"));
 		
 		return reportDefinition;
 	}
