@@ -41,17 +41,11 @@ public class DynamicReportExecutorService {
 	
 	public ReportExecutionResult executeReport(String procedureName, Map<String, String> params, int offset, int limit)
 	        throws SQLException {
-		return executeReport(procedureName, params, offset, limit, null, null);
+		return executeReport(procedureName, params, offset, limit, null);
 	}
 	
 	public ReportExecutionResult executeReport(String procedureName, Map<String, String> params, int offset, int limit,
 	        DataSetEvaluatorHelper.ProgressReporter progressReporter) throws SQLException {
-		return executeReport(procedureName, params, offset, limit, progressReporter, null);
-	}
-	
-	public ReportExecutionResult executeReport(String procedureName, Map<String, String> params, int offset, int limit,
-	        DataSetEvaluatorHelper.ProgressReporter progressReporter,
-	        DataSetEvaluatorHelper.StatementRegistrar statementRegistrar) throws SQLException {
 
 		validateProcedureName(procedureName);
 
@@ -69,7 +63,7 @@ public class DynamicReportExecutorService {
 			        .prepareStatements(connection, procedureCalls)) {
 
 				DataSetEvaluatorHelper.executeStatements(statementContainer, procedureCalls, queryTimeout,
-				    progressReporter, maxRows, statementRegistrar);
+				    progressReporter, maxRows);
 
 				ResultSet[] allResultSets = statementContainer.getResultSets();
 
