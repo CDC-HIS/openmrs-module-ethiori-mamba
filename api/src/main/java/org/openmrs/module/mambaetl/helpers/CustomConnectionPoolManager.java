@@ -28,6 +28,10 @@ public class CustomConnectionPoolManager {
 	private CustomConnectionPoolManager() {
 		
 		Properties properties = Context.getRuntimeProperties();
+		if (properties == null) {
+			throw new IllegalStateException("OpenMRS runtime properties are not available yet; "
+			        + "cannot initialize the analytics connection pool before the context is ready");
+		}
 		
 		String url = properties.getProperty("mambaetl.analysis.db.url");
 		String userName = properties.getProperty("mambaetl.analysis.db.username");
@@ -42,19 +46,16 @@ public class CustomConnectionPoolManager {
 		dataSource.setPassword(password != null ? password : properties.getProperty("connection.password"));
 		dataSource.setUrl(resolvedUrl);
 		
-		// Pool sizes read from OpenMRS global properties at pool creation time.
-		// Override via Admin > Global Properties:
-		//   mambaetl.analysis.db.pool.maxTotal  (default 15, 16 GB target)
-		//   mambaetl.analysis.db.pool.maxIdle   (default 6)
 		int maxTotal = getIntGlobalProperty("mambaetl.analysis.db.pool.maxTotal", 15);
 		int maxIdle = getIntGlobalProperty("mambaetl.analysis.db.pool.maxIdle", 6);
 		
-		dataSource.setInitialSize(2);
-		dataSource.setMinIdle(2);
+		dataSource.setInitialSize(0);
+		dataSource.setMinIdle(0);
 		dataSource.setMaxIdle(maxIdle);
 		dataSource.setMaxTotal(maxTotal);
 		
 		dataSource.setMaxWait(java.time.Duration.ofSeconds(30));
+		dataSource.setConnectionProperties("connectTimeout=5000");
 		
 		dataSource.setValidationQuery("SELECT 1");
 		dataSource.setTestOnBorrow(true);
@@ -62,17 +63,13 @@ public class CustomConnectionPoolManager {
 		
 		dataSource.setRemoveAbandonedOnMaintenance(true);
 		dataSource.setRemoveAbandonedOnBorrow(true);
-		dataSource.setRemoveAbandonedTimeout(java.time.Duration.ofSeconds(3600));
+		dataSource.setRemoveAbandonedTimeout(java.time.Duration.ofSeconds(300));
 		dataSource.setLogAbandoned(true);
 		
 		dataSource.setDurationBetweenEvictionRuns(java.time.Duration.ofSeconds(60));
 		dataSource.setMinEvictableIdle(java.time.Duration.ofMinutes(10));
 	}
 	
-	/**
-	 * Thread-safe double-checked locking singleton. Using {@code volatile} on the field prevents
-	 * the broken-singleton problem caused by partial construction visibility.
-	 */
 	public static CustomConnectionPoolManager getInstance() {
 		if (instance == null) {
 			synchronized (CustomConnectionPoolManager.class) {
@@ -88,18 +85,20 @@ public class CustomConnectionPoolManager {
 		return dataSource;
 	}
 	
-	/**
-	 * Gracefully closes all connections in the pool. Should be called from the module's
-	 * {@code stopped()} / {@code shutdown()} lifecycle hook to avoid FD leaks on module reload.
-	 */
 	public void closeDataSource() {
 		try {
 			if (!dataSource.isClosed()) {
 				dataSource.close();
 			}
 		}
-		catch (SQLException ignored) {}
+		catch (SQLException e) {
+			log.warn("Error closing analytics connection pool", e);
+		}
 		instance = null;
+	}
+	
+	public static boolean isInitialized() {
+		return instance != null;
 	}
 	
 	private static int getIntGlobalProperty(String key, int defaultValue) {

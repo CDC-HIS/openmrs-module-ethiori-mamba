@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.sql.CallableStatement;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -29,9 +28,6 @@ public class ReportJob {
 	
 	@JsonIgnore
 	private volatile Future<?> future;
-	
-	@JsonIgnore
-	private volatile CallableStatement activeStatement;
 	
 	private volatile Integer totalSteps;
 	
@@ -69,7 +65,6 @@ public class ReportJob {
 		return completedAt != null ? completedAt.toString() : null;
 	}
 	
-	// Used internally for TTL comparisons — not serialized
 	@JsonIgnore
 	public Instant getCompletedAtInstant() {
 		return completedAt;
@@ -79,7 +74,6 @@ public class ReportJob {
 		this.completedAt = completedAt;
 	}
 	
-	// Present only while PENDING or RUNNING
 	public Long getElapsedMs() {
 		ReportJobStatus s = this.status;
 		if (s == ReportJobStatus.PENDING || s == ReportJobStatus.RUNNING) {
@@ -88,12 +82,10 @@ public class ReportJob {
 		return null;
 	}
 	
-	// Present only when COMPLETE
 	public Integer getRowCount() {
 		return result != null ? result.getRowCount() : null;
 	}
 	
-	// Present only when COMPLETE
 	public List<Map<String, Object>> getData() {
 		return result != null ? result.getData() : null;
 	}
@@ -117,15 +109,6 @@ public class ReportJob {
 	
 	public void setFuture(Future<?> future) {
 		this.future = future;
-	}
-	
-	@JsonIgnore
-	public CallableStatement getActiveStatement() {
-		return activeStatement;
-	}
-	
-	public void setActiveStatement(CallableStatement statement) {
-		this.activeStatement = statement;
 	}
 	
 	public Integer getTotalSteps() {

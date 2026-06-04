@@ -10,14 +10,14 @@
 package org.openmrs.module.mambaetl;
 
 import org.openmrs.api.context.Context;
-import org.openmrs.module.BaseModuleActivator;
-import org.openmrs.module.mambacore.api.FlattenDatabaseService;
 import org.openmrs.module.mambaetl.config.AsyncConfig;
+import org.openmrs.module.mambaetl.helpers.CustomConnectionPoolManager;
+import org.openmrs.module.mambacore.api.FlattenDatabaseService;
 import org.openmrs.module.reporting.report.manager.ReportManager;
 import org.openmrs.module.reporting.report.manager.ReportManagerUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.openmrs.module.BaseModuleActivator;
 
 /**
  * This class contains the logic that is run every time this module is either started or shutdown
@@ -40,10 +40,18 @@ public class MambaETLActivator extends BaseModuleActivator {
 	
 	@Override
 	public void stopped() {
+		AsyncConfig.shutdown();
+		if (CustomConnectionPoolManager.isInitialized()) {
+			CustomConnectionPoolManager.getInstance().closeDataSource();
+		}
 		log.info("Stopped MambaETL Reference Module");
 	}
 	
 	public void shutdown() {
+		AsyncConfig.shutdown();
+		if (CustomConnectionPoolManager.isInitialized()) {
+			CustomConnectionPoolManager.getInstance().closeDataSource();
+		}
 		log.info("Shutdown MambaETL Reference Module");
 	}
 	

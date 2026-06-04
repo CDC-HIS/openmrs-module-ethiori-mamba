@@ -1,7 +1,6 @@
 package org.openmrs.module.mambaetl.helpers;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
 import org.openmrs.module.reporting.dataset.DataSetColumn;
 import org.openmrs.module.reporting.dataset.DataSetRow;
@@ -16,8 +15,6 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class DataSetEvaluatorHelper {
-	
-	private static final Log log = LogFactory.getLog(DataSetEvaluatorHelper.class);
 	
 	public static DataSource getDataSource() {
 		return CustomConnectionPoolManager.getInstance().getDataSource();
@@ -45,17 +42,11 @@ public class DataSetEvaluatorHelper {
 	
 	public static void executeStatements(CallableStatementContainer statementContainer, List<ProcedureCall> procedureCalls)
 	        throws SQLException {
-		executeStatements(statementContainer, procedureCalls, 0, null, 0, null);
+		executeStatements(statementContainer, procedureCalls, 0, null, 0);
 	}
 	
 	public static void executeStatements(CallableStatementContainer statementContainer, List<ProcedureCall> procedureCalls,
 	        int queryTimeoutSeconds, ProgressReporter progressReporter, int maxRows) throws SQLException {
-		executeStatements(statementContainer, procedureCalls, queryTimeoutSeconds, progressReporter, maxRows, null);
-	}
-	
-	public static void executeStatements(CallableStatementContainer statementContainer, List<ProcedureCall> procedureCalls,
-	        int queryTimeoutSeconds, ProgressReporter progressReporter, int maxRows, StatementRegistrar statementRegistrar)
-	        throws SQLException {
 		CallableStatement[] statements = statementContainer.getStatements();
 		ResultSet[] resultSets = statementContainer.getResultSets();
 		int total = procedureCalls.size();
@@ -71,23 +62,7 @@ public class DataSetEvaluatorHelper {
 					statement.setMaxRows(maxRows);
 				}
 				call.getParameterSetter().setParameters(statement);
-				log.debug("Executing procedure [" + (i + 1) + "/" + total + "]: " + call.getProcedureName());
-				if (statementRegistrar != null) {
-					statementRegistrar.register(statement);
-				}
-				try {
-					resultSets[i] = statement.executeQuery();
-				}
-				catch (SQLException e) {
-					log.error("SQL error executing procedure [" + (i + 1) + "/" + total + "]: " + call.getProcedureName()
-					        + " — " + e.getMessage());
-					throw e;
-				}
-				finally {
-					if (statementRegistrar != null) {
-						statementRegistrar.register(null);
-					}
-				}
+				resultSets[i] = statement.executeQuery();
 				if (progressReporter != null) {
 					progressReporter.report(i + 1, total);
 				}
@@ -99,16 +74,6 @@ public class DataSetEvaluatorHelper {
 	public interface ProgressReporter {
 		
 		void report(int completedSteps, int totalSteps);
-	}
-	
-	@FunctionalInterface
-	public interface StatementRegistrar {
-		
-		/**
-		 * Called with the active statement before executeQuery(); called with null once it
-		 * completes.
-		 */
-		void register(CallableStatement statement);
 	}
 	
 	public static void mapResultSet(SimpleDataSet data, ResultSetMapper resultSetMapper, ResultSet[] resultSets,
