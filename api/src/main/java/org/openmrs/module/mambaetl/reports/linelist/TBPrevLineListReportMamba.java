@@ -37,13 +37,9 @@ public class TBPrevLineListReportMamba implements ReportManager {
 		tptStatus.addToWidgetConfiguration("codedOptions", "Denominator,Numerator");
 		Parameter endDate = new Parameter("endDate", "End Date", Date.class);
 		endDate.setRequired(true);
-		Parameter startDateGC = new Parameter("startDateGC", " ", Date.class);
-		startDateGC.setRequired(false);
 		Parameter startDate = new Parameter("startDate", "Start Date", Date.class);
 		startDate.setRequired(true);
-		Parameter endDateGC = new Parameter("endDateGC", " ", Date.class);
-		endDateGC.setRequired(false);
-		return Arrays.asList(startDate, startDateGC, endDate, endDateGC, tptStatus);
+		return Arrays.asList(startDate, endDate, tptStatus);
 	}
 	
 	@Override
@@ -59,7 +55,7 @@ public class TBPrevLineListReportMamba implements ReportManager {
 		dataSetDefinitionMamba.addParameters(getParameters());
 		
 		reportDefinition.addDataSetDefinition("TPT Line List Report",
-		    map(dataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC},tptStatus=${tptStatus}"));
+		    map(dataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate},tptStatus=${tptStatus}"));
 		return reportDefinition;
 	}
 	

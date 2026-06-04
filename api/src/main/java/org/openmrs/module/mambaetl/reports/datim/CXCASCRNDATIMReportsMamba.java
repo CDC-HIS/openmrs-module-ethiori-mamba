@@ -50,7 +50,7 @@ public class CXCASCRNDATIMReportsMamba implements ReportManager {
 		HeaderDataSetDefinitionMamba headerDefinition = new HeaderDataSetDefinitionMamba();
 		headerDefinition.setDescription("DSD: CXCA_SCRN");
 		headerDefinition.setParameters(getParameters());
-		reportDefinition.addDataSetDefinition("DSD: CXCA_SCRN", EthiOhriUtil.map(headerDefinition, "endDate=${endDateGC}"));
+		reportDefinition.addDataSetDefinition("DSD: CXCA_SCRN", EthiOhriUtil.map(headerDefinition, "endDate=${endDate}"));
 		
 		CXCASCRNDataSetDefinitionMamba cxcaScrnNumeratorDataSetDefinitionMamba = new CXCASCRNDataSetDefinitionMamba();
 		cxcaScrnNumeratorDataSetDefinitionMamba.addParameters(getParameters());
@@ -60,29 +60,28 @@ public class CXCASCRNDATIMReportsMamba implements ReportManager {
 		reportDefinition
 		        .addDataSetDefinition(
 		            "Number of HIV-positive women on ART screened for cervical cancer. Numerator will auto-calculate from the Age/Result/Screening Visit Type",
-		            EthiOhriUtil.map(cxcaScrnNumeratorDataSetDefinitionMamba,
-		                "startDate=${startDateGC},endDate=${endDateGC}"));
+		            EthiOhriUtil.map(cxcaScrnNumeratorDataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate}"));
 		
 		CXCASCRNDataSetDefinitionMamba cxcaScrnFirstTimeDataSetDefinitionMamba = new CXCASCRNDataSetDefinitionMamba();
 		cxcaScrnFirstTimeDataSetDefinitionMamba.addParameters(getParameters());
 		cxcaScrnFirstTimeDataSetDefinitionMamba.setCxcatxAggregationTypes(CXCATXAggregationTypes.FIRST_TIME_SCREENING);
 		cxcaScrnFirstTimeDataSetDefinitionMamba.setDescription("First time screened for cervical cancer");
 		reportDefinition.addDataSetDefinition("First time screened for cervical cancer",
-		    EthiOhriUtil.map(cxcaScrnFirstTimeDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(cxcaScrnFirstTimeDataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate}"));
 		
 		CXCASCRNDataSetDefinitionMamba cxcaScrnRescreenedDataSetDefinitionMamba = new CXCASCRNDataSetDefinitionMamba();
 		cxcaScrnRescreenedDataSetDefinitionMamba.addParameters(getParameters());
 		cxcaScrnRescreenedDataSetDefinitionMamba.setCxcatxAggregationTypes(CXCATXAggregationTypes.RE_SCREENING);
 		cxcaScrnRescreenedDataSetDefinitionMamba.setDescription("Rescreened after previous negative or suspected cancer");
 		reportDefinition.addDataSetDefinition("Rescreened after previous negative or suspected cancer",
-		    EthiOhriUtil.map(cxcaScrnRescreenedDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(cxcaScrnRescreenedDataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate}"));
 		
 		CXCASCRNDataSetDefinitionMamba cxcaScrnPostTreatmentDataSetDefinitionMamba = new CXCASCRNDataSetDefinitionMamba();
 		cxcaScrnPostTreatmentDataSetDefinitionMamba.addParameters(getParameters());
 		cxcaScrnPostTreatmentDataSetDefinitionMamba.setCxcatxAggregationTypes(CXCATXAggregationTypes.POST_TREATMENT);
 		cxcaScrnPostTreatmentDataSetDefinitionMamba.setDescription("Post-treatment follow-up");
 		reportDefinition.addDataSetDefinition("Post-treatment follow-up",
-		    EthiOhriUtil.map(cxcaScrnPostTreatmentDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(cxcaScrnPostTreatmentDataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate}"));
 		
 		return reportDefinition;
 	}

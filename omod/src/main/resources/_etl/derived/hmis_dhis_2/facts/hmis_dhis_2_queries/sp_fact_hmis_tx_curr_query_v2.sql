@@ -366,7 +366,7 @@ BEGIN
                   SUM(CASE WHEN age >= 20 AND regimen = '3f - DRV/r+AZT+3TC+EFV' AND sex='Female' AND (pregnancy_status = 'No' or pregnancy_status is null) THEN 1 ELSE 0 END) AS greater_than_20_third_line_3f_female_non_pregnant,
                   SUM(CASE WHEN age >= 20 AND regimen not in ('3a -  DRV/r+DTG+AZT+3TC', '3b - DRV/r+DTG+TDF+3TC', '3c - DRV/r+ABC+3TC+DTG', '3e - DRV/r+TDF+3TC+EFV', '3f - DRV/r+AZT+3TC+EFV') AND (regimen_line = '3' or regimen_line = '6') AND sex='Male' THEN 1 ELSE 0 END) AS greater_than_20_third_line_other_male,
                   SUM(CASE WHEN age >= 20 AND regimen not in ('3a -  DRV/r+DTG+AZT+3TC', '3b - DRV/r+DTG+TDF+3TC', '3c - DRV/r+ABC+3TC+DTG', '3e - DRV/r+TDF+3TC+EFV', '3f - DRV/r+AZT+3TC+EFV') AND (regimen_line = '3' or regimen_line = '6') AND sex='Female' AND pregnancy_status = 'Yes' THEN 1 ELSE 0 END) AS greater_than_20_third_line_other_female_pregnant,
-                  SUM(CASE WHEN age >= 20 AND regimen not in ('3a -  DRV/r+DTG+AZT+3TC', '3b - DRV/r+DTG+TDF+3TC', '3c - DRV/r+ABC+3TC+DTG', '3e - DRV/r+TDF+3TC+EFV', '3f - DRV/r+AZT+3TC+EFV') AND (regimen_line = '3' or regimen_line = '6') AND sex='Female' AND (pregnancy_status = 'No' or pregnancy_status is null) THEN 1 ELSE 0 END) AS greater_than_20_third_line_other_female_non_pregnant,
+                  SUM(CASE WHEN age >= 20 AND regimen not in ('3a -  DRV/r+DTG+AZT+3TC', '3b - DRV/r+DTG+TDF+3TC', '3c - DRV/r+ABC+3TC+DTG', '3e - DRV/r+TDF+3TC+EFV', '3f - DRV/r+AZT+3TC+EFV') AND (regimen_line = '3' or regimen_line = '6') AND sex='Female' AND (pregnancy_status = 'No' or pregnancy_status is null) THEN 1 ELSE 0 END) AS greater_than_20_third_line_other_female_non_pregnant
 
               FROM  tx_curr_with_client
          )
@@ -993,7 +993,7 @@ BEGIN
 -- 20.3.17 3d - Other Adult 3rd line regimen, Female - pregnant
     UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 17','3d=Other thirdline, Female - pregnant',greater_than_20_third_line_other_female_pregnant FROM tx_curr_agg
 -- 20.3.18 3d - Other Adult 3rd line regimen, Female - non-pregnant
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 18','3d=Other thirdline, Female - non-pregnant',greater_than_20_third_line_other_female_non_pregnant FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 18','3d=Other thirdline, Female - non-pregnant',greater_than_20_third_line_other_female_non_pregnant FROM tx_curr_agg;
 END //
 
 DELIMITER ;

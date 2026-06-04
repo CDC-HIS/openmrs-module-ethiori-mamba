@@ -48,7 +48,7 @@ public class TxRTTLineListReportMamba implements ReportManager {
 		TXRTTLineListDataSetDefinitionMamba txrttLineListDataSetDefinitionMamba = new TXRTTLineListDataSetDefinitionMamba();
 		txrttLineListDataSetDefinitionMamba.addParameters(getParameters());
 		reportDefinition.addDataSetDefinition("List of RTT Patients",
-		    EthiOhriUtil.map(txrttLineListDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(txrttLineListDataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate}"));
 		
 		return reportDefinition;
 	}

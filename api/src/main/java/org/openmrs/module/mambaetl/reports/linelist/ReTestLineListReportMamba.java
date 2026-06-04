@@ -48,7 +48,7 @@ public class ReTestLineListReportMamba implements ReportManager {
 		ReTestLineListDataSetDefinitionMamba reTestLineListDataSetDefinitionMamba = new ReTestLineListDataSetDefinitionMamba();
 		reTestLineListDataSetDefinitionMamba.addParameters(getParameters());
 		reportDefinition.addDataSetDefinition("Re Test Line List",
-		    EthiOhriUtil.map(reTestLineListDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(reTestLineListDataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate}"));
 		
 		return reportDefinition;
 	}

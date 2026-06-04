@@ -50,7 +50,7 @@ public class TBPrevDenominatorDATIMReportsMamba implements ReportManager {
 		headerDefinition.setDescription("DSD: TB_PREV(DENOMINATOR)");
 		headerDefinition.setParameters(getParameters());
 		reportDefinition.addDataSetDefinition("DSD: TB_PREV(DENOMINATOR)",
-		    EthiOhriUtil.map(headerDefinition, "endDate=${endDateGC}"));
+		    EthiOhriUtil.map(headerDefinition, "endDate=${endDate}"));
 		
 		TBPrevDenominatorDataSetDefinitionMamba tbPrevTotalDenominatorDataSetDefinitionMamba = new TBPrevDenominatorDataSetDefinitionMamba();
 		tbPrevTotalDenominatorDataSetDefinitionMamba.addParameters(getParameters());
@@ -59,14 +59,14 @@ public class TBPrevDenominatorDATIMReportsMamba implements ReportManager {
 		        .setDescription("Number of ART patients who were initialized on any course of TPT during the previous reporting period");
 		reportDefinition.addDataSetDefinition(
 		    "Number of ART patients who were initialized on any course of TPT during the previous reporting period",
-		    EthiOhriUtil.map(tbPrevTotalDenominatorDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(tbPrevTotalDenominatorDataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate}"));
 		
 		TBPrevDenominatorDataSetDefinitionMamba tbPrevDenominatorDataSetDefinitionMamba = new TBPrevDenominatorDataSetDefinitionMamba();
 		tbPrevDenominatorDataSetDefinitionMamba.addParameters(getParameters());
 		tbPrevDenominatorDataSetDefinitionMamba.setTbPrevAggregationTypes(TBPrevAggregationTypes.PREV_ART); // TBPrevAggregationTypes.PREV_ART is set to avoid NPE (actual logic in evaluator)
 		tbPrevDenominatorDataSetDefinitionMamba.setDescription("Disaggregated By ART Start by Age/Sex");
 		reportDefinition.addDataSetDefinition("Disaggregated By ART Start by Age/Sex",
-		    EthiOhriUtil.map(tbPrevDenominatorDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(tbPrevDenominatorDataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate}"));
 		
 		return reportDefinition;
 	}

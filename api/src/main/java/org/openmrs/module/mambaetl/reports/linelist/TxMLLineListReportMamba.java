@@ -48,7 +48,7 @@ public class TxMLLineListReportMamba implements ReportManager {
 		TXMLLineListDataSetDefinitionMamba txmlLineListDataSetDefinitionMamba = new TXMLLineListDataSetDefinitionMamba();
 		txmlLineListDataSetDefinitionMamba.addParameters(getParameters());
 		reportDefinition.addDataSetDefinition("List of ML Patients",
-		    EthiOhriUtil.map(txmlLineListDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(txmlLineListDataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate}"));
 		
 		return reportDefinition;
 	}

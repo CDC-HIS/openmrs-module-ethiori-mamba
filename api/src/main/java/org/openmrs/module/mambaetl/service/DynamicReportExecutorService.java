@@ -41,11 +41,17 @@ public class DynamicReportExecutorService {
 	
 	public ReportExecutionResult executeReport(String procedureName, Map<String, String> params, int offset, int limit)
 	        throws SQLException {
-		return executeReport(procedureName, params, offset, limit, null);
+		return executeReport(procedureName, params, offset, limit, null, null);
 	}
 	
 	public ReportExecutionResult executeReport(String procedureName, Map<String, String> params, int offset, int limit,
 	        DataSetEvaluatorHelper.ProgressReporter progressReporter) throws SQLException {
+		return executeReport(procedureName, params, offset, limit, progressReporter, null);
+	}
+	
+	public ReportExecutionResult executeReport(String procedureName, Map<String, String> params, int offset, int limit,
+	        DataSetEvaluatorHelper.ProgressReporter progressReporter,
+	        DataSetEvaluatorHelper.StatementRegistrar statementRegistrar) throws SQLException {
 
 		validateProcedureName(procedureName);
 
@@ -63,7 +69,7 @@ public class DynamicReportExecutorService {
 			        .prepareStatements(connection, procedureCalls)) {
 
 				DataSetEvaluatorHelper.executeStatements(statementContainer, procedureCalls, queryTimeout,
-				    progressReporter, maxRows);
+				    progressReporter, maxRows, statementRegistrar);
 
 				ResultSet[] allResultSets = statementContainer.getResultSets();
 
@@ -1039,12 +1045,11 @@ public class DynamicReportExecutorService {
 		}
 		return 0;
 	}
-
+	
 	/**
 	 * Limits rows fetched per stored-procedure call to protect JVM heap. Default 100 000 (16 GB).
-	 * Override via global property mambaetl.report.max.rows:
-	 *   20000  — 8 GB desktop
-	 *   0      — unlimited (high-end server or trusted large exports)
+	 * Override via global property mambaetl.report.max.rows: 20000 — 8 GB desktop 0 — unlimited
+	 * (high-end server or trusted large exports)
 	 */
 	private int getMaxRows() {
 		try {

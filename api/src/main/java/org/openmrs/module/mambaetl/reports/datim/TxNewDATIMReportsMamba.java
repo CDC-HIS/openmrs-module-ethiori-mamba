@@ -50,7 +50,7 @@ public class TxNewDATIMReportsMamba implements ReportManager {
 		HeaderDataSetDefinitionMamba headerDefinition = new HeaderDataSetDefinitionMamba();
 		headerDefinition.setDescription("DSD: TX_NEW");
 		headerDefinition.setParameters(getParameters());
-		reportDefinition.addDataSetDefinition("DSD: TX_NEW", EthiOhriUtil.map(headerDefinition, "endDate=${endDateGC}"));
+		reportDefinition.addDataSetDefinition("DSD: TX_NEW", EthiOhriUtil.map(headerDefinition, "endDate=${endDate}"));
 		
 		TxNewAgeSexCd4DataSetDefinitionMamba numeratorDataSetDefinition = new TxNewAgeSexCd4DataSetDefinitionMamba();
 		numeratorDataSetDefinition.addParameters(getParameters());
@@ -60,39 +60,39 @@ public class TxNewDATIMReportsMamba implements ReportManager {
 		reportDefinition
 		        .addDataSetDefinition(
 		            "Auto-Calculate Number of adults and children newly enrolled on antiretroviral therapy (ART). Numerator will auto-calculate from Age/Sex Disaggregates.",
-		            EthiOhriUtil.map(numeratorDataSetDefinition, "startDate=${startDateGC},endDate=${endDateGC}"));
+		            EthiOhriUtil.map(numeratorDataSetDefinition, "startDate=${startDate},endDate=${endDate}"));
 		
 		HeaderDataSetDefinitionMamba headerDefinition2 = new HeaderDataSetDefinitionMamba();
 		headerDefinition2.setDescription("Required Disaggregated by Age/Sex And CD4");
 		headerDefinition2.setParameters(getParameters());
 		reportDefinition.addDataSetDefinition("Required Disaggregated by Age/Sex And CD4",
-		    EthiOhriUtil.map(headerDefinition2, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(headerDefinition2, "startDate=${startDate},endDate=${endDate}"));
 		
 		TxNewAgeSexCd4DataSetDefinitionMamba lessThan200CD4DataSetDefinitionMamba = new TxNewAgeSexCd4DataSetDefinitionMamba();
 		lessThan200CD4DataSetDefinitionMamba.addParameters(getParameters());
 		lessThan200CD4DataSetDefinitionMamba.setTxNewAggregationType(TxNewAggregationTypes.LOW);
 		lessThan200CD4DataSetDefinitionMamba.setDescription("<200 CD4");
 		reportDefinition.addDataSetDefinition("<200 CD4",
-		    EthiOhriUtil.map(lessThan200CD4DataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(lessThan200CD4DataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate}"));
 		
 		TxNewAgeSexCd4DataSetDefinitionMamba greaterThan200CD4DataSetDefinitionMamba = new TxNewAgeSexCd4DataSetDefinitionMamba();
 		greaterThan200CD4DataSetDefinitionMamba.addParameters(getParameters());
 		greaterThan200CD4DataSetDefinitionMamba.setTxNewAggregationType(TxNewAggregationTypes.HIGH);
 		greaterThan200CD4DataSetDefinitionMamba.setDescription(">= 200 CD4");
 		reportDefinition.addDataSetDefinition(">= 200 CD4",
-		    EthiOhriUtil.map(greaterThan200CD4DataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(greaterThan200CD4DataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate}"));
 		
 		TxNewAgeSexCd4DataSetDefinitionMamba unknownCD4DataSetDefinitionMamba = new TxNewAgeSexCd4DataSetDefinitionMamba();
 		unknownCD4DataSetDefinitionMamba.addParameters(getParameters());
 		unknownCD4DataSetDefinitionMamba.setTxNewAggregationType(TxNewAggregationTypes.UNKNOWN);
 		reportDefinition.addDataSetDefinition("Unknown CD4",
-		    EthiOhriUtil.map(unknownCD4DataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(unknownCD4DataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate}"));
 		
 		TxNewAgeSexCd4DataSetDefinitionMamba breastFeedingStatusDataSetDefinitionMamba = new TxNewAgeSexCd4DataSetDefinitionMamba();
 		breastFeedingStatusDataSetDefinitionMamba.addParameters(getParameters());
 		breastFeedingStatusDataSetDefinitionMamba.setTxNewAggregationType(TxNewAggregationTypes.BREAST_FEEDING);
 		reportDefinition.addDataSetDefinition("Disaggregated by Breastfeeding Status at ART Initiation",
-		    EthiOhriUtil.map(breastFeedingStatusDataSetDefinitionMamba, "startDate=${startDateGC},endDate=${endDateGC}"));
+		    EthiOhriUtil.map(breastFeedingStatusDataSetDefinitionMamba, "startDate=${startDate},endDate=${endDate}"));
 		return reportDefinition;
 	}
 	

@@ -51,7 +51,7 @@ public class VLEligibilityLineListReportMamba implements ReportManager {
 		vlEligibilityLineListDatasetDefinition.addParameters(getParameters());
 		
 		reportDefinition.addDataSetDefinition("List of Patients eligible for VL",
-		    EthiOhriUtil.map(vlEligibilityLineListDatasetDefinition, "endDate=${endDateGC}"));
+		    EthiOhriUtil.map(vlEligibilityLineListDatasetDefinition, "endDate=${endDate}"));
 		
 		return reportDefinition;
 	}

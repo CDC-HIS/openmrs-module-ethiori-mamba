@@ -55,7 +55,7 @@ public class HMISDHIS2V2ReportMamba implements ReportManager {
 	}
 	
 	private String getParameterMappings() {
-		return "startDate=${startDateGC},endDate=${endDateGC}";
+		return "startDate=${startDate},endDate=${endDate}";
 	}
 	
 	@Override
