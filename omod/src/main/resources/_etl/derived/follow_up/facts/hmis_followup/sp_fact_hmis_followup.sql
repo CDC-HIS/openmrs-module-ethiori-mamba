@@ -1,16 +1,17 @@
+-- Wrapper for the follow-up materialization.
+-- Always performs a full rebuild: _create (idempotent CREATE TABLE)
+-- followed by _insert (TRUNCATE + 10-way LEFT JOIN INSERT).
+-- The table is dropped by sp_data_processing_derived_follow_up
+-- before this wrapper is called, so the wrapper is responsible only
+-- for the create-then-populate sequence.
 DELIMITER //
 
 DROP PROCEDURE IF EXISTS sp_fact_hmis_followup;
 
-CREATE PROCEDURE sp_fact_hmis_followup(IN etl_incremental_mode INT)
+CREATE PROCEDURE sp_fact_hmis_followup()
 BEGIN
     CALL sp_fact_hmis_followup_create();
-
-    IF etl_incremental_mode = 0 THEN
-        CALL sp_fact_hmis_followup_insert();
-    ELSE
-        CALL sp_fact_hmis_followup_update();
-    END IF;
+    CALL sp_fact_hmis_followup_insert();
 END //
 
 DELIMITER ;

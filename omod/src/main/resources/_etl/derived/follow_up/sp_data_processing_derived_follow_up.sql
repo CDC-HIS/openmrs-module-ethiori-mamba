@@ -1,9 +1,21 @@
 -- Entry point for the follow_up derived domain.
--- Called from sp_mamba_data_processing_etl(etl_incremental_mode).
--- On full rebuild (etl_incremental_mode = 0) the materialized table
--- is dropped first so the wrapper's _create + _insert can rebuild
--- it from scratch. On incremental (etl_incremental_mode = 1) the
--- table is kept and the wrapper's _update performs a delta refresh.
+-- Always performs a full rebuild of mamba_fact_followup on every
+-- ETL run. The previous incremental/delta-refresh optimization
+-- was reverted in favor of full rebuild: simpler, no drift, no
+-- reliance on the _mamba_etl_schedule watermark, and matches the
+-- user-triggered ETL model where the operator expects a known-
+-- correct state after each run.
+--
+-- Sequence:
+--   1. DROP TABLE mamba_fact_followup (always)
+--   2. CALL sp_fact_hmis_followup()  -- creates + TRUNCATE+INSERT
+--   3. CALL sp_compress_follow_up_flat_tables()  -- apply compression
+--      to mamba_fact_followup (via _create) and the 10 source flat
+--      tables. Idempotent on already-compressed tables.
+--
+-- The etl_incremental_mode parameter is kept in the signature for
+-- backward compatibility with the call site in
+-- sp_mamba_data_processing_etl, but is intentionally ignored.
 
 DELIMITER //
 
@@ -11,11 +23,11 @@ DROP PROCEDURE IF EXISTS sp_data_processing_derived_follow_up;
 
 CREATE PROCEDURE sp_data_processing_derived_follow_up(IN etl_incremental_mode INT)
 BEGIN
-    IF etl_incremental_mode = 0 THEN
-        DROP TABLE IF EXISTS mamba_fact_followup;
-    END IF;
+    DROP TABLE IF EXISTS mamba_fact_followup;
 
-    CALL sp_fact_hmis_followup(etl_incremental_mode);
+    CALL sp_fact_hmis_followup();
+
+    CALL sp_compress_follow_up_flat_tables();
 END //
 
 DELIMITER ;
