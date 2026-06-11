@@ -7,11 +7,10 @@
 ############################ derived folder SPs  ############################
 #############################################################################
 
-# MATERIALIZED FOLLOW-UP FORM
+# MATERIALIZED FOLLOW-UP FORM (full rebuild on every ETL run)
 sp_fact_hmis_followup.sql
 sp_fact_hmis_followup_create.sql
 sp_fact_hmis_followup_insert.sql
-sp_fact_hmis_followup_update.sql
 
 #############################################################################
 ##### A single SP that CALLs all SPs inside the derived & base folders ######

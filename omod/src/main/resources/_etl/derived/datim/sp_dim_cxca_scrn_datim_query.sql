@@ -30,8 +30,8 @@ BEGIN
         SET cxca_visit_condition = '1=1';
     END IF;
 
-    SET cxca_scrn_query = CONCAT('WITH FollowUp as (select follow_up.encounter_id,
-                         follow_up.client_id,
+    SET cxca_scrn_query = CONCAT('WITH FollowUp as (select encounter_id,
+                         client_id,
                          cervical_cancer_screening_status          as cx_ca_screening_status,
                          cervical_cancer_screening_method_strategy as screening_method,
                          via_screening_result,
@@ -49,25 +49,7 @@ BEGIN
                          hpv_dna_result_received_date              as hpv_received_date,
                          date_cytology_result_received             as cytology_received_date,
                          is_the_client_screened_in_this_facility
-                  FROM mamba_flat_encounter_follow_up follow_up
-                               LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1
-                                         ON follow_up.encounter_id = follow_up_1.encounter_id
-                               LEFT JOIN mamba_flat_encounter_follow_up_2 follow_up_2
-                                         ON follow_up.encounter_id = follow_up_2.encounter_id
-                               LEFT JOIN mamba_flat_encounter_follow_up_3 follow_up_3
-                                         ON follow_up.encounter_id = follow_up_3.encounter_id
-                               LEFT JOIN mamba_flat_encounter_follow_up_4 follow_up_4
-                                         ON follow_up.encounter_id = follow_up_4.encounter_id
-                               LEFT JOIN mamba_flat_encounter_follow_up_5 follow_up_5
-                                         ON follow_up.encounter_id = follow_up_5.encounter_id
-                               LEFT JOIN mamba_flat_encounter_follow_up_6 follow_up_6
-                                         ON follow_up.encounter_id = follow_up_6.encounter_id
-                               LEFT JOIN mamba_flat_encounter_follow_up_7 follow_up_7
-                                         ON follow_up.encounter_id = follow_up_7.encounter_id
-                               LEFT JOIN mamba_flat_encounter_follow_up_8 follow_up_8
-                                         ON follow_up.encounter_id = follow_up_8.encounter_id
-                               LEFT JOIN mamba_flat_encounter_follow_up_9 follow_up_9
-                                         ON follow_up.encounter_id = follow_up_9.encounter_id),
+                  FROM mamba_fact_followup),
      tmp_latest_follow_up AS (SELECT client_id,
                                      follow_up_date,
                                      encounter_id,
