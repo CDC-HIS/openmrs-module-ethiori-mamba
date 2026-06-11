@@ -16,7 +16,7 @@ WITH FollowUp AS (SELECT encounter_id,
                          art_antiretroviral_start_date       AS art_start_date,
                          follow_up_status,
                          treatment_end_date
-                  FROM tmp_hmis_follow_up),
+                  FROM mamba_fact_followup),
      -- TX curr
      tx_curr_all AS (SELECT client_id,
                             follow_up_date                                                                             AS FollowupDate,

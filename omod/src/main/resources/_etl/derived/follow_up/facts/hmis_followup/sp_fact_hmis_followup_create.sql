@@ -1,0 +1,64 @@
+DELIMITER //
+
+DROP PROCEDURE IF EXISTS sp_fact_hmis_followup_create;
+
+CREATE PROCEDURE sp_fact_hmis_followup_create()
+BEGIN
+    CREATE TABLE IF NOT EXISTS mamba_fact_followup (
+        encounter_id                                       INT          NOT NULL PRIMARY KEY,
+        client_id                                          INT          NOT NULL,
+        follow_up_status                                   VARCHAR(255)     NULL,
+        follow_up_date_followup_                           DATETIME         NULL,
+        art_antiretroviral_start_date                      DATETIME         NULL,
+        treatment_end_date                                 DATETIME         NULL,
+        next_visit_date                                    DATETIME         NULL,
+        regimen                                            VARCHAR(255)     NULL,
+        currently_breastfeeding_child                      VARCHAR(255)     NULL,
+        pregnancy_status                                   VARCHAR(255)     NULL,
+        transferred_in_check_this_for_all_t                VARCHAR(255)     NULL,
+        antiretroviral_art_dispensed_dose_i                VARCHAR(255)     NULL,
+        adherence                                          VARCHAR(255)     NULL,
+        cd4_count                                          DOUBLE           NULL,
+        weight_text_                                       VARCHAR(255)     NULL,
+        date_viral_load_results_received                   DATETIME         NULL,
+        hiv_viral_load                                     DOUBLE           NULL,
+        viral_load_test_status                             VARCHAR(255)     NULL,
+        viral_load_test_indication                         VARCHAR(255)     NULL,
+        viral_load_received_                               VARCHAR(255)     NULL,
+        date_of_reported_hiv_viral_load                    DATETIME         NULL,
+        dsd_category                                       VARCHAR(255)     NULL,
+        assessment_date                                    DATETIME         NULL,
+        date_started_on_tuberculosis_prophy                DATETIME         NULL,
+        date_completed_tuberculosis_prophyl                DATETIME         NULL,
+        tb_prophylaxis_type                                VARCHAR(255)     NULL,
+        was_the_patient_screened_for_tuberc                VARCHAR(255)     NULL,
+        tb_screening_date                                  DATETIME         NULL,
+        tb_treatment_status                                VARCHAR(255)     NULL,
+        screening_test_result_tuberculosis                 VARCHAR(255)     NULL,
+        lf_lam_result                                      VARCHAR(255)     NULL,
+        cervical_cancer_screening_status                   VARCHAR(255)     NULL,
+        cervical_cancer_screening_method_strategy          VARCHAR(255)     NULL,
+        via_screening_result                               VARCHAR(255)     NULL,
+        hpv_dna_screening_result                           VARCHAR(255)     NULL,
+        date_hpv_test_was_done                             DATETIME         NULL,
+        date_visual_inspection_of_the_cervi                DATETIME         NULL,
+        treatment_of_precancerous_lesions_of_the_cervix    VARCHAR(255)     NULL,
+        treatment_start_date                               DATETIME         NULL,
+        hpv_dna_result_received_date                       DATETIME         NULL,
+        is_the_client_screened_in_this_facility            VARCHAR(255)     NULL,
+        nutritional_supplements_provided                  VARCHAR(255)     NULL,
+        eats_nutritious_foods                              VARCHAR(255)     NULL,
+        nutritional_screening_result                       VARCHAR(255)     NULL,
+        nutritional_status_of_adult                        VARCHAR(255)     NULL,
+        nutritional_status_of_older_child_a                VARCHAR(255)     NULL,
+        weight_for_age_status                              VARCHAR(255)     NULL,
+        method_of_family_planning                          VARCHAR(255)     NULL,
+        on_family_planning                                 VARCHAR(255)     NULL,
+
+        INDEX idx_encounter_id (encounter_id),
+        INDEX idx_client_id   (client_id),
+        INDEX idx_client_date (client_id, follow_up_date_followup_)
+    ) ENGINE=InnoDB;
+END //
+
+DELIMITER ;

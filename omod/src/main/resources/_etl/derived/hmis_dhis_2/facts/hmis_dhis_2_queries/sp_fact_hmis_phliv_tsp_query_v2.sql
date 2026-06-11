@@ -18,7 +18,7 @@ WITH FollowUp AS (SELECT encounter_id,
                          COALESCE(nutritional_status_of_adult,
                                   nutritional_status_of_older_child_a,
                                   weight_for_age_status)                AS nutritional_screening_status
-                  FROM tmp_hmis_follow_up),
+                  FROM mamba_fact_followup),
      tx_curr_all AS (SELECT client_id,
                             follow_up_date_followup_ AS FollowupDate,
                             encounter_id,
