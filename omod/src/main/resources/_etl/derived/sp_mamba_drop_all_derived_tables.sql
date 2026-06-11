@@ -10,6 +10,8 @@ BEGIN
     DROP TABLE IF EXISTS mamba_fact_location_attribute_type;
     DROP TABLE IF EXISTS mamba_fact_location_tag;
     DROP TABLE IF EXISTS mamba_fact_location_tag_map;
-    DROP TABLE IF EXISTS tmp_hmis_follow_up;
+    -- mamba_fact_followup is dropped by sp_data_processing_derived_follow_up
+    -- (only on etl_incremental_mode = 0). It must NOT be dropped here on
+    -- every ETL run, otherwise the incremental delta refresh is defeated.
 END //
 DELIMITER ;
