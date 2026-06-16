@@ -63,7 +63,7 @@ jobs:
           repository: CDC-HIS/openmrs-module-mamba-core
           ref: palladium_uprade
           path: mamba-core
-          # token: ${{ secrets.MAMBA_CORE_PAT }}  # uncomment if repo is private
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Get mamba-core commit SHA
         id: mamba_sha
