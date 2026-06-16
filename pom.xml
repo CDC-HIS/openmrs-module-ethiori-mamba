@@ -16,7 +16,8 @@
     <name>Ethiori MambaETL Module</name>
     <description>MambaETL Module for ethiori reporting</description>
 
-    <url>https://wiki.openmrs.org/x/FQ4z</url>
+    <url>${nexus.url}/repository/maven-snapshots/</url>
+
 
     <scm>
         <connection>scm:git:git@github.com:CDC-HIS/openmrs-module-ethiori-mamba</connection>
@@ -179,6 +180,17 @@
 
         </dependencies>
     </dependencyManagement>
+
+    <distributionManagement>
+        <repository>
+            <id>nexus-releases</id>
+            <url>${nexus.url}/repository/maven-releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>nexus-snapshots</id>
+            <url>${nexus.url}/repository/maven-snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
 
 
     <build>
@@ -508,22 +520,8 @@
         <webservicesRestVersion>2.42.0</webservicesRestVersion>
         <apache.commons.dbcp>2.11.0</apache.commons.dbcp>
         <jacksonCoreVersion>2.15.3</jacksonCoreVersion>
+
+        <nexus.url>https://maven-repo.dh.moh.gov.et</nexus.url>
     </properties>
-
-    <distributionManagement>
-
-        <repository>
-            <id>openmrs-repo-modules</id>
-            <name>Modules</name>
-            <url>https://mavenrepo.openmrs.org/nexus/content/repositories/modules/</url>
-        </repository>
-
-        <snapshotRepository>
-            <id>openmrs-repo-snapshots</id>
-            <name>OpenMRS Snapshots</name>
-            <url>https://mavenrepo.openmrs.org/nexus/content/repositories/snapshots</url>
-        </snapshotRepository>
-
-    </distributionManagement>
 
 </project>
