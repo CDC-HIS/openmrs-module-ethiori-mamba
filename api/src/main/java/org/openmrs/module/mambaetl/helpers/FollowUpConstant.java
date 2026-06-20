@@ -27,6 +27,7 @@ public class FollowUpConstant {
 	}
 	
 	public static String getDbRepresentation(String status) {
+		if (status == null || status.trim().isEmpty()) return getListOfStatus();
 		switch (status) {
 			case ALIVE:
 				return "Alive";

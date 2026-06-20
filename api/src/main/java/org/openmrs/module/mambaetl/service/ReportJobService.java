@@ -64,16 +64,20 @@ public class ReportJobService {
                         }
                     });
             synchronized (job) {
-                job.setResult(new ReportDataResponse(job.getProcedureName(), result.getData()));
-                job.setCompletedAt(Instant.now());
-                job.setStatus(ReportJobStatus.COMPLETE);
+                if (job.getStatus() != ReportJobStatus.ERROR) {
+                    job.setResult(new ReportDataResponse(job.getProcedureName(), result.getData()));
+                    job.setCompletedAt(Instant.now());
+                    job.setStatus(ReportJobStatus.COMPLETE);
+                }
             }
         } catch (Exception e) {
             log.error("Async report job failed for procedure " + job.getProcedureName(), e);
             synchronized (job) {
-                job.setError("Stored procedure execution failed: " + e.getMessage());
-                job.setCompletedAt(Instant.now());
-                job.setStatus(ReportJobStatus.ERROR);
+                if (job.getStatus() != ReportJobStatus.ERROR) {
+                    job.setError("Stored procedure execution failed: " + e.getMessage());
+                    job.setCompletedAt(Instant.now());
+                    job.setStatus(ReportJobStatus.ERROR);
+                }
             }
         }
     }

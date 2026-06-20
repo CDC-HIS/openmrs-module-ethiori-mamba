@@ -1,7 +1,7 @@
 package org.openmrs.module.mambaetl.api.db.impl;
 
 import org.openmrs.module.mambaetl.api.db.PatientSummaryDao;
-import org.openmrs.module.mambacore.db.ConnectionPoolManager;
+import org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,8 +17,7 @@ public class jdbcPatientSummaryDao implements PatientSummaryDao {
 	@Override
     public Map<String, Object> getPatientSummary(String patientUuid) {
 
-        DataSource dataSource = ConnectionPoolManager
-                .getInstance().getEtlDataSource();
+        DataSource dataSource = DataSetEvaluatorHelper.getDataSource();
 
         String sql = "SELECT " +
                 "  * " +
