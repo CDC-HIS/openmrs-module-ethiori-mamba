@@ -1,6 +1,7 @@
 package org.openmrs.module.mambaetl.helpers;
 
 import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
 import org.openmrs.module.reporting.dataset.DataSetColumn;
 import org.openmrs.module.reporting.dataset.DataSetRow;
@@ -11,11 +12,17 @@ import javax.sql.DataSource;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class DataSetEvaluatorHelper {
-	
+
+	private static final Log log = LogFactory.getLog(DataSetEvaluatorHelper.class);
+
 	public static DataSource getDataSource() {
 		return CustomConnectionPoolManager.getInstance().getDataSource();
 	}
@@ -78,33 +85,94 @@ public class DataSetEvaluatorHelper {
 	
 	public static void mapResultSet(SimpleDataSet data, ResultSetMapper resultSetMapper, ResultSet[] resultSets,
 	        Boolean addTotal) throws SQLException {
-		
+
 		DataSetRow totalRow = new DataSetRow();
 		DataSetColumn totalCountColumn = new DataSetColumn();
-		DataSetColumn totalCountNameColumn;
-		if (addTotal && resultSets.length > 0 && data.getMetaData().getColumn("Error") == null) {
-			totalCountNameColumn = new DataSetColumn(resultSets[0].getMetaData().getColumnLabel(1), resultSets[0]
-			        .getMetaData().getColumnLabel(1), resultSets[0].getMetaData().getColumnTypeName(1).getClass());
-			totalCountColumn = new DataSetColumn(resultSets[0].getMetaData().getColumnLabel(2), resultSets[0].getMetaData()
-			        .getColumnLabel(2), resultSets[0].getMetaData().getColumnTypeName(2).getClass());
+		boolean totalRowAdded = false;
+
+		if (addTotal && resultSets.length > 0) {
+			DataSetColumn totalCountNameColumn = new DataSetColumn(resultSets[0].getMetaData().getColumnLabel(1),
+			    resultSets[0].getMetaData().getColumnLabel(1), String.class);
+			totalCountColumn = new DataSetColumn(resultSets[0].getMetaData().getColumnLabel(2),
+			    resultSets[0].getMetaData().getColumnLabel(2), String.class);
 			totalRow.addColumnValue(totalCountNameColumn, "TOTAL");
 			totalRow.addColumnValue(totalCountColumn, 0);
 			data.addRow(totalRow);
+			totalRowAdded = true;
 		}
 		for (ResultSet resultSet : resultSets) {
 			if (resultSet != null) {
 				resultSetMapper.mapResultSetToDataSet(resultSet, data);
-				
 			}
 		}
-		
-		if (addTotal && resultSets.length > 0) {
+
+		if (totalRowAdded) {
 			int dataRowCount = data.getRows().size() - 1;
 			totalRow.addColumnValue(totalCountColumn, dataRowCount);
 		}
-		
+
 	}
 	
+	public static void mergeResultSetsSideBySide(SimpleDataSet data, List<ResultSet> resultSets, String[] columnPrefixes)
+	        throws SQLException {
+		if (resultSets == null || resultSets.isEmpty()) {
+			return;
+		}
+		if (resultSets.size() == 1) {
+			mapResultSet(data, new ResultSetMapper(), resultSets.toArray(new ResultSet[0]), Boolean.FALSE);
+			return;
+		}
+
+		int count = 0;
+		Map<String, DataSetRow> rowsMap = new LinkedHashMap<>();
+
+		for (ResultSet resultSet : resultSets) {
+			if (resultSet == null) {
+				log.warn("Encountered a null ResultSet in mergeResultSetsSideBySide. Skipping.");
+				count++;
+				continue;
+			}
+
+			ResultSetMetaData metaData = resultSet.getMetaData();
+			int columnCount = metaData.getColumnCount();
+
+			while (resultSet.next()) {
+				String rowIndexKey = resultSet.getObject(1) != null ? resultSet.getObject(1).toString()
+				        : "null_key_" + UUID.randomUUID();
+				DataSetRow row = rowsMap.computeIfAbsent(rowIndexKey, k -> new DataSetRow());
+
+				for (int i = 1; i <= columnCount; i++) {
+					String originalColumnName = metaData.getColumnLabel(i);
+					Object columnValue = resultSet.getObject(i);
+					String columnName;
+
+					if (originalColumnName.equalsIgnoreCase("sex")) {
+						columnName = originalColumnName;
+						DataSetColumn col = new DataSetColumn(columnName, columnName,
+						    columnValue != null ? columnValue.getClass() : Object.class);
+						if (!row.getColumnValues().containsKey(col)) {
+							row.addColumnValue(col, columnValue);
+						}
+					} else {
+						String prefix = (columnPrefixes != null && count < columnPrefixes.length)
+						        ? columnPrefixes[count] + " "
+						        : "Group" + count + " ";
+						columnName = prefix + originalColumnName;
+						row.addColumnValue(
+						    new DataSetColumn(columnName, columnName,
+						        columnValue != null ? columnValue.getClass() : Object.class),
+						    columnValue);
+					}
+				}
+			}
+			count++;
+		}
+
+		for (DataSetRow row : rowsMap.values()) {
+			data.addRow(row);
+		}
+	}
+
 	/**
 	 * Inner class to hold ProcedureCall details.
 	 */

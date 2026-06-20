@@ -95,6 +95,10 @@ public class DynamicReportExecutorService {
 		return new ReportExecutionResult(Collections.emptyList(), new ArrayList<>());
 	}
 	
+	public List<DataSetEvaluatorHelper.ProcedureCall> buildCalls(String procedureName, Map<String, String> params) {
+		return getProcedureCalls(procedureName, params);
+	}
+
 	private void validateProcedureName(String procedureName) {
 		if (!procedureName.matches("^[a-zA-Z0-9_]+$")) {
 			throw new IllegalArgumentException(
