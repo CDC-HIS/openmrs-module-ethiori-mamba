@@ -66,7 +66,7 @@ public class PmtctFoEvaluatorMamba implements DataSetEvaluator {
         } catch (SQLException e) {
             throw new EvaluationException(DATABASE_CONNECTION_ERROR + e.getMessage(), e);
         }
-        return null;
+        throw new EvaluationException("unreachable");
     }
 	
 	private List<ProcedureCall> createProcedureCalls(PmtctFoDataSetDefinitionMamba dataSetDefinitionMamba) {

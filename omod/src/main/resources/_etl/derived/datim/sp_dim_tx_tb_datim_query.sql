@@ -76,8 +76,8 @@ BEGIN
         FROM (select datim_agegroup from mamba_dim_agegroup group by datim_agegroup) as order_query;
     END IF;
 
-    SET tx_tb_query = CONCAT('WITH FollowUp AS (select follow_up.encounter_id,
-                         follow_up.client_id,
+    SET tx_tb_query = CONCAT('WITH FollowUp AS (select encounter_id,
+                         client_id,
                          follow_up_status,
                          follow_up_date_followup_            AS follow_up_date,
                          art_antiretroviral_start_date       AS art_start_date,
@@ -99,25 +99,7 @@ BEGIN
                          specimen_sent_to_lab,
                          tuberculosis_drug_treatment_start_d as tb_treatment_start_date,
                          date_active_tbrx_completed as tb_treatment_completed_date
-                  FROM mamba_flat_encounter_follow_up follow_up
-                               LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1
-                                         ON follow_up.encounter_id = follow_up_1.encounter_id
-                               LEFT JOIN mamba_flat_encounter_follow_up_2 follow_up_2
-                                         ON follow_up.encounter_id = follow_up_2.encounter_id
-                               LEFT JOIN mamba_flat_encounter_follow_up_3 follow_up_3
-                                         ON follow_up.encounter_id = follow_up_3.encounter_id
-                               LEFT JOIN mamba_flat_encounter_follow_up_4 follow_up_4
-                                         ON follow_up.encounter_id = follow_up_4.encounter_id
-                               LEFT JOIN mamba_flat_encounter_follow_up_5 follow_up_5
-                                         ON follow_up.encounter_id = follow_up_5.encounter_id
-                               LEFT JOIN mamba_flat_encounter_follow_up_6 follow_up_6
-                                         ON follow_up.encounter_id = follow_up_6.encounter_id
-                               LEFT JOIN mamba_flat_encounter_follow_up_7 follow_up_7
-                                         ON follow_up.encounter_id = follow_up_7.encounter_id
-                               LEFT JOIN mamba_flat_encounter_follow_up_8 follow_up_8
-                                         ON follow_up.encounter_id = follow_up_8.encounter_id
-                               LEFT JOIN mamba_flat_encounter_follow_up_9 follow_up_9
-                                         ON follow_up.encounter_id = follow_up_9.encounter_id
+                  FROM mamba_fact_followup
                     ),
                          tmp_latest_follow_up
                              as (select client_id,
@@ -157,8 +139,8 @@ BEGIN
                                                  uan,
                                                  latest_follow_up.follow_up_status as latest_follow_up_staus
                                           from latest_screeing_follow_up follow_up
-                                                   inner join mamba_dim_client client on follow_up.client_id = client.client_id
-                                                   left join latest_follow_up on follow_up.client_id = latest_follow_up.client_id),
+                                                   inner join mamba_dim_client client on client_id = client.client_id
+                                                   left join latest_follow_up on client_id = latest_follow_up.client_id),
                      tmp_tb_treatment as (select *,
                                                      ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY tb_treatment_start_date DESC,
                                                          encounter_id DESC) AS row_num
