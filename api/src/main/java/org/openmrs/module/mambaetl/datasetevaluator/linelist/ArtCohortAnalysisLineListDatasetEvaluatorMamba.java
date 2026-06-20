@@ -69,7 +69,7 @@ public class ArtCohortAnalysisLineListDatasetEvaluatorMamba implements DataSetEv
         } catch (SQLException e) {
             throw new EvaluationException(DATABASE_CONNECTION_ERROR + e.getMessage(), e);
         }
-        return null;
+        throw new EvaluationException("unreachable");
     }
 	
 	private List<ProcedureCall> createProcedureCalls(ArtCohortAnalysisLineListDataSetDefinitionMamba dataSetDefinitionMamba) {
