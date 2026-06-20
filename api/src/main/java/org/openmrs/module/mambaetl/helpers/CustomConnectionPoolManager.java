@@ -88,6 +88,12 @@ public class CustomConnectionPoolManager {
 		return dataSource;
 	}
 	
+	public static void shutdownIfInitialized() {
+		if (instance != null) {
+			instance.closeDataSource();
+		}
+	}
+
 	/**
 	 * Gracefully closes all connections in the pool. Should be called from the module's
 	 * {@code stopped()} / {@code shutdown()} lifecycle hook to avoid FD leaks on module reload.
