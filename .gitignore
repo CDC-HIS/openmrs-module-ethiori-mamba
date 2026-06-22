@@ -281,6 +281,7 @@ nb-configuration.xml
 !.gitattributes
 !.tx
 !.github/
+!.githooks/
 *~
 #############
 
