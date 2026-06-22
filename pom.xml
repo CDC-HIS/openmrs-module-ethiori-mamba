@@ -9,14 +9,30 @@
         <version>1.1.1</version>
     </parent>
 
-    <groupId>org.openmrs.module</groupId>
+    <groupId>io.github.abdi-icap</groupId>
     <artifactId>ethiohri-mamba</artifactId>
-    <version>2.1.0-SNAPSHOT</version>
+    <version>2.1.2</version>
     <packaging>pom</packaging>
     <name>Ethiori MambaETL Module</name>
     <description>MambaETL Module for ethiori reporting</description>
 
     <url>${nexus.url}/repository/maven-snapshots/</url>
+    <organization>
+        <name>ICAP At Columbia Unversity</name>
+    </organization>
+    <developers>
+        <developer>
+            <name>Samuel Ababeye</name>
+        </developer>
+    </developers>
+
+    <licenses>
+        <license>
+            <name>Apache 2</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
 
     <scm>
@@ -32,6 +48,7 @@
     </modules>
 
     <repositories>
+
         <repository>
             <id>openmrs-repo</id>
             <name>OpenMRS Nexus Repository</name>
@@ -105,7 +122,7 @@
 
             <!-- End OpenMRS core -->
             <dependency>
-                <groupId>org.openmrs.module</groupId>
+                <groupId>io.github.abdi-icap</groupId>
                 <artifactId>reporting-api</artifactId>
                 <version>${reportingVersion}</version>
                 <scope>provided</scope>
@@ -181,19 +198,77 @@
         </dependencies>
     </dependencyManagement>
 
-    <distributionManagement>
-        <repository>
-            <id>nexus-releases</id>
-            <url>${nexus.url}/repository/maven-releases/</url>
-        </repository>
-        <snapshotRepository>
-            <id>nexus-snapshots</id>
-            <url>${nexus.url}/repository/maven-snapshots/</url>
-        </snapshotRepository>
-    </distributionManagement>
+<!--    <distributionManagement>-->
+<!--        <repository>-->
+<!--            <id>nexus-releases</id>-->
+<!--            <url>${nexus.url}/repository/maven-releases/</url>-->
+<!--        </repository>-->
+<!--        <snapshotRepository>-->
+<!--            <id>nexus-snapshots</id>-->
+<!--            <url>${nexus.url}/repository/maven-snapshots/</url>-->
+<!--        </snapshotRepository>-->
+<!--    </distributionManagement>-->
 
 
     <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>3.2.4</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <bestPractices>true</bestPractices>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.3.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>0.6.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <publishingServerId>central</publishingServerId>
+                    <autoPublish>true</autoPublish>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.6.3</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <failOnError>false</failOnError>
+                </configuration>
+            </plugin>
+        </plugins>
         <pluginManagement>
 
             <plugins>
@@ -510,13 +585,13 @@
         <javaCompilerSource>21</javaCompilerSource>
         <javaCompilerTarget>21</javaCompilerTarget>
         <openmrsPlatformVersion>2.8.6</openmrsPlatformVersion>
-        <reportingVersion>1.26.0</reportingVersion>
+        <reportingVersion>2.2.1</reportingVersion>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <calculationVersion>1.1</calculationVersion>
-        <serialization.xstreamVersion>0.2.16</serialization.xstreamVersion>
+        <serialization.xstreamVersion>0.3.0</serialization.xstreamVersion>
         <cohortVersion>3.5.0</cohortVersion>
         <javaxAnnotationVersion>1.3.2</javaxAnnotationVersion>
-        <mambaETLCoreVersion>2.0.1-SNAPSHOT</mambaETLCoreVersion>
+        <mambaETLCoreVersion>2.0.0</mambaETLCoreVersion>
         <webservicesRestVersion>2.42.0</webservicesRestVersion>
         <apache.commons.dbcp>2.11.0</apache.commons.dbcp>
         <jacksonCoreVersion>2.15.3</jacksonCoreVersion>

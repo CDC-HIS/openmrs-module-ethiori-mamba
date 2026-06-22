@@ -26,13 +26,13 @@ import static org.openmrs.module.mambaetl.helpers.ValidationHelper.ValidateDates
 
 @Handler(supports = { TBPrevDenominatorDataSetDefinitionMamba.class })
 public class TBPrevDenominatorEvaluatorMamba implements DataSetEvaluator {
-
+	
 	private static final Log log = LogFactory.getLog(TBPrevDenominatorEvaluatorMamba.class);
-
+	
 	private static final String ERROR_PROCESSING_RESULT_SET = "Error processing ResultSet: ";
-
+	
 	private static final String DATABASE_CONNECTION_ERROR = "Database connection error: ";
-
+	
 	@Override
 	public DataSet evaluate(DataSetDefinition dataSetDefinition, EvaluationContext evalContext)
 	        throws EvaluationException {
@@ -68,7 +68,7 @@ public class TBPrevDenominatorEvaluatorMamba implements DataSetEvaluator {
 		}
 		throw new EvaluationException("unreachable");
 	}
-
+	
 	private List<ProcedureCall> createProcedureCalls(TBPrevDenominatorDataSetDefinitionMamba dataSetDefinitionMamba) {
 		java.sql.Date startDate = dataSetDefinitionMamba.getStartDate() != null
 		        ? new java.sql.Date(dataSetDefinitionMamba.getStartDate().getTime())

@@ -30,16 +30,16 @@ import static org.openmrs.module.mambaetl.helpers.ValidationHelper.ValidateDates
 
 @Handler(supports = { HMISDHIS2DatasetDefinition.class })
 public class HMISDHIS2DataSetEvaluator implements DataSetEvaluator {
-
+	
 	private static final Log log = LogFactory.getLog(HMISDHIS2DataSetEvaluator.class);
-
+	
 	private static final String ERROR_PROCESSING_RESULT_SET = "Error processing ResultSet: ";
-
+	
 	private static final String DATABASE_CONNECTION_ERROR = "Database connection error: ";
-
+	
 	@Autowired
 	private DynamicReportExecutorService reportExecutorService;
-
+	
 	@Override
 	public DataSet evaluate(DataSetDefinition dataSetDefinition, EvaluationContext evalContext)
 	        throws EvaluationException {
@@ -78,7 +78,7 @@ public class HMISDHIS2DataSetEvaluator implements DataSetEvaluator {
 		}
 		throw new EvaluationException("unreachable");
 	}
-
+	
 	private Map<String, String> toParamMap(HMISDHIS2DatasetDefinition def) {
 		Map<String, String> params = new HashMap<>();
 		if (def.getStartDate() != null) {

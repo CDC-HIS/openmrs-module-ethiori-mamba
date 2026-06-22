@@ -12,7 +12,7 @@ import java.time.ZoneId;
 import java.util.*;
 
 public class EthiOhriUtil {
-
+	
 	private static final Log log = LogFactory.getLog(EthiOhriUtil.class);
 	
 	public static List<Parameter> getDateRangeParameters(Boolean required) {
