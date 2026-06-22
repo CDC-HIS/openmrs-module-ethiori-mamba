@@ -31,20 +31,21 @@ import java.util.stream.Collectors;
 
 @Service
 public class DynamicReportExecutorService {
-
+	
 	private static final Log log = LogFactory.getLog(DynamicReportExecutorService.class);
-
+	
 	private static final String ERROR_PROCESSING_RESULT_SET = "Error processing ResultSet: ";
-
+	
 	private static final String DATABASE_CONNECTION_ERROR = "Database connection error: ";
-
+	
 	@FunctionalInterface
 	private interface ProcedureCallBuilder {
+		
 		List<DataSetEvaluatorHelper.ProcedureCall> build(Map<String, String> params);
 	}
-
+	
 	private final Map<String, ProcedureCallBuilder> registry;
-
+	
 	public DynamicReportExecutorService() {
 		this.registry = buildRegistry();
 	}
@@ -114,7 +115,7 @@ public class DynamicReportExecutorService {
 	public List<DataSetEvaluatorHelper.ProcedureCall> buildCalls(String procedureName, Map<String, String> params) {
 		return getProcedureCalls(procedureName, params);
 	}
-
+	
 	private void validateProcedureName(String procedureName) {
 		if (!procedureName.matches("^[a-zA-Z0-9_]+$")) {
 			throw new IllegalArgumentException(
@@ -125,7 +126,7 @@ public class DynamicReportExecutorService {
 	// -------------------------------------------------------------------------
 	// Procedure mapping registry
 	// -------------------------------------------------------------------------
-
+	
 	private Map<String, ProcedureCallBuilder> buildRegistry() {
 		Map<String, ProcedureCallBuilder> r = new LinkedHashMap<>();
 
@@ -392,9 +393,8 @@ public class DynamicReportExecutorService {
 
 		return Collections.unmodifiableMap(r);
 	}
-
-	private List<DataSetEvaluatorHelper.ProcedureCall> getProcedureCalls(String name,
-	        Map<String, String> params) {
+	
+	private List<DataSetEvaluatorHelper.ProcedureCall> getProcedureCalls(String name, Map<String, String> params) {
 		String key = name.toLowerCase(java.util.Locale.ROOT);
 		ProcedureCallBuilder builder = registry.get(key);
 		if (builder == null) {

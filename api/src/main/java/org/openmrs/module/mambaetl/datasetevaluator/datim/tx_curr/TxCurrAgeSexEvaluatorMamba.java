@@ -25,13 +25,13 @@ import static org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper.*;
 
 @Handler(supports = { TxCurrAgeSexDataSetDefinitionMamba.class })
 public class TxCurrAgeSexEvaluatorMamba implements DataSetEvaluator {
-
+	
 	private static final Log log = LogFactory.getLog(TxCurrAgeSexEvaluatorMamba.class);
-
+	
 	private static final String ERROR_PROCESSING_RESULT_SET = "Error processing ResultSet: ";
-
+	
 	private static final String DATABASE_CONNECTION_ERROR = "Database connection error: ";
-
+	
 	@Override
 	public DataSet evaluate(DataSetDefinition dataSetDefinition, EvaluationContext evalContext)
 	        throws EvaluationException {
@@ -67,7 +67,7 @@ public class TxCurrAgeSexEvaluatorMamba implements DataSetEvaluator {
 		}
 		throw new EvaluationException("unreachable");
 	}
-
+	
 	private List<ProcedureCall> createProcedureCalls(TxCurrAgeSexDataSetDefinitionMamba dataSetDefinitionMamba) {
 		java.sql.Date endDate = dataSetDefinitionMamba.getEndDate() != null
 		        ? new java.sql.Date(dataSetDefinitionMamba.getEndDate().getTime())

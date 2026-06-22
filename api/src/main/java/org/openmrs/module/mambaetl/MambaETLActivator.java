@@ -42,7 +42,7 @@ public class MambaETLActivator extends BaseModuleActivator {
 		CustomConnectionPoolManager.shutdownIfInitialized();
 		log.info("Stopped MambaETL Reference Module");
 	}
-
+	
 	public void shutdown() {
 		CustomConnectionPoolManager.shutdownIfInitialized();
 		log.info("Shutdown MambaETL Reference Module");

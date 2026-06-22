@@ -117,16 +117,16 @@ public class DataSetEvaluatorHelper {
 	
 	public static void mapResultSet(SimpleDataSet data, ResultSetMapper resultSetMapper, ResultSet[] resultSets,
 	        Boolean addTotal) throws SQLException {
-
+		
 		DataSetRow totalRow = new DataSetRow();
 		DataSetColumn totalCountColumn = new DataSetColumn();
 		boolean totalRowAdded = false;
-
+		
 		if (addTotal && resultSets.length > 0) {
 			DataSetColumn totalCountNameColumn = new DataSetColumn(resultSets[0].getMetaData().getColumnLabel(1),
-			    resultSets[0].getMetaData().getColumnLabel(1), String.class);
-			totalCountColumn = new DataSetColumn(resultSets[0].getMetaData().getColumnLabel(2),
-			    resultSets[0].getMetaData().getColumnLabel(2), String.class);
+			        resultSets[0].getMetaData().getColumnLabel(1), String.class);
+			totalCountColumn = new DataSetColumn(resultSets[0].getMetaData().getColumnLabel(2), resultSets[0].getMetaData()
+			        .getColumnLabel(2), String.class);
 			totalRow.addColumnValue(totalCountNameColumn, "TOTAL");
 			totalRow.addColumnValue(totalCountColumn, 0);
 			data.addRow(totalRow);
@@ -137,14 +137,14 @@ public class DataSetEvaluatorHelper {
 				resultSetMapper.mapResultSetToDataSet(resultSet, data);
 			}
 		}
-
+		
 		if (totalRowAdded) {
 			int dataRowCount = data.getRows().size() - 1;
 			totalRow.addColumnValue(totalCountColumn, dataRowCount);
 		}
-
+		
 	}
-
+	
 	public static void mergeResultSetsSideBySide(SimpleDataSet data, List<ResultSet> resultSets, String[] columnPrefixes)
 	        throws SQLException {
 		if (resultSets == null || resultSets.isEmpty()) {
