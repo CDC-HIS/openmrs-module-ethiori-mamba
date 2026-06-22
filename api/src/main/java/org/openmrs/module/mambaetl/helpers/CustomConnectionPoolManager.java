@@ -5,7 +5,7 @@
  * the terms of the Healthcare Disclaimer located at http://openmrs.org/license.
  * <p>
  * Copyright (C) OpenMRS Inc. OpenMRS is a registered trademark and the OpenMRS
- * graphic logo is a trademark of OpenMRS Inc.
+ * graphic logo is a trademark of Healthcare Disclaimer located at http://openmrs.org/license.
  */
 package org.openmrs.module.mambaetl.helpers;
 
@@ -25,29 +25,12 @@ public class CustomConnectionPoolManager {
 	
 	private final BasicDataSource dataSource;
 	
-	private CustomConnectionPoolManager() {
-		
-		Properties properties = Context.getRuntimeProperties();
-		
-		String url = properties.getProperty("mambaetl.analysis.db.url");
-		String userName = properties.getProperty("mambaetl.analysis.db.username");
-		String password = properties.getProperty("mambaetl.analysis.db.password");
-		
-		String resolvedUrl = (url != null) ? url
-		        : "jdbc:mysql://localhost:3306/analytics_db?autoReconnect=true&useSSL=false";
-		
+	private CustomConnectionPoolManager(String url, String userName, String password, int maxTotal, int maxIdle) {
 		dataSource = new BasicDataSource();
 		dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
-		dataSource.setUsername(userName != null ? userName : properties.getProperty("connection.username"));
-		dataSource.setPassword(password != null ? password : properties.getProperty("connection.password"));
-		dataSource.setUrl(resolvedUrl);
-		
-		// Pool sizes read from OpenMRS global properties at pool creation time.
-		// Override via Admin > Global Properties:
-		//   mambaetl.analysis.db.pool.maxTotal  (default 15, 16 GB target)
-		//   mambaetl.analysis.db.pool.maxIdle   (default 6)
-		int maxTotal = getIntGlobalProperty("mambaetl.analysis.db.pool.maxTotal", 15);
-		int maxIdle = getIntGlobalProperty("mambaetl.analysis.db.pool.maxIdle", 6);
+		dataSource.setUsername(userName);
+		dataSource.setPassword(password);
+		dataSource.setUrl(url);
 		
 		dataSource.setInitialSize(2);
 		dataSource.setMinIdle(2);
@@ -70,14 +53,34 @@ public class CustomConnectionPoolManager {
 	}
 	
 	/**
-	 * Thread-safe double-checked locking singleton. Using {@code volatile} on the field prevents
-	 * the broken-singleton problem caused by partial construction visibility.
+	 * Thread-safe double-checked locking singleton. Context reads (runtime properties, global
+	 * properties) are performed BEFORE acquiring the class lock. This eliminates a potential
+	 * lock-ordering deadlock: if Context.getAdministrationService() is called while holding the
+	 * class lock, and the OpenMRS/Spring layer simultaneously holds a Spring ApplicationContext
+	 * lock waiting to enter this class's synchronized block, both threads would wait forever. By
+	 * reading config outside the lock, the synchronized block only performs fast, lock-free object
+	 * construction and a volatile write.
 	 */
 	public static CustomConnectionPoolManager getInstance() {
 		if (instance == null) {
+			// Read all OpenMRS context values before acquiring the class lock.
+			Properties properties = Context.getRuntimeProperties();
+			String url = properties.getProperty("mambaetl.analysis.db.url");
+			String userName = properties.getProperty("mambaetl.analysis.db.username");
+			String password = properties.getProperty("mambaetl.analysis.db.password");
+			
+			String resolvedUrl = (url != null) ? url
+			        : "jdbc:mysql://localhost:3306/analytics_db?autoReconnect=true&useSSL=false";
+			String resolvedUser = userName != null ? userName : properties.getProperty("connection.username");
+			String resolvedPass = password != null ? password : properties.getProperty("connection.password");
+			
+			int maxTotal = readIntGlobalProperty("mambaetl.analysis.db.pool.maxTotal", 15);
+			int maxIdle = readIntGlobalProperty("mambaetl.analysis.db.pool.maxIdle", 6);
+			
 			synchronized (CustomConnectionPoolManager.class) {
+				// Re-check under lock; another thread may have initialized while we were reading config.
 				if (instance == null) {
-					instance = new CustomConnectionPoolManager();
+					instance = new CustomConnectionPoolManager(resolvedUrl, resolvedUser, resolvedPass, maxTotal, maxIdle);
 				}
 			}
 		}
@@ -88,27 +91,38 @@ public class CustomConnectionPoolManager {
 		return dataSource;
 	}
 	
-	public static void shutdownIfInitialized() {
+	/**
+	 * Closes the pool if it has been initialized. Synchronized on the class lock so that concurrent
+	 * calls from the module stopped() lifecycle and the Spring @PreDestroy hook are mutually
+	 * exclusive — preventing a double-close race during module unloading.
+	 */
+	public static synchronized void shutdownIfInitialized() {
 		if (instance != null) {
-			instance.closeDataSource();
+			instance.doClose();
+			instance = null;
 		}
 	}
 	
 	/**
-	 * Gracefully closes all connections in the pool. Should be called from the module's
-	 * {@code stopped()} / {@code shutdown()} lifecycle hook to avoid FD leaks on module reload.
+	 * Gracefully closes all connections in the pool.
+	 * 
+	 * @deprecated Use {@link #shutdownIfInitialized()} which is properly synchronized.
 	 */
+	@Deprecated
 	public void closeDataSource() {
+		shutdownIfInitialized();
+	}
+	
+	private void doClose() {
 		try {
 			if (!dataSource.isClosed()) {
 				dataSource.close();
 			}
 		}
 		catch (SQLException ignored) {}
-		instance = null;
 	}
 	
-	private static int getIntGlobalProperty(String key, int defaultValue) {
+	private static int readIntGlobalProperty(String key, int defaultValue) {
 		try {
 			String val = Context.getAdministrationService().getGlobalProperty(key);
 			if (val != null && !val.trim().isEmpty()) {
