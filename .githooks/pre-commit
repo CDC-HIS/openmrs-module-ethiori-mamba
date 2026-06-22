@@ -1,0 +1,70 @@
+#!/bin/sh
+# Branching workflow guard for ethiori-mamba.
+#
+# Two tracks:
+#   master            -> Java 8  (source of truth for business logic)
+#   palladium_upgrade -> Java 21 (Java 21 build config layered on top)
+#
+# New features belong on master first, then cherry-picked to palladium_upgrade.
+# Java 21-only changes (compiler config, --add-opens, platform version bumps)
+# go directly to palladium_upgrade.
+
+JAVA21_BRANCH="palladium_upgrade"
+BASE_BRANCH="master"
+
+current_branch=$(git symbolic-ref --short HEAD 2>/dev/null)
+
+if [ "$current_branch" = "$JAVA21_BRANCH" ]; then
+    # Check if only build-config files changed (pom.xml, .github/**, docs/**)
+    changed_files=$(git diff --cached --name-only)
+    build_only=true
+    for f in $changed_files; do
+        case "$f" in
+            pom.xml|api/pom.xml|omod/pom.xml|.github/*|docs/*)
+                ;;
+            *)
+                build_only=false
+                break
+                ;;
+        esac
+    done
+
+    if [ "$build_only" = "false" ]; then
+        printf "\n"
+        printf "┌─────────────────────────────────────────────────────────┐\n"
+        printf "│  BRANCHING RULE REMINDER                                │\n"
+        printf "│                                                         │\n"
+        printf "│  You are committing to: %-32s│\n" "$JAVA21_BRANCH (Java 21)"
+        printf "│                                                         │\n"
+        printf "│  Business logic should go to '%s' first,          │\n" "$BASE_BRANCH"
+        printf "│  then be cherry-picked here:                            │\n"
+        printf "│                                                         │\n"
+        printf "│    git checkout %s                               │\n" "$BASE_BRANCH"
+        printf "│    # make your changes, commit                          │\n"
+        printf "│    git checkout %s                  │\n" "$JAVA21_BRANCH"
+        printf "│    git cherry-pick <sha>                                │\n"
+        printf "│                                                         │\n"
+        printf "│  Only Java 21 build-config changes belong here         │\n"
+        printf "│  directly (pom.xml compiler/platform, --add-opens).    │\n"
+        printf "└─────────────────────────────────────────────────────────┘\n"
+        printf "\n"
+        printf "Is this a Java 21-only build-config change? [y/N] "
+
+        # Read from terminal even when stdin is not a tty
+        exec < /dev/tty
+        read answer
+        printf "\n"
+
+        case "$answer" in
+            [yY]|[yY][eE][sS])
+                exit 0
+                ;;
+            *)
+                printf "Commit aborted. Switch to '%s' for feature work.\n" "$BASE_BRANCH"
+                exit 1
+                ;;
+        esac
+    fi
+fi
+
+exit 0
