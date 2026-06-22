@@ -14,12 +14,9 @@ public class ConnectionPoolShutdownHook {
 	
 	@PreDestroy
 	public void shutdown() {
-		if (!CustomConnectionPoolManager.isInitialized()) {
-			return;
-		}
 		log.info("Shutting down analytics connection pool");
 		try {
-			CustomConnectionPoolManager.getInstance().closeDataSource();
+			CustomConnectionPoolManager.shutdownIfInitialized();
 		}
 		catch (Exception e) {
 			log.warn("Failed to close analytics connection pool during shutdown", e);

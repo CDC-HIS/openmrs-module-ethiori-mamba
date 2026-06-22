@@ -1,5 +1,7 @@
 package org.openmrs.module.mambaetl.helpers;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openmrs.module.reporting.evaluation.parameter.Mapped;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.evaluation.parameter.Parameterizable;
@@ -10,6 +12,8 @@ import java.time.ZoneId;
 import java.util.*;
 
 public class EthiOhriUtil {
+	
+	private static final Log log = LogFactory.getLog(EthiOhriUtil.class);
 	
 	public static List<Parameter> getDateRangeParameters(Boolean required) {
 		Parameter startDate = new Parameter("startDate", "Start Date", Date.class);
@@ -55,7 +59,7 @@ public class EthiOhriUtil {
 			ethiopianDate = EthiopianDateConverter.ToEthiopianDate(lDate);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			log.warn("Ethiopian date conversion failed", e);
 		}
 		return ethiopianDate;
 	}
@@ -70,7 +74,7 @@ public class EthiOhriUtil {
 			ethiopianDate = EthiopianDateConverter.ToEthiopianDate(lDate);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			log.warn("Ethiopian date conversion failed", e);
 		}
 		return ethiopianDate == null ? "" : ethiopianDate.getDay() + "/" + ethiopianDate.getMonth() + "/"
 		        + ethiopianDate.getYear();

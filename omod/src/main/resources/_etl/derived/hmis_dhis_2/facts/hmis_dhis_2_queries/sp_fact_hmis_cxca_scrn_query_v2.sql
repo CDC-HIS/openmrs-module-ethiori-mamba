@@ -18,7 +18,7 @@ WITH FollowUp AS (SELECT encounter_id,
                          date_visual_inspection_of_the_cervi       AS via_date,
                          hpv_dna_result_received_date              AS hpv_received_date,
                          is_the_client_screened_in_this_facility
-                  FROM mamba_fact_followup),
+                  FROM tmp_hmis_follow_up),
      tmp_cx_screened as (select *,
                                 ROW_NUMBER() over (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) as row_num
                          from FollowUp

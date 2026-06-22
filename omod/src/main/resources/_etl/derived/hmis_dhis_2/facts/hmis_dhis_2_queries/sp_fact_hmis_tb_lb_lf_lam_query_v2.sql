@@ -21,7 +21,7 @@ WITH FollowUp AS (SELECT encounter_id,
                          date_started_on_tuberculosis_prophy,
                          screening_test_result_tuberculosis   AS screening_result,
                          lf_lam_result
-                  FROM mamba_fact_followup),
+                  FROM tmp_hmis_follow_up),
      tmp_latest_follow_up as (SELECT client_id,
                                      follow_up_date                                                                             AS FollowupDate,
                                      encounter_id,

@@ -1,29 +1,32 @@
 package org.openmrs.module.mambaetl.datasetevaluator.hmis_dhis2;
 
-import org.openmrs.api.AdministrationService;
-import org.openmrs.api.context.Context;
-import org.openmrs.module.mambaetl.datasetdefinition.hmis_dhis2.HMISDHIS2DatasetDefinition;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.annotation.Handler;
+import org.openmrs.module.mambaetl.datasetdefinition.hmis_dhis2.HMISDHIS2DatasetDefinition;
 import org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper;
 import org.openmrs.module.mambaetl.helpers.mapper.ResultSetMapper;
-import static org.openmrs.module.mambaetl.helpers.ValidationHelper.ValidateDates;
+import org.openmrs.module.mambaetl.service.DynamicReportExecutorService;
 import org.openmrs.module.reporting.dataset.DataSet;
 import org.openmrs.module.reporting.dataset.SimpleDataSet;
 import org.openmrs.module.reporting.dataset.definition.DataSetDefinition;
 import org.openmrs.module.reporting.dataset.definition.evaluator.DataSetEvaluator;
 import org.openmrs.module.reporting.evaluation.EvaluationContext;
 import org.openmrs.module.reporting.evaluation.EvaluationException;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper.ProcedureCall;
+
 import static org.openmrs.module.mambaetl.helpers.DataSetEvaluatorHelper.rollbackAndThrowException;
+import static org.openmrs.module.mambaetl.helpers.ValidationHelper.ValidateDates;
 
 @Handler(supports = { HMISDHIS2DatasetDefinition.class })
 public class HMISDHIS2DataSetEvaluator implements DataSetEvaluator {
@@ -34,23 +37,25 @@ public class HMISDHIS2DataSetEvaluator implements DataSetEvaluator {
 	
 	private static final String DATABASE_CONNECTION_ERROR = "Database connection error: ";
 	
+	@Autowired
+	private DynamicReportExecutorService reportExecutorService;
+	
 	@Override
 	public DataSet evaluate(DataSetDefinition dataSetDefinition, EvaluationContext evalContext)
-			throws EvaluationException {
+	        throws EvaluationException {
 
-		HMISDHIS2DatasetDefinition hmisdhis2DatasetDefinition = (HMISDHIS2DatasetDefinition) dataSetDefinition;
+		HMISDHIS2DatasetDefinition datasetDefinition = (HMISDHIS2DatasetDefinition) dataSetDefinition;
 		SimpleDataSet data = new SimpleDataSet(dataSetDefinition, evalContext);
 
 		ResultSetMapper resultSetMapper = new ResultSetMapper();
 
-		ValidateDates(data, hmisdhis2DatasetDefinition.getStartDate(), hmisdhis2DatasetDefinition.getEndDate());
-		if(!data.getRows().isEmpty()){
-			return data;
-		}
+		ValidateDates(data, datasetDefinition.getStartDate(), datasetDefinition.getEndDate());
+
 		try (Connection connection = DataSetEvaluatorHelper.getDataSource().getConnection()) {
 			connection.setAutoCommit(false);
 
-			List<ProcedureCall> procedureCalls = createProcedureCalls(hmisdhis2DatasetDefinition);
+			List<ProcedureCall> procedureCalls = reportExecutorService.buildCalls("sp_fact_hmis_all",
+			    toParamMap(datasetDefinition));
 
 			try {
 				for (ProcedureCall call : procedureCalls) {
@@ -63,110 +68,25 @@ public class HMISDHIS2DataSetEvaluator implements DataSetEvaluator {
 				}
 				connection.commit();
 				return data;
-			} catch (SQLException e) {
+			}
+			catch (SQLException e) {
 				rollbackAndThrowException(connection, ERROR_PROCESSING_RESULT_SET + e.getMessage(), e, log);
 			}
-		} catch (SQLException e) {
+		}
+		catch (SQLException e) {
 			throw new EvaluationException(DATABASE_CONNECTION_ERROR + e.getMessage(), e);
 		}
-		return null;
+		throw new EvaluationException("unreachable");
 	}
 	
-	private List<ProcedureCall> createProcedureCalls(HMISDHIS2DatasetDefinition datasetDefinition) {
-		java.sql.Date startDate = datasetDefinition.getStartDate() != null ? new java.sql.Date(datasetDefinition.getStartDate().getTime()):null ;
-		java.sql.Date endDate = datasetDefinition.getEndDate() != null ? new java.sql.Date( datasetDefinition.getEndDate().getTime()):null ;
-
-		java.sql.Date startDateVL12Month;
-
-		String viralLoadType = Context.getService(AdministrationService.class).getGlobalProperty("_viralLoad12MSetting")!=null?Context.getService(AdministrationService.class).getGlobalProperty("_viralLoad12MSetting"):"";
-		if( Objects.nonNull(viralLoadType) && viralLoadType.equalsIgnoreCase("YES")){
-			Calendar calendar = Calendar.getInstance();
-            assert endDate != null;
-            calendar.setTime(endDate);
-			calendar.add(Calendar.MONTH,-12);
-			startDateVL12Month = new java.sql.Date(calendar.getTime().getTime());
-		} else {
-            startDateVL12Month = startDate;
-        }
-        return Arrays.asList(
-				new ProcedureCall("{call sp_fact_hmis_hiv_hts_tst_index_query(?,?)}", statement -> {
-					statement.setDate(1, startDate);
-					statement.setDate(2, endDate);
-				}),
-				new ProcedureCall("{call sp_fact_hmis_tx_curr_query(?)}", statement -> {
-					statement.setDate(1, endDate);
-				}),
-				new ProcedureCall("{call sp_fact_hmis_tx_new_query(?,?)}", statement -> {
-					statement.setDate(1, startDate);
-					statement.setDate(2, endDate);
-				}),
-				new ProcedureCall("{call sp_fact_hmis_hiv_art_ret_query(?,?)}", statement -> {
-					statement.setDate(1, startDate);
-					statement.setDate(2, endDate);
-				}),
-				new ProcedureCall("{call sp_fact_hmis_hiv_art_ret_net_query(?,?)}", statement -> {
-					statement.setDate(1, startDate);
-					statement.setDate(2, endDate);
-				}),
-				new ProcedureCall("{call sp_fact_hmis_hiv_linkage_query(?,?)}", statement -> {
-					statement.setDate(1, startDate);
-					statement.setDate(2, endDate);
-				}),
-				new ProcedureCall("{call sp_fact_hmis_hiv_tx_pvls_query(?,?)}", statement -> {
-					statement.setDate(1, startDateVL12Month);
-					statement.setDate(2, endDate);
-				}),
-				new ProcedureCall("{call sp_fact_hmis_hiv_dsd_query(?)}", statement -> {
-					statement.setDate(1, endDate);
-				}),
-				new ProcedureCall("{call sp_fact_hmis_art_intr_query(?,?)}", statement -> {
-					statement.setDate(1, startDate);
-					statement.setDate(2, endDate);
-				}),
-				new ProcedureCall("{call sp_fact_hmis_art_restart_query(?,?)}", statement -> {
-					statement.setDate(1, startDate);
-					statement.setDate(2, endDate);
-				}),
-				new ProcedureCall("{call sp_fact_hmis_hiv_prep_query(?,?)}", statement -> {
-					statement.setDate(1, startDate);
-					statement.setDate(2, endDate);
-				}),
-				new ProcedureCall("{call sp_fact_hmis_hiv_pep_query(?,?)}", statement -> {
-					statement.setDate(1, startDate);
-					statement.setDate(2, endDate);
-				}),
-				new ProcedureCall("{call sp_fact_hmis_phliv_tsp_query(?,?)}", statement -> {
-					statement.setDate(1, startDate);
-					statement.setDate(2, endDate);
-				}),
-				new ProcedureCall("{call sp_fact_hmis_hiv_fp_query(?)}", statement -> {
-					statement.setDate(1, endDate);
-				}),
-				new ProcedureCall("{call sp_fact_hmis_hiv_tb_scrn_query(?,?)}", statement -> {
-					statement.setDate(1, startDate);
-					statement.setDate(2, endDate);
-				}),
-				new ProcedureCall("{call sp_fact_hmis_hiv_tpt_query(?,?)}", statement -> {
-					statement.setDate(1, startDate);
-					statement.setDate(2, endDate);
-				}),
-				new ProcedureCall("{call sp_fact_hmis_cxca_scrn_query(?,?)}", statement -> {
-					statement.setDate(1, startDate);
-					statement.setDate(2, endDate);
-				}),
-				new ProcedureCall("{call sp_fact_hmis_cxca_rx_query(?,?)}", statement -> {
-					statement.setDate(1, startDate);
-					statement.setDate(2, endDate);
-				}),
-				new ProcedureCall("{call sp_fact_hmis_tb_lb_lf_lam_query(?,?)}", statement -> {
-					statement.setDate(1, startDate);
-					statement.setDate(2, endDate);
-				})
-				,
-				new ProcedureCall("{call sp_fact_hmis_mtct_query(?,?)}", statement -> {
-					statement.setDate(1, startDate);
-					statement.setDate(2, endDate);
-				})
-		);
+	private Map<String, String> toParamMap(HMISDHIS2DatasetDefinition def) {
+		Map<String, String> params = new HashMap<>();
+		if (def.getStartDate() != null) {
+			params.put("startDate", new java.sql.Date(def.getStartDate().getTime()).toString());
+		}
+		if (def.getEndDate() != null) {
+			params.put("endDate", new java.sql.Date(def.getEndDate().getTime()).toString());
+		}
+		return params;
 	}
 }

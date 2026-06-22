@@ -20,7 +20,7 @@ BEGIN
                              cd4_count,
                              weight_text_,
                              adherence
-                      FROM mamba_fact_followup),
+                      FROM tmp_hmis_follow_up),
          -- TX curr start
          tmp_latest_follow_up_start AS (SELECT client_id,
                                                follow_up_date,

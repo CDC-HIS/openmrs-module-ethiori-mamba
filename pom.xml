@@ -9,14 +9,30 @@
         <version>1.1.1</version>
     </parent>
 
-    <groupId>org.openmrs.module</groupId>
+    <groupId>io.github.abdi-icap</groupId>
     <artifactId>ethiohri-mamba</artifactId>
     <version>2.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Ethiori MambaETL Module</name>
     <description>MambaETL Module for ethiori reporting</description>
 
-    <url>https://wiki.openmrs.org/x/FQ4z</url>
+    <url>${nexus.url}/repository/maven-snapshots/</url>
+    <organization>
+        <name>ICAP At Columbia University</name>
+    </organization>
+    <developers>
+        <developer>
+            <name>Samuel Ababeye</name>
+        </developer>
+    </developers>
+
+    <licenses>
+        <license>
+            <name>Apache 2</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
     <scm>
         <connection>scm:git:git@github.com:CDC-HIS/openmrs-module-ethiori-mamba</connection>
@@ -488,7 +504,7 @@
 
     <properties>
         <openmrsPlatformVersion>2.1.1</openmrsPlatformVersion>
-        <reportingVersion>1.19.0</reportingVersion>
+        <reportingVersion>2.2.1</reportingVersion>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <calculationVersion>1.1</calculationVersion>
         <serialization.xstreamVersion>0.2.11</serialization.xstreamVersion>
@@ -498,20 +514,19 @@
         <webservicesRestVersion>2.21.0</webservicesRestVersion>
         <apache.commons.dbcp>2.11.0</apache.commons.dbcp>
         <jacksonCoreVersion>2.15.3</jacksonCoreVersion>
+        <nexus.url>https://maven-repo.dh.moh.gov.et</nexus.url>
     </properties>
 
     <distributionManagement>
 
         <repository>
-            <id>openmrs-repo-modules</id>
-            <name>Modules</name>
-            <url>https://mavenrepo.openmrs.org/nexus/content/repositories/modules/</url>
+            <id>nexus-releases</id>
+            <url>${nexus.url}/repository/maven-releases/</url>
         </repository>
 
         <snapshotRepository>
-            <id>openmrs-repo-snapshots</id>
-            <name>OpenMRS Snapshots</name>
-            <url>https://mavenrepo.openmrs.org/nexus/content/repositories/snapshots</url>
+            <id>nexus-snapshots</id>
+            <url>${nexus.url}/repository/maven-snapshots/</url>
         </snapshotRepository>
 
     </distributionManagement>

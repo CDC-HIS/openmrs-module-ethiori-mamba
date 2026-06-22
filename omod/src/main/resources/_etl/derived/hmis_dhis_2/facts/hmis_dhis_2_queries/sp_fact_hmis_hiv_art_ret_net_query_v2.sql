@@ -15,7 +15,7 @@ BEGIN
                              currently_breastfeeding_child          breast_feeding_status,
                              pregnancy_status,
                              transferred_in_check_this_for_all_t AS transferred_in
-                      FROM mamba_fact_followup),
+                      FROM tmp_hmis_follow_up),
          tmp_latest_follow_up as (select client_id,
                                          follow_up_status,
                                          ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
