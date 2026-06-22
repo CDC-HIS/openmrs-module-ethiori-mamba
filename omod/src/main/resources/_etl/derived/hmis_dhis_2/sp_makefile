@@ -8,6 +8,7 @@
 #############################################################################
 
 ############################ LINE LIST QUERIES #######################
+facts/hmis_dhis_2_queries/sp_fact_hmis_create_follow_up_tmp.sql
 facts/hmis_dhis_2_queries/sp_fact_hmis_tx_curr_query.sql
 facts/hmis_dhis_2_queries/sp_fact_hmis_tx_new_query.sql
 facts/hmis_dhis_2_queries/sp_fact_hmis_hiv_art_ret_net_query.sql

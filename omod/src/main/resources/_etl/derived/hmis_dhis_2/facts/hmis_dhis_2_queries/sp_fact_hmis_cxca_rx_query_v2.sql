@@ -18,7 +18,7 @@ WITH FollowUp AS (SELECT encounter_id,
                          date_visual_inspection_of_the_cervi            AS via_date,
                          treatment_of_precancerous_lesions_of_the_cervix AS treatment_of_precancerous_lesions,
                          treatment_start_date
-                  FROM mamba_fact_followup),
+                  FROM tmp_hmis_follow_up),
      tmp_cx_rx as (select *,
                           ROW_NUMBER() over (PARTITION BY client_id ORDER BY treatment_start_date DESC, encounter_id DESC) as row_num
                    from FollowUp
