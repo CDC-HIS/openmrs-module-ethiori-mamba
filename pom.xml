@@ -120,7 +120,7 @@
 
             <!-- End OpenMRS core -->
             <dependency>
-                <groupId>org.openmrs.module</groupId>
+                <groupId>io.github.abdi-icap</groupId>
                 <artifactId>reporting-api</artifactId>
                 <version>${reportingVersion}</version>
                 <scope>provided</scope>

@@ -23,7 +23,7 @@
             <artifactId>mamba-core-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.openmrs.module</groupId>
+            <groupId>io.github.abdi-icap</groupId>
             <artifactId>reporting-api</artifactId>
             <scope>provided</scope>
         </dependency>
