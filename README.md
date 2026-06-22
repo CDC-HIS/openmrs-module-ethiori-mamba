@@ -1,3 +1,36 @@
+## Branch Workflow (Java 8 & Java 21 tracks)
+
+This repo is maintained on **two parallel tracks**:
+
+| Branch | Java | Target deployment |
+|--------|------|------------------|
+| `master` | 8 | Legacy servers (OpenMRS 2.5.x–2.6.x) |
+| `palladium_upgrade` | 21 | Palladium servers (OpenMRS 2.8.6) |
+
+### Rule: master is the source of truth for business logic
+
+```
+Feature work → master (Java 8)  →  push
+                     ↓
+     git cherry-pick <sha> onto palladium_upgrade
+```
+
+Java 21-only changes (build config, `--add-opens` JVM flags, platform version bumps)
+go directly onto `palladium_upgrade`.
+
+This keeps `master` as the source of truth for business logic, and `palladium_upgrade`
+as "master + Java 21 build config on top."
+
+### Setup the commit guard hook
+
+Run once after cloning to enable the pre-commit reminder:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+---
+
 # 1. Setting up mamba project
 
 ### 1.1 Starting from example project
