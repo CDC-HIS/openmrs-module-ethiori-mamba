@@ -13,9 +13,12 @@
 
     <require_version>${openmrsPlatformVersion}</require_version>
 
+    <require_modules>
+        <require_module>org.openmrs.module.reporting</require_module>
+    </require_modules>
+
     <aware_of_modules>
         <aware_of_module>org.openmrs.module.webservices.rest</aware_of_module>
-        <aware_of_module>org.openmrs.module.reporting</aware_of_module>
     </aware_of_modules>
 
     <!-- All message codes should start with @MODULE_ID@.* -->

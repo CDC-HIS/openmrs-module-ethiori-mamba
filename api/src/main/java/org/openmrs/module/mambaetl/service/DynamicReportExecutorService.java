@@ -577,17 +577,22 @@ public class DynamicReportExecutorService {
 		}
 	}
 	
+	private static final String[] DATE_FORMATS = { "yyyy-MM-dd", "dd/MM/yyyy", "MM/dd/yyyy" };
+	
 	private java.sql.Date parseSqlDate(String dateStr) {
 		if (dateStr == null || dateStr.trim().isEmpty()) {
 			return null;
 		}
-		try {
-			java.util.Date parsed = new SimpleDateFormat("yyyy-MM-dd").parse(dateStr);
-			return new java.sql.Date(parsed.getTime());
+		for (String format : DATE_FORMATS) {
+			try {
+				SimpleDateFormat sdf = new SimpleDateFormat(format);
+				sdf.setLenient(false);
+				java.util.Date parsed = sdf.parse(dateStr);
+				return new java.sql.Date(parsed.getTime());
+			}
+			catch (Exception ignored) {}
 		}
-		catch (Exception e) {
-			log.warn("Could not parse date parameter: " + dateStr, e);
-			return null;
-		}
+		log.warn("Could not parse date parameter: " + dateStr);
+		return null;
 	}
 }
