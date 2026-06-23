@@ -1,10 +1,10 @@
 DELIMITER //
 
-DROP PROCEDURE IF EXISTS sp_fact_hmis_followup_create;
+DROP PROCEDURE IF EXISTS sp_fact_follow_up_create;
 
-CREATE PROCEDURE sp_fact_hmis_followup_create()
+CREATE PROCEDURE sp_fact_follow_up_create()
 BEGIN
-    CREATE TABLE IF NOT EXISTS mamba_fact_followup (
+    CREATE TABLE IF NOT EXISTS mamba_fact_follow_up (
         encounter_id                                       INT          NOT NULL PRIMARY KEY,
         client_id                                          INT          NOT NULL,
         follow_up_status                                   VARCHAR(255)     NULL,
