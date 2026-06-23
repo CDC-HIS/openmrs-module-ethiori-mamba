@@ -17,7 +17,7 @@ BEGIN
                              pregnancy_status,
                              dsd_category,
                              assessment_date
-                      FROM tmp_hmis_follow_up),
+                      FROM mamba_fact_follow_up),
          -- TX curr
          tx_curr_all AS (SELECT PatientId,
                                 follow_up_date                                                                             AS FollowupDate,

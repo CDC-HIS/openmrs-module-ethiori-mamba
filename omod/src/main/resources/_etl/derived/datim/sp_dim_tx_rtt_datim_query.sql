@@ -91,7 +91,7 @@ BEGIN
                          cd4_count,
                          visitect_cd4_result,
                          visitect_cd4_test_date
-                  FROM mamba_fact_followup),
+                  FROM mamba_fact_follow_up),
      -- TX curr start
      tmp_latest_follow_up_start AS (SELECT client_id,
                                            follow_up_date,

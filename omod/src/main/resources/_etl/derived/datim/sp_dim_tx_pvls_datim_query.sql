@@ -51,7 +51,7 @@ END IF;
                          viral_load_test_indication,
                          viral_load_received_                as viral_load_performed,
                          date_of_reported_hiv_viral_load     as viral_load_sent_date
-                  FROM mamba_fact_followup),
+                  FROM mamba_fact_follow_up),
      tmp_latest_follow_up AS (SELECT client_id,
                                      follow_up_date                                                                             ,
                                      encounter_id,

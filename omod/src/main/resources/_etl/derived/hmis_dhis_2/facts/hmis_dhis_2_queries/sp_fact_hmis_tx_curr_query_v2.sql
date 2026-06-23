@@ -17,7 +17,7 @@ BEGIN
                              regimen,
                              currently_breastfeeding_child    breast_feeding_status,
                              pregnancy_status
-                      FROM tmp_hmis_follow_up),
+                      FROM mamba_fact_follow_up),
          -- TX curr
          tx_curr_all AS (SELECT PatientId,
                                 follow_up_date                                                                             AS FollowupDate,

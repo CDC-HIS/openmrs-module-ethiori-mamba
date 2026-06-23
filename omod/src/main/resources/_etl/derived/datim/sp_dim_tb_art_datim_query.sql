@@ -66,7 +66,7 @@ BEGIN
                          date_active_tbrx_completed,
                          date_active_tbrx_dc,
                          currently_taking_tuberculosis_proph
-                  FROM mamba_fact_followup),
+                  FROM mamba_fact_follow_up),
      tmp_latest_follow_up as (SELECT client_id,
                                      follow_up_date                                                                             ,
                                      encounter_id,

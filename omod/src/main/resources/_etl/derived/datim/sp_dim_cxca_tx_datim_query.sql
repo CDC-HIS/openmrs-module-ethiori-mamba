@@ -44,7 +44,7 @@ BEGIN
                          treatment_start_date,
                          art_antiretroviral_start_date as art_start_date,
                          purpose_for_visit_cervical_screening as visit_type
-                  FROM mamba_fact_followup),
+                  FROM mamba_fact_follow_up),
      tmp_cx_rx as (select *,
                           ROW_NUMBER() over (PARTITION BY client_id ORDER BY treatment_start_date DESC, encounter_id DESC) as row_num
                    from FollowUp

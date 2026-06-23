@@ -1,12 +1,12 @@
 DELIMITER //
 
-DROP PROCEDURE IF EXISTS sp_fact_hmis_followup_insert;
+DROP PROCEDURE IF EXISTS sp_fact_follow_up_insert;
 
-CREATE PROCEDURE sp_fact_hmis_followup_insert()
+CREATE PROCEDURE sp_fact_follow_up_insert()
 BEGIN
-    TRUNCATE TABLE mamba_fact_followup;
+    TRUNCATE TABLE mamba_fact_follow_up;
 
-    INSERT INTO mamba_fact_followup (
+    INSERT INTO mamba_fact_follow_up (
         encounter_id, client_id, follow_up_status, follow_up_date_followup_,
         art_antiretroviral_start_date, treatment_end_date, next_visit_date, regimen,
         currently_breastfeeding_child, pregnancy_status,
@@ -97,7 +97,7 @@ BEGIN
              LEFT JOIN mamba_flat_encounter_follow_up_9 follow_up_9
                        ON follow_up.encounter_id = follow_up_9.encounter_id;
 
-    ANALYZE TABLE mamba_fact_followup;
+    ANALYZE TABLE mamba_fact_follow_up;
 END //
 
 DELIMITER ;

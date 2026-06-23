@@ -299,3 +299,6 @@ liquibase/snapshots/*.xml
 personal/
 
 api/src/main/resources/mamba/*
+
+# Maven property-resolution fallback artifact
+omod/$*/

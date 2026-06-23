@@ -66,7 +66,7 @@ BEGIN
                              pregnancy_status,
                              transferred_in_check_this_for_all_t AS transferred_in,
                              adherence
-                      FROM mamba_fact_followup),
+                      FROM mamba_fact_follow_up),
          -- TX curr start
          tmp_latest_follow_up_start AS (SELECT client_id,
                                                follow_up_date,
