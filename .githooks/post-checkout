@@ -1,0 +1,58 @@
+#!/bin/sh
+# Switch SDKMAN Java candidate when checking out palladium_upgrade.
+#
+# NOTE: Git hooks run in a subprocess and cannot change the parent shell's
+# environment. This hook sources SDKMAN so that any child processes spawned
+# from the hook itself see the right Java. For your interactive terminal to
+# switch, either:
+#   a) Enable sdkman_auto_env=true in ~/.sdkman/etc/config  (recommended)
+#   b) Run `sdk env` manually after checkout
+
+PREV_HEAD="$1"
+NEW_HEAD="$2"
+BRANCH_CHECKOUT="$3"   # 1 = branch checkout, 0 = file checkout
+
+# Only act on branch checkouts
+[ "$BRANCH_CHECKOUT" = "1" ] || exit 0
+
+JAVA21_BRANCH="palladium_upgrade"
+
+prev_branch=$(git name-rev --name-only "$PREV_HEAD" 2>/dev/null | sed 's|remotes/origin/||')
+new_branch=$(git symbolic-ref --short HEAD 2>/dev/null)
+
+# Nothing to do if branch didn't actually change
+[ "$prev_branch" = "$new_branch" ] && exit 0
+
+SDKMAN_INIT="${SDKMAN_DIR:-$HOME/.sdkman}/bin/sdkman-init.sh"
+
+if [ "$new_branch" = "$JAVA21_BRANCH" ]; then
+    if [ -f "$SDKMAN_INIT" ]; then
+        # shellcheck disable=SC1090
+        . "$SDKMAN_INIT" > /dev/null 2>&1
+        sdk env > /dev/null 2>&1
+    fi
+    printf "\n"
+    printf "┌─────────────────────────────────────────────────────────┐\n"
+    printf "│  Switched to: %-43s│\n" "$JAVA21_BRANCH"
+    printf "│  Java target: 21 (see .sdkmanrc)                        │\n"
+    printf "│                                                          │\n"
+    printf "│  Run in your terminal to activate Java 21:               │\n"
+    printf "│    sdk env                                               │\n"
+    printf "└─────────────────────────────────────────────────────────┘\n"
+    printf "\n"
+elif [ "$prev_branch" = "$JAVA21_BRANCH" ]; then
+    if [ -f "$SDKMAN_INIT" ]; then
+        # shellcheck disable=SC1090
+        . "$SDKMAN_INIT" > /dev/null 2>&1
+        sdk env clear > /dev/null 2>&1
+    fi
+    printf "\n"
+    printf "┌─────────────────────────────────────────────────────────┐\n"
+    printf "│  Left: %-50s│\n" "$JAVA21_BRANCH"
+    printf "│  Run in your terminal to restore default Java:           │\n"
+    printf "│    sdk env clear                                         │\n"
+    printf "└─────────────────────────────────────────────────────────┘\n"
+    printf "\n"
+fi
+
+exit 0
