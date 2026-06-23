@@ -22,7 +22,7 @@ WITH FollowUp AS (SELECT encounter_id,
                          viral_load_test_indication,
                          viral_load_received_                AS viral_load_performed,
                          date_of_reported_hiv_viral_load     AS viral_load_sent_date
-                  FROM tmp_hmis_follow_up),
+                  FROM mamba_fact_follow_up),
      tmp_latest_follow_up AS (SELECT client_id,
                                      follow_up_date                                                                             AS FollowupDate,
                                      encounter_id,

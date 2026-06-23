@@ -58,7 +58,7 @@ BEGIN
                              currently_breastfeeding_child   AS breast_feeding_status,
                              pregnancy_status,
                              antiretroviral_art_dispensed_dose_i AS dose_days
-                      FROM mamba_fact_followup),
+                      FROM mamba_fact_follow_up),
          -- TX curr
          tx_curr_all AS (SELECT PatientId,
                                 follow_up_date                                                                             ,

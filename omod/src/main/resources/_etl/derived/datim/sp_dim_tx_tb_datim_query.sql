@@ -99,7 +99,7 @@ BEGIN
                          specimen_sent_to_lab,
                          tuberculosis_drug_treatment_start_d as tb_treatment_start_date,
                          date_active_tbrx_completed as tb_treatment_completed_date
-                  FROM mamba_fact_followup
+                  FROM mamba_fact_follow_up
                     ),
                          tmp_latest_follow_up
                              as (select client_id,

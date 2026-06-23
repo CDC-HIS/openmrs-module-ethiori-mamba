@@ -49,7 +49,7 @@ BEGIN
                          hpv_dna_result_received_date              as hpv_received_date,
                          date_cytology_result_received             as cytology_received_date,
                          is_the_client_screened_in_this_facility
-                  FROM mamba_fact_followup),
+                  FROM mamba_fact_follow_up),
      tmp_latest_follow_up AS (SELECT client_id,
                                      follow_up_date,
                                      encounter_id,
