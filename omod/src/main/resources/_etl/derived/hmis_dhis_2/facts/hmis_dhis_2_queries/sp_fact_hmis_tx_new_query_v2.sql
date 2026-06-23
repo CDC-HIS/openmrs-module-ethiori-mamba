@@ -16,7 +16,7 @@ BEGIN
                              currently_breastfeeding_child          breast_feeding_status,
                              pregnancy_status,
                              transferred_in_check_this_for_all_t AS transferred_in
-                      FROM tmp_hmis_follow_up),
+                      FROM mamba_fact_follow_up),
          tmp_latest_follow_up as (SELECT client_id,
                                          follow_up_date                                                                             AS FollowupDate,
                                          encounter_id,

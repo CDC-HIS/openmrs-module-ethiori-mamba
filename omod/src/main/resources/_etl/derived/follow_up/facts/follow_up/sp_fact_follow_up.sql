@@ -6,12 +6,12 @@
 -- for the create-then-populate sequence.
 DELIMITER //
 
-DROP PROCEDURE IF EXISTS sp_fact_hmis_followup;
+DROP PROCEDURE IF EXISTS sp_fact_follow_up;
 
-CREATE PROCEDURE sp_fact_hmis_followup()
+CREATE PROCEDURE sp_fact_follow_up()
 BEGIN
-    CALL sp_fact_hmis_followup_create();
-    CALL sp_fact_hmis_followup_insert();
+    CALL sp_fact_follow_up_create();
+    CALL sp_fact_follow_up_insert();
 END //
 
 DELIMITER ;
