@@ -286,8 +286,7 @@
                                         <filtering>true</filtering>
                                     </resource>
                                 </resources>
-                                <outputDirectory>${project.parent.basedir}/api/src/main/resources/mamba
-                                </outputDirectory>
+                                <outputDirectory>${project.basedir}/../api/src/main/resources/mamba</outputDirectory>
                             </configuration>
                         </execution>
 
