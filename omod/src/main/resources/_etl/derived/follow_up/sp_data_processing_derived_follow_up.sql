@@ -16,13 +16,13 @@ DELIMITER //
 
 DROP PROCEDURE IF EXISTS sp_data_processing_derived_follow_up;
 
-CREATE PROCEDURE sp_data_processing_derived_follow_up(IN etl_incremental_mode INT)
+CREATE PROCEDURE sp_data_processing_derived_follow_up()
 BEGIN
     DROP TABLE IF EXISTS mamba_fact_follow_up;
 
     CALL sp_fact_follow_up();
 
-    CALL sp_compress_follow_up_flat_tables();
+   -- CALL sp_compress_follow_up_flat_tables();
 END //
 
 DELIMITER ;
