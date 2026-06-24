@@ -21,12 +21,12 @@ import java.util.Map;
 @Controller
 @RequestMapping("/rest/" + RestConstants.VERSION_1 + "/ethiohri-mamba/reports")
 public class MambaReportExecutionController {
-
+	
 	private static final Log log = LogFactory.getLog(MambaReportExecutionController.class);
-
+	
 	@Autowired
 	private ReportJobService reportJobService;
-
+	
 	@RequestMapping(value = "/submit/{procedureName}", method = RequestMethod.POST, produces = "application/json")
 	@ResponseBody
 	public ResponseEntity<ReportJob> submitReport(@PathVariable String procedureName,
