@@ -15,6 +15,11 @@ BASE_BRANCH="master"
 current_branch=$(git symbolic-ref --short HEAD 2>/dev/null)
 
 if [ "$current_branch" = "$JAVA21_BRANCH" ]; then
+    # Cherry-picks from master are the recommended workflow — allow them through.
+    if [ -f "$(git rev-parse --git-dir)/CHERRY_PICK_HEAD" ]; then
+        exit 0
+    fi
+
     # Check if only build-config files changed (pom.xml, .github/**, docs/**)
     changed_files=$(git diff --cached --name-only)
     build_only=true
