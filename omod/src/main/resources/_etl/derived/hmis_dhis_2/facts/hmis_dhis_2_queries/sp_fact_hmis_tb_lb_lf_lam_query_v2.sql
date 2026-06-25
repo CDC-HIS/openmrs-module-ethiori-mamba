@@ -64,7 +64,7 @@ WITH FollowUp AS (SELECT encounter_id,
 
 SELECT 'TB_LB_LF-LAM'                                                                              AS S_NO,
        'Total Number of tests performed using Lateral Flow Urine Lipoarabinomannan (LF-LAM) assay' as Activity,
-       total                                                                                        as Value
+       COALESCE(total, 0)                                                                          as Value
 FROM lf_lam_agg
 UNION ALL SELECT 'TB_LB_LF-LAM. 1', 'Positive', COALESCE(positive,0) FROM lf_lam_agg
 UNION ALL SELECT 'TB_LB_LF-LAM. 2', 'Negative', COALESCE(negative,0) FROM lf_lam_agg;

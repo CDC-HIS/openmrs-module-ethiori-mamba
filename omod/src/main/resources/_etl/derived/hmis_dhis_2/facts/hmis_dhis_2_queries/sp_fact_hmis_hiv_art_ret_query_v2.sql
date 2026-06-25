@@ -119,38 +119,38 @@ BEGIN
                    , 2) AS CHAR), '%')
                END AS Value
     FROM ret_agg
-    UNION ALL SELECT 'HIV_ART_RET.1',      'Number of adults and children who are still on treatment at 12 months after initiating ART', total        FROM ret_agg
-    UNION ALL SELECT 'HIV_ART_RET.1. 1',  '< 1 year, Male',                       u1_male        FROM ret_agg
-    UNION ALL SELECT 'HIV_ART_RET.1. 3',  '< 1 year, Female - non-pregnant',       u1_female_np   FROM ret_agg
-    UNION ALL SELECT 'HIV_ART_RET.1. 4',  '1 - 4 years, Male',                     u4_male        FROM ret_agg
-    UNION ALL SELECT 'HIV_ART_RET.1. 6',  '1 - 4 years, Female - non-pregnant',    u4_female_np   FROM ret_agg
-    UNION ALL SELECT 'HIV_ART_RET.1. 7',  '5 - 9 years, Male',                     u9_male        FROM ret_agg
-    UNION ALL SELECT 'HIV_ART_RET.1. 9',  '5 - 9 years, Female - non-pregnant',    u9_female_np   FROM ret_agg
-    UNION ALL SELECT 'HIV_ART_RET.1. 10', '10 - 14 years, Male',                   u14_male       FROM ret_agg
-    UNION ALL SELECT 'HIV_ART_RET.1. 12', '10 - 14 years, Female - non-pregnant',  u14_female_np  FROM ret_agg
-    UNION ALL SELECT 'HIV_ART_RET.1. 13', '15 - 19 years, Male',                   u19_male       FROM ret_agg
-    UNION ALL SELECT 'HIV_ART_RET.1. 14', '15 - 19 years, Female - pregnant',      u19_female_p   FROM ret_agg
-    UNION ALL SELECT 'HIV_ART_RET.1. 15', '15 - 19 years, Female - non-pregnant',  u19_female_np  FROM ret_agg
-    UNION ALL SELECT 'HIV_ART_RET.1. 16', '20 - 24 years, Male',                   u24_male       FROM ret_agg
-    UNION ALL SELECT 'HIV_ART_RET.1. 17', '20 - 24 years, Female - pregnant',      u24_female_p   FROM ret_agg
-    UNION ALL SELECT 'HIV_ART_RET.1. 18', '20 - 24 years, Female - non-pregnant',  u24_female_np  FROM ret_agg
-    UNION ALL SELECT 'HIV_ART_RET.1. 19', '25 - 29 years, Male',                   u29_male       FROM ret_agg
-    UNION ALL SELECT 'HIV_ART_RET.1. 20', '25 - 29 years, Female - pregnant',      u29_female_p   FROM ret_agg
-    UNION ALL SELECT 'HIV_ART_RET.1. 21', '25 - 29 years, Female - non-pregnant',  u29_female_np  FROM ret_agg
-    UNION ALL SELECT 'HIV_ART_RET.1. 22', '30 - 34 years, Male',                   u34_male       FROM ret_agg
-    UNION ALL SELECT 'HIV_ART_RET.1. 23', '30 - 34 years, Female - pregnant',      u34_female_p   FROM ret_agg
-    UNION ALL SELECT 'HIV_ART_RET.1. 24', '30 - 34 years, Female - non-pregnant',  u34_female_np  FROM ret_agg
-    UNION ALL SELECT 'HIV_ART_RET.1. 25', '35 - 39 years, Male',                   u39_male       FROM ret_agg
-    UNION ALL SELECT 'HIV_ART_RET.1. 26', '35 - 39 years, Female - pregnant',      u39_female_p   FROM ret_agg
-    UNION ALL SELECT 'HIV_ART_RET.1. 27', '35 - 39 years, Female - non-pregnant',  u39_female_np  FROM ret_agg
-    UNION ALL SELECT 'HIV_ART_RET.1. 28', '40 - 44 years, Male',                   u44_male       FROM ret_agg
-    UNION ALL SELECT 'HIV_ART_RET.1. 29', '40 - 44 years, Female - pregnant',      u44_female_p   FROM ret_agg
-    UNION ALL SELECT 'HIV_ART_RET.1. 30', '40 - 44 years, Female - non-pregnant',  u44_female_np  FROM ret_agg
-    UNION ALL SELECT 'HIV_ART_RET.1. 31', '45 - 49 years, Male',                   u49_male       FROM ret_agg
-    UNION ALL SELECT 'HIV_ART_RET.1. 32', '45 - 49 years, Female - pregnant',      u49_female_p   FROM ret_agg
-    UNION ALL SELECT 'HIV_ART_RET.1. 33', '45 - 49 years, Female - non-pregnant',  u49_female_np  FROM ret_agg
-    UNION ALL SELECT 'HIV_ART_RET.1. 34', '>= 50 years, Male',                     o50_male       FROM ret_agg
-    UNION ALL SELECT 'HIV_ART_RET.1. 36', '>= 50 years, Female - non-pregnant',    o50_female_np  FROM ret_agg;
+    UNION ALL SELECT 'HIV_ART_RET.1',      'Number of adults and children who are still on treatment at 12 months after initiating ART', COALESCE(total, 0)        FROM ret_agg
+    UNION ALL SELECT 'HIV_ART_RET.1. 1',  '< 1 year, Male',                       COALESCE(u1_male, 0)        FROM ret_agg
+    UNION ALL SELECT 'HIV_ART_RET.1. 3',  '< 1 year, Female - non-pregnant',       COALESCE(u1_female_np, 0)   FROM ret_agg
+    UNION ALL SELECT 'HIV_ART_RET.1. 4',  '1 - 4 years, Male',                     COALESCE(u4_male, 0)        FROM ret_agg
+    UNION ALL SELECT 'HIV_ART_RET.1. 6',  '1 - 4 years, Female - non-pregnant',    COALESCE(u4_female_np, 0)   FROM ret_agg
+    UNION ALL SELECT 'HIV_ART_RET.1. 7',  '5 - 9 years, Male',                     COALESCE(u9_male, 0)        FROM ret_agg
+    UNION ALL SELECT 'HIV_ART_RET.1. 9',  '5 - 9 years, Female - non-pregnant',    COALESCE(u9_female_np, 0)   FROM ret_agg
+    UNION ALL SELECT 'HIV_ART_RET.1. 10', '10 - 14 years, Male',                   COALESCE(u14_male, 0)       FROM ret_agg
+    UNION ALL SELECT 'HIV_ART_RET.1. 12', '10 - 14 years, Female - non-pregnant',  COALESCE(u14_female_np, 0)  FROM ret_agg
+    UNION ALL SELECT 'HIV_ART_RET.1. 13', '15 - 19 years, Male',                   COALESCE(u19_male, 0)       FROM ret_agg
+    UNION ALL SELECT 'HIV_ART_RET.1. 14', '15 - 19 years, Female - pregnant',      COALESCE(u19_female_p, 0)   FROM ret_agg
+    UNION ALL SELECT 'HIV_ART_RET.1. 15', '15 - 19 years, Female - non-pregnant',  COALESCE(u19_female_np, 0)  FROM ret_agg
+    UNION ALL SELECT 'HIV_ART_RET.1. 16', '20 - 24 years, Male',                   COALESCE(u24_male, 0)       FROM ret_agg
+    UNION ALL SELECT 'HIV_ART_RET.1. 17', '20 - 24 years, Female - pregnant',      COALESCE(u24_female_p, 0)   FROM ret_agg
+    UNION ALL SELECT 'HIV_ART_RET.1. 18', '20 - 24 years, Female - non-pregnant',  COALESCE(u24_female_np, 0)  FROM ret_agg
+    UNION ALL SELECT 'HIV_ART_RET.1. 19', '25 - 29 years, Male',                   COALESCE(u29_male, 0)       FROM ret_agg
+    UNION ALL SELECT 'HIV_ART_RET.1. 20', '25 - 29 years, Female - pregnant',      COALESCE(u29_female_p, 0)   FROM ret_agg
+    UNION ALL SELECT 'HIV_ART_RET.1. 21', '25 - 29 years, Female - non-pregnant',  COALESCE(u29_female_np, 0)  FROM ret_agg
+    UNION ALL SELECT 'HIV_ART_RET.1. 22', '30 - 34 years, Male',                   COALESCE(u34_male, 0)       FROM ret_agg
+    UNION ALL SELECT 'HIV_ART_RET.1. 23', '30 - 34 years, Female - pregnant',      COALESCE(u34_female_p, 0)   FROM ret_agg
+    UNION ALL SELECT 'HIV_ART_RET.1. 24', '30 - 34 years, Female - non-pregnant',  COALESCE(u34_female_np, 0)  FROM ret_agg
+    UNION ALL SELECT 'HIV_ART_RET.1. 25', '35 - 39 years, Male',                   COALESCE(u39_male, 0)       FROM ret_agg
+    UNION ALL SELECT 'HIV_ART_RET.1. 26', '35 - 39 years, Female - pregnant',      COALESCE(u39_female_p, 0)   FROM ret_agg
+    UNION ALL SELECT 'HIV_ART_RET.1. 27', '35 - 39 years, Female - non-pregnant',  COALESCE(u39_female_np, 0)  FROM ret_agg
+    UNION ALL SELECT 'HIV_ART_RET.1. 28', '40 - 44 years, Male',                   COALESCE(u44_male, 0)       FROM ret_agg
+    UNION ALL SELECT 'HIV_ART_RET.1. 29', '40 - 44 years, Female - pregnant',      COALESCE(u44_female_p, 0)   FROM ret_agg
+    UNION ALL SELECT 'HIV_ART_RET.1. 30', '40 - 44 years, Female - non-pregnant',  COALESCE(u44_female_np, 0)  FROM ret_agg
+    UNION ALL SELECT 'HIV_ART_RET.1. 31', '45 - 49 years, Male',                   COALESCE(u49_male, 0)       FROM ret_agg
+    UNION ALL SELECT 'HIV_ART_RET.1. 32', '45 - 49 years, Female - pregnant',      COALESCE(u49_female_p, 0)   FROM ret_agg
+    UNION ALL SELECT 'HIV_ART_RET.1. 33', '45 - 49 years, Female - non-pregnant',  COALESCE(u49_female_np, 0)  FROM ret_agg
+    UNION ALL SELECT 'HIV_ART_RET.1. 34', '>= 50 years, Male',                     COALESCE(o50_male, 0)       FROM ret_agg
+    UNION ALL SELECT 'HIV_ART_RET.1. 36', '>= 50 years, Female - non-pregnant',    COALESCE(o50_female_np, 0)  FROM ret_agg;
 
 END //
 

@@ -86,7 +86,7 @@ BEGIN
              FROM (SELECT *, TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) AS age FROM art_start_date_before_12_months) t
          )
 
-    SELECT 'HIV_ART_RET_NET' AS S_NO, 'Number of persons on ART in the original cohort including those transferred in, minus those transferred out (net current cohort)' AS Activity, total AS Value FROM net_agg
+    SELECT 'HIV_ART_RET_NET' AS S_NO, 'Number of persons on ART in the original cohort including those transferred in, minus those transferred out (net current cohort)' AS Activity, COALESCE(total, 0) AS Value FROM net_agg
     UNION ALL SELECT 'HIV_ART_RET_NET. 1',  '< 1 year, Male',                       COALESCE(u1_male,0)        FROM net_agg
     UNION ALL SELECT 'HIV_ART_RET_NET. 3',  '< 1 year, Female - non-pregnant',       COALESCE(u1_female_np,0)   FROM net_agg
     UNION ALL SELECT 'HIV_ART_RET_NET. 4',  '1 - 4 years, Male',                     COALESCE(u4_male,0)        FROM net_agg

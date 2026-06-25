@@ -118,8 +118,6 @@ BEGIN
                        ON follow_up.encounter_id = follow_up_8.encounter_id
              LEFT JOIN mamba_flat_encounter_follow_up_9 follow_up_9
                        ON follow_up.encounter_id = follow_up_9.encounter_id;
-
-    ANALYZE TABLE mamba_fact_follow_up;
 END //
 
 DELIMITER ;

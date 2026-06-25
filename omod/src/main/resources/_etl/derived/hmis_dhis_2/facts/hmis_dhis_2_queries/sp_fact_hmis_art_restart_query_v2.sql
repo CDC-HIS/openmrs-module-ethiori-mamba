@@ -136,7 +136,7 @@ BEGIN
              FROM (SELECT *, TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) AS age FROM tx_rtt) t
          )
 
-    SELECT 'HIV_ART_RE_ARV' AS S_NO, 'Number of ART clients restarted ARV treatment in the reporting period' AS Activity, total AS Value FROM rtt_agg
+    SELECT 'HIV_ART_RE_ARV' AS S_NO, 'Number of ART clients restarted ARV treatment in the reporting period' AS Activity, COALESCE(total, 0) AS Value FROM rtt_agg
     UNION ALL SELECT 'HIV_ART_RE_ARV. 1', '< 15 years, Male',    COALESCE(u15_male,0)   FROM rtt_agg
     UNION ALL SELECT 'HIV_ART_RE_ARV. 2', '< 15 years, Female',  COALESCE(u15_female,0) FROM rtt_agg
     UNION ALL SELECT 'HIV_ART_RE_ARV. 3', '>= 15 years, Male',   COALESCE(o15_male,0)   FROM rtt_agg
