@@ -121,6 +121,7 @@ public class ReportJob {
 		return future;
 	}
 	
+	@JsonIgnore
 	public void setFuture(Future<?> future) {
 		this.future = future;
 	}

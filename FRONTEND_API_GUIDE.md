@@ -534,7 +534,201 @@ GET .../execute/sp_fact_line_list_vl_sent_received?startDate=2024-07-01&endDate=
 
 ---
 
-## 7. Implementation Notes
+## 7. Async Report Job API
+
+Long-running stored procedures (HMIS, TX_CURR, large line lists) can time out the synchronous `/execute/` endpoint at the nginx level. The job API lets you **submit once and poll** instead.
+
+### 7.1 Endpoints
+
+#### Submit a job
+
+```
+POST /ws/rest/v1/ethiohri-mamba/reports/submit/{procedureName}
+     ?param1=value&param2=value&offset=0&limit=0
+```
+
+- Same `procedureName`, params, `offset`, and `limit` as the `/execute/` endpoint.
+- Returns **202 Accepted** immediately. The procedure runs asynchronously.
+- `offset` and `limit` are stripped from the stored-procedure params before execution.
+
+**Response body (`ReportJob`):**
+
+```json
+{
+  "jobId": "a1b2c3d4-...",
+  "status": "PENDING",
+  "procedureName": "sp_fact_hmis_all",
+  "submittedAt": "2024-09-30T12:00:00.000Z",
+  "elapsedMs": 5,
+  "message": "Queued, waiting for executor thread"
+}
+```
+
+---
+
+#### Poll job status / fetch result
+
+```
+GET /ws/rest/v1/ethiohri-mamba/reports/jobs/{jobId}
+```
+
+| Status code | Meaning |
+|---|---|
+| `200 OK` | Job found — inspect `status` field |
+| `404 Not Found` | Unknown or expired job ID |
+
+**Response fields by lifecycle stage:**
+
+| Field | PENDING | RUNNING | COMPLETE | ERROR |
+|---|---|---|---|---|
+| `jobId` | ✓ | ✓ | ✓ | ✓ |
+| `status` | `"PENDING"` | `"RUNNING"` | `"COMPLETE"` | `"ERROR"` |
+| `message` | `"Queued, waiting for executor thread"` | `"Executing stored procedure: <name>"` | `"Completed successfully"` | `"Cancelled by client"` / `"Job failed"` |
+| `procedureName` | ✓ | ✓ | ✓ | ✓ |
+| `submittedAt` | ✓ | ✓ | ✓ | ✓ |
+| `elapsedMs` | ✓ | ✓ | — | — |
+| `completedAt` | — | — | ✓ | ✓ |
+| `totalSteps` | — | if known | ✓ | — |
+| `completedSteps` | — | if known | ✓ | — |
+| `progressPercent` | — | if known | ✓ | — |
+| `rowCount` | — | — | ✓ | — |
+| `data` | — | — | ✓ | — |
+| `error` | — | — | — | ✓ |
+
+**Example — job queued (just submitted):**
+```json
+{
+  "jobId": "a1b2c3d4-...",
+  "status": "PENDING",
+  "message": "Queued, waiting for executor thread",
+  "procedureName": "sp_fact_hmis_all",
+  "submittedAt": "2024-09-30T12:00:00.000Z",
+  "elapsedMs": 12
+}
+```
+
+**Example — job in progress:**
+```json
+{
+  "jobId": "a1b2c3d4-...",
+  "status": "RUNNING",
+  "message": "Executing stored procedure: sp_fact_hmis_all",
+  "procedureName": "sp_fact_hmis_all",
+  "submittedAt": "2024-09-30T12:00:00.000Z",
+  "elapsedMs": 3200,
+  "totalSteps": 20,
+  "completedSteps": 7,
+  "progressPercent": 35
+}
+```
+
+**Example — job complete:**
+```json
+{
+  "jobId": "a1b2c3d4-...",
+  "status": "COMPLETE",
+  "message": "Completed successfully",
+  "procedureName": "sp_fact_hmis_all",
+  "submittedAt": "2024-09-30T12:00:00.000Z",
+  "completedAt": "2024-09-30T12:00:08.412Z",
+  "rowCount": 104,
+  "data": [ { "column": "value" } ]
+}
+```
+
+**Example — job failed:**
+```json
+{
+  "jobId": "a1b2c3d4-...",
+  "status": "ERROR",
+  "message": "Job failed",
+  "procedureName": "sp_fact_hmis_all",
+  "submittedAt": "2024-09-30T12:00:00.000Z",
+  "completedAt": "2024-09-30T12:00:01.000Z",
+  "error": "Stored procedure execution failed: ..."
+}
+```
+
+**Example — job cancelled:**
+```json
+{
+  "jobId": "a1b2c3d4-...",
+  "status": "ERROR",
+  "message": "Cancelled by client",
+  "procedureName": "sp_fact_hmis_all",
+  "submittedAt": "2024-09-30T12:00:00.000Z",
+  "completedAt": "2024-09-30T12:00:05.000Z",
+  "error": "Job cancelled by client"
+}
+```
+
+---
+
+#### Cancel a job
+
+```
+DELETE /ws/rest/v1/ethiohri-mamba/reports/jobs/{jobId}
+```
+
+| Status code | Meaning |
+|---|---|
+| `204 No Content` | Job cancelled — active DB query interrupted |
+| `404 Not Found` | Unknown or expired job ID |
+| `409 Conflict` | Job already `COMPLETE` or `ERROR` — cannot be cancelled |
+
+Cancellation sends a `KILL QUERY` to MySQL for any in-progress statement. A cancelled job transitions to `ERROR` with `error: "Job cancelled by client"`.
+
+---
+
+### 7.2 Job Lifecycle
+
+```
+PENDING → RUNNING → COMPLETE
+                  ↘ ERROR       (DB failure or cancellation)
+```
+
+Completed and errored jobs are automatically purged **30 minutes** after `completedAt`. Polling a purged job returns `404`.
+
+---
+
+### 7.3 Polling Recipe
+
+```js
+async function runReport(procedureName, params, onProgress) {
+  // 1. Submit
+  const submitted = await fetch(
+    `/ws/rest/v1/ethiohri-mamba/reports/submit/${procedureName}?${new URLSearchParams(params)}`,
+    { method: 'POST' }
+  ).then(r => r.json());
+
+  const { jobId } = submitted;
+  onProgress?.({ message: submitted.message, percent: null });   // "Queued, waiting for executor thread"
+
+  // 2. Poll until terminal state
+  while (true) {
+    await new Promise(r => setTimeout(r, 2000));   // 2 s interval
+    const job = await fetch(
+      `/ws/rest/v1/ethiohri-mamba/reports/jobs/${jobId}`
+    ).then(r => r.json());
+
+    // message is always present — display it directly in the UI
+    onProgress?.({ message: job.message, percent: job.progressPercent ?? null });
+
+    if (job.status === 'COMPLETE') return job.data;
+    if (job.status === 'ERROR')    throw new Error(job.error ?? job.message);
+  }
+}
+
+// Usage
+runReport('sp_fact_hmis_all', { startDate: '2024-07-01', endDate: '2024-09-30' }, ({ message, percent }) => {
+  statusLabel.textContent = message;                            // e.g. "Executing stored procedure: sp_fact_hmis_all"
+  if (percent != null) progressBar.style.width = percent + '%';
+});
+```
+
+---
+
+## 8. Implementation Notes
 
 ### Parallel requests
 For reports with multiple sections (e.g., TX_ML's 7 calls), fire all section requests in parallel (`Promise.all`). Render each section independently as its data arrives to avoid blocking the full page on the slowest query.
