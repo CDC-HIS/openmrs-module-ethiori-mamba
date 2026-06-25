@@ -27,6 +27,8 @@ public class ReportJob {
 	
 	private volatile String error;
 	
+	private volatile String message;
+	
 	@JsonIgnore
 	private volatile Future<?> future;
 	
@@ -110,11 +112,20 @@ public class ReportJob {
 		this.error = error;
 	}
 	
+	public String getMessage() {
+		return message;
+	}
+	
+	public void setMessage(String message) {
+		this.message = message;
+	}
+	
 	@JsonIgnore
 	public Future<?> getFuture() {
 		return future;
 	}
 	
+	@JsonIgnore
 	public void setFuture(Future<?> future) {
 		this.future = future;
 	}
@@ -124,6 +135,7 @@ public class ReportJob {
 		return activeStatement;
 	}
 	
+	@JsonIgnore
 	public void setActiveStatement(CallableStatement statement) {
 		this.activeStatement = statement;
 	}
