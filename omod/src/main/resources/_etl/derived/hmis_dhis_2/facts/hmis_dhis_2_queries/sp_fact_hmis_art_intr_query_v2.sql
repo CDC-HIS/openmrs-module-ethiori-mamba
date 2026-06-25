@@ -133,8 +133,8 @@ BEGIN
              FROM interrupted_art
          )
 
-    SELECT 'HIV_ART_INTR' AS S_NO, 'Number of ART Clients that interrupted Treatment' AS Activity, total AS Value FROM intr_agg
-    UNION ALL SELECT 'HIV_ART_INTR_OUT',    'Number of ART Clients Interrupted treatment by outcome', total          FROM intr_agg
+    SELECT 'HIV_ART_INTR' AS S_NO, 'Number of ART Clients that interrupted Treatment' AS Activity, COALESCE(total, 0) AS Value FROM intr_agg
+    UNION ALL SELECT 'HIV_ART_INTR_OUT',    'Number of ART Clients Interrupted treatment by outcome', COALESCE(total, 0)          FROM intr_agg
     UNION ALL SELECT 'HIV_ART_INTR_OUT.1',   'Lost after treatemnt < 3month',    COALESCE(out1_total,0)      FROM intr_agg
     UNION ALL SELECT 'HIV_ART_INTR_OUT.1. 1','< 15 years, Male',                 COALESCE(out1_u15_male,0)   FROM intr_agg
     UNION ALL SELECT 'HIV_ART_INTR_OUT.1. 2','< 15 years, Female',               COALESCE(out1_u15_female,0) FROM intr_agg

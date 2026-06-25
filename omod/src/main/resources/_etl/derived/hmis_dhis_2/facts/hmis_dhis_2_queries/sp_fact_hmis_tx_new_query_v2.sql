@@ -91,7 +91,7 @@ BEGIN
              FROM (SELECT *, TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) AS age FROM tx_new) t
          )
 
-    SELECT 'HIV_TX_NEW' AS S_NO, 'Number of adults and children with HIV infection newly started on ART' AS Activity, total AS Value FROM tx_new_agg
+    SELECT 'HIV_TX_NEW' AS S_NO, 'Number of adults and children with HIV infection newly started on ART' AS Activity, COALESCE(total, 0) AS Value FROM tx_new_agg
     UNION ALL SELECT 'HIV_TX_NEW. 1',  '< 1 year, Male',                       COALESCE(u1_male,0)        FROM tx_new_agg
     UNION ALL SELECT 'HIV_TX_NEW. 3',  '< 1 year, Female - non-pregnant',       COALESCE(u1_female_np,0)   FROM tx_new_agg
     UNION ALL SELECT 'HIV_TX_NEW. 4',  '1 - 4 years, Male',                     COALESCE(u4_male,0)        FROM tx_new_agg

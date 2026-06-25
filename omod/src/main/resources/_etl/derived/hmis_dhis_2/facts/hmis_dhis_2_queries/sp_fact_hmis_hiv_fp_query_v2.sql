@@ -77,13 +77,13 @@ where sex = 'Female'
             SUM(CASE WHEN method_of_family_planning NOT IN ('Oral contraception','Injectable contraceptives','Implantable contraceptive (unspecified type)','Intrauterine device') THEN 1 ELSE 0 END) AS other
         FROM (SELECT *, TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) AS age FROM family_planning) t
     )
-SELECT 'HIV_ART_FP_AGE' AS S_NO, 'Number of non-pregnant women living with HIV on ART aged 15-49 reporting the use of any method of modern family planning by age' AS Activity, total AS Value FROM fp_agg
+SELECT 'HIV_ART_FP_AGE' AS S_NO, 'Number of non-pregnant women living with HIV on ART aged 15-49 reporting the use of any method of modern family planning by age' AS Activity, COALESCE(total, 0) AS Value FROM fp_agg
 UNION ALL SELECT 'HIV_ART_FP_AGE. 1', '10 - 14 years', COUNT(*) FROM family_planning_wo_age WHERE TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) BETWEEN 10 AND 14
 UNION ALL SELECT 'HIV_ART_FP_AGE. 2', '15 - 19 years', COALESCE(u19,0)   FROM fp_agg
 UNION ALL SELECT 'HIV_ART_FP_AGE. 3', '20 - 24 years', COALESCE(u24,0)   FROM fp_agg
 UNION ALL SELECT 'HIV_ART_FP_AGE. 4', '25 - 29 years', COALESCE(u29,0)   FROM fp_agg
 UNION ALL SELECT 'HIV_ART_FP_AGE. 5', '30 - 49 years', COALESCE(u49,0)   FROM fp_agg
-UNION ALL SELECT 'HIV_ART_FP_MET',    'Number of non-pregnant women living with HIV on ART aged 15-49 reporting the use of any method of modern family planning by method', total FROM fp_agg
+UNION ALL SELECT 'HIV_ART_FP_MET',    'Number of non-pregnant women living with HIV on ART aged 15-49 reporting the use of any method of modern family planning by method', COALESCE(total, 0) FROM fp_agg
 UNION ALL SELECT 'HIV_ART_FP_MET. 1', 'Oral contraceptives', COALESCE(oral,0)       FROM fp_agg
 UNION ALL SELECT 'HIV_ART_FP_MET. 2', 'Injectables',         COALESCE(injectable,0)  FROM fp_agg
 UNION ALL SELECT 'HIV_ART_FP_MET. 3', 'Implants',            COALESCE(implant,0)     FROM fp_agg

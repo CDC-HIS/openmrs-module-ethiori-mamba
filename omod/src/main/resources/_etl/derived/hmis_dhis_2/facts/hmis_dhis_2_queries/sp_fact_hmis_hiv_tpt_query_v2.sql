@@ -127,54 +127,54 @@ WITH FollowUp AS (SELECT encounter_id,
          FROM (SELECT *, TIMESTAMPDIFF(YEAR, date_of_birth, REPORT_END_DATE) AS age FROM art_tpt_cr) t
      )
 
-SELECT 'HIV_ART_TPT.1' AS S_NO, 'Number of ART patients who started on a standard course of TB Preventive Treatment (TPT) in the reporting period' AS Activity, total AS Value FROM tpt_agg
-UNION ALL SELECT 'HIV_ART_TPT_6H',      'Patients on 6H',         _6h_total        FROM tpt_agg
-UNION ALL SELECT 'HIV_ART_TPT_6H. 1',   '< 15 years, Male',       _6h_u15_male     FROM tpt_agg
-UNION ALL SELECT 'HIV_ART_TPT_6H. 2',   '< 15 years, Female',     _6h_u15_female   FROM tpt_agg
-UNION ALL SELECT 'HIV_ART_TPT_6H. 3',   '>= 15 years, Male',      _6h_o15_male     FROM tpt_agg
-UNION ALL SELECT 'HIV_ART_TPT_6H. 4',   '>= 15 years, Female',    _6h_o15_female   FROM tpt_agg
-UNION ALL SELECT 'HIV_ART_TPT_3HP',     'Patients on 3HP',        _3hp_total       FROM tpt_agg
-UNION ALL SELECT 'HIV_ART_TPT_3HP. 1',  '< 15 years, Male',       _3hp_u15_male    FROM tpt_agg
-UNION ALL SELECT 'HIV_ART_TPT_3HP. 2',  '< 15 years, Female',     _3hp_u15_female  FROM tpt_agg
-UNION ALL SELECT 'HIV_ART_TPT_3HP. 3',  '>= 15 years, Male',      _3hp_o15_male    FROM tpt_agg
-UNION ALL SELECT 'HIV_ART_TPT_3HP. 4',  '>= 15 years, Female',    _3hp_o15_female  FROM tpt_agg
-UNION ALL SELECT 'HIV_ART_TPT_3HR',     'Patients on 3HR',        _3hr_total       FROM tpt_agg
-UNION ALL SELECT 'HIV_ART_TPT_3HR. 1',  '< 15 years, Male',       _3hr_u15_male    FROM tpt_agg
-UNION ALL SELECT 'HIV_ART_TPT_3HR. 2',  '< 15 years, Female',     _3hr_u15_female  FROM tpt_agg
-UNION ALL SELECT 'HIV_ART_TPT_3HR. 3',  '>= 15 years, Male',      _3hr_o15_male    FROM tpt_agg
-UNION ALL SELECT 'HIV_ART_TPT_3HR. 4',  '>= 15 years, Female',    _3hr_o15_female  FROM tpt_agg
-UNION ALL SELECT 'HIV_ART_TPT_CR.1',    'Number of ART patients who were initiated on any course of TPT 12 months before the reporting period', cr_total          FROM tpt_cr_agg
-UNION ALL SELECT 'HIV_ART_TPT_CR.1.1',  'Patients on 6H 12 months prior to the reporting period',  cr_6h_total      FROM tpt_cr_agg
-UNION ALL SELECT 'HIV_ART_TPT_CR.1.1. 1', '< 15 years, Male',    cr_6h_u15_male   FROM tpt_cr_agg
-UNION ALL SELECT 'HIV_ART_TPT_CR.1.1. 2', '< 15 years, Female',  cr_6h_u15_female FROM tpt_cr_agg
-UNION ALL SELECT 'HIV_ART_TPT_CR.1.1. 3', '>= 15 years, Male',   cr_6h_o15_male   FROM tpt_cr_agg
-UNION ALL SELECT 'HIV_ART_TPT_CR.1.1. 4', '>= 15 years, Female', cr_6h_o15_female FROM tpt_cr_agg
-UNION ALL SELECT 'HIV_ART_TPT_CR.1.2',  'Patients on 3HP 12 months prior to the reporting period', cr_3hp_total     FROM tpt_cr_agg
-UNION ALL SELECT 'HIV_ART_TPT_CR.1.2. 1', '< 15 years, Male',    cr_3hp_u15_male  FROM tpt_cr_agg
-UNION ALL SELECT 'HIV_ART_TPT_CR.1.2. 2', '< 15 years, Female',  cr_3hp_u15_female FROM tpt_cr_agg
-UNION ALL SELECT 'HIV_ART_TPT_CR.1.2. 3', '>= 15 years, Male',   cr_3hp_o15_male  FROM tpt_cr_agg
-UNION ALL SELECT 'HIV_ART_TPT_CR.1.2. 4', '>= 15 years, Female', cr_3hp_o15_female FROM tpt_cr_agg
-UNION ALL SELECT 'HIV_ART_TPT_CR.1.3',  'Patients on 3HR 12 months prior to the reporting period', cr_3hr_total     FROM tpt_cr_agg
-UNION ALL SELECT 'HIV_ART_TPT_CR.1.3. 1', '< 15 years, Male',    cr_3hr_u15_male  FROM tpt_cr_agg
-UNION ALL SELECT 'HIV_ART_TPT_CR.1.3. 2', '< 15 years, Female',  cr_3hr_u15_female FROM tpt_cr_agg
-UNION ALL SELECT 'HIV_ART_TPT_CR.1.3. 3', '>= 15 years, Male',   cr_3hr_o15_male  FROM tpt_cr_agg
-UNION ALL SELECT 'HIV_ART_TPT_CR.1.3. 4', '>= 15 years, Female', cr_3hr_o15_female FROM tpt_cr_agg
-UNION ALL SELECT 'HIV_ART_TPT_CR.2',    'Number of ART patients who started TPT 12 months prior to the reproting period that completed a full course of therapy', cr2_total FROM tpt_cr_agg
-UNION ALL SELECT 'HIV_ART_TPT_CR.2.1',  'Patients who completed 6H',  cr2_6h_total      FROM tpt_cr_agg
-UNION ALL SELECT 'HIV_ART_TPT_CR.2.1. 1', '< 15 years, Male',    cr2_6h_u15_male   FROM tpt_cr_agg
-UNION ALL SELECT 'HIV_ART_TPT_CR.2.1. 2', '< 15 years, Female',  cr2_6h_u15_female FROM tpt_cr_agg
-UNION ALL SELECT 'HIV_ART_TPT_CR.2.1. 3', '>= 15 years, Male',   cr2_6h_o15_male   FROM tpt_cr_agg
-UNION ALL SELECT 'HIV_ART_TPT_CR.2.1. 4', '>= 15 years, Female', cr2_6h_o15_female FROM tpt_cr_agg
-UNION ALL SELECT 'HIV_ART_TPT_CR.2.2',  'Patients who completed 3HP', cr2_3hp_total     FROM tpt_cr_agg
-UNION ALL SELECT 'HIV_ART_TPT_CR.2.2. 1', '< 15 years, Male',    cr2_3hp_u15_male  FROM tpt_cr_agg
-UNION ALL SELECT 'HIV_ART_TPT_CR.2.2. 2', '< 15 years, Female',  cr2_3hp_u15_female FROM tpt_cr_agg
-UNION ALL SELECT 'HIV_ART_TPT_CR.2.2. 3', '>= 15 years, Male',   cr2_3hp_o15_male  FROM tpt_cr_agg
-UNION ALL SELECT 'HIV_ART_TPT_CR.2.2. 4', '>= 15 years, Female', cr2_3hp_o15_female FROM tpt_cr_agg
-UNION ALL SELECT 'HIV_ART_TPT_CR.2.3',  'Patients who completed 3HR', cr2_3hr_total     FROM tpt_cr_agg
-UNION ALL SELECT 'HIV_ART_TPT_CR.2.3. 1', '< 15 years, Male',    cr2_3hr_u15_male  FROM tpt_cr_agg
-UNION ALL SELECT 'HIV_ART_TPT_CR.2.3. 2', '< 15 years, Female',  cr2_3hr_u15_female FROM tpt_cr_agg
-UNION ALL SELECT 'HIV_ART_TPT_CR.2.3. 3', '>= 15 years, Male',   cr2_3hr_o15_male  FROM tpt_cr_agg
-UNION ALL SELECT 'HIV_ART_TPT_CR.2.3. 4', '>= 15 years, Female', cr2_3hr_o15_female FROM tpt_cr_agg;
+SELECT 'HIV_ART_TPT.1' AS S_NO, 'Number of ART patients who started on a standard course of TB Preventive Treatment (TPT) in the reporting period' AS Activity, COALESCE(total, 0) AS Value FROM tpt_agg
+UNION ALL SELECT 'HIV_ART_TPT_6H',      'Patients on 6H',         COALESCE(_6h_total, 0)        FROM tpt_agg
+UNION ALL SELECT 'HIV_ART_TPT_6H. 1',   '< 15 years, Male',       COALESCE(_6h_u15_male, 0)     FROM tpt_agg
+UNION ALL SELECT 'HIV_ART_TPT_6H. 2',   '< 15 years, Female',     COALESCE(_6h_u15_female, 0)   FROM tpt_agg
+UNION ALL SELECT 'HIV_ART_TPT_6H. 3',   '>= 15 years, Male',      COALESCE(_6h_o15_male, 0)     FROM tpt_agg
+UNION ALL SELECT 'HIV_ART_TPT_6H. 4',   '>= 15 years, Female',    COALESCE(_6h_o15_female, 0)   FROM tpt_agg
+UNION ALL SELECT 'HIV_ART_TPT_3HP',     'Patients on 3HP',        COALESCE(_3hp_total, 0)       FROM tpt_agg
+UNION ALL SELECT 'HIV_ART_TPT_3HP. 1',  '< 15 years, Male',       COALESCE(_3hp_u15_male, 0)    FROM tpt_agg
+UNION ALL SELECT 'HIV_ART_TPT_3HP. 2',  '< 15 years, Female',     COALESCE(_3hp_u15_female, 0)  FROM tpt_agg
+UNION ALL SELECT 'HIV_ART_TPT_3HP. 3',  '>= 15 years, Male',      COALESCE(_3hp_o15_male, 0)    FROM tpt_agg
+UNION ALL SELECT 'HIV_ART_TPT_3HP. 4',  '>= 15 years, Female',    COALESCE(_3hp_o15_female, 0)  FROM tpt_agg
+UNION ALL SELECT 'HIV_ART_TPT_3HR',     'Patients on 3HR',        COALESCE(_3hr_total, 0)       FROM tpt_agg
+UNION ALL SELECT 'HIV_ART_TPT_3HR. 1',  '< 15 years, Male',       COALESCE(_3hr_u15_male, 0)    FROM tpt_agg
+UNION ALL SELECT 'HIV_ART_TPT_3HR. 2',  '< 15 years, Female',     COALESCE(_3hr_u15_female, 0)  FROM tpt_agg
+UNION ALL SELECT 'HIV_ART_TPT_3HR. 3',  '>= 15 years, Male',      COALESCE(_3hr_o15_male, 0)    FROM tpt_agg
+UNION ALL SELECT 'HIV_ART_TPT_3HR. 4',  '>= 15 years, Female',    COALESCE(_3hr_o15_female, 0)  FROM tpt_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.1',    'Number of ART patients who were initiated on any course of TPT 12 months before the reporting period', COALESCE(cr_total, 0)          FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.1.1',  'Patients on 6H 12 months prior to the reporting period',  COALESCE(cr_6h_total, 0)      FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.1.1. 1', '< 15 years, Male',    COALESCE(cr_6h_u15_male, 0)   FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.1.1. 2', '< 15 years, Female',  COALESCE(cr_6h_u15_female, 0) FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.1.1. 3', '>= 15 years, Male',   COALESCE(cr_6h_o15_male, 0)   FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.1.1. 4', '>= 15 years, Female', COALESCE(cr_6h_o15_female, 0) FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.1.2',  'Patients on 3HP 12 months prior to the reporting period', COALESCE(cr_3hp_total, 0)     FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.1.2. 1', '< 15 years, Male',    COALESCE(cr_3hp_u15_male, 0)  FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.1.2. 2', '< 15 years, Female',  COALESCE(cr_3hp_u15_female, 0) FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.1.2. 3', '>= 15 years, Male',   COALESCE(cr_3hp_o15_male, 0)  FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.1.2. 4', '>= 15 years, Female', COALESCE(cr_3hp_o15_female, 0) FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.1.3',  'Patients on 3HR 12 months prior to the reporting period', COALESCE(cr_3hr_total, 0)     FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.1.3. 1', '< 15 years, Male',    COALESCE(cr_3hr_u15_male, 0)  FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.1.3. 2', '< 15 years, Female',  COALESCE(cr_3hr_u15_female, 0) FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.1.3. 3', '>= 15 years, Male',   COALESCE(cr_3hr_o15_male, 0)  FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.1.3. 4', '>= 15 years, Female', COALESCE(cr_3hr_o15_female, 0) FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.2',    'Number of ART patients who started TPT 12 months prior to the reproting period that completed a full course of therapy', COALESCE(cr2_total, 0) FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.2.1',  'Patients who completed 6H',  COALESCE(cr2_6h_total, 0)      FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.2.1. 1', '< 15 years, Male',    COALESCE(cr2_6h_u15_male, 0)   FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.2.1. 2', '< 15 years, Female',  COALESCE(cr2_6h_u15_female, 0) FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.2.1. 3', '>= 15 years, Male',   COALESCE(cr2_6h_o15_male, 0)   FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.2.1. 4', '>= 15 years, Female', COALESCE(cr2_6h_o15_female, 0) FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.2.2',  'Patients who completed 3HP', COALESCE(cr2_3hp_total, 0)     FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.2.2. 1', '< 15 years, Male',    COALESCE(cr2_3hp_u15_male, 0)  FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.2.2. 2', '< 15 years, Female',  COALESCE(cr2_3hp_u15_female, 0) FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.2.2. 3', '>= 15 years, Male',   COALESCE(cr2_3hp_o15_male, 0)  FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.2.2. 4', '>= 15 years, Female', COALESCE(cr2_3hp_o15_female, 0) FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.2.3',  'Patients who completed 3HR', COALESCE(cr2_3hr_total, 0)     FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.2.3. 1', '< 15 years, Male',    COALESCE(cr2_3hr_u15_male, 0)  FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.2.3. 2', '< 15 years, Female',  COALESCE(cr2_3hr_u15_female, 0) FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.2.3. 3', '>= 15 years, Male',   COALESCE(cr2_3hr_o15_male, 0)  FROM tpt_cr_agg
+UNION ALL SELECT 'HIV_ART_TPT_CR.2.3. 4', '>= 15 years, Female', COALESCE(cr2_3hr_o15_female, 0) FROM tpt_cr_agg;
 END //
 
 DELIMITER ;
