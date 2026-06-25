@@ -40,6 +40,7 @@ public class ReportJobService implements ApplicationContextAware {
 	public ReportJob submitJob(String procedureName, Map<String, String> params, int offset, int limit) {
 		String jobId = UUID.randomUUID().toString();
 		ReportJob job = new ReportJob(jobId, procedureName);
+		job.setMessage("Queued, waiting for executor thread");
 		jobs.put(jobId, job);
 		try {
 			CompletableFuture<?> future = applicationContext.getBean(ReportJobService.class)
@@ -52,6 +53,7 @@ public class ReportJobService implements ApplicationContextAware {
 				job.setError("Failed to queue job: " + e.getMessage());
 				job.setCompletedAt(Instant.now());
 				job.setStatus(ReportJobStatus.ERROR);
+				job.setMessage("Failed to queue job");
 			}
 		}
 		return job;
@@ -61,6 +63,7 @@ public class ReportJobService implements ApplicationContextAware {
 	public CompletableFuture<Void> executeJobAsync(ReportJob job, Map<String, String> params, int offset, int limit) {
 		synchronized (job) {
 			job.setStatus(ReportJobStatus.RUNNING);
+			job.setMessage("Executing stored procedure: " + job.getProcedureName());
 		}
 		try {
 			DynamicReportExecutorService.ReportExecutionResult result = reportExecutorService.executeReport(
@@ -77,6 +80,7 @@ public class ReportJobService implements ApplicationContextAware {
 					job.setResult(new ReportDataResponse(job.getProcedureName(), result.getData()));
 					job.setCompletedAt(Instant.now());
 					job.setStatus(ReportJobStatus.COMPLETE);
+					job.setMessage("Completed successfully");
 				}
 			}
 		}
@@ -87,6 +91,7 @@ public class ReportJobService implements ApplicationContextAware {
 					job.setError("Stored procedure execution failed: " + e.getMessage());
 					job.setCompletedAt(Instant.now());
 					job.setStatus(ReportJobStatus.ERROR);
+					job.setMessage("Job failed");
 				}
 			}
 		}
@@ -113,6 +118,7 @@ public class ReportJobService implements ApplicationContextAware {
 			job.setError("Job cancelled by client");
 			job.setCompletedAt(Instant.now());
 			job.setStatus(ReportJobStatus.ERROR);
+			job.setMessage("Cancelled by client");
 		}
 		// Send KILL QUERY to MySQL — must happen outside the synchronized block so it
 		// doesn't block the executor thread trying to clear the statement via the registrar.
