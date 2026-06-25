@@ -372,628 +372,628 @@ BEGIN
          )
 -- Does health facility provide Monthly PMTCT / ART Treatment Service?
     SELECT 'HIV_HIV_Treatement.' AS S_NO, 'Does health facility provide Monthly PMTCT / ART Treatment Service?' as Activity, '' as Value
-    UNION ALL SELECT 'HIV_TX_CURR_ALL','Number of adults and children who are currently on ART by age, sex and regimen category',Value FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_ALL','Number of adults and children who are currently on ART by age, sex and regimen category',COALESCE(Value, 0) FROM tx_curr_agg
 -- Number of children (<15) who are currently on ART
-    UNION ALL SELECT 'HIV_TX_CURR_U15','Number of children (<15) who are currently on ART',u15 FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U15','Number of children (<15) who are currently on ART',COALESCE(u15, 0) FROM tx_curr_agg
 -- 1 Children currently on ART aged <1 yr
-    UNION ALL SELECT 'HIV_TX_CURR_U1','Children currently on ART aged <1 yr',u1  FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U1','Children currently on ART aged <1 yr',COALESCE(u1, 0)  FROM tx_curr_agg
 -- 1.1 Children currently on ART aged <1 yr on First line  regimen by sex
-    UNION ALL SELECT 'HIV_TX_CURR_U1_1','Children currently on ART aged <1 yr on First line regimen by sex',u1_first_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U1_1','Children currently on ART aged <1 yr on First line regimen by sex',COALESCE(u1_first_line, 0) FROM tx_curr_agg
 -- 1.1.1 Male
     UNION ALL SELECT 'HIV_TX_CURR_U1_1. 1','Male' ,u1_first_line_male   FROM tx_curr_agg
 -- 1.1.2 Female
-    UNION ALL SELECT 'HIV_TX_CURR_U1_1. 2','Female',u1_first_line_female    FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U1_1. 2','Female',COALESCE(u1_first_line_female, 0)    FROM tx_curr_agg
 -- 1.2 Children currently on ART aged <1 yr on Second line  regimen by sex
     UNION ALL SELECT 'HIV_TX_CURR_U1_2' ,'Children currently on ART aged <1 yr on Second line regimen by sex',u1_second_line  FROM tx_curr_agg
 -- 1.2.1 Male
-    UNION ALL SELECT 'HIV_TX_CURR_U1_2. 1','Male', u1_second_line_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U1_2. 1','Male', COALESCE(u1_second_line_male, 0) FROM tx_curr_agg
 -- 1.2.2 Female
-    UNION ALL SELECT 'HIV_TX_CURR_U1_2. 2','Female',  u1_second_line_female   FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U1_2. 2','Female',  COALESCE(u1_second_line_female, 0)   FROM tx_curr_agg
 -- 1.3 Children currently on ART aged <1 yr on Third line regimen by sex
     UNION ALL SELECT 'HIV_TX_CURR_U1_3','Children currently on ART aged <1 yr on Third line regimen by sex' ,u1_third_line      FROM tx_curr_agg
 -- 1.3.1 Male
-    UNION ALL SELECT 'HIV_TX_CURR_U1_3. 1','Male',u1_third_line_male    FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U1_3. 1','Male',COALESCE(u1_third_line_male, 0)    FROM tx_curr_agg
 -- 1.3.2 Female
-    UNION ALL SELECT 'HIV_TX_CURR_U1_3. 2','Female',u1_third_line_female    FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U1_3. 2','Female',COALESCE(u1_third_line_female, 0)    FROM tx_curr_agg
 -- 5 Children currently on ART aged 1-4 yr
-    UNION ALL SELECT 'HIV_TX_CURR_U5','Children currently on ART aged 1-4 yr',u4    FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U5','Children currently on ART aged 1-4 yr',COALESCE(u4, 0)    FROM tx_curr_agg
 -- 5.1 Children currently on ART aged 1-4 yr on First line  regimen by sex
     UNION ALL SELECT 'HIV_TX_CURR_U5.1','Children currently on ART aged 1-4 yr on First line regimen by sex' ,u4_first_line    FROM tx_curr_agg
 -- 5.1.1 Male
-    UNION ALL SELECT 'HIV_TX_CURR_U5.1. 1','Male',u4_first_line_male    FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U5.1. 1','Male',COALESCE(u4_first_line_male, 0)    FROM tx_curr_agg
 -- 5.1.2 Female
-    UNION ALL SELECT 'HIV_TX_CURR_U5.1. 2','Female',u4_first_line_male    FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U5.1. 2','Female',COALESCE(u4_first_line_male, 0)    FROM tx_curr_agg
 -- 5.2 Children currently on ART aged 1-4 yr on Second-line  regimen by sex
-    UNION ALL SELECT 'HIV_TX_CURR_U5.2','Children currently on ART aged 1-4 yr on Second-line regimen by sex',u4_second_line   FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U5.2','Children currently on ART aged 1-4 yr on Second-line regimen by sex',COALESCE(u4_second_line, 0)   FROM tx_curr_agg
 -- 5.2.1 Male
-    UNION ALL SELECT 'HIV_TX_CURR_U5.2. 1','Male',u4_second_line_male    FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U5.2. 1','Male',COALESCE(u4_second_line_male, 0)    FROM tx_curr_agg
 -- 5.2.2 Female
-    UNION ALL SELECT 'HIV_TX_CURR_U5.2. 2','Female',u4_second_line_female    FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U5.2. 2','Female',COALESCE(u4_second_line_female, 0)    FROM tx_curr_agg
 -- 5.3 Children currently on ART aged 1-4 yr on Third line regimen by sex
-    UNION ALL SELECT 'HIV_TX_CURR_U5.3','Children currently on ART aged 1-4 yr on Third line regimen by sex',u4_third_line    FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U5.3','Children currently on ART aged 1-4 yr on Third line regimen by sex',COALESCE(u4_third_line, 0)    FROM tx_curr_agg
 -- 5.3.1 Male
-    UNION ALL SELECT 'HIV_TX_CURR_U5.3. 1','Male',u4_third_line_male  FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U5.3. 1','Male',COALESCE(u4_third_line_male, 0)  FROM tx_curr_agg
 -- Female 5.3.2
-    UNION ALL SELECT 'HIV_TX_CURR_U5.3. 2','Female',u4_third_line_female  FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U5.3. 2','Female',COALESCE(u4_third_line_female, 0)  FROM tx_curr_agg
 -- 9 Children currently on ART aged 5-9 yr
-    UNION ALL SELECT 'HIV_TX_CURR_U9','Children currently on ART aged 5-9 yr',u9  FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U9','Children currently on ART aged 5-9 yr',COALESCE(u9, 0)  FROM tx_curr_agg
 -- 9.1 Children currently on ART aged 5-9 yr on First line  regimen by sex
-    UNION ALL SELECT 'HIV_TX_CURR_U9.1','Children currently on ART aged 5-9 yr on First line regimen by sex',u9_first_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U9.1','Children currently on ART aged 5-9 yr on First line regimen by sex',COALESCE(u9_first_line, 0) FROM tx_curr_agg
 -- 9.1.1 Male
-    UNION ALL SELECT 'HIV_TX_CURR_U9.1. 1','Male',u9_first_line_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U9.1. 1','Male',COALESCE(u9_first_line_male, 0) FROM tx_curr_agg
 -- 9.1.2 Female
-    UNION ALL SELECT 'HIV_TX_CURR_U9.1. 2','Female',u9_first_line_female FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U9.1. 2','Female',COALESCE(u9_first_line_female, 0) FROM tx_curr_agg
 -- 9.2 Children currently on ART aged 5-9 yr on Second line  regimen by sex
-    UNION ALL SELECT 'HIV_TX_CURR_U9.2','Children currently on ART aged 5-9 yr on Second line regimen by sex',u9_second_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U9.2','Children currently on ART aged 5-9 yr on Second line regimen by sex',COALESCE(u9_second_line, 0) FROM tx_curr_agg
 -- 9.2.1 Male
-    UNION ALL SELECT 'HIV_TX_CURR_U9.2. 1','Male',u9_second_line_male  FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U9.2. 1','Male',COALESCE(u9_second_line_male, 0)  FROM tx_curr_agg
 -- 9.2.2 Female
-    UNION ALL SELECT 'HIV_TX_CURR_U9.2. 2','Female',u9_second_line_female FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U9.2. 2','Female',COALESCE(u9_second_line_female, 0) FROM tx_curr_agg
 -- 9.3 Children currently on ART aged 5-9 yr on Third line regimen by sex
-    UNION ALL SELECT 'HIV_TX_CURR_U9.3','Children currently on ART aged 5-9 yr on Third line regimen by sex',u9_third_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U9.3','Children currently on ART aged 5-9 yr on Third line regimen by sex',COALESCE(u9_third_line, 0) FROM tx_curr_agg
 -- 9.3.1 Male
-    UNION ALL SELECT 'HIV_TX_CURR_U9.3. 1','Male',u9_third_line_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U9.3. 1','Male',COALESCE(u9_third_line_male, 0) FROM tx_curr_agg
 -- 9.3.2 Female
-    UNION ALL SELECT 'HIV_TX_CURR_U9.3. 2','Female',u9_third_line_female FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U9.3. 2','Female',COALESCE(u9_third_line_female, 0) FROM tx_curr_agg
 -- 14 Children  currently on ART aged 10-14 year
-    UNION ALL SELECT 'HIV_TX_CURR_U14','Children currently on ART aged 10-14 year',u14 FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U14','Children currently on ART aged 10-14 year',COALESCE(u14, 0) FROM tx_curr_agg
 -- 14.1 Children  currently on ART aged 10-14 year on First line  regimen by sex
-    UNION ALL SELECT 'HIV_TX_CURR_U14.1','Children currently on ART aged 10-14 year on First line regimen by sex',u14_first_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U14.1','Children currently on ART aged 10-14 year on First line regimen by sex',COALESCE(u14_first_line, 0) FROM tx_curr_agg
 -- 14.1.1 Male
-    UNION ALL SELECT 'HIV_TX_CURR_U14.1. 1','Male',u14_first_line_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U14.1. 1','Male',COALESCE(u14_first_line_male, 0) FROM tx_curr_agg
 -- 14.1.2 Female
-    UNION ALL SELECT 'HIV_TX_CURR_U14.1. 2','Female',u14_first_line_female FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U14.1. 2','Female',COALESCE(u14_first_line_female, 0) FROM tx_curr_agg
 -- 14.2 Children currently on ART aged 10-14 year on Second line  regimen by sex
-    UNION ALL SELECT 'HIV_TX_CURR_U14.2','Children currently on ART aged 10-14 year on Second line regimen by sex',u14_second_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U14.2','Children currently on ART aged 10-14 year on Second line regimen by sex',COALESCE(u14_second_line, 0) FROM tx_curr_agg
 -- 14.2.1 Male
-    UNION ALL SELECT 'HIV_TX_CURR_U14.2. 1','Male',u14_second_line_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U14.2. 1','Male',COALESCE(u14_second_line_male, 0) FROM tx_curr_agg
 -- 14.2.2 Female
-    UNION ALL SELECT 'HIV_TX_CURR_U14.2. 2','Female',u14_second_line_female    FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U14.2. 2','Female',COALESCE(u14_second_line_female, 0)    FROM tx_curr_agg
 -- 14.3 Children currently on ART aged 10-14 years on Third line regimen by sex
-    UNION ALL SELECT 'HIV_TX_CURR_U14.3','Children currently on ART aged 10-14 years on Third line regimen by sex',u14_third_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U14.3','Children currently on ART aged 10-14 years on Third line regimen by sex',COALESCE(u14_third_line, 0) FROM tx_curr_agg
 -- 14.3.1 Male
-    UNION ALL SELECT 'HIV_TX_CURR_U14.3. 1','Male',u14_third_line_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U14.3. 1','Male',COALESCE(u14_third_line_male, 0) FROM tx_curr_agg
 -- 14.3.2 Female
-    UNION ALL SELECT 'HIV_TX_CURR_U14.3. 2','Female',u14_third_line_female FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U14.3. 2','Female',COALESCE(u14_third_line_female, 0) FROM tx_curr_agg
 -- Number of adults who are currently on ART (>=15)
-    UNION ALL SELECT 'HIV_TX_CURR_ADULT','Number of adults who are currently on ART (>=15)',greater_than_15 FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_ADULT','Number of adults who are currently on ART (>=15)',COALESCE(greater_than_15, 0) FROM tx_curr_agg
 -- 19 Adult currently on ART aged 15-19
-    UNION ALL SELECT 'HIV_TX_CURR_U19','Adult currently on ART aged 15-19',u19 FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U19','Adult currently on ART aged 15-19',COALESCE(u19, 0) FROM tx_curr_agg
 -- 19.1 Adult currently on ART aged 15-19 on First line  regimen by sex
-    UNION ALL SELECT 'HIV_TX_CURR_U19.1','Adult currently on ART aged 15-19 on First line regimen by sex',u19_first_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U19.1','Adult currently on ART aged 15-19 on First line regimen by sex',COALESCE(u19_first_line, 0) FROM tx_curr_agg
 -- 19.1.1 Male
-    UNION ALL SELECT 'HIV_TX_CURR_U19.1. 1','Male',u19_first_line_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U19.1. 1','Male',COALESCE(u19_first_line_male, 0) FROM tx_curr_agg
 -- 19.1.2 Female
-    UNION ALL SELECT 'HIV_TX_CURR_U19.1. 2','Female',u19_first_line_female FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U19.1. 2','Female',COALESCE(u19_first_line_female, 0) FROM tx_curr_agg
 -- 19.2 Adult currently on ART aged 15-19 on Second-line  regimen by sex
-    UNION ALL SELECT 'HIV_TX_CURR_U19.2','Adult currently on ART aged 15-19 on Second-line regimen by sex',u19_second_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U19.2','Adult currently on ART aged 15-19 on Second-line regimen by sex',COALESCE(u19_second_line, 0) FROM tx_curr_agg
 -- 19.2.1 Male
-    UNION ALL SELECT 'HIV_TX_CURR_U19.2. 1','Male',u19_second_line_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U19.2. 1','Male',COALESCE(u19_second_line_male, 0) FROM tx_curr_agg
 -- 19.2.2 Female
-    UNION ALL SELECT 'HIV_TX_CURR_U19.2. 2','Female',u19_second_line_female FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U19.2. 2','Female',COALESCE(u19_second_line_female, 0) FROM tx_curr_agg
 -- 19.3 Adult currently on ART aged 15-19 on Third line regimen by sex
-    UNION ALL SELECT 'HIV_TX_CURR_U19.3','Adult currently on ART aged 15-19 on Third line regimen by sex',u19_third_line  FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U19.3','Adult currently on ART aged 15-19 on Third line regimen by sex',COALESCE(u19_third_line, 0)  FROM tx_curr_agg
 -- 19.3.1 Male
-    UNION ALL SELECT 'HIV_TX_CURR_U19.3. 1','Male',u19_third_line_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U19.3. 1','Male',COALESCE(u19_third_line_male, 0) FROM tx_curr_agg
 -- 19.3.2 Female
-    UNION ALL SELECT 'HIV_TX_CURR_U19.3. 2','Female',u19_third_line_female FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U19.3. 2','Female',COALESCE(u19_third_line_female, 0) FROM tx_curr_agg
 -- 24 Adult currently on ART aged 20-24
-    UNION ALL SELECT 'HIV_TX_CURR_U24','Adult currently on ART aged 20-24',u24 FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U24','Adult currently on ART aged 20-24',COALESCE(u24, 0) FROM tx_curr_agg
 -- 24.1 Adult currently on ART aged 20-24 on First line  regimen by sex
-    UNION ALL SELECT 'HIV_TX_CURR_U24.1','Adult currently on ART aged 20-24 on First line regimen by sex',u24_first_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U24.1','Adult currently on ART aged 20-24 on First line regimen by sex',COALESCE(u24_first_line, 0) FROM tx_curr_agg
 -- 24.1.1 Male
-    UNION ALL SELECT 'HIV_TX_CURR_U24.1. 1','Male',u24_first_line_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U24.1. 1','Male',COALESCE(u24_first_line_male, 0) FROM tx_curr_agg
 -- 24.1.2 Female
-    UNION ALL SELECT 'HIV_TX_CURR_U24.1. 2','Female',u24_first_line_female FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U24.1. 2','Female',COALESCE(u24_first_line_female, 0) FROM tx_curr_agg
 -- 24.2 Adult currently on ART aged 20-24 on Second-line  regimen by sex
-    UNION ALL SELECT 'HIV_TX_CURR_U24.2','Adult currently on ART aged 20-24 on Second-line regimen by sex',u24_second_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U24.2','Adult currently on ART aged 20-24 on Second-line regimen by sex',COALESCE(u24_second_line, 0) FROM tx_curr_agg
 -- 24.2.1 Male
-    UNION ALL SELECT 'HIV_TX_CURR_U24.2. 1','Male',u24_second_line_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U24.2. 1','Male',COALESCE(u24_second_line_male, 0) FROM tx_curr_agg
 -- 24.2.2 Female
-    UNION ALL SELECT 'HIV_TX_CURR_U24.2. 2','Female',u24_second_line_female  FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U24.2. 2','Female',COALESCE(u24_second_line_female, 0)  FROM tx_curr_agg
 -- 24.3 Adult currently on ART aged 20-24 on Third line regimen by sex
-    UNION ALL SELECT 'HIV_TX_CURR_U24.3','Adult currently on ART aged 20-24 on Third line regimen by sex',u24_third_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U24.3','Adult currently on ART aged 20-24 on Third line regimen by sex',COALESCE(u24_third_line, 0) FROM tx_curr_agg
 -- 24.3.1 Male
-    UNION ALL SELECT 'HIV_TX_CURR_U24.3. 1','Male',u24_third_line_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U24.3. 1','Male',COALESCE(u24_third_line_male, 0) FROM tx_curr_agg
 -- 24.3.2 Female
-    UNION ALL SELECT 'HIV_TX_CURR_U24.3. 2','Female',u24_third_line_female FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U24.3. 2','Female',COALESCE(u24_third_line_female, 0) FROM tx_curr_agg
 -- 29 Adult currently on ART aged 25-29
-    UNION ALL SELECT 'HIV_TX_CURR_U29','Adult currently on ART aged 25-29',u29 FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U29','Adult currently on ART aged 25-29',COALESCE(u29, 0) FROM tx_curr_agg
 -- 29.1 Adult currently on ART aged 25-29 on First line  regimen by sex
-    UNION ALL SELECT 'HIV_TX_CURR_U29.1','Adult currently on ART aged 25-29 on First line regimen by sex',u29_first_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U29.1','Adult currently on ART aged 25-29 on First line regimen by sex',COALESCE(u29_first_line, 0) FROM tx_curr_agg
 -- 29.1.1 Male
-    UNION ALL SELECT 'HIV_TX_CURR_U29.1. 1','Male',u29_first_line_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U29.1. 1','Male',COALESCE(u29_first_line_male, 0) FROM tx_curr_agg
 -- 29.1.2 Female
-    UNION ALL SELECT 'HIV_TX_CURR_U29.1. 2','Female',u29_first_line_female FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U29.1. 2','Female',COALESCE(u29_first_line_female, 0) FROM tx_curr_agg
 -- 29.2 Adult currently on ART aged 25-29 on Second line  regimen by sex
-    UNION ALL SELECT 'HIV_TX_CURR_U29.2','Adult currently on ART aged 25-29 on Second line regimen by sex',u29_second_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U29.2','Adult currently on ART aged 25-29 on Second line regimen by sex',COALESCE(u29_second_line, 0) FROM tx_curr_agg
 -- 29.2.1 Male
-    UNION ALL SELECT 'HIV_TX_CURR_U29.2. 1','Male',u29_second_line_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U29.2. 1','Male',COALESCE(u29_second_line_male, 0) FROM tx_curr_agg
 -- 29.2.2 Female
     UNION ALL
     SELECT 'HIV_TX_CURR_U29.2. 2','Female',u29_second_line_female FROM tx_curr_agg
 -- 29.3 Adult currently on ART aged 25-29 on Third line regimen by sex
-    UNION ALL SELECT 'HIV_TX_CURR_U29.3','Adult currently on ART aged 25-29 on Third line regimen by sex',u29_third_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U29.3','Adult currently on ART aged 25-29 on Third line regimen by sex',COALESCE(u29_third_line, 0) FROM tx_curr_agg
 -- 29.3.1 Male
-    UNION ALL SELECT 'HIV_TX_CURR_U29.3. 1','Male',u29_third_line_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U29.3. 1','Male',COALESCE(u29_third_line_male, 0) FROM tx_curr_agg
 -- 29.3.2 Female
-    UNION ALL SELECT 'HIV_TX_CURR_U29.3. 2','Female',u29_third_line_female FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U29.3. 2','Female',COALESCE(u29_third_line_female, 0) FROM tx_curr_agg
 -- 34 Adult currently on ART aged 30-34
-    UNION ALL SELECT 'HIV_TX_CURR_U34','Adult currently on ART aged 30-34',u34 FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U34','Adult currently on ART aged 30-34',COALESCE(u34, 0) FROM tx_curr_agg
 -- 34.1 Adult currently on ART aged 30-34 on First line  regimen by sex
-    UNION ALL SELECT 'HIV_TX_CURR_U34.1','Adult currently on ART aged 30-34 on First line regimen by sex',u34_first_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U34.1','Adult currently on ART aged 30-34 on First line regimen by sex',COALESCE(u34_first_line, 0) FROM tx_curr_agg
 -- 34.1.1 Male
-    UNION ALL SELECT 'HIV_TX_CURR_U34.1. 1','Male',u34_first_line_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U34.1. 1','Male',COALESCE(u34_first_line_male, 0) FROM tx_curr_agg
 -- 34.1.2 Male
-    UNION ALL SELECT 'HIV_TX_CURR_U34.1. 2','Female',u34_first_line_female FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U34.1. 2','Female',COALESCE(u34_first_line_female, 0) FROM tx_curr_agg
 -- 34.2 Adult currently on ART aged 30-34 on Second line  regimen by sex
-    UNION ALL SELECT 'HIV_TX_CURR_U34.2','Adult currently on ART aged 30-34 on Second line regimen by sex',u34_second_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U34.2','Adult currently on ART aged 30-34 on Second line regimen by sex',COALESCE(u34_second_line, 0) FROM tx_curr_agg
 -- 34.2.1 Male
-    UNION ALL SELECT 'HIV_TX_CURR_U34.2. 1','Male',u34_second_line_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U34.2. 1','Male',COALESCE(u34_second_line_male, 0) FROM tx_curr_agg
 -- 34.2.2 Male
-    UNION ALL SELECT 'HIV_TX_CURR_U34.2. 2','Female',u34_second_line_female  FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U34.2. 2','Female',COALESCE(u34_second_line_female, 0)  FROM tx_curr_agg
 -- 34.3 Adult currently on ART aged 30-34 on Third line regimen by sex
-    UNION ALL SELECT 'HIV_TX_CURR_U34.3','Adult currently on ART aged 30-34 on Third line regimen by sex',u34_third_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U34.3','Adult currently on ART aged 30-34 on Third line regimen by sex',COALESCE(u34_third_line, 0) FROM tx_curr_agg
 -- 34.3.1 Male
-    UNION ALL SELECT 'HIV_TX_CURR_U34.3. 1','Male',u34_third_line_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U34.3. 1','Male',COALESCE(u34_third_line_male, 0) FROM tx_curr_agg
 -- 34.3.2 Male
-    UNION ALL SELECT 'HIV_TX_CURR_U34.3. 2','Female',u34_third_line_female FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U34.3. 2','Female',COALESCE(u34_third_line_female, 0) FROM tx_curr_agg
 -- 39 Adult currently on ART aged 35-39
-    UNION ALL SELECT 'HIV_TX_CURR_U39','Adult currently on ART aged 35-39',u39 FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U39','Adult currently on ART aged 35-39',COALESCE(u39, 0) FROM tx_curr_agg
 -- 39.1 Adult currently on ART aged 35-39 on First line  regimen by sex
-    UNION ALL SELECT 'HIV_TX_CURR_U39.1','Adult currently on ART aged 35-39 on First line regimen by sex',u39_first_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U39.1','Adult currently on ART aged 35-39 on First line regimen by sex',COALESCE(u39_first_line, 0) FROM tx_curr_agg
 -- 39.1.1 Male
-    UNION ALL SELECT 'HIV_TX_CURR_U39.1. 1','Male',u39_first_line_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U39.1. 1','Male',COALESCE(u39_first_line_male, 0) FROM tx_curr_agg
 -- 39.1.2 Female
-    UNION ALL SELECT 'HIV_TX_CURR_U39.1. 2','Female',u39_first_line_female FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U39.1. 2','Female',COALESCE(u39_first_line_female, 0) FROM tx_curr_agg
 -- 39.2 Adult currently on ART aged 35-39 on Second line  regimen by sex
-    UNION ALL SELECT 'HIV_TX_CURR_U39.2','Adult currently on ART aged 35-39 on Second line regimen by sex',u39_second_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U39.2','Adult currently on ART aged 35-39 on Second line regimen by sex',COALESCE(u39_second_line, 0) FROM tx_curr_agg
 -- 39.2.1 Male
-    UNION ALL SELECT 'HIV_TX_CURR_U39.2. 1','Male',u39_second_line_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U39.2. 1','Male',COALESCE(u39_second_line_male, 0) FROM tx_curr_agg
 -- 39.2.2 Female
-    UNION ALL SELECT 'HIV_TX_CURR_U39.2. 2','Female',u39_second_line_female FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U39.2. 2','Female',COALESCE(u39_second_line_female, 0) FROM tx_curr_agg
 -- 39.3 Adult currently on ART aged 35-39 on Third line regimen by sex
-    UNION ALL SELECT 'HIV_TX_CURR_U39.3','Adult currently on ART aged 35-39 on Third line regimen by sex',u39_third_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U39.3','Adult currently on ART aged 35-39 on Third line regimen by sex',COALESCE(u39_third_line, 0) FROM tx_curr_agg
 -- 39.3.1 Male
-    UNION ALL SELECT 'HIV_TX_CURR_U39.3. 1','Male',u39_third_line_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U39.3. 1','Male',COALESCE(u39_third_line_male, 0) FROM tx_curr_agg
 -- 39.3.2 Female
-    UNION ALL SELECT 'HIV_TX_CURR_U39.3. 2','Female',u39_third_line_female FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U39.3. 2','Female',COALESCE(u39_third_line_female, 0) FROM tx_curr_agg
 -- 44 Adult currently on ART aged 40-44
-    UNION ALL SELECT 'HIV_TX_CURR_U44','Adult currently on ART aged 40-44',u44  FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U44','Adult currently on ART aged 40-44',COALESCE(u44, 0)  FROM tx_curr_agg
 -- 44.1 Adult currently on ART aged 40-44 on First line  regimen by sex
-    UNION ALL SELECT 'HIV_TX_CURR_U44.1','Adult currently on ART aged 40-44 on First line regimen by sex',u44_first_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U44.1','Adult currently on ART aged 40-44 on First line regimen by sex',COALESCE(u44_first_line, 0) FROM tx_curr_agg
 -- 44.1.1 Male
-    UNION ALL SELECT 'HIV_TX_CURR_U44.1. 1','Male',u44_first_line_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U44.1. 1','Male',COALESCE(u44_first_line_male, 0) FROM tx_curr_agg
 -- 44.1.2 Female
-    UNION ALL SELECT 'HIV_TX_CURR_U44.1. 2','Female',u44_first_line_female FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U44.1. 2','Female',COALESCE(u44_first_line_female, 0) FROM tx_curr_agg
 -- 44.2 Adult currently on ART aged 40-44 on Second line  regimen by sex
-    UNION ALL SELECT 'HIV_TX_CURR_U44.2','Adult currently on ART aged 40-44 on Second line regimen by sex', u44_second_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U44.2','Adult currently on ART aged 40-44 on Second line regimen by sex', COALESCE(u44_second_line, 0) FROM tx_curr_agg
 -- 44.2.1 Male
-    UNION ALL SELECT 'HIV_TX_CURR_U44.2. 1','Male',u44_second_line_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U44.2. 1','Male',COALESCE(u44_second_line_male, 0) FROM tx_curr_agg
 -- 44.2.2 Female
-    UNION ALL SELECT 'HIV_TX_CURR_U44.2. 2','Female',u44_second_line_female FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U44.2. 2','Female',COALESCE(u44_second_line_female, 0) FROM tx_curr_agg
 -- 44.3 Adult currently on ART aged 40-44 on Third line regimen by sex
-    UNION ALL SELECT 'HIV_TX_CURR_U44.3','Adult currently on ART aged 40-44 on Third line regimen by sex',u44_third_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U44.3','Adult currently on ART aged 40-44 on Third line regimen by sex',COALESCE(u44_third_line, 0) FROM tx_curr_agg
 -- 44.3.1 Male
-    UNION ALL SELECT 'HIV_TX_CURR_U44.3. 1','Male',u44_third_line_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U44.3. 1','Male',COALESCE(u44_third_line_male, 0) FROM tx_curr_agg
 -- 44.3.2 Female
-    UNION ALL SELECT 'HIV_TX_CURR_U44.3. 2','Female',u44_third_line_female FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U44.3. 2','Female',COALESCE(u44_third_line_female, 0) FROM tx_curr_agg
 -- 49 Adult currently on ART aged 45-49
-    UNION ALL SELECT 'HIV_TX_CURR_U49','Adult currently on ART aged 45-49',u49 FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U49','Adult currently on ART aged 45-49',COALESCE(u49, 0) FROM tx_curr_agg
 -- 49.1 Adult currently on ART aged 45-49 on First line  regimen by sex
-    UNION ALL SELECT 'HIV_TX_CURR_U49.1','Adult currently on ART aged 45-49 on First line regimen by sex',u49_first_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U49.1','Adult currently on ART aged 45-49 on First line regimen by sex',COALESCE(u49_first_line, 0) FROM tx_curr_agg
 -- 49.1.1 Male
-    UNION ALL SELECT 'HIV_TX_CURR_U49.1. 1','Male',u49_first_line_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U49.1. 1','Male',COALESCE(u49_first_line_male, 0) FROM tx_curr_agg
 -- 49.1.2 Female
-    UNION ALL SELECT 'HIV_TX_CURR_U49.1. 2','Female',u49_first_line_female FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U49.1. 2','Female',COALESCE(u49_first_line_female, 0) FROM tx_curr_agg
 -- 49.2 Adult currently on ART aged 45-49 on Second line  regimen by sex
-    UNION ALL SELECT 'HIV_TX_CURR_U49.2','Adult currently on ART aged 45-49 on Second line regimen by sex',u49_second_line  FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U49.2','Adult currently on ART aged 45-49 on Second line regimen by sex',COALESCE(u49_second_line, 0)  FROM tx_curr_agg
 -- 49.2.1 Male
     UNION ALL
     SELECT 'HIV_TX_CURR_U49.2. 1','Male',u49_second_line_male  FROM tx_curr_agg
 -- 49.2.2 Female
-    UNION ALL SELECT 'HIV_TX_CURR_U49.2. 2','Female',u49_second_line_female  FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U49.2. 2','Female',COALESCE(u49_second_line_female, 0)  FROM tx_curr_agg
 -- 49.3 Adult currently on ART aged 45-49 on Third line regimen by sex
-    UNION ALL SELECT 'HIV_TX_CURR_U49.3','Adult currently on ART aged 45-49 on Third line regimen by sex',u49_third_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U49.3','Adult currently on ART aged 45-49 on Third line regimen by sex',COALESCE(u49_third_line, 0) FROM tx_curr_agg
 -- 49.3.1 Male
-    UNION ALL SELECT 'HIV_TX_CURR_U49.3. 1','Male',u49_third_line_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U49.3. 1','Male',COALESCE(u49_third_line_male, 0) FROM tx_curr_agg
 -- 49.3.2 Female
-    UNION ALL SELECT 'HIV_TX_CURR_U49.3. 2','Female',u49_third_line_female FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_U49.3. 2','Female',COALESCE(u49_third_line_female, 0) FROM tx_curr_agg
 -- 50 Adult currently on ART aged 50+
-    UNION ALL SELECT 'HIV_TX_CURR_50','Adult currently on ART aged 50+',greater_than_50 FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_50','Adult currently on ART aged 50+',COALESCE(greater_than_50, 0) FROM tx_curr_agg
 -- 50.1 Adult currently on ART aged 50+ on First line  regimen by sex
-    UNION ALL SELECT 'HIV_TX_CURR_50.1','Adult currently on ART aged 50+ on First line regimen by sex',greater_than_50_first_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_50.1','Adult currently on ART aged 50+ on First line regimen by sex',COALESCE(greater_than_50_first_line, 0) FROM tx_curr_agg
 -- 50.1.1 Male
-    UNION ALL SELECT 'HIV_TX_CURR_50.1. 1','Male',greater_than_50_first_line_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_50.1. 1','Male',COALESCE(greater_than_50_first_line_male, 0) FROM tx_curr_agg
 -- 50.1.2 Female
-    UNION ALL SELECT 'HIV_TX_CURR_50.1. 2','Female',greater_than_50_first_line_female FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_50.1. 2','Female',COALESCE(greater_than_50_first_line_female, 0) FROM tx_curr_agg
 -- 50.2 Adult currently on ART aged 50+ on Second line  regimen by sex
-    UNION ALL SELECT 'HIV_TX_CURR_50.2','Adult currently on ART aged 50+ on Second line regimen by sex',greater_than_50_second_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_50.2','Adult currently on ART aged 50+ on Second line regimen by sex',COALESCE(greater_than_50_second_line, 0) FROM tx_curr_agg
 -- 50.2.1 Male
-    UNION ALL SELECT 'HIV_TX_CURR_50.2. 1','Male',greater_than_50_second_line_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_50.2. 1','Male',COALESCE(greater_than_50_second_line_male, 0) FROM tx_curr_agg
 -- 50.2.2 Female
-    UNION ALL SELECT 'HIV_TX_CURR_50.2. 2','Female',greater_than_50_second_line_female FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_50.2. 2','Female',COALESCE(greater_than_50_second_line_female, 0) FROM tx_curr_agg
 -- 50.3 Adult currently on ART aged 50+ on Third line regimen by sex
-    UNION ALL SELECT 'HIV_TX_CURR_50.3','Adult currently on ART aged 50+ on Third line regimen by sex',greater_than_50_third_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_50.3','Adult currently on ART aged 50+ on Third line regimen by sex',COALESCE(greater_than_50_third_line, 0) FROM tx_curr_agg
 -- 50.3.1 Male
-    UNION ALL SELECT 'HIV_TX_CURR_50.3. 1','Male',greater_than_50_third_line_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_50.3. 1','Male',COALESCE(greater_than_50_third_line_male, 0) FROM tx_curr_agg
 -- 50.3.2 Female
-    UNION ALL SELECT 'HIV_TX_CURR_50.3. 2','Female',greater_than_50_third_line_female FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_50.3. 2','Female',COALESCE(greater_than_50_third_line_female, 0) FROM tx_curr_agg
 -- Currently on ART by pregnancy status
-    UNION ALL SELECT 'HIV_TX_CURR_PREG','Currently on ART by pregnancy status',female_total FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_PREG','Currently on ART by pregnancy status',COALESCE(female_total, 0) FROM tx_curr_agg
 -- Pregnant
-    UNION ALL SELECT 'HIV_TX_CURR_PREG. 1','Pregnant',female_pregnant FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_PREG. 1','Pregnant',COALESCE(female_pregnant, 0) FROM tx_curr_agg
 -- Non pregnant
-    UNION ALL SELECT 'HIV_TX_CURR_PREG. 2','Non pregnant',female_non_pregnant FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_PREG. 2','Non pregnant',COALESCE(female_non_pregnant, 0) FROM tx_curr_agg
 
 -- 19 Number of children (<19) who are currently on ART by regimen type
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U19','Number of children (<19) who are currently on ART by regimen type',under_19 FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19','Number of children (<19) who are currently on ART by regimen type',COALESCE(under_19, 0) FROM tx_curr_agg
 -- 1 Children currently on ART aged <1  by regimen type
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U1','Children currently on ART aged <1  by regimen type',u1 FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U1','Children currently on ART aged <1  by regimen type',COALESCE(u1, 0) FROM tx_curr_agg
 -- 1.1 Children currently on ART aged <1 yr on First line  regimen by regimen type
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.1','Children currently on ART aged <1 yr on First line regimen by regimen type',u1_first_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.1','Children currently on ART aged <1 yr on First line regimen by regimen type',COALESCE(u1_first_line, 0) FROM tx_curr_agg
 -- 1.1.1 4f - AZT+3TC+LPVr - 0343175a-e931-4f6c-a0c2-99e55637bda9
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.1. 1','4f=AZT + 3TC + LPV/r',u1_first_line_4f FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.1. 1','4f=AZT + 3TC + LPV/r',COALESCE(u1_first_line_4f, 0) FROM tx_curr_agg
 -- 1.1.2 4g - ABC+3TC+LPVr - e4353cd1-5a0e-4870-8af4-f012ca0145fe
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.1. 2','4g=ABC + 3TC + LPV/r',u1_first_line_4g FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.1. 2','4g=ABC + 3TC + LPV/r',COALESCE(u1_first_line_4g, 0) FROM tx_curr_agg
 -- 1.1.3 4j - ABC+3TC+DTG - eae01634-65ec-4174-a95c-622456663727
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.1. 3','4j= ABC +3TC + DTG',u1_first_line_4j FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.1. 3','4j= ABC +3TC + DTG',COALESCE(u1_first_line_4j, 0) FROM tx_curr_agg
 -- 1.1.4 4K - AZT+3TC+DTG - dabcfa6d-56e5-4e5d-a2f2-faf4e18b9211
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.1. 4','4k= AZT + 3TC + DTG',u1_first_line_4k FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.1. 4','4k= AZT + 3TC + DTG',COALESCE(u1_first_line_4k, 0) FROM tx_curr_agg
 -- 1.1.5 4h=other first line - 582c6b67-2f0a-4cc0-b7c0-632b4b387a17
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.1. 5','4h=other first line',u1_first_line_other FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.1. 5','4h=other first line',COALESCE(u1_first_line_other, 0) FROM tx_curr_agg
 -- 1.2 Children currently on ART aged <1  on second line regimen by regimen type
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.2','Children currently on ART aged <1  on second line regimen by regimen type',u1_second_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.2','Children currently on ART aged <1  on second line regimen by regimen type',COALESCE(u1_second_line, 0) FROM tx_curr_agg
 -- 1.2.1 5e - ABC+3TC+LPVr - fbb4db0f-4cf4-4ca3-bde0-e20eb065e7da
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.2. 1','5e=ABC + 3TC + LPV/r',u1_second_line_5e FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.2. 1','5e=ABC + 3TC + LPV/r',COALESCE(u1_second_line_5e, 0) FROM tx_curr_agg
 -- 1.2.2 5f - AZT+3TC+LPV/r - 9ef4d67d-0e05-422a-aac5-80eaf71daadc
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.2. 2','5f=AZT + 3TC + LPV/r',u1_second_line_5f FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.2. 2','5f=AZT + 3TC + LPV/r',COALESCE(u1_second_line_5f, 0) FROM tx_curr_agg
 -- 1.2.4 5m - ABC+3TC+DTG - 3ed5d8a0-c957-4439-8f86-6c2538e69d3a
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.2. 4','5m = ABC + 3TC + DTG',u1_second_line_5m FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.2. 4','5m = ABC + 3TC + DTG',COALESCE(u1_second_line_5m, 0) FROM tx_curr_agg
 -- 1.2.5 5n - AZT+3TC+DTG - 10c0f78a-cd78-40cd-9824-8d24dc95bb90
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.2. 5','5n= AZT + 3TC + DTG',u1_second_line_5n FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.2. 5','5n= AZT + 3TC + DTG',COALESCE(u1_second_line_5n, 0) FROM tx_curr_agg
 -- 1.2.6 5j - Other Child 2nd line regimen (5j=other secondline) - 0cc9e467-c1ce-4eff-879d-8936a81b6ea3
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.2. 6','5j=other secondline',u1_second_line_other FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.2. 6','5j=other secondline',COALESCE(u1_second_line_other, 0) FROM tx_curr_agg
 -- 1.3 Children currently on ART aged <1  on Third line regimen by regimen type
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.3','Children currently on ART aged <1  on third line regimen by regimen type',u1_third_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.3','Children currently on ART aged <1  on third line regimen by regimen type',COALESCE(u1_third_line, 0) FROM tx_curr_agg
 -- 1.3.1 6c - DRVr+DTG+AZT+3TC - 5c8d27eb-4642-4c6f-b131-1182df8d1276
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.3. 1','6c=DRV/r+DTG+AZT+3TC',u1_third_line_6c   FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.3. 1','6c=DRV/r+DTG+AZT+3TC',COALESCE(u1_third_line_6c, 0)   FROM tx_curr_agg
 -- 1.3.2 6f - DRV/r+DTG+ABC+3TC - e3eb6ae1-fd70-47b2-b1a6-702fae87b061
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.3. 2','6f= DRV/r + DTG + ABC + 3TC',u1_third_line_6f FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.3. 2','6f= DRV/r + DTG + ABC + 3TC',COALESCE(u1_third_line_6f, 0) FROM tx_curr_agg
 -- 1.3.3 6e - Other Child 3rd line regimen - 57eef726-e977-4efd-996b-a94860341320
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.3. 3','6e=Other thirdline regimen',u1_third_line_other FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U1.3. 3','6e=Other thirdline regimen',COALESCE(u1_third_line_other, 0) FROM tx_curr_agg
 -- 4 Children currently on ART aged 1-4  by regimen type
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U4','Children currently on ART aged 1-4  by regimen type',u4 FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U4','Children currently on ART aged 1-4  by regimen type',COALESCE(u4, 0) FROM tx_curr_agg
 -- 4.1 Children currently on ART aged 1-4  on First line regimen by regimen type
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.1','Children currently on ART aged 1-4  on First line regimen by regimen type',u4_first_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.1','Children currently on ART aged 1-4  on First line regimen by regimen type',COALESCE(u4_first_line, 0) FROM tx_curr_agg
 -- 4.1.1 4d - AZT+3TC+EFV
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.1. 1','4d = AZT+3TC+EFV',u4_first_line_4d FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.1. 1','4d = AZT+3TC+EFV',COALESCE(u4_first_line_4d, 0) FROM tx_curr_agg
 -- 4.1.2 4f - AZT+3TC+LPVr
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.1. 2','4f=AZT + 3TC + LPV/r',u4_first_line_4f FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.1. 2','4f=AZT + 3TC + LPV/r',COALESCE(u4_first_line_4f, 0) FROM tx_curr_agg
 -- 4.1.3 4g - ABC+3TC+LPVr
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.1. 3','4g=ABC + 3TC + LPV/r',u4_first_line_4g FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.1. 3','4g=ABC + 3TC + LPV/r',COALESCE(u4_first_line_4g, 0) FROM tx_curr_agg
 -- 4.1.4 4g - ABC+3TC+LPVr
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.1. 4','4j= ABC +3TC + DTG',u4_first_line_4j FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.1. 4','4j= ABC +3TC + DTG',COALESCE(u4_first_line_4j, 0) FROM tx_curr_agg
 -- 4.1.5 4K - AZT+3TC+DTG
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.1. 5','4k= AZT + 3TC + DTG',u4_first_line_4k FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.1. 5','4k= AZT + 3TC + DTG',COALESCE(u4_first_line_4k, 0) FROM tx_curr_agg
 -- 4.1.6 4L - ABC+3TC+EFV
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.1. 6','4L= ABC + 3TC + EFV',u4_first_line_4l FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.1. 6','4L= ABC + 3TC + EFV',COALESCE(u4_first_line_4l, 0) FROM tx_curr_agg
 -- 4.1.7 4L - ABC+3TC+EFV
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.1. 7','4h=other first line',u4_first_line_other FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.1. 7','4h=other first line',COALESCE(u4_first_line_other, 0) FROM tx_curr_agg
 -- 4.2 Children currently on ART aged 1-4  on Second line regimen by regimen type
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.2','Children currently on ART aged 1-4  on Second line regimen by regimen type',u4_second_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.2','Children currently on ART aged 1-4  on Second line regimen by regimen type',COALESCE(u4_second_line, 0) FROM tx_curr_agg
 -- 4.2.1 5e - ABC+3TC+LPVr
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.2. 1','5e=ABC + 3TC + LPV/r',u4_second_line_5e FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.2. 1','5e=ABC + 3TC + LPV/r',COALESCE(u4_second_line_5e, 0) FROM tx_curr_agg
 -- 4.2.2 5f - AZT+3TC+LPVr
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.2. 2','5f=AZT + 3TC + LPV/r',u4_second_line_5f FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.2. 2','5f=AZT + 3TC + LPV/r',COALESCE(u4_second_line_5f, 0) FROM tx_curr_agg
 -- 4.2.3 5h - ABC+3TC+EFV
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.2. 3','5h=ABC + 3TC + EFV',u4_second_line_5h FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.2. 3','5h=ABC + 3TC + EFV',COALESCE(u4_second_line_5h, 0) FROM tx_curr_agg
 -- 4.2.4 5m - ABC+3TC+DTG
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.2. 4','5m = ABC + 3TC + DTG',u4_second_line_5m FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.2. 4','5m = ABC + 3TC + DTG',COALESCE(u4_second_line_5m, 0) FROM tx_curr_agg
 -- 4.2.5 5n - AZT+3TC+DTG
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.2. 5','5n= AZT + 3TC + DTG',u4_second_line_5n FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.2. 5','5n= AZT + 3TC + DTG',COALESCE(u4_second_line_5n, 0) FROM tx_curr_agg
 -- 4.2.6 5j - Other Child 2nd line regimen
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.2. 6','5j=other secondline',u4_second_line_other FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.2. 6','5j=other secondline',COALESCE(u4_second_line_other, 0) FROM tx_curr_agg
 -- 4.3 Children currently on ART aged 1-4  on Third Line regimen by regimen type
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.3','Children currently on ART aged 1-4  on Third Line regimen by regimen type',u4_third_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.3','Children currently on ART aged 1-4  on Third Line regimen by regimen type',COALESCE(u4_third_line, 0) FROM tx_curr_agg
 -- 4.3.1 6c - DRVr+DTG+AZT+3TC
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.3. 1','6c=DRV/r+DTG+AZT+3TC',u4_third_line_6c FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.3. 1','6c=DRV/r+DTG+AZT+3TC',COALESCE(u4_third_line_6c, 0) FROM tx_curr_agg
 -- 4.3.2 6f - DRV/r+DTG+ABC+3TC
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.3. 2','6f= DRV/r + DTG + ABC + 3TC',u4_third_line_6f FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.3. 2','6f= DRV/r + DTG + ABC + 3TC',COALESCE(u4_third_line_6f, 0) FROM tx_curr_agg
 -- 4.3.3 6g - DRV/r+ABC+3TC+EFV
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.3. 3','6g= DRV/r +ABC+3TC+ EFV',u4_third_line_6g FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.3. 3','6g= DRV/r +ABC+3TC+ EFV',COALESCE(u4_third_line_6g, 0) FROM tx_curr_agg
 -- 4.3.4 6h - DRV/r+AZT+3TC+EFV
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.3. 4','6h= DRV/r +AZT+3TC+EFV',u4_third_line_6h FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.3. 4','6h= DRV/r +AZT+3TC+EFV',COALESCE(u4_third_line_6h, 0) FROM tx_curr_agg
 -- 4.3.5 6e - Other Child 3rd line regimen
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.3. 5','6e=Other thirdline regimen',u4_third_line_other FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U4.3. 5','6e=Other thirdline regimen',COALESCE(u4_third_line_other, 0) FROM tx_curr_agg
 -- 9 Children currently on ART aged 5-9  on by regimen type
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U9','Children currently on ART aged 5-9  on by regimen type',u9 FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9','Children currently on ART aged 5-9  on by regimen type',COALESCE(u9, 0) FROM tx_curr_agg
 -- 9.1 Children currently on ART aged 5-9  on First line regimen by regimen type
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.1','Children currently on ART aged 5-9  on First line regimen by regimen type',u9_first_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.1','Children currently on ART aged 5-9  on First line regimen by regimen type',COALESCE(u9_first_line, 0) FROM tx_curr_agg
 -- 9.1.1 4d - AZT+3TC+EFV
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.1. 1','4d = AZT+3TC+EFV',u9_first_line_4d FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.1. 1','4d = AZT+3TC+EFV',COALESCE(u9_first_line_4d, 0) FROM tx_curr_agg
 -- 9.1.2 4e - TDF+3TC+EFV
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.1. 2','4e= TDF+3TC+EFV',u9_first_line_4e FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.1. 2','4e= TDF+3TC+EFV',COALESCE(u9_first_line_4e, 0) FROM tx_curr_agg
 -- 9.1.3 4f - AZT+3TC+LPVr
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.1. 3','4f=AZT + 3TC + LPV/r',u9_first_line_4f FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.1. 3','4f=AZT + 3TC + LPV/r',COALESCE(u9_first_line_4f, 0) FROM tx_curr_agg
 -- 9.1.4 4g - ABC+3TC+LPVr
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.1. 4','4g=ABC + 3TC + LPV/r',u9_first_line_4g FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.1. 4','4g=ABC + 3TC + LPV/r',COALESCE(u9_first_line_4g, 0) FROM tx_curr_agg
 -- 9.1.5 4i - TDF+3TC+DTG
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.1. 5','4i= TDF + 3TC + DTG',u9_first_line_4i FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.1. 5','4i= TDF + 3TC + DTG',COALESCE(u9_first_line_4i, 0) FROM tx_curr_agg
 -- 9.1.6 4j - ABC+3TC+DTG
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.1. 6','4j= ABC +3TC + DTG',u9_first_line_4j FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.1. 6','4j= ABC +3TC + DTG',COALESCE(u9_first_line_4j, 0) FROM tx_curr_agg
 -- 9.1.7 4K - AZT+3TC+DTG
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.1. 7','4k= AZT + 3TC + DTG',u9_first_line_4k FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.1. 7','4k= AZT + 3TC + DTG',COALESCE(u9_first_line_4k, 0) FROM tx_curr_agg
 -- 9.1.8 4L - ABC+3TC+EFV
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.1. 8','4L= ABC + 3TC + EFV',u9_first_line_4l FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.1. 8','4L= ABC + 3TC + EFV',COALESCE(u9_first_line_4l, 0) FROM tx_curr_agg
 -- 9.1.9 4h - Other Child 1st line regimen
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.1. 9','4h=other first line',u9_first_line_other FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.1. 9','4h=other first line',COALESCE(u9_first_line_other, 0) FROM tx_curr_agg
 -- 9.2 Children currently on ART aged 5-9  on Second line regimen by regimen type
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.2','Children currently on ART aged 5-9  on Second line regimen by regimen type',u9_second_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.2','Children currently on ART aged 5-9  on Second line regimen by regimen type',COALESCE(u9_second_line, 0) FROM tx_curr_agg
 -- 9.2.1 5e - ABC+3TC+LPVr
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.2. 1','5e=ABC + 3TC + LPV/r',u9_second_line_5e FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.2. 1','5e=ABC + 3TC + LPV/r',COALESCE(u9_second_line_5e, 0) FROM tx_curr_agg
 -- 9.2.2 5f - AZT+3TC+LPVr
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.2. 2','5f=AZT + 3TC + LPV/r',u9_second_line_5f FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.2. 2','5f=AZT + 3TC + LPV/r',COALESCE(u9_second_line_5f, 0) FROM tx_curr_agg
 -- 9.2.3 5g - TDF+3TC+EFV
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.2. 3','5g= TDF + 3TC + EFV',u9_second_line_5g FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.2. 3','5g= TDF + 3TC + EFV',COALESCE(u9_second_line_5g, 0) FROM tx_curr_agg
 -- 9.2.4 5h - ABC+3TC+EFV
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.2. 4','5h=ABC + 3TC + EFV',u9_second_line_5h FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.2. 4','5h=ABC + 3TC + EFV',COALESCE(u9_second_line_5h, 0) FROM tx_curr_agg
 -- 9.2.5 5i - TDF+3TC+LPVr
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.2. 5','5i=TDF + 3TC+ LPV/r',u9_second_line_5i FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.2. 5','5i=TDF + 3TC+ LPV/r',COALESCE(u9_second_line_5i, 0) FROM tx_curr_agg
 -- 9.2.6 5m - ABC+3TC+DTG
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.2. 6','5m = ABC + 3TC + DTG',u9_second_line_5m FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.2. 6','5m = ABC + 3TC + DTG',COALESCE(u9_second_line_5m, 0) FROM tx_curr_agg
 -- 9.2.7 5n - AZT+3TC+DTG
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.2. 7','5n= AZT + 3TC + DTG',u9_second_line_5n FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.2. 7','5n= AZT + 3TC + DTG',COALESCE(u9_second_line_5n, 0) FROM tx_curr_agg
 -- 9.2.8 5o - TDF+3TC+DTG
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.2. 8','5o= TDF + 3TC + DTG',u9_second_line_5o FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.2. 8','5o= TDF + 3TC + DTG',COALESCE(u9_second_line_5o, 0) FROM tx_curr_agg
 -- 9.2.9 5j - Other Child 2nd line regimen
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.2. 9','5j=other secondline',u9_second_line_other FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.2. 9','5j=other secondline',COALESCE(u9_second_line_other, 0) FROM tx_curr_agg
 -- 9.3 Children currently on ART aged 5-9  on Third Line regimen by regimen type
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.3','Children currently on ART aged 5-9  on Third Line regimen by regimen type',u9_third_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.3','Children currently on ART aged 5-9  on Third Line regimen by regimen type',COALESCE(u9_third_line, 0) FROM tx_curr_agg
 -- 9.3.1 6c - DRVr+DTG+AZT+3TC
     UNION ALL SELECT 'HIV_TX_CURR_REG_U9.3. 1','6c=DRV/r+DTG+AZT+3TC' ,u9_third_line_6c FROM tx_curr_agg
 -- 9.3.2 6d - DRVr+DTG+TDF+3TC
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.3. 2','6d=DRV/r+DTG+TDF+3TC',u9_third_line_6d FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.3. 2','6d=DRV/r+DTG+TDF+3TC',COALESCE(u9_third_line_6d, 0) FROM tx_curr_agg
 -- 9.3.3 6f - DRV/r+DTG+ABC+3TC
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.3. 3','6f= DRV/r + DTG + ABC + 3TC',u9_third_line_6f FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.3. 3','6f= DRV/r + DTG + ABC + 3TC',COALESCE(u9_third_line_6f, 0) FROM tx_curr_agg
 -- 9.3.4 6g - DRV/r+ABC+3TC+EFV
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.3. 4','6g= DRV/r +ABC+3TC+ EFV',u9_third_line_6g FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.3. 4','6g= DRV/r +ABC+3TC+ EFV',COALESCE(u9_third_line_6g, 0) FROM tx_curr_agg
 -- 9.3.5 6h - DRV/r+AZT+3TC+EFV
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.3. 5','6h= DRV/r +AZT+3TC+EFV',u9_third_line_6h FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.3. 5','6h= DRV/r +AZT+3TC+EFV',COALESCE(u9_third_line_6h, 0) FROM tx_curr_agg
 -- 9.3.6 6e - Other Child 3rd line regimen
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.3. 6','6e=Other thirdline regimen',u9_third_line_other FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U9.3. 6','6e=Other thirdline regimen',COALESCE(u9_third_line_other, 0) FROM tx_curr_agg
 -- 14 Children currently on ART aged 10-14 year by regimen type
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U14','Children currently on ART aged 10-14 year by regimen type',u14 FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14','Children currently on ART aged 10-14 year by regimen type',COALESCE(u14, 0) FROM tx_curr_agg
 -- 14.1 Children currently on ART aged 10-14 year on First line regimen by regimen type
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.1','Children currently on ART aged 10-14 year on First line regimen by regimen type',u14_first_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.1','Children currently on ART aged 10-14 year on First line regimen by regimen type',COALESCE(u14_first_line, 0) FROM tx_curr_agg
 -- 14.1.1 4d - AZT+3TC+EFV
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.1. 1','4d = AZT+3TC+EFV',u14_first_line_4d FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.1. 1','4d = AZT+3TC+EFV',COALESCE(u14_first_line_4d, 0) FROM tx_curr_agg
 -- 14.1.2 4e - TDF+3TC+EFV
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.1. 2','4e= TDF+3TC+EFV',u14_first_line_4e FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.1. 2','4e= TDF+3TC+EFV',COALESCE(u14_first_line_4e, 0) FROM tx_curr_agg
 -- 14.1.3 4f - AZT+3TC+LPVr
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.1. 3','4f=AZT + 3TC + LPV/r',u14_first_line_4f FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.1. 3','4f=AZT + 3TC + LPV/r',COALESCE(u14_first_line_4f, 0) FROM tx_curr_agg
 -- 14.1.4 4g - ABC+3TC+LPVr
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.1. 4','4g=ABC + 3TC + LPV/r',u14_first_line_4g FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.1. 4','4g=ABC + 3TC + LPV/r',COALESCE(u14_first_line_4g, 0) FROM tx_curr_agg
 -- 14.1.5 4i - TDF+3TC+DTG
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.1. 5','4i= TDF + 3TC + DTG',u14_first_line_4i FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.1. 5','4i= TDF + 3TC + DTG',COALESCE(u14_first_line_4i, 0) FROM tx_curr_agg
 -- 14.1.6 4j - ABC+3TC+DTG
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.1. 6','4j= ABC +3TC + DTG',u14_first_line_4j FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.1. 6','4j= ABC +3TC + DTG',COALESCE(u14_first_line_4j, 0) FROM tx_curr_agg
 -- 14.1.7 4K - AZT+3TC+DTG
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.1. 7', '4k= AZT + 3TC + DTG',u14_first_line_4k FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.1. 7', '4k= AZT + 3TC + DTG',COALESCE(u14_first_line_4k, 0) FROM tx_curr_agg
 -- 14.1.8 4L - ABC+3TC+EFV
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.1. 8','4L= ABC + 3TC + EFV',u14_first_line_4L FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.1. 8','4L= ABC + 3TC + EFV',COALESCE(u14_first_line_4L, 0) FROM tx_curr_agg
 -- 14.1.9 4h - Other Child 1st line regimen
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.1. 9','4h=other first line',u14_first_line_other FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.1. 9','4h=other first line',COALESCE(u14_first_line_other, 0) FROM tx_curr_agg
 -- 14.2 Children currently on ART aged 10-14 year on Second line regimen by regimen type
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.2','Children currently on ART aged 10-14 year on Second line regimen by regimen type',u14_second_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.2','Children currently on ART aged 10-14 year on Second line regimen by regimen type',COALESCE(u14_second_line, 0) FROM tx_curr_agg
 -- 14.2.1 5e - ABC+3TC+LPVr
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.2. 1','5e=ABC + 3TC + LPV/r',u14_second_line_5e FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.2. 1','5e=ABC + 3TC + LPV/r',COALESCE(u14_second_line_5e, 0) FROM tx_curr_agg
 -- 14.2.2 5f - AZT+3TC+LPVr
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.2. 2','5f=AZT + 3TC + LPV/r',u14_second_line_5f FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.2. 2','5f=AZT + 3TC + LPV/r',COALESCE(u14_second_line_5f, 0) FROM tx_curr_agg
 -- 14.2.3 5g - TDF+3TC+EFV
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.2. 3','5g= TDF + 3TC + EFV',u14_second_line_5g FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.2. 3','5g= TDF + 3TC + EFV',COALESCE(u14_second_line_5g, 0) FROM tx_curr_agg
 -- 14.2.4 5h - ABC+3TC+EFV
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.2. 4','5h=ABC + 3TC + EFV',u14_second_line_5h FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.2. 4','5h=ABC + 3TC + EFV',COALESCE(u14_second_line_5h, 0) FROM tx_curr_agg
 -- 14.2.5 5h - ABC+3TC+EFV
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.2. 5','5i=TDF + 3TC+ LPV/r',u14_second_line_5i FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.2. 5','5i=TDF + 3TC+ LPV/r',COALESCE(u14_second_line_5i, 0) FROM tx_curr_agg
 -- 14.2.6 5m - ABC+3TC+DTG
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.2. 6','5m = ABC + 3TC + DTG',u14_second_line_5m FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.2. 6','5m = ABC + 3TC + DTG',COALESCE(u14_second_line_5m, 0) FROM tx_curr_agg
 -- 14.2.7 5n - AZT+3TC+DTG
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.2. 7','5n= AZT + 3TC + DTG',u14_second_line_5n FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.2. 7','5n= AZT + 3TC + DTG',COALESCE(u14_second_line_5n, 0) FROM tx_curr_agg
 -- 14.2.8 5o - TDF+3TC+DTG
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.2. 8','5o= TDF + 3TC + DTG',u14_second_line_5o FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.2. 8','5o= TDF + 3TC + DTG',COALESCE(u14_second_line_5o, 0) FROM tx_curr_agg
 -- 14.2.9 5j - Other Child 2nd line regimen
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.2. 9','5j=other secondline',u14_second_line_other FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.2. 9','5j=other secondline',COALESCE(u14_second_line_other, 0) FROM tx_curr_agg
 -- 14.3 Children currently on ART aged 10-14 year on Third Line regimen by regimen type
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.3','Children currently on ART aged 10-14 year on Third Line regimen by regimen type',u14_third_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.3','Children currently on ART aged 10-14 year on Third Line regimen by regimen type',COALESCE(u14_third_line, 0) FROM tx_curr_agg
 -- 14.3.1 6c - DRVr+DTG+AZT+3TC
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.3. 1','6c=DRV/r+DTG+AZT+3TC',u14_third_line_6c FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.3. 1','6c=DRV/r+DTG+AZT+3TC',COALESCE(u14_third_line_6c, 0) FROM tx_curr_agg
 -- 14.3.2 6d - DRVr+DTG+TDF+3TC
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.3. 2','6d=DRV/r+DTG+TDF+3TC',u14_third_line_6d FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.3. 2','6d=DRV/r+DTG+TDF+3TC',COALESCE(u14_third_line_6d, 0) FROM tx_curr_agg
 -- 14.3.3 6f - DRV/r+DTG+ABC+3TC
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.3. 3','6f= DRV/r + DTG + ABC + 3TC',u14_third_line_6f FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.3. 3','6f= DRV/r + DTG + ABC + 3TC',COALESCE(u14_third_line_6f, 0) FROM tx_curr_agg
 -- 14.3.4 6g - DRV/r+ABC+3TC+EFV
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.3. 4','6g= DRV/r +ABC+3TC+ EFV',u14_third_line_6g FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.3. 4','6g= DRV/r +ABC+3TC+ EFV',COALESCE(u14_third_line_6g, 0) FROM tx_curr_agg
 -- 14.3.5 6h - DRV/r+AZT+3TC+EFV
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.3. 5','6h= DRV/r +AZT+3TC+EFV',u14_third_line_6h FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.3. 5','6h= DRV/r +AZT+3TC+EFV',COALESCE(u14_third_line_6h, 0) FROM tx_curr_agg
 -- 14.3.6 6e - Other Child 3rd line regimen
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.3. 6','6e=Other thirdline regimen',u14_third_line_other FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U14.3. 6','6e=Other thirdline regimen',COALESCE(u14_third_line_other, 0) FROM tx_curr_agg
 -- 19 Adult currently on ART aged 15-19 by regimen type
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U19','Adult currently on ART aged 15-19 by regimen type',u19 FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19','Adult currently on ART aged 15-19 by regimen type',COALESCE(u19, 0) FROM tx_curr_agg
 -- 19.1 Adult currently on ART aged 15-19 on First line regimen by regimen type
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.1','Adult currently on ART aged 15-19 on First line regimen by regimen type',u19_first_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.1','Adult currently on ART aged 15-19 on First line regimen by regimen type',COALESCE(u19_first_line, 0) FROM tx_curr_agg
 -- 19.1.1 1d - AZT+3TC+EFV
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.1. 1','1d = AZT-3TC-EFV',u19_first_line_1d FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.1. 1','1d = AZT-3TC-EFV',COALESCE(u19_first_line_1d, 0) FROM tx_curr_agg
 -- 19.1.2 1e - TDF+3TC+EFV
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.1. 2','1e = TDF-3TC-EFV',u19_first_line_1e FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.1. 2','1e = TDF-3TC-EFV',COALESCE(u19_first_line_1e, 0) FROM tx_curr_agg
 -- 19.1.3 1g - ABC+3TC+EFV
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.1. 3','1g= ABC + 3TC + EFV',u19_first_line_1g FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.1. 3','1g= ABC + 3TC + EFV',COALESCE(u19_first_line_1g, 0) FROM tx_curr_agg
 -- 19.1.4 1j - TDF+3TC+DTG
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.1. 4','1j=TDF + 3TC + DTG',u19_first_line_1j FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.1. 4','1j=TDF + 3TC + DTG',COALESCE(u19_first_line_1j, 0) FROM tx_curr_agg
 -- 19.1.5 1k - AZT+3TC+DTG
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.1. 5','1k= AZT +3TC +DTG',u19_first_line_1k FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.1. 5','1k= AZT +3TC +DTG',COALESCE(u19_first_line_1k, 0) FROM tx_curr_agg
 -- 19.1.6 1i - Other Adult 1st line regimen
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.1. 6','1i = Other specify',u19_first_line_other FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.1. 6','1i = Other specify',COALESCE(u19_first_line_other, 0) FROM tx_curr_agg
 -- 19.2 Adult currently on ART aged 15-19 on Second line regimen by regimen type
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.2','Adult currently on ART aged 15-19 on Second line regimen by regimen type',u19_second_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.2','Adult currently on ART aged 15-19 on Second line regimen by regimen type',COALESCE(u19_second_line, 0) FROM tx_curr_agg
 -- 19.2.1 1d - AZT+3TC+EFV
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.2. 1','2e= AZT+3TC+LPV/r',u19_second_line_2e FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.2. 1','2e= AZT+3TC+LPV/r',COALESCE(u19_second_line_2e, 0) FROM tx_curr_agg
 -- 19.2.2 2f - AZT+3TC+ATVr
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.2. 2','2f=AZT+3TC+ATV/r',u19_second_line_2f FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.2. 2','2f=AZT+3TC+ATV/r',COALESCE(u19_second_line_2f, 0) FROM tx_curr_agg
 -- 19.2.3 2f - AZT+3TC+ATVr
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.2. 3','2g= TDF-3TC-LPV/r',u19_second_line_2g FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.2. 3','2g= TDF-3TC-LPV/r',COALESCE(u19_second_line_2g, 0) FROM tx_curr_agg
 -- 19.2.4 2f - AZT+3TC+ATVr
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.2. 4','2h =TDF-3TC-ATV/r',u19_second_line_2h FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.2. 4','2h =TDF-3TC-ATV/r',COALESCE(u19_second_line_2h, 0) FROM tx_curr_agg
 -- 19.2.5 2i - ABC+3TC+LPVr
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.2. 5','2i = ABC + 3TC + LPV/r',u19_second_line_2i FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.2. 5','2i = ABC + 3TC + LPV/r',COALESCE(u19_second_line_2i, 0) FROM tx_curr_agg
 -- 19.2.6 2j -TDF+3TC+DTG
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.2. 6','2j = TDF + 3TC + DTG',u19_second_line_2j FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.2. 6','2j = TDF + 3TC + DTG',COALESCE(u19_second_line_2j, 0) FROM tx_curr_agg
 -- 19.2.7 2k - AZT+3TC+DTG
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.2. 7','2k = AZT + 3TC + DTG', u19_second_line_2k FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.2. 7','2k = AZT + 3TC + DTG', COALESCE(u19_second_line_2k, 0) FROM tx_curr_agg
 -- 19.2.8 2L - Other Adult 2nd line regimen
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.2. 8','2l=other secondline',u19_second_line_other FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.2. 8','2l=other secondline',COALESCE(u19_second_line_other, 0) FROM tx_curr_agg
 -- 19.3 Adult currently on ART aged 15-19 on Third Line regimen by regimen type
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.3','Adult currently on ART aged 15-19 on Third Line regimen by regimen type',u19_third_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.3','Adult currently on ART aged 15-19 on Third Line regimen by regimen type',COALESCE(u19_third_line, 0) FROM tx_curr_agg
 -- 19.3.1 3a -  DRV/r+DTG+AZT+3TC
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.3. 1','3a=DRV/r+DTG+AZT/3TC',u19_third_line_3a FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.3. 1','3a=DRV/r+DTG+AZT/3TC',COALESCE(u19_third_line_3a, 0) FROM tx_curr_agg
 -- 19.3.2 3b - DRV/r+DTG+TDF+3TC
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.3. 2','3b=DRV/r+DTG+TDF/3TC',u19_third_line_3b FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.3. 2','3b=DRV/r+DTG+TDF/3TC',COALESCE(u19_third_line_3b, 0) FROM tx_curr_agg
 -- 19.3.3 3c - DRV/r+ABC+3TC+DTG
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.3. 3','3c=DRV/r+ABC+3TC+DTG',u19_third_line_3c FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.3. 3','3c=DRV/r+ABC+3TC+DTG',COALESCE(u19_third_line_3c, 0) FROM tx_curr_agg
 -- 19.3.4 3e - DRV/r+TDF+3TC+EFV
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.3. 4','3e= DRV/r+TDF+3TC+EFV',u19_third_line_3e FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.3. 4','3e= DRV/r+TDF+3TC+EFV',COALESCE(u19_third_line_3e, 0) FROM tx_curr_agg
 -- 19.3.5 3f - DRV/r+AZT+3TC+EFV
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.3. 5','3f= DRV/r+AZT+3TC +EFV',u19_third_line_3f FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.3. 5','3f= DRV/r+AZT+3TC +EFV',COALESCE(u19_third_line_3f, 0) FROM tx_curr_agg
 -- 19.3.6 3d - Other Adult 3rd line regimen
-    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.3. 6','3d=Other thirdline',u19_third_line_other FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_U19.3. 6','3d=Other thirdline',COALESCE(u19_third_line_other, 0) FROM tx_curr_agg
 -- 20 Adults >=20 years currently on ART by regimen type
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20','Adults >=20 years currently on ART by regimen type',greater_than_20 FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20','Adults >=20 years currently on ART by regimen type',COALESCE(greater_than_20, 0) FROM tx_curr_agg
 -- 20.1 Adults >=20 years currently on First line regimen by regimen type
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1','Adults >=20 years currently on First line regimen by regimen type',greater_than_20_first_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1','Adults >=20 years currently on First line regimen by regimen type',COALESCE(greater_than_20_first_line, 0) FROM tx_curr_agg
 -- 20.1.1 1d - AZT+3TC+EFV, Male
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 1','1d = AZT-3TC-EFV, Male',greater_than_20_first_line_1d_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 1','1d = AZT-3TC-EFV, Male',COALESCE(greater_than_20_first_line_1d_male, 0) FROM tx_curr_agg
 -- 20.1.2 1d - AZT+3TC+EFV, Female - pregnant
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 2','1d = AZT-3TC-EFV, Female - pregnant',greater_than_20_first_line_1d_female_pregnant FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 2','1d = AZT-3TC-EFV, Female - pregnant',COALESCE(greater_than_20_first_line_1d_female_pregnant, 0) FROM tx_curr_agg
 -- 20.1.3 1d - AZT+3TC+EFV, Female - non-pregnant
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 3','1d = AZT-3TC-EFV, Female - non-pregnant',greater_than_20_first_line_1d_female_non_pregnant FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 3','1d = AZT-3TC-EFV, Female - non-pregnant',COALESCE(greater_than_20_first_line_1d_female_non_pregnant, 0) FROM tx_curr_agg
 -- 20.1.4 1e - TDF+3TC+EFV, Male
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 4','1e = TDF-3TC-EFV, Male',greater_than_20_first_line_1e_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 4','1e = TDF-3TC-EFV, Male',COALESCE(greater_than_20_first_line_1e_male, 0) FROM tx_curr_agg
 -- 20.1.5 1e - TDF+3TC+EFV, Female - pregnant
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 5','1e = TDF-3TC-EFV, Female - pregnant',greater_than_20_first_line_1e_female_pregnant FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 5','1e = TDF-3TC-EFV, Female - pregnant',COALESCE(greater_than_20_first_line_1e_female_pregnant, 0) FROM tx_curr_agg
 -- 20.1.6 1e - TDF+3TC+EFV, Female - non-pregnant
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 6','1e = TDF-3TC-EFV, Female - non-pregnant',greater_than_20_first_line_1e_female_non_pregnant FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 6','1e = TDF-3TC-EFV, Female - non-pregnant',COALESCE(greater_than_20_first_line_1e_female_non_pregnant, 0) FROM tx_curr_agg
 -- 20.1.7 1g - ABC+3TC+EFV, Male
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 7','1g= ABC + 3TC + EFV, Male',greater_than_20_first_line_1g_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 7','1g= ABC + 3TC + EFV, Male',COALESCE(greater_than_20_first_line_1g_male, 0) FROM tx_curr_agg
 -- 20.1.8 1g - ABC+3TC+EFV, Female - pregnant
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 8','1g= ABC + 3TC + EFV, Female - pregnant',greater_than_20_first_line_1g_female_pregnant FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 8','1g= ABC + 3TC + EFV, Female - pregnant',COALESCE(greater_than_20_first_line_1g_female_pregnant, 0) FROM tx_curr_agg
 -- 20.1.9 1g - ABC+3TC+EFV, Female - non-pregnant
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 9','1g= ABC + 3TC + EFV, Female - non-pregnant',greater_than_20_first_line_1g_female_non_pregnant FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 9','1g= ABC + 3TC + EFV, Female - non-pregnant',COALESCE(greater_than_20_first_line_1g_female_non_pregnant, 0) FROM tx_curr_agg
 -- 20.1.10 1j - TDF+3TC+DTG, Male
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 10','1j=TDF + 3TC + DTG, Male',greater_than_20_first_line_1j_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 10','1j=TDF + 3TC + DTG, Male',COALESCE(greater_than_20_first_line_1j_male, 0) FROM tx_curr_agg
 -- 20.1.11 1j - TDF+3TC+DTG, Female - pregnant
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 11','1j=TDF + 3TC + DTG, Female - pregnant',greater_than_20_first_line_1j_female_pregnant FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 11','1j=TDF + 3TC + DTG, Female - pregnant',COALESCE(greater_than_20_first_line_1j_female_pregnant, 0) FROM tx_curr_agg
 -- 20.1.12 1j - TDF+3TC+DTG, Female - non-pregnant
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 12','1j=TDF + 3TC + DTG, Female - non-pregnant',greater_than_20_first_line_1j_female_non_pregnant FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 12','1j=TDF + 3TC + DTG, Female - non-pregnant',COALESCE(greater_than_20_first_line_1j_female_non_pregnant, 0) FROM tx_curr_agg
 -- 20.1.13 1k - AZT+3TC+DTG, Male
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 13','1k= AZT +3TC +DTG, Male',greater_than_20_first_line_1k_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 13','1k= AZT +3TC +DTG, Male',COALESCE(greater_than_20_first_line_1k_male, 0) FROM tx_curr_agg
 -- 20.1.14 1k - AZT+3TC+DTG, Female - pregnant
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 14','1k= AZT +3TC +DTG, Female - pregnant',greater_than_20_first_line_1k_female_pregnant FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 14','1k= AZT +3TC +DTG, Female - pregnant',COALESCE(greater_than_20_first_line_1k_female_pregnant, 0) FROM tx_curr_agg
 -- 20.1.15 1k - AZT+3TC+DTG, Female - non-pregnant
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 15','1k= AZT +3TC +DTG, Female - non-pregnant',greater_than_20_first_line_1k_female_non_pregnant FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 15','1k= AZT +3TC +DTG, Female - non-pregnant',COALESCE(greater_than_20_first_line_1k_female_non_pregnant, 0) FROM tx_curr_agg
 -- 20.1.16 1i - Other Adult 1st line regimen, Male
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 16','1i = Other specify, Male',greater_than_20_first_line_other_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 16','1i = Other specify, Male',COALESCE(greater_than_20_first_line_other_male, 0) FROM tx_curr_agg
 -- 20.1.17 1i - Other Adult 1st line regimen, Female - pregnant
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 17','1i = Other specify, Female - pregnant',greater_than_20_first_line_other_female_pregnant FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 17','1i = Other specify, Female - pregnant',COALESCE(greater_than_20_first_line_other_female_pregnant, 0) FROM tx_curr_agg
 -- 20.1.18 1i - Other Adult 1st line regimen, Female - non-pregnant
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 18','1i = Other specify, Female - non-pregnant',greater_than_20_first_line_other_female_non_pregnant FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.1. 18','1i = Other specify, Female - non-pregnant',COALESCE(greater_than_20_first_line_other_female_non_pregnant, 0) FROM tx_curr_agg
 -- 20.2  Adults >=20 years currently on Second line regimen by regimen type
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2','Adults >=20 years currently on Second line regimen by regimen type',greater_than_20_second_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2','Adults >=20 years currently on Second line regimen by regimen type',COALESCE(greater_than_20_second_line, 0) FROM tx_curr_agg
 -- 20.2.1 2e - AZT+3TC+LPVr, Male
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 1','2e= AZT+3TC+LPV/r, Male',greater_than_20_second_line_2e_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 1','2e= AZT+3TC+LPV/r, Male',COALESCE(greater_than_20_second_line_2e_male, 0) FROM tx_curr_agg
 -- 20.2.2 2e - AZT+3TC+LPVr, Female - pregnant
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 2','2e= AZT+3TC+LPV/r, Female - pregnant',greater_than_20_second_line_2e_female_pregnant FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 2','2e= AZT+3TC+LPV/r, Female - pregnant',COALESCE(greater_than_20_second_line_2e_female_pregnant, 0) FROM tx_curr_agg
 -- 20.2.3 2e - AZT+3TC+LPVr, Female - non-pregnant
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 3','2e= AZT+3TC+LPV/r, Female - non-pregnant',greater_than_20_second_line_2e_female_non_pregnant FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 3','2e= AZT+3TC+LPV/r, Female - non-pregnant',COALESCE(greater_than_20_second_line_2e_female_non_pregnant, 0) FROM tx_curr_agg
 -- 20.2.4 2f - AZT+3TC+ATVr, Male
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 4','2f=AZT+3TC+ATV/r, Male',greater_than_20_second_line_2f_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 4','2f=AZT+3TC+ATV/r, Male',COALESCE(greater_than_20_second_line_2f_male, 0) FROM tx_curr_agg
 -- 20.2.5 2f - AZT+3TC+ATVr, Female - pregnant
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 5','2f=AZT+3TC+ATV/r, Female - pregnant',greater_than_20_second_line_2f_female_pregnant FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 5','2f=AZT+3TC+ATV/r, Female - pregnant',COALESCE(greater_than_20_second_line_2f_female_pregnant, 0) FROM tx_curr_agg
 -- 20.2.6 2f - AZT+3TC+ATVr, Female - non-pregnant
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 6','2f=AZT+3TC+ATV/r, Female - non-pregnant',greater_than_20_second_line_2f_female_non_pregnant FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 6','2f=AZT+3TC+ATV/r, Female - non-pregnant',COALESCE(greater_than_20_second_line_2f_female_non_pregnant, 0) FROM tx_curr_agg
 -- 20.2.7 2g - TDF+3TC+LPVr, Male
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 7','2g= TDF-3TC-LPV/r, Male',greater_than_20_second_line_2g_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 7','2g= TDF-3TC-LPV/r, Male',COALESCE(greater_than_20_second_line_2g_male, 0) FROM tx_curr_agg
 -- 20.2.8 2g - TDF+3TC+LPVr, Female - pregnant
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 8','2g= TDF-3TC-LPV/r, Female - pregnant',greater_than_20_second_line_2g_female_pregnant FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 8','2g= TDF-3TC-LPV/r, Female - pregnant',COALESCE(greater_than_20_second_line_2g_female_pregnant, 0) FROM tx_curr_agg
 -- 20.2.9 2g - TDF+3TC+LPVr, Female - non-pregnant
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 9','2g= TDF-3TC-LPV/r, Female - non-pregnant',greater_than_20_second_line_2g_female_non_pregnant FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 9','2g= TDF-3TC-LPV/r, Female - non-pregnant',COALESCE(greater_than_20_second_line_2g_female_non_pregnant, 0) FROM tx_curr_agg
 -- 20.2.10 2h - TDF+3TC+ATVr, Male
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 10','2h =TDF-3TC-ATV/r, Male',greater_than_20_second_line_2h_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 10','2h =TDF-3TC-ATV/r, Male',COALESCE(greater_than_20_second_line_2h_male, 0) FROM tx_curr_agg
 -- 20.2.11 2h - TDF+3TC+ATVr, Female - pregnant
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 11','2h =TDF-3TC-ATV/r, Female - pregnant',greater_than_20_second_line_2h_female_pregnant FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 11','2h =TDF-3TC-ATV/r, Female - pregnant',COALESCE(greater_than_20_second_line_2h_female_pregnant, 0) FROM tx_curr_agg
 -- 20.2.12 2h - TDF+3TC+ATVr, Female - non-pregnant
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 12','2h =TDF-3TC-ATV/r, Female - non-pregnant',greater_than_20_second_line_2h_female_non_pregnant FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 12','2h =TDF-3TC-ATV/r, Female - non-pregnant',COALESCE(greater_than_20_second_line_2h_female_non_pregnant, 0) FROM tx_curr_agg
 -- 20.2.13 2i - ABC+3TC+LPVr, Male
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 13','2i = ABC + 3TC + LPV/r, Male',greater_than_20_second_line_2i_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 13','2i = ABC + 3TC + LPV/r, Male',COALESCE(greater_than_20_second_line_2i_male, 0) FROM tx_curr_agg
 -- 20.2.14 2i - ABC+3TC+LPVr, Female - pregnant
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 14','2i = ABC + 3TC + LPV/r, Female - pregnant',greater_than_20_second_line_2i_female_pregnant FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 14','2i = ABC + 3TC + LPV/r, Female - pregnant',COALESCE(greater_than_20_second_line_2i_female_pregnant, 0) FROM tx_curr_agg
 -- 20.2.15 2i - ABC+3TC+LPVr, Female - non-pregnant
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 15','2i = ABC + 3TC + LPV/r, Female - non-pregnant',greater_than_20_second_line_2i_female_non_pregnant FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 15','2i = ABC + 3TC + LPV/r, Female - non-pregnant',COALESCE(greater_than_20_second_line_2i_female_non_pregnant, 0) FROM tx_curr_agg
 -- 20.2.16 2j -TDF+3TC+DTG, Male
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 16','2j = TDF + 3TC + DTG, Male',greater_than_20_second_line_2j_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 16','2j = TDF + 3TC + DTG, Male',COALESCE(greater_than_20_second_line_2j_male, 0) FROM tx_curr_agg
 -- 20.2.17 2j -TDF+3TC+DTG, Female - pregnant
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 17','2j = TDF + 3TC + DTG, Female - pregnant',greater_than_20_second_line_2j_female_pregnant FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 17','2j = TDF + 3TC + DTG, Female - pregnant',COALESCE(greater_than_20_second_line_2j_female_pregnant, 0) FROM tx_curr_agg
 -- 20.2.18 2j -TDF+3TC+DTG, Female - non-pregnant
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 18','2j = TDF + 3TC + DTG, Female - non-pregnant',greater_than_20_second_line_2j_female_non_pregnant FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 18','2j = TDF + 3TC + DTG, Female - non-pregnant',COALESCE(greater_than_20_second_line_2j_female_non_pregnant, 0) FROM tx_curr_agg
 -- 20.2.19 2k - AZT+3TC+DTG, Male
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 19','2k = AZT + 3TC + DTG, Male',greater_than_20_second_line_2k_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 19','2k = AZT + 3TC + DTG, Male',COALESCE(greater_than_20_second_line_2k_male, 0) FROM tx_curr_agg
 -- 20.2.20 2k - AZT+3TC+DTG, Female - pregnant
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 20','2k = AZT + 3TC + DTG, Female - pregnant',greater_than_20_second_line_2k_female_pregnant FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 20','2k = AZT + 3TC + DTG, Female - pregnant',COALESCE(greater_than_20_second_line_2k_female_pregnant, 0) FROM tx_curr_agg
 -- 20.2.21 2k - AZT+3TC+DTG, Female - non-pregnant
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 21','2k = AZT + 3TC + DTG, Female - non-pregnant',greater_than_20_second_line_2k_female_non_pregnant FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 21','2k = AZT + 3TC + DTG, Female - non-pregnant',COALESCE(greater_than_20_second_line_2k_female_non_pregnant, 0) FROM tx_curr_agg
 -- 20.2.22 2L - Other Adult 2nd line regimen, Male
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 22','2l=other secondline, Male',greater_than_20_second_line_other_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 22','2l=other secondline, Male',COALESCE(greater_than_20_second_line_other_male, 0) FROM tx_curr_agg
 -- 20.2.23 2L - Other Adult 2nd line regimen, Female - pregnant
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 23','2l=other secondline, Female - pregnant',greater_than_20_second_line_other_female_pregnant FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 23','2l=other secondline, Female - pregnant',COALESCE(greater_than_20_second_line_other_female_pregnant, 0) FROM tx_curr_agg
 -- 20.2.24 2L - Other Adult 2nd line regimen, Female - non-pregnant
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 24','2l=other secondline, Female - non-pregnant',greater_than_20_second_line_other_female_non_pregnant FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.2. 24','2l=other secondline, Female - non-pregnant',COALESCE(greater_than_20_second_line_other_female_non_pregnant, 0) FROM tx_curr_agg
 -- 20.3 Adults >=20 years currently on Third Line regimen by regimen type
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3','Adults >=20 years currently on Third Line regimen by regimen type',greater_than_20_third_line FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3','Adults >=20 years currently on Third Line regimen by regimen type',COALESCE(greater_than_20_third_line, 0) FROM tx_curr_agg
 -- 20.3.1 3a -  DRV/r+DTG+AZT+3TC, Male
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 1','3a=DRV/r+DTG+AZT/3TC, Male',greater_than_20_third_line_3a_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 1','3a=DRV/r+DTG+AZT/3TC, Male',COALESCE(greater_than_20_third_line_3a_male, 0) FROM tx_curr_agg
 -- 20.3.2 3a -  DRV/r+DTG+AZT+3TC, Female - pregnant
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 2','3a=DRV/r+DTG+AZT/3TC, Female - pregnant',greater_than_20_third_line_3a_female_pregnant FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 2','3a=DRV/r+DTG+AZT/3TC, Female - pregnant',COALESCE(greater_than_20_third_line_3a_female_pregnant, 0) FROM tx_curr_agg
 -- 20.3.3 3a -  DRV/r+DTG+AZT+3TC, Female - non-pregnant
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 3','3a=DRV/r+DTG+AZT/3TC, Female - non-pregnant',greater_than_20_third_line_3a_female_non_pregnant FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 3','3a=DRV/r+DTG+AZT/3TC, Female - non-pregnant',COALESCE(greater_than_20_third_line_3a_female_non_pregnant, 0) FROM tx_curr_agg
 -- 20.3.4 3b - DRV/r+DTG+TDF+3TC, Male
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 4','3b=DRV/r+DTG+TDF/3TC, Male',greater_than_20_third_line_3b_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 4','3b=DRV/r+DTG+TDF/3TC, Male',COALESCE(greater_than_20_third_line_3b_male, 0) FROM tx_curr_agg
 -- 20.3.5 3b - DRV/r+DTG+TDF+3TC, Female - pregnant
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 5','3b=DRV/r+DTG+TDF/3TC, Female - pregnant',greater_than_20_third_line_3b_female_pregnant FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 5','3b=DRV/r+DTG+TDF/3TC, Female - pregnant',COALESCE(greater_than_20_third_line_3b_female_pregnant, 0) FROM tx_curr_agg
 -- 20.3.6 3b - DRV/r+DTG+TDF+3TC, Female - non-pregnant
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 6','3b=DRV/r+DTG+TDF/3TC, Female - non-pregnant',greater_than_20_third_line_3b_female_non_pregnant FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 6','3b=DRV/r+DTG+TDF/3TC, Female - non-pregnant',COALESCE(greater_than_20_third_line_3b_female_non_pregnant, 0) FROM tx_curr_agg
 -- 20.3.7 3c - DRV/r+ABC+3TC+DTG, Male
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 7','3c=DRV/r+ABC+3TC+DTG, Male',greater_than_20_third_line_3c_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 7','3c=DRV/r+ABC+3TC+DTG, Male',COALESCE(greater_than_20_third_line_3c_male, 0) FROM tx_curr_agg
 -- 20.3.8 3c - DRV/r+ABC+3TC+DTG, Female - pregnant
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 8','3c=DRV/r+ABC+3TC+DTG, Female - pregnant',greater_than_20_third_line_3c_female_pregnant FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 8','3c=DRV/r+ABC+3TC+DTG, Female - pregnant',COALESCE(greater_than_20_third_line_3c_female_pregnant, 0) FROM tx_curr_agg
 -- 20.3.9 3c - DRV/r+ABC+3TC+DTG, Female - non-pregnant
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 9','3c=DRV/r+ABC+3TC+DTG, Female - non-pregnant',greater_than_20_third_line_3c_female_non_pregnant FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 9','3c=DRV/r+ABC+3TC+DTG, Female - non-pregnant',COALESCE(greater_than_20_third_line_3c_female_non_pregnant, 0) FROM tx_curr_agg
 -- 20.3.10 3e - DRV/r+TDF+3TC+EFV, Male
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 10','3e= DRV/r+TDF+3TC+EFV, Male',greater_than_20_third_line_3e_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 10','3e= DRV/r+TDF+3TC+EFV, Male',COALESCE(greater_than_20_third_line_3e_male, 0) FROM tx_curr_agg
 -- 20.3.11 3e - DRV/r+TDF+3TC+EFV, Female - pregnant
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 11','3e= DRV/r+TDF+3TC+EFV, Female - pregnant',greater_than_20_third_line_3e_female_pregnant FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 11','3e= DRV/r+TDF+3TC+EFV, Female - pregnant',COALESCE(greater_than_20_third_line_3e_female_pregnant, 0) FROM tx_curr_agg
 -- 20.3.12 3e - DRV/r+TDF+3TC+EFV, Female - non-pregnant
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 12','3e= DRV/r+TDF+3TC+EFV, Female - non-pregnant',greater_than_20_third_line_3e_female_non_pregnant FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 12','3e= DRV/r+TDF+3TC+EFV, Female - non-pregnant',COALESCE(greater_than_20_third_line_3e_female_non_pregnant, 0) FROM tx_curr_agg
 -- 20.3.13 3f - DRV/r+AZT+3TC+EFV, Male
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 13','3f= DRV/r+AZT+3TC +EFV, Male',greater_than_20_third_line_3f_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 13','3f= DRV/r+AZT+3TC +EFV, Male',COALESCE(greater_than_20_third_line_3f_male, 0) FROM tx_curr_agg
 -- 20.3.14 3f - DRV/r+AZT+3TC+EFV, Female - pregnant
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 14','3f= DRV/r+AZT+3TC +EFV, Female - pregnant',greater_than_20_third_line_3f_female_pregnant FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 14','3f= DRV/r+AZT+3TC +EFV, Female - pregnant',COALESCE(greater_than_20_third_line_3f_female_pregnant, 0) FROM tx_curr_agg
 -- 20.3.15 3f - DRV/r+AZT+3TC+EFV, Female - non-pregnant
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 15','3f= DRV/r+AZT+3TC +EFV, Female - non-pregnant',greater_than_20_third_line_3f_female_non_pregnant FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 15','3f= DRV/r+AZT+3TC +EFV, Female - non-pregnant',COALESCE(greater_than_20_third_line_3f_female_non_pregnant, 0) FROM tx_curr_agg
 -- 20.3.16 3d - Other Adult 3rd line regimen, Male
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 16','3d=Other thirdline, Male',greater_than_20_third_line_other_male FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 16','3d=Other thirdline, Male',COALESCE(greater_than_20_third_line_other_male, 0) FROM tx_curr_agg
 -- 20.3.17 3d - Other Adult 3rd line regimen, Female - pregnant
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 17','3d=Other thirdline, Female - pregnant',greater_than_20_third_line_other_female_pregnant FROM tx_curr_agg
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 17','3d=Other thirdline, Female - pregnant',COALESCE(greater_than_20_third_line_other_female_pregnant, 0) FROM tx_curr_agg
 -- 20.3.18 3d - Other Adult 3rd line regimen, Female - non-pregnant
-    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 18','3d=Other thirdline, Female - non-pregnant',greater_than_20_third_line_other_female_non_pregnant FROM tx_curr_agg;
+    UNION ALL SELECT 'HIV_TX_CURR_REG_20.3. 18','3d=Other thirdline, Female - non-pregnant',COALESCE(greater_than_20_third_line_other_female_non_pregnant, 0) FROM tx_curr_agg;
 END //
 
 DELIMITER ;
