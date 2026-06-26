@@ -41,9 +41,15 @@ public class ReportJobService implements ApplicationContextAware {
 		String jobId = UUID.randomUUID().toString();
 		ReportJob job = new ReportJob(jobId, procedureName);
 		jobs.put(jobId, job);
+		// Resolve OpenMRS global-property config here, in the web-request thread that has a valid
+		// OpenMRS session. The async executor thread has no OpenMRS session context, so calling
+		// Context.getAdministrationService() there can open a Hibernate session without a proper
+		// cleanup path, potentially exhausting the main connection pool under load.
+		int queryTimeout = reportExecutorService.getQueryTimeoutSeconds();
+		int maxRows = reportExecutorService.getMaxRows();
 		try {
 			CompletableFuture<?> future = applicationContext.getBean(ReportJobService.class)
-			        .executeJobAsync(job, params, offset, limit);
+			        .executeJobAsync(job, params, offset, limit, queryTimeout, maxRows);
 			job.setFuture(future);
 		}
 		catch (Exception e) {
@@ -58,7 +64,8 @@ public class ReportJobService implements ApplicationContextAware {
 	}
 
 	@Async("mambaReportExecutor")
-	public CompletableFuture<Void> executeJobAsync(ReportJob job, Map<String, String> params, int offset, int limit) {
+	public CompletableFuture<Void> executeJobAsync(ReportJob job, Map<String, String> params, int offset, int limit,
+	        int queryTimeout, int maxRows) {
 		synchronized (job) {
 			job.setStatus(ReportJobStatus.RUNNING);
 		}
@@ -71,7 +78,7 @@ public class ReportJobService implements ApplicationContextAware {
 					    job.setCompletedSteps(completed);
 				    }
 			    },
-			    job::setActiveStatement);
+			    job::setActiveStatement, queryTimeout, maxRows);
 			synchronized (job) {
 				if (job.getStatus() != ReportJobStatus.ERROR) {
 					job.setResult(new ReportDataResponse(job.getProcedureName(), result.getData()));

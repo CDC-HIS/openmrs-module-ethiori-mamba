@@ -63,6 +63,20 @@ public class DynamicReportExecutorService {
 	public ReportExecutionResult executeReport(String procedureName, Map<String, String> params, int offset, int limit,
 	        DataSetEvaluatorHelper.ProgressReporter progressReporter,
 	        DataSetEvaluatorHelper.StatementRegistrar statementRegistrar) throws SQLException {
+		return executeReport(procedureName, params, offset, limit, progressReporter, statementRegistrar,
+		    getQueryTimeoutSeconds(), getMaxRows());
+	}
+	
+	/**
+	 * Overload that accepts pre-resolved config values. Use this from background threads where
+	 * {@code Context.getAdministrationService()} is unsafe (no OpenMRS session available),
+	 * resolving queryTimeout and maxRows in the web-request thread before handing off to the async
+	 * executor.
+	 */
+	public ReportExecutionResult executeReport(String procedureName, Map<String, String> params, int offset, int limit,
+	        DataSetEvaluatorHelper.ProgressReporter progressReporter,
+	        DataSetEvaluatorHelper.StatementRegistrar statementRegistrar,
+	        int queryTimeout, int maxRows) throws SQLException {
 
 		validateProcedureName(procedureName);
 
@@ -73,8 +87,6 @@ public class DynamicReportExecutorService {
 			connection.setAutoCommit(false);
 
 			List<DataSetEvaluatorHelper.ProcedureCall> procedureCalls = getProcedureCalls(procedureName, params);
-			int queryTimeout = getQueryTimeoutSeconds();
-			int maxRows = getMaxRows();
 
 			try (DataSetEvaluatorHelper.CallableStatementContainer statementContainer = DataSetEvaluatorHelper
 			        .prepareStatements(connection, procedureCalls)) {
@@ -512,7 +524,7 @@ public class DynamicReportExecutorService {
 		return parseSqlDate(params.get("startDate"));
 	}
 	
-	private int getQueryTimeoutSeconds() {
+	public int getQueryTimeoutSeconds() {
 		try {
 			String timeout = Context.getAdministrationService().getGlobalProperty("mambaetl.report.query.timeout.seconds");
 			if (timeout != null && !timeout.trim().isEmpty()) {
@@ -530,7 +542,7 @@ public class DynamicReportExecutorService {
 	 * Override via global property mambaetl.report.max.rows: 20000 — 8 GB desktop 0 — unlimited
 	 * (high-end server or trusted large exports)
 	 */
-	private int getMaxRows() {
+	public int getMaxRows() {
 		try {
 			String val = Context.getAdministrationService().getGlobalProperty("mambaetl.report.max.rows");
 			if (val != null && !val.trim().isEmpty()) {
