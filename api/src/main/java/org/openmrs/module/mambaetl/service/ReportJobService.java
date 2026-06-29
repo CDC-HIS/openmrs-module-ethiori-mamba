@@ -80,7 +80,10 @@ public class ReportJobService implements ApplicationContextAware {
 					    job.setCompletedSteps(completed);
 				    }
 			    },
-			    stmt -> activeStatements.put(job.getJobId(), stmt), queryTimeout, maxRows);
+			    stmt -> {
+				    if (stmt != null) activeStatements.put(job.getJobId(), stmt);
+				    else activeStatements.remove(job.getJobId());
+			    }, queryTimeout, maxRows);
 			synchronized (job) {
 				if (job.getStatus() != ReportJobStatus.ERROR) {
 					job.setResult(new ReportDataResponse(job.getProcedureName(), result.getData()));
