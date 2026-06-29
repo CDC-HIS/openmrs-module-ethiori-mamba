@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Controller
-@RequestMapping("/rest/" + RestConstants.VERSION_1 + "/ethiohri-mamba/reports")
+@RequestMapping("/rest/" + RestConstants.VERSION_1 + "/ethiohri-mamba/reports/async")
 public class MambaReportExecutionController {
 	
 	private static final Log log = LogFactory.getLog(MambaReportExecutionController.class);
