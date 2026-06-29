@@ -42,6 +42,7 @@ public class ReportJobService implements ApplicationContextAware {
 	public ReportJob submitJob(String procedureName, Map<String, String> params, int offset, int limit) {
 		String jobId = UUID.randomUUID().toString();
 		ReportJob job = new ReportJob(jobId, procedureName);
+		job.setMessage("Queued, waiting for executor thread");
 		jobs.put(jobId, job);
 		// Resolve OpenMRS global-property config here, in the web-request thread that has a valid
 		// OpenMRS session. The async executor thread has no OpenMRS session context, so calling
@@ -60,6 +61,7 @@ public class ReportJobService implements ApplicationContextAware {
 				job.setError("Failed to queue job: " + e.getMessage());
 				job.setCompletedAt(Instant.now());
 				job.setStatus(ReportJobStatus.ERROR);
+				job.setMessage("Failed to queue job");
 			}
 		}
 		return job;
@@ -70,6 +72,7 @@ public class ReportJobService implements ApplicationContextAware {
 	        int queryTimeout, int maxRows) {
 		synchronized (job) {
 			job.setStatus(ReportJobStatus.RUNNING);
+			job.setMessage("Executing stored procedure: " + job.getProcedureName());
 		}
 		try {
 			DynamicReportExecutorService.ReportExecutionResult result = reportExecutorService.executeReport(
@@ -80,15 +83,13 @@ public class ReportJobService implements ApplicationContextAware {
 					    job.setCompletedSteps(completed);
 				    }
 			    },
-			    stmt -> {
-				    if (stmt != null) activeStatements.put(job.getJobId(), stmt);
-				    else activeStatements.remove(job.getJobId());
-			    }, queryTimeout, maxRows);
+			    stmt -> activeStatements.put(job.getJobId(), stmt), queryTimeout, maxRows);
 			synchronized (job) {
 				if (job.getStatus() != ReportJobStatus.ERROR) {
 					job.setResult(new ReportDataResponse(job.getProcedureName(), result.getData()));
 					job.setCompletedAt(Instant.now());
 					job.setStatus(ReportJobStatus.COMPLETE);
+					job.setMessage("Completed successfully");
 				}
 			}
 		}
@@ -99,6 +100,7 @@ public class ReportJobService implements ApplicationContextAware {
 					job.setError("Stored procedure execution failed: " + e.getMessage());
 					job.setCompletedAt(Instant.now());
 					job.setStatus(ReportJobStatus.ERROR);
+					job.setMessage("Job failed");
 				}
 			}
 		}
@@ -128,6 +130,7 @@ public class ReportJobService implements ApplicationContextAware {
 			job.setError("Job cancelled by client");
 			job.setCompletedAt(Instant.now());
 			job.setStatus(ReportJobStatus.ERROR);
+			job.setMessage("Cancelled by client");
 		}
 		// Send KILL QUERY to MySQL — must happen outside the synchronized block so it
 		// doesn't block the executor thread trying to clear the statement via the registrar.
