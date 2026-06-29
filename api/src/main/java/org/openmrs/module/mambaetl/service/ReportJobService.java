@@ -27,6 +27,8 @@ public class ReportJobService implements ApplicationContextAware {
 
 	private final ConcurrentHashMap<String, ReportJob> jobs = new ConcurrentHashMap<>();
 
+	private final ConcurrentHashMap<String, CallableStatement> activeStatements = new ConcurrentHashMap<>();
+
 	@Autowired
 	private DynamicReportExecutorService reportExecutorService;
 
@@ -81,7 +83,7 @@ public class ReportJobService implements ApplicationContextAware {
 					    job.setCompletedSteps(completed);
 				    }
 			    },
-			    job::setActiveStatement, queryTimeout, maxRows);
+			    stmt -> activeStatements.put(job.getJobId(), stmt), queryTimeout, maxRows);
 			synchronized (job) {
 				if (job.getStatus() != ReportJobStatus.ERROR) {
 					job.setResult(new ReportDataResponse(job.getProcedureName(), result.getData()));
@@ -101,6 +103,9 @@ public class ReportJobService implements ApplicationContextAware {
 					job.setMessage("Job failed");
 				}
 			}
+		}
+		finally {
+			activeStatements.remove(job.getJobId());
 		}
 		return CompletableFuture.completedFuture(null);
 	}
@@ -129,7 +134,7 @@ public class ReportJobService implements ApplicationContextAware {
 		}
 		// Send KILL QUERY to MySQL — must happen outside the synchronized block so it
 		// doesn't block the executor thread trying to clear the statement via the registrar.
-		CallableStatement stmt = job.getActiveStatement();
+		CallableStatement stmt = activeStatements.remove(jobId);
 		if (stmt != null) {
 			try {
 				stmt.cancel();

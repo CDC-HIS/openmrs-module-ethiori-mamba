@@ -23,4 +23,14 @@
 
     <context:component-scan base-package="org.openmrs.module.mambaetl"/>
 
+    <!--
+        Register a high-priority handler mapping (order=-1) so our controllers are evaluated
+        before the REST module's MainSubResourceController. Spring's pattern comparator then
+        correctly prefers our literal-heavy patterns over the REST module's 4-wildcard pattern
+        (e.g. /ethiohri-mamba/reports/submit/{name} beats /{r}/{p}/{s}/{uuid}).
+    -->
+    <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping">
+        <property name="order" value="-1"/>
+    </bean>
+
 </beans>
