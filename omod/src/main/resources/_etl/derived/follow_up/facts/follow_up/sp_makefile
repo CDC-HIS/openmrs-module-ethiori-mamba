@@ -7,10 +7,9 @@
 ############################ derived folder SPs  ############################
 #############################################################################
 
-# MATERIALIZED FOLLOW-UP FORM (full rebuild on every ETL run)
+# MATERIALIZED FOLLOW-UP FORM (blue-green rebuild on every ETL run)
 sp_fact_follow_up_create.sql
 sp_fact_follow_up_insert.sql
-sp_fact_follow_up.sql
 
 #############################################################################
 ##### A single SP that CALLs all SPs inside the derived & base folders ######

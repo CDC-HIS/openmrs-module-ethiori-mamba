@@ -1,16 +1,14 @@
 -- Entry point for the follow_up derived domain.
--- Always performs a full rebuild of mamba_fact_follow_up on every
--- ETL run.
+-- Uses a blue-green (atomic swap) strategy so the live table stays
+-- available with old data throughout the rebuild:
 --
--- Sequence:
---   1. DROP TABLE mamba_fact_follow_up (always)
---   2. CALL sp_fact_follow_up()  -- creates + TRUNCATE+INSERT
---   3. CALL sp_compress_follow_up_flat_tables()  -- apply compression
---      to mamba_fact_follow_up (via _create) and the 10 source flat
---      tables. Idempotent on already-compressed tables.
+--   1. Clean up any leftover staging table from a prior failed run.
+--   2. Build mamba_fact_follow_up_staging (create + full INSERT).
+--   3. Atomic RENAME: swap staging → live, archive old → _old.
+--   4. Drop the archived _old table.
 --
--- The etl_incremental_mode parameter is accepted but intentionally
--- ignored: the materialization is always a full rebuild.
+-- Reports querying mamba_fact_follow_up see old data until step 3,
+-- then immediately see new data — zero "table not found" windows.
 
 DELIMITER //
 
@@ -18,9 +16,22 @@ DROP PROCEDURE IF EXISTS sp_data_processing_derived_follow_up;
 
 CREATE PROCEDURE sp_data_processing_derived_follow_up()
 BEGIN
-    DROP TABLE IF EXISTS mamba_fact_follow_up;
+    -- Remove any leftover staging from a previously aborted ETL run
+    DROP TABLE IF EXISTS mamba_fact_follow_up_staging;
 
-    CALL sp_fact_follow_up();
+    -- Populate staging while the live table remains fully accessible
+    CALL sp_fact_follow_up_create();
+    CALL sp_fact_follow_up_insert();
+
+    -- Atomic swap: old data stays live until this single RENAME completes
+    IF (SELECT COUNT(*) FROM information_schema.TABLES
+        WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'mamba_fact_follow_up') > 0 THEN
+        RENAME TABLE mamba_fact_follow_up         TO mamba_fact_follow_up_old,
+                     mamba_fact_follow_up_staging TO mamba_fact_follow_up;
+        DROP TABLE IF EXISTS mamba_fact_follow_up_old;
+    ELSE
+        RENAME TABLE mamba_fact_follow_up_staging TO mamba_fact_follow_up;
+    END IF;
 
    -- CALL sp_compress_follow_up_flat_tables();
 END //

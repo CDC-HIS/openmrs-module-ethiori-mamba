@@ -4,7 +4,7 @@ DROP PROCEDURE IF EXISTS sp_fact_follow_up_create;
 
 CREATE PROCEDURE sp_fact_follow_up_create()
 BEGIN
-    CREATE TABLE IF NOT EXISTS mamba_fact_follow_up (
+    CREATE TABLE IF NOT EXISTS mamba_fact_follow_up_staging (
         encounter_id                                       INT          NOT NULL PRIMARY KEY,
         client_id                                          INT          NOT NULL,
         follow_up_status                                   VARCHAR(255)     NULL,

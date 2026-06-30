@@ -4,9 +4,9 @@ DROP PROCEDURE IF EXISTS sp_fact_follow_up_insert;
 
 CREATE PROCEDURE sp_fact_follow_up_insert()
 BEGIN
-    TRUNCATE TABLE mamba_fact_follow_up;
+    TRUNCATE TABLE mamba_fact_follow_up_staging;
 
-    INSERT INTO mamba_fact_follow_up (
+    INSERT INTO mamba_fact_follow_up_staging (
         encounter_id, client_id, follow_up_status, follow_up_date_followup_,
         art_antiretroviral_start_date, treatment_end_date, next_visit_date, regimen,
         currently_breastfeeding_child, pregnancy_status,

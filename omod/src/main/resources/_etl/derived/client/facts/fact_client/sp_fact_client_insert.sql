@@ -1,5 +1,5 @@
 -- $BEGIN
-INSERT INTO mamba_fact_client
+INSERT INTO mamba_fact_client_staging
 (client_id, patient_uuid, mrn, patient_name, sex, birthdate, age, uan, phrh_code, ncd_code, icd_number, ict_number,
  registration_date, art_start_date, months_on_art, next_appointment_date, hiv_confirmed_date, transfer_in_date,
  region, zone, woreda, kebele, house_number, mobile_phone, address_completeness, current_status,

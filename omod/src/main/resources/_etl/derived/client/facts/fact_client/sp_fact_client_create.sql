@@ -1,5 +1,5 @@
 -- $BEGIN
-CREATE TABLE IF NOT EXISTS mamba_fact_client
+CREATE TABLE IF NOT EXISTS mamba_fact_client_staging
 (
     client_id                      INT NOT NULL,
     patient_uuid                   CHAR(38),
