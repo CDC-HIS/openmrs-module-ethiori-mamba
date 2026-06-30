@@ -14,7 +14,7 @@ DROP PROCEDURE IF EXISTS sp_fact_hmis_create_follow_up_tmp;
 
 CREATE PROCEDURE sp_fact_hmis_create_follow_up_tmp()
 BEGIN
-    CALL sp_fact_follow_up();
+    CALL sp_data_processing_derived_follow_up();
 END //
 
 DELIMITER ;
