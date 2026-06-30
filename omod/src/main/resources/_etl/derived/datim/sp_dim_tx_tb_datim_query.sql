@@ -139,8 +139,8 @@ BEGIN
                                                  uan,
                                                  latest_follow_up.follow_up_status as latest_follow_up_staus
                                           from latest_screeing_follow_up follow_up
-                                                   inner join mamba_dim_client client on client_id = client.client_id
-                                                   left join latest_follow_up on client_id = latest_follow_up.client_id),
+                                                   inner join mamba_dim_client client on follow_up.client_id = client.client_id
+                                                   left join latest_follow_up on follow_up.client_id = latest_follow_up.client_id),
                      tmp_tb_treatment as (select *,
                                                      ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY tb_treatment_start_date DESC,
                                                          encounter_id DESC) AS row_num
