@@ -31,7 +31,23 @@ BEGIN
         is_the_client_screened_in_this_facility, nutritional_supplements_provided,
         eats_nutritious_foods, nutritional_screening_result, nutritional_status_of_adult,
         nutritional_status_of_older_child_a, weight_for_age_status,
-        method_of_family_planning, on_family_planning
+        method_of_family_planning, on_family_planning,
+        stages_of_disclosure,
+        reason_not_eligible_for_tuberculosi,
+        date_discontinued_tuberculosis_prop,
+        regimen_change,
+        current_who_hiv_stage,
+        mid_upper_arm_circumference,
+        date_of_event,
+        eligible_for_cxca_screening,
+        reason_for_not_being_eligible,
+        other_reason_for_not_being_eligible_for_cxca,
+        colposcopy_of_cervix_findings,
+        biopsy_result,
+        biopsy_result_received_date,
+        date_patient_referred_out,
+        next_follow_up_screening_date,
+        routine_viral_load_test_indication
     )
     SELECT
         follow_up.encounter_id,
@@ -98,7 +114,33 @@ BEGIN
         nutritional_status_of_older_child_a,
         weight_for_age_status,
         method_of_family_planning,
-        on_family_planning
+        on_family_planning,
+        follow_up_5.stages_of_disclosure,
+        reason_not_eligible_for_tuberculosi,
+        date_discontinued_tuberculosis_prop,
+        regimen_change,
+        current_who_hiv_stage,
+        mid_upper_arm_circumference,
+        follow_up.date_of_event,
+        eligible_for_cxca_screening,
+        reason_for_not_being_eligible,
+        other_reason_for_not_being_eligible_for_cxca,
+        colposcopy_of_cervix_findings,
+        biopsy_result,
+        biopsy_result_received_date,
+        date_patient_referred_out,
+        next_follow_up_screening_date,
+        COALESCE(at_3436_weeks_of_gestation,
+                 viral_load_after_eac_confirmatory_viral_load_where_initial_v,
+                 viral_load_after_eac_repeat_viral_load_where_initial_viral_l,
+                 every_six_months_until_mtct_ends,
+                 six_months_after_the_first_viral_load_test_at_postnatal_peri,
+                 three_months_after_delivery,
+                 at_the_first_antenatal_care_visit,
+                 annual_viral_load_test,
+                 second_viral_load_test_at_12_months_post_art,
+                 first_viral_load_test_at_6_months_or_longer_post_art,
+                 first_viral_load_test_at_3_months_or_longer_post_art) AS routine_viral_load_test_indication
     FROM mamba_flat_encounter_follow_up follow_up
              LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1
                        ON follow_up.encounter_id = follow_up_1.encounter_id
@@ -117,7 +159,9 @@ BEGIN
              LEFT JOIN mamba_flat_encounter_follow_up_8 follow_up_8
                        ON follow_up.encounter_id = follow_up_8.encounter_id
              LEFT JOIN mamba_flat_encounter_follow_up_9 follow_up_9
-                       ON follow_up.encounter_id = follow_up_9.encounter_id;
+                       ON follow_up.encounter_id = follow_up_9.encounter_id
+             LEFT JOIN mamba_flat_encounter_follow_up_10 follow_up_10
+                       ON follow_up.encounter_id = follow_up_10.encounter_id;
 END //
 
 DELIMITER ;

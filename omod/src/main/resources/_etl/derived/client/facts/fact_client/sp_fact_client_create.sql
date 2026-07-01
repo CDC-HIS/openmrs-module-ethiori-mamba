@@ -75,6 +75,48 @@ CREATE TABLE IF NOT EXISTS mamba_fact_client_staging
     diastolic_blood_pressure       INT,
     target_population              VARCHAR(100),
 
+    -- DQI&U Line List additions
+    breast_feeding_status            VARCHAR(10),
+    disclosure_stage                 VARCHAR(50),
+
+    pmtct_booking_date               DATE,
+    pmtct_booking_date_ec            VARCHAR(100),
+    pmtct_discharge_date             DATE,
+    pmtct_discharge_date_ec          VARCHAR(100),
+
+    vl_sent_date                     DATE,
+    vl_sent_date_ec                  VARCHAR(100),
+    vl_received_date                 DATE,
+    vl_received_date_ec              VARCHAR(100),
+
+    cd4_result                       NUMERIC(10, 2),
+    visitect_cd4_result              VARCHAR(255),
+
+    transfer_in_date_ec              VARCHAR(100),
+    active_tb_diagnosis_date_ec      VARCHAR(100),
+    tb_treatment_start_date_ec       VARCHAR(100),
+    tb_treatment_discontinued_date_ec VARCHAR(100),
+    tb_treatment_completed_date_ec   VARCHAR(100),
+    tpt_start_date_ec                VARCHAR(100),
+    tpt_discontinued_date_ec         VARCHAR(100),
+    tpt_completed_date_ec            VARCHAR(100),
+
+    tb_treatment_rx_status           VARCHAR(100),
+    pmtct_enrollment_status          VARCHAR(100),
+    advanced_hiv_disease             VARCHAR(10),
+
+    ncd_last_screening_date          DATE,
+    ncd_screening_eligibility_status VARCHAR(100),
+    ncd_screening_eligibility_date   DATE,
+    ncd_screening_reason             VARCHAR(255),
+
+    -- DQI corrected status columns (existing columns preserved unchanged)
+    vl_status_dqi                    VARCHAR(100),
+    tpt_status_dqi                   VARCHAR(100),
+    ict_screening_status_dqi         VARCHAR(100),
+    ncd_screening_status_dqi         VARCHAR(100),
+    cxca_screening_status_dqi        VARCHAR(100),
+
     last_updated                   TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     INDEX idx_uuid (patient_uuid),
