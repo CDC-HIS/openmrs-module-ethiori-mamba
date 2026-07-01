@@ -36,7 +36,6 @@ BEGIN
         RENAME TABLE mamba_fact_follow_up_staging TO mamba_fact_follow_up;
     END IF;
 
-   -- CALL sp_compress_follow_up_flat_tables();
 END //
 
 DELIMITER ;

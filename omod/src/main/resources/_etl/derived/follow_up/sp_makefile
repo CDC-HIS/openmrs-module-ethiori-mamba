@@ -8,7 +8,6 @@
 #############################################################################
 
 sp_data_processing_derived_follow_up.sql
-sp_compress_follow_up_flat_tables.sql
 
 #############################################################################
 ##### A single SP that CALLs all SPs inside the derived & base folders ######

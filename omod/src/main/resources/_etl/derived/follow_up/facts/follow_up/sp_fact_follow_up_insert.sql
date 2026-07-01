@@ -121,7 +121,7 @@ BEGIN
         regimen_change,
         current_who_hiv_stage,
         mid_upper_arm_circumference,
-        follow_up.date_of_event,
+        date_of_event,
         eligible_for_cxca_screening,
         reason_for_not_being_eligible,
         other_reason_for_not_being_eligible_for_cxca,
