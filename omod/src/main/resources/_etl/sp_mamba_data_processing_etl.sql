@@ -10,6 +10,9 @@ BEGIN
     -- Rename client/location tables to _staging (sub-millisecond gap before CREATE TABLE)
     CALL sp_mamba_drop_all_derived_tables();
 
+    -- Follow-up must run first: fact_client CTEs query mamba_fact_follow_up
+    CALL sp_data_processing_derived_follow_up();
+
     -- Rebuild client and location tables under their live names
     CALL sp_data_processing_derived_client();
     CALL sp_data_processing_derived_location_tag();
@@ -20,10 +23,6 @@ BEGIN
     DROP TABLE IF EXISTS mamba_fact_location_attribute_type_staging;
     DROP TABLE IF EXISTS mamba_fact_location_tag_staging;
     DROP TABLE IF EXISTS mamba_fact_location_tag_map_staging;
-
-    -- Follow-up uses full blue-green: builds _staging while live table stays available,
-    -- then a single atomic RENAME swaps them.
-    CALL sp_data_processing_derived_follow_up();
 
 END //
 

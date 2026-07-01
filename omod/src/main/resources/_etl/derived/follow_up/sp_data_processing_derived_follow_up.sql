@@ -23,6 +23,9 @@ BEGIN
     CALL sp_fact_follow_up_create();
     CALL sp_fact_follow_up_insert();
 
+    -- Guard against a pre-existing _old table left by a previously crashed ETL run
+    DROP TABLE IF EXISTS mamba_fact_follow_up_old;
+
     -- Atomic swap: old data stays live until this single RENAME completes
     IF (SELECT COUNT(*) FROM information_schema.TABLES
         WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'mamba_fact_follow_up') > 0 THEN
