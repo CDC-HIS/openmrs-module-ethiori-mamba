@@ -393,6 +393,21 @@ GET .../execute/sp_fact_hmis_all?startDate=2024-07-01&endDate=2024-09-30
 
 All line lists are **1 API call per report** unless noted otherwise.
 
+### 5.0 No Parameters
+
+| Report name | SP name |
+|---|---|
+| DQI&U Line List (cached) | `sp_fact_line_list_dqi_cached_query` |
+
+```
+GET .../execute/sp_fact_line_list_dqi_cached_query
+```
+
+Reads from the ETL-materialized `mamba_fact_client` table (data as of the latest ETL
+run) with no filtering — returns every client. It returns all DQI&U line-list columns,
+including the `_dqi` corrected-status columns. This is much cheaper than a live
+recompute; there is no equivalent live/parameterized version wired up yet.
+
 ### 5.1 endDate Only
 
 | Report name | SP name |

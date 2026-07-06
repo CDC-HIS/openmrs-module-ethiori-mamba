@@ -142,6 +142,9 @@ public class DynamicReportExecutorService {
 	private Map<String, ProcedureCallBuilder> buildRegistry() {
 		Map<String, ProcedureCallBuilder> r = new LinkedHashMap<>();
 
+		// --- Line lists: no parameters ---
+		r.put("sp_fact_line_list_dqi_cached_query",             p -> single("{call sp_fact_line_list_dqi_cached_query()}", s -> {}));
+
 		// --- Line lists: endDate only ---
 		r.put("sp_fact_line_list_ahd_query",                    p -> single("{call sp_fact_line_list_ahd_query(?)}", s -> s.setDate(1, parseSqlDate(p.get("endDate")))));
 		r.put("sp_fact_line_list_cxca_eligibility_query",       p -> single("{call sp_fact_line_list_cxca_eligibility_query(?)}", s -> s.setDate(1, parseSqlDate(p.get("endDate")))));
@@ -402,6 +405,14 @@ public class DynamicReportExecutorService {
 			    new DataSetEvaluatorHelper.ProcedureCall("{call sp_dim_tx_curr_datim_query(?,?,?,?)}", s -> { s.setDate(1, parseSqlDate(p.get("endDate"))); s.setInt(2, 0); s.setInt(3, 3); s.setInt(4, 0); }),
 			    new DataSetEvaluatorHelper.ProcedureCall("{call sp_dim_tx_curr_datim_query(?,?,?,?)}", s -> { s.setDate(1, parseSqlDate(p.get("endDate"))); s.setInt(2, 0); s.setInt(3, 3); s.setInt(4, 1); }));
 		});
+
+		// --- Facility KPI dashboard procedures ---
+		r.put("sp_dim_art_retention_dashboard_query",       p -> dateRange("{call sp_dim_art_retention_dashboard_query(?,?)}", p));
+		r.put("sp_dim_pmtct_maternal_dashboard_query",      p -> dateRange("{call sp_dim_pmtct_maternal_dashboard_query(?,?)}", p));
+		r.put("sp_dim_pmtct_hei_status_dashboard_query",    p -> dateRange("{call sp_dim_pmtct_hei_status_dashboard_query(?,?)}", p));
+		r.put("sp_dim_pep_dashboard_query",                 p -> dateRange("{call sp_dim_pep_dashboard_query(?,?)}", p));
+		r.put("sp_dim_disclosure_stage_dashboard_query",    p -> single("{call sp_dim_disclosure_stage_dashboard_query(?)}", s -> s.setDate(1, parseSqlDate(p.get("endDate")))));
+		r.put("sp_fact_client_wrapper_dashboard_query",     p -> single("{call sp_fact_client_wrapper_dashboard_query(?,?,?)}", s -> { s.setString(1, p.get("aggregationType")); s.setDate(2, parseSqlDate(p.get("startDate"))); s.setDate(3, parseSqlDate(p.get("endDate"))); }));
 
 		return Collections.unmodifiableMap(r);
 	}
