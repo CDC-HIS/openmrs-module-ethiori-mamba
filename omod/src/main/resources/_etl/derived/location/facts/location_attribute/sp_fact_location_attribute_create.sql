@@ -22,6 +22,6 @@ CREATE TABLE mamba_fact_location_attribute
     INDEX mamba_idx_attribute_type_id (attribute_type_id),
     INDEX mamba_idx_incremental_record (incremental_record)
 )
-    CHARSET = UTF8MB4;
+    CHARSET = UTF8MB4 COLLATE utf8mb4_unicode_ci;
 
 -- $END
