@@ -1,7 +1,7 @@
 -- $BEGIN
 CREATE TABLE IF NOT EXISTS mamba_fact_client_staging
 (
-    client_id                      INT NOT NULL,
+    client_id                      INT NOT NULL PRIMARY KEY,
     patient_uuid                   CHAR(38),
     mrn                            VARCHAR(50),
 

@@ -73,7 +73,10 @@ WITH FollowUp AS (SELECT client_id,
                          tuberculosis_drug_treatment_start_d,
                          regimen_change,
                          date_active_tbrx_completed,
-                         date_active_tbrx_dc
+                         date_active_tbrx_dc,
+                         cd4_count,
+                         visitect_cd4_result,
+                         stages_of_disclosure
                   FROM mamba_fact_follow_up),
 
      LatestFollowUp AS (SELECT *
@@ -356,29 +359,10 @@ WITH FollowUp AS (SELECT client_id,
                                   WHERE cx_ca_screening_status = 'Cervical cancer screening performed') ranked
                             WHERE rn = 1),
 
-     CXCA_Eligibility_Base AS (SELECT lf.client_id,
-                                      lf.visit_date,
+     CXCA_Eligibility AS (SELECT lf.client_id,
                                       lf.follow_up_status                             as final_follow_up_status,
-                                      lf.eligible_for_cxca_screening,
-                                      lf.reason_for_not_being_eligible,
-                                      lf.other_reason_for_not_being_eligible_for_cxca,
-                                      lf.screening_status,
                                       lf.art_start_date,
-                                      ps.follow_up_date                               AS previous_screening_follow_up_date,
-                                      ps.ccs_via_result,
-                                      ps.via_date,
-                                      ps.ccs_treat_received_date,
-                                      ps.date_patient_referred_out,
-                                      ps.biopsy_result,
-                                      ps.ccs_hpv_result,
-                                      ps.hpv_dna_result_received_date,
-                                      ps.cytology_result,
-                                      ps.cytology_result_date,
-                                      ps.colposcopy_exam_finding,
-                                      ps.biopsy_result_received_date,
                                       ps.next_follow_up_screening_date,
-                                      c.sex,
-                                      TIMESTAMPDIFF(YEAR, c.date_of_birth, CURDATE()) AS Age,
 
                                       CASE
                                           WHEN ps.client_id IS NULL AND lf.eligible_for_cxca_screening = 'No'
@@ -449,27 +433,7 @@ WITH FollowUp AS (SELECT client_id,
                                           ELSE 'Not Eligible (Screening Up-to-Date)'
                                           END                                         AS EligibilityStatus
                                FROM LatestFollowUp lf
-                                        LEFT JOIN CXCA_PrevScreening ps ON lf.client_id = ps.client_id
-                                        JOIN mamba_dim_client c ON lf.client_id = c.client_id),
-
-     CXCA_Status AS (SELECT base.*,
-                            CASE
-                                WHEN base.sex = 'Male' OR Age < 25 OR Age > 65 OR
-                                     base.final_follow_up_status IN ('Dead', 'Transferred out', 'Stop all', 'Ran away')
-                                    THEN 'Not Applicable (Blue)'
-                                WHEN base.art_start_date IS NULL
-                                    THEN 'ART Not Started (Black)'
-                                WHEN base.EligibilityStatus = 'Not Eligible Confirmed Cirvical Cancer'
-                                    THEN 'Confirmed CXCA (RED)'
-                                WHEN base.EligibilityStatus = 'Not Eligible (Screening Up-to-Date)'
-                                    THEN 'Previously Screened (Green)'
-                                WHEN base.EligibilityStatus LIKE 'Eligible%'
-                                    THEN 'Eligible (Yellow)'
-                                WHEN base.EligibilityStatus LIKE 'Not Eligible%'
-                                    THEN 'Not Eligible (White)'
-                                ELSE 'Unknown Status'
-                                END AS cxca_screening_status
-                     FROM CXCA_Eligibility_Base AS base),
+                                        LEFT JOIN CXCA_PrevScreening ps ON lf.client_id = ps.client_id),
 
      PMTCT_CTE AS (SELECT client_id,
                           MAX(date_of_enrollment_or_booking) as pmtct_start_date
@@ -513,7 +477,7 @@ WITH FollowUp AS (SELECT client_id,
                                  cd4_count,
                                  visitect_cd4_result,
                                  ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date_followup_ DESC, encounter_id DESC) as rn
-                          FROM mamba_fact_follow_up
+                          FROM FollowUp
                           WHERE cd4_count IS NOT NULL OR visitect_cd4_result IS NOT NULL) ranked
                     WHERE rn = 1),
 
@@ -521,17 +485,9 @@ WITH FollowUp AS (SELECT client_id,
                            FROM (SELECT client_id,
                                         stages_of_disclosure,
                                         ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date_followup_ DESC, encounter_id DESC) as rn
-                                 FROM mamba_fact_follow_up
+                                 FROM FollowUp
                                  WHERE stages_of_disclosure IS NOT NULL) ranked
-                           WHERE rn = 1),
-
-     Latest_TPT_Contraindication AS (SELECT *
-                                     FROM (SELECT client_id,
-                                                  reason_not_eligible_for_tuberculosi,
-                                                  ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date_followup_ DESC, encounter_id DESC) as rn
-                                           FROM mamba_fact_follow_up
-                                           WHERE reason_not_eligible_for_tuberculosi IS NOT NULL) ranked
-                                     WHERE rn = 1)
+                           WHERE rn = 1)
 
 
 SELECT c.client_id,
@@ -769,7 +725,7 @@ SELECT c.client_id,
            WHEN ma.tpt_start_date IS NOT NULL
                AND ma.tpt_completed_date IS NULL
                AND ma.tpt_discontinued_date IS NULL THEN 'On TPT'
-           WHEN tpt_ci.reason_not_eligible_for_tuberculosi = 'Contraindication' THEN 'Contraindicated for TPT'
+           WHEN ma.tpt_is_contraindicated = 1 THEN 'Contraindicated for TPT'
            WHEN ma.tb_treatment_completed_date IS NOT NULL
                AND TIMESTAMPDIFF(YEAR, ma.tb_treatment_completed_date, CURDATE()) > 3 THEN 'Bronze 5'
            ELSE 'Not Started'
@@ -802,13 +758,29 @@ FROM mamba_dim_client c
          LEFT JOIN ICT_General_Events ict_gen ON c.client_id = ict_gen.client_id
          LEFT JOIN NCD_Screening_Events ncd ON c.client_id = ncd.client_id
          LEFT JOIN NCD_FollowUp_Events ncd_fu ON c.client_id = ncd_fu.client_id
-         LEFT JOIN CXCA_Status cxca ON c.client_id = cxca.client_id
+         LEFT JOIN LATERAL (
+             SELECT CASE
+                        WHEN ce.client_id IS NULL THEN NULL
+                        WHEN c.sex = 'Male' OR TIMESTAMPDIFF(YEAR, c.date_of_birth, CURDATE()) < 25 OR
+                             TIMESTAMPDIFF(YEAR, c.date_of_birth, CURDATE()) > 65 OR
+                             ce.final_follow_up_status IN ('Dead', 'Transferred out', 'Stop all', 'Ran away')
+                            THEN 'Not Applicable (Blue)'
+                        WHEN ce.art_start_date IS NULL THEN 'ART Not Started (Black)'
+                        WHEN ce.EligibilityStatus = 'Not Eligible Confirmed Cirvical Cancer' THEN 'Confirmed CXCA (RED)'
+                        WHEN ce.EligibilityStatus = 'Not Eligible (Screening Up-to-Date)' THEN 'Previously Screened (Green)'
+                        WHEN ce.EligibilityStatus LIKE 'Eligible%' THEN 'Eligible (Yellow)'
+                        WHEN ce.EligibilityStatus LIKE 'Not Eligible%' THEN 'Not Eligible (White)'
+                        ELSE 'Unknown Status'
+                        END AS cxca_screening_status,
+                    ce.next_follow_up_screening_date
+             FROM CXCA_Eligibility ce
+             WHERE ce.client_id = c.client_id
+         ) cxca ON TRUE
          LEFT JOIN PMTCT_CTE pmtct ON c.client_id = pmtct.client_id
          LEFT JOIN PMTCT_Discharge_CTE pmtct_dis ON c.client_id = pmtct_dis.client_id
          LEFT JOIN Registration reg ON c.client_id = reg.client_id
          LEFT JOIN PHRH_Target_Population phrh ON c.client_id = phrh.client_id
          LEFT JOIN FamilyPlanning fp ON c.client_id = fp.client_id
          LEFT JOIN Latest_CD4 lfu_cd4 ON c.client_id = lfu_cd4.client_id
-         LEFT JOIN Latest_Disclosure disc ON c.client_id = disc.client_id
-         LEFT JOIN Latest_TPT_Contraindication tpt_ci ON c.client_id = tpt_ci.client_id;
+         LEFT JOIN Latest_Disclosure disc ON c.client_id = disc.client_id;
 -- $END

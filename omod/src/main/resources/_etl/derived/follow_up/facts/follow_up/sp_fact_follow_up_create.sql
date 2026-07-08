@@ -89,10 +89,8 @@ BEGIN
 
         INDEX idx_encounter_id (encounter_id),
         INDEX idx_client_id   (client_id),
-        INDEX idx_client_date (client_id, follow_up_date_followup_)
-    ) ENGINE=InnoDB
-      ROW_FORMAT=COMPRESSED
-      KEY_BLOCK_SIZE=8;
+        INDEX idx_client_date (client_id, follow_up_date_followup_ DESC, encounter_id DESC)
+    ) ENGINE=InnoDB;
 END //
 
 DELIMITER ;
