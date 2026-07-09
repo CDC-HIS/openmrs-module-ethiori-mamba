@@ -16,6 +16,13 @@ dimensions/dim_client/sp_dim_client_insert.sql
 dimensions/dim_client/sp_dim_client_update.sql
 
 # FACTS FOR ART
+facts/fact_client/aggregates/sp_tmp_build_latest_followup.sql
+facts/fact_client/aggregates/sp_tmp_build_medical_aggregates.sql
+facts/fact_client/aggregates/sp_tmp_build_vl_eligibility.sql
+facts/fact_client/aggregates/sp_tmp_build_cxca_eligibility.sql
+facts/fact_client/aggregates/sp_tmp_build_family_planning.sql
+facts/fact_client/aggregates/sp_tmp_build_latest_cd4.sql
+facts/fact_client/aggregates/sp_tmp_build_latest_disclosure.sql
 facts/fact_client/sp_fact_client.sql
 facts/fact_client/sp_fact_client_create.sql
 facts/fact_client/sp_fact_client_insert.sql
