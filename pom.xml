@@ -93,6 +93,7 @@
             <dependency>
                 <groupId>org.openmrs.module</groupId>
                 <artifactId>mamba-core-api</artifactId>
+                <scope>compile</scope>
                 <version>${mambaETLCoreVersion}</version>
                 <type>jar</type>
             </dependency>
