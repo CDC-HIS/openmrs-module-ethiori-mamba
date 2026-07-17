@@ -19,7 +19,7 @@
             <artifactId>javax.annotation-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.openmrs.module</groupId>
+            <groupId>io.github.abdi-icap</groupId>
             <artifactId>mamba-core-api</artifactId>
             <scope>compile</scope>
         </dependency>
@@ -103,45 +103,5 @@
         </dependency>
 
     </dependencies>
-
-    <build>
-        <plugins>
-            <!-- mamba-core-api is not published to any repository reachable by downstream
-                 consumers (e.g. distros depending on ethiohri-mamba-omod). Shade its classes
-                 into this jar at compile time and strip it from the published POM so it never
-                 needs to be resolved again downstream. -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.5.1</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <createDependencyReducedPom>true</createDependencyReducedPom>
-                            <artifactSet>
-                                <includes>
-                                    <include>org.openmrs.module:mamba-core-api</include>
-                                </includes>
-                            </artifactSet>
-                            <filters>
-                                <filter>
-                                    <artifact>*:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/*.SF</exclude>
-                                        <exclude>META-INF/*.DSA</exclude>
-                                        <exclude>META-INF/*.RSA</exclude>
-                                    </excludes>
-                                </filter>
-                            </filters>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 
 </project>

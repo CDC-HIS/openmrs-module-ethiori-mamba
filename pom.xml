@@ -91,7 +91,7 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
-                <groupId>org.openmrs.module</groupId>
+                <groupId>io.github.abdi-icap</groupId>
                 <artifactId>mamba-core-api</artifactId>
                 <scope>compile</scope>
                 <version>${mambaETLCoreVersion}</version>
@@ -367,7 +367,7 @@
                             <configuration>
                                 <artifactItems>
                                     <artifactItem>
-                                        <groupId>org.openmrs.module</groupId>
+                                        <groupId>io.github.abdi-icap</groupId>
                                         <artifactId>mamba-core-api</artifactId>
                                         <outputDirectory>${project.build.directory}/mamba-etl</outputDirectory>
                                         <includes>_core/**</includes>
@@ -669,7 +669,7 @@
         <serialization.xstreamVersion>0.3.0</serialization.xstreamVersion>
         <cohortVersion>3.5.0</cohortVersion>
         <javaxAnnotationVersion>1.3.2</javaxAnnotationVersion>
-        <mambaETLCoreVersion>2.0.1</mambaETLCoreVersion>
+        <mambaETLCoreVersion>2.0.2</mambaETLCoreVersion>
         <webservicesRestVersion>2.42.0</webservicesRestVersion>
         <apache.commons.dbcp>2.11.0</apache.commons.dbcp>
         <jacksonCoreVersion>2.15.3</jacksonCoreVersion>
