@@ -103,7 +103,7 @@ public class DynamicReportExecutorService {
 					DataSetEvaluatorHelper.mergeResultSetsSideBySide(data, Arrays.asList(allResultSets), sideBySideLabels);
 					columns = data.getRows().isEmpty() ? Collections.emptyList()
 					        : data.getRows().get(0).getColumnValues().keySet().stream()
-					                .map(DataSetColumn::getName).collect(Collectors.toList());
+					                .map(column -> column.getName()).collect(Collectors.toList());
 				} else {
 					columns = extractColumnsInOrder(allResultSets, resultSetMapper);
 					DataSetEvaluatorHelper.mapResultSet(data, resultSetMapper, allResultSets, false);
