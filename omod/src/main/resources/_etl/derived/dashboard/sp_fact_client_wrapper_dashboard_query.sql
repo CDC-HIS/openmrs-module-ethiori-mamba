@@ -1,4 +1,4 @@
--- Thin COUNT()/GROUP BY wrapper over the already-ETL'd mamba_fact_client_staging table
+-- Thin COUNT()/GROUP BY wrapper over the already-ETL'd mamba_fact_client table
 -- (see sp_fact_client_create.sql / sp_fact_client_insert.sql for the column derivations
 -- referenced below) -- no new per-client business logic, per the KPI dashboard's "cheap
 -- wrapper" gap analysis. One SP, several branches, instead of one SP per KPI.
@@ -27,7 +27,7 @@ BEGIN
                SUM(art_start_date IS NOT NULL)                                                     AS art_enrolled,
                SUM(art_start_date IS NULL)                                                         AS not_enrolled,
                COUNT(*)                                                                             AS total
-        FROM mamba_fact_client_staging
+        FROM mamba_fact_client
         GROUP BY age_band, sex WITH ROLLUP;
 
     ELSEIF AGGREGATION_TYPE = 'CO_INFECTIONS' THEN
@@ -42,7 +42,7 @@ BEGIN
         -- either (no discontinue/complete yet, within the default 1-year treatment window) or
         -- (discontinued/completed AFTER REPORT_END_DATE, i.e. was still active as of that date).
         -- Uses active_tb_diagnosis_date / tb_treatment_start_date / tb_treatment_completed_date /
-        -- tb_treatment_discontinued_date, all already exposed on mamba_fact_client_staging
+        -- tb_treatment_discontinued_date, all already exposed on mamba_fact_client
         -- (sp_fact_client_insert.sql INSERT column list, lines 9-10).
         SELECT SUM(
                        (active_tb_diagnosis_date <= COALESCE(REPORT_END_DATE, CURDATE())
@@ -58,20 +58,20 @@ BEGIN
                SUM(ncd_screening_status = 'Confirmed HTN')                                                     AS htn_only,
                SUM(ncd_screening_status = 'Confirmed DM')                                                      AS dm_only,
                SUM(ncd_screening_status = 'Confirmed DM & HTN')                                                AS htn_and_dm
-        FROM mamba_fact_client_staging
+        FROM mamba_fact_client
         WHERE current_status NOT IN ('Dead', 'Transferred Out', 'Stop all');
 
     ELSEIF AGGREGATION_TYPE = 'AHD' THEN
         -- KPI-11: Possible AHD total + sub-criteria (children<5 / WHO III-IV / CD4<200), not
         -- mutually exclusive -- recomputed independently from age/who_stage/cd4_result columns,
-        -- since mamba_fact_client_staging.advanced_hiv_disease itself is a single collapsed
+        -- since mamba_fact_client.advanced_hiv_disease itself is a single collapsed
         -- Yes/No flag (OR of all three criteria) and doesn't expose which criterion matched.
         SELECT SUM(advanced_hiv_disease = 'Yes')                                                                              AS total_ahd,
                SUM(advanced_hiv_disease = 'Yes' AND TIMESTAMPDIFF(YEAR, birthdate, COALESCE(REPORT_END_DATE, CURDATE())) < 5) AS ahd_under5,
                SUM(advanced_hiv_disease = 'Yes' AND who_stage IN ('WHO stage 3 adult', 'WHO stage 3 peds',
                                                                     'WHO stage 4 peds', 'WHO stage 4 adult'))                  AS ahd_who_stage_3_4,
                SUM(advanced_hiv_disease = 'Yes' AND cd4_result IS NOT NULL AND cd4_result < 200)                              AS ahd_cd4_under200
-        FROM mamba_fact_client_staging;
+        FROM mamba_fact_client;
 
     ELSEIF AGGREGATION_TYPE = 'TARGET_POPULATION' THEN
         -- KPI-13: TX_Curr assessed vs not, by target_population category.
@@ -83,7 +83,7 @@ BEGIN
         --   enumerable from this repo
         SELECT COALESCE(NULLIF(target_population, '-'), 'Not Assessed') AS category,
                COUNT(*)                                                  AS client_count
-        FROM mamba_fact_client_staging
+        FROM mamba_fact_client
         WHERE tx_curr_end_date >= COALESCE(REPORT_END_DATE, CURDATE())
         GROUP BY category WITH ROLLUP;
 
@@ -110,7 +110,7 @@ BEGIN
                    ELSE 'Previously Started'
                    END          AS category,
                COUNT(*)         AS client_count
-        FROM mamba_fact_client_staging
+        FROM mamba_fact_client
         WHERE tx_curr_end_date >= COALESCE(REPORT_END_DATE, CURDATE())
         GROUP BY dimension, category
 
@@ -119,7 +119,7 @@ BEGIN
         SELECT 'regimen_line' AS dimension,
                regimen_line   AS category,
                COUNT(*)       AS client_count
-        FROM mamba_fact_client_staging
+        FROM mamba_fact_client
         WHERE tx_curr_end_date >= COALESCE(REPORT_END_DATE, CURDATE())
         GROUP BY dimension, category;
 
@@ -132,7 +132,7 @@ BEGIN
         -- per explicit request, since that definition hadn't been confirmed against real business
         -- rules the way VL Suppression Rate's is_suppressed/last_vl_date columns have been.
         -- VL Re-Suppression Rate (in the mockup) is NOT computable and intentionally omitted:
-        -- mamba_fact_client_staging stores only each client's MOST RECENT VL result
+        -- mamba_fact_client stores only each client's MOST RECENT VL result
         -- (last_vl_date/last_vl_result/is_suppressed) -- there is no prior-result history to
         -- detect "was unsuppressed, now suppressed" from.
         -- Suppression is scoped to results from the trailing 12 months of REPORT_END_DATE,
@@ -144,13 +144,13 @@ BEGIN
                 AND last_vl_date >= DATE_SUB(COALESCE(REPORT_END_DATE, CURDATE()), INTERVAL 1 YEAR)) AS vl_suppression_denominator,
             SUM(is_suppressed = 1
                 AND last_vl_date >= DATE_SUB(COALESCE(REPORT_END_DATE, CURDATE()), INTERVAL 1 YEAR)) AS vl_suppression_numerator
-        FROM mamba_fact_client_staging
+        FROM mamba_fact_client
         WHERE tx_curr_end_date >= COALESCE(REPORT_END_DATE, CURDATE());
 
     ELSEIF AGGREGATION_TYPE = 'SERVICE_COVERAGE' THEN
         -- KPI-08: coverage percentages, plus a DSD-category breakdown. Definitions below were
         -- corrected against this module's existing HMIS v2 dashboard queries (the canonical
-        -- reference for these indicators) rather than guessed from mamba_fact_client_staging
+        -- reference for these indicators) rather than guessed from mamba_fact_client
         -- alone:
         --   * Modern FP: sp_fact_hmis_hiv_fp_query_v2.sql resolves the "modern method" question
         --     this branch previously couldn't -- its `tmp_fp` CTE defines modern FP as
@@ -181,7 +181,7 @@ BEGIN
                    AND cxca_screening_status IN ('Confirmed CXCA (RED)', 'Previously Screened (Green)')) AS numerator,
                SUM(sex = 'Female'
                    AND TIMESTAMPDIFF(YEAR, birthdate, COALESCE(REPORT_END_DATE, CURDATE())) BETWEEN 25 AND 65) AS denominator
-        FROM mamba_fact_client_staging
+        FROM mamba_fact_client
 
         UNION ALL
 
@@ -191,21 +191,21 @@ BEGIN
         SELECT 'metric', 'TPT_COMPLETION',
                SUM(tpt_completed_date IS NOT NULL AND tpt_completed_date <= COALESCE(REPORT_END_DATE, CURDATE())),
                SUM(tpt_start_date IS NOT NULL AND tpt_start_date <= COALESCE(REPORT_END_DATE, CURDATE()))
-        FROM mamba_fact_client_staging
+        FROM mamba_fact_client
 
         UNION ALL
 
         SELECT 'metric', 'ADDRESS_COMPLETENESS',
                SUM(address_completeness = 'GREEN'),
                COUNT(*)
-        FROM mamba_fact_client_staging
+        FROM mamba_fact_client
 
         UNION ALL
 
         -- Modern FP: TX_Curr, female, non-pregnant, 15-49 -- see header comment for the
         -- sp_fact_hmis_hiv_fp_query_v2.sql definition this reproduces. That reference query
         -- checks `pregnancy_status IS NULL` against mamba_fact_follow_up, where the column can
-        -- genuinely be NULL; mamba_fact_client_staging instead COALESCEs it to '-'
+        -- genuinely be NULL; mamba_fact_client instead COALESCEs it to '-'
         -- (sp_fact_client_insert.sql:599), so an IS NULL check here would be dead code and
         -- silently drop every client with unknown pregnancy status from BOTH sides of the ratio
         -- (inflating the %, not just shrinking the denominator). `<> 'Yes'` correctly treats
@@ -220,7 +220,7 @@ BEGIN
                    AND TIMESTAMPDIFF(YEAR, birthdate, COALESCE(REPORT_END_DATE, CURDATE())) BETWEEN 15 AND 49
                    AND pregnancy_status <> 'Yes'
                    AND tx_curr_end_date >= COALESCE(REPORT_END_DATE, CURDATE()))
-        FROM mamba_fact_client_staging
+        FROM mamba_fact_client
 
         UNION ALL
 
@@ -230,7 +230,7 @@ BEGIN
         SELECT 'metric', 'DSD_ENROLLMENT',
                SUM(dsd_category IS NOT NULL AND dsd_category <> '-'),
                COUNT(*)
-        FROM mamba_fact_client_staging
+        FROM mamba_fact_client
         WHERE tx_curr_end_date >= COALESCE(REPORT_END_DATE, CURDATE())
 
         UNION ALL
@@ -239,7 +239,7 @@ BEGIN
                SUM(TIMESTAMPDIFF(YEAR, birthdate, COALESCE(REPORT_END_DATE, CURDATE())) >= 15
                    AND ict_screening_status <> 'Not Screened'),
                SUM(TIMESTAMPDIFF(YEAR, birthdate, COALESCE(REPORT_END_DATE, CURDATE())) >= 15)
-        FROM mamba_fact_client_staging
+        FROM mamba_fact_client
         WHERE tx_curr_end_date >= COALESCE(REPORT_END_DATE, CURDATE())
 
         UNION ALL
@@ -248,7 +248,7 @@ BEGIN
                dsd_category   AS category,
                COUNT(*)       AS numerator,
                NULL           AS denominator
-        FROM mamba_fact_client_staging
+        FROM mamba_fact_client
         WHERE tx_curr_end_date >= COALESCE(REPORT_END_DATE, CURDATE())
           AND dsd_category IS NOT NULL
           AND dsd_category <> '-'

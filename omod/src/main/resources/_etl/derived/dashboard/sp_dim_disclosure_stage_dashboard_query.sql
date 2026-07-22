@@ -30,7 +30,7 @@ BEGIN
                                GROUP BY client_id),
 
          PediatricTxCurr AS (SELECT client_id
-                              FROM mamba_fact_client_staging
+                              FROM mamba_fact_client
                               WHERE tx_curr_end_date >= COALESCE(REPORT_END_DATE, CURDATE())
                                 AND TIMESTAMPDIFF(YEAR, birthdate, COALESCE(REPORT_END_DATE, CURDATE())) < 15)
 
