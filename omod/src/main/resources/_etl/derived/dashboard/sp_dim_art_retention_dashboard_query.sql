@@ -23,7 +23,7 @@ BEGIN
                                  WHEN 'Loss to follow-up (LTFU)' THEN 'Lost'
                                  WHEN 'Ran away' THEN 'Drop'
                                  END                       AS follow_up_status
-                      FROM mamba_flat_encounter_follow_up follow_up),
+                      FROM mamba_fact_follow_up follow_up),
 
          latest_follow_up AS (SELECT client_id, follow_up_status
                                FROM (SELECT client_id,
