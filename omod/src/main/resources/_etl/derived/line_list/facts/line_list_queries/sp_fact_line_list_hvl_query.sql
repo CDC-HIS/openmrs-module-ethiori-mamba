@@ -360,7 +360,7 @@ BEGIN
                        END
                WHEN viral_load_status LIKE 'Su%'
                    OR viral_load_status LIKE 'Undet%' THEN 'Suppressed'
-               WHEN viral_load_status LIKE 'Low Level Viremia%' THEN 'Low Level Viremia'
+               WHEN viral_load_status LIKE 'Low-level viremia%' THEN 'Low Level Viremia'
                WHEN viral_load_status LIKE 'Det%' OR viral_load_status LIKE 'Uns%' OR viral_load_status LIKE 'High VL%'
                    THEN 'High VL'
                ELSE NULL
@@ -388,7 +388,7 @@ BEGIN
                        END
                WHEN viral_load_status_cf LIKE 'Su%'
                    OR viral_load_status_cf LIKE 'Undet%' THEN 'Suppressed'
-               WHEN viral_load_status_cf LIKE 'Low Level Viremia%' THEN 'Low Level Viremia'
+               WHEN viral_load_status_cf LIKE 'Low-level viremia%' THEN 'Low Level Viremia'
                WHEN viral_load_status_cf LIKE 'Det%' OR viral_load_status_cf LIKE 'Uns%' OR
                     viral_load_status_cf LIKE 'High VL%' THEN 'High VL'
                ELSE NULL
@@ -404,7 +404,7 @@ BEGIN
     FROM hvl
     where ((viral_load_count BETWEEN 51 AND 1000 OR viral_load_count > 1000)
         OR
-           (viral_load_status LIKE 'Low Level Viremia%' OR viral_load_status LIKE 'Det%' OR
+           (viral_load_status LIKE 'Low-level viremia%' OR viral_load_status LIKE 'Det%' OR
             viral_load_status LIKE 'Uns%' OR viral_load_status LIKE 'High VL%'))
       and TIMESTAMPDIFF(DAY, art_start_date, COALESCE(REPORT_END_DATE,CURDATE())) >= 0;
 

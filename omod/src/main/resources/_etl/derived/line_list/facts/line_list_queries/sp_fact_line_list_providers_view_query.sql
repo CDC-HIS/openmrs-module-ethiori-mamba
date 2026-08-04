@@ -395,7 +395,7 @@ BEGIN
                                                      vl_sent_date.VL_Sent_Date
                                                     THEN CAST(tmp_vl_performed_date_2.viral_load_count AS DECIMAL(12, 2))
                                                 ELSE NULL END                                            AS viral_load_count,
-                                            CASE
+                                             CASE
                                                 WHEN
                                                     viral_load_test_status IS NULL AND
                                                     tmp_vl_performed_date_2.viral_load_perform_date >=
@@ -407,7 +407,7 @@ BEGIN
                                                      (viral_load_test_status LIKE 'Det%'
                                                          OR viral_load_test_status LIKE 'Uns%'
                                                          OR viral_load_test_status LIKE 'High VL%'
-                                                         OR viral_load_test_status LIKE 'Low Level Viremia%')
+                                                         OR viral_load_test_status LIKE 'Low-level viremia%')
                                                     THEN
                                                     'U'
                                                 WHEN tmp_vl_performed_date_2.viral_load_perform_date >=
@@ -416,17 +416,22 @@ BEGIN
                                                          OR viral_load_test_status LIKE 'Undet%')
                                                     THEN
                                                     'S'
+                                                    WHEN tmp_vl_performed_date_2.viral_load_perform_date >= vl_sent_date.VL_Sent_Date
+         AND viral_load_test_status IS NOT NULL
+    THEN NULL
                                                 WHEN
                                                     tmp_vl_performed_date_2.viral_load_perform_date >=
                                                     vl_sent_date.VL_Sent_Date AND
-                                                    (ISNULL(viral_load_count) > CAST(50 AS float)
+                                                    (viral_load_count IS NOT NULL
+         AND viral_load_count > CAST(50 AS float)
                                                         )
                                                     THEN
                                                     'U'
                                                 WHEN
                                                     tmp_vl_performed_date_2.viral_load_perform_date >=
                                                     vl_sent_date.VL_Sent_Date AND
-                                                    (ISNULL(viral_load_count) <= CAST(50 AS float)
+                                                    (viral_load_count IS NOT NULL
+         AND viral_load_count <= CAST(50 AS float)
                                                         )
                                                     THEN
                                                     'S'

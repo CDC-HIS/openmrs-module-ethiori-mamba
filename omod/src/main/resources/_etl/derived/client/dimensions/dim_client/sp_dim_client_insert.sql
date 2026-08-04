@@ -1,5 +1,5 @@
 -- $BEGIN
-REPLACE INTO mamba_dim_client (client_id,
+REPLACE INTO mamba_dim_client_staging (client_id,
                               patient_name,
                               prefix,
                               given_name,

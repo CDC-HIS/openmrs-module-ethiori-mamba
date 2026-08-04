@@ -150,7 +150,7 @@ BEGIN
                                           (vl_perf.viral_load_test_status LIKE 'Det%' OR
                                            vl_perf.viral_load_test_status LIKE 'Uns%' OR
                                            vl_perf.viral_load_test_status LIKE 'High VL%' OR
-                                           vl_perf.viral_load_test_status LIKE 'Low Level Viremia%') THEN 'U'
+                                           vl_perf.viral_load_test_status LIKE 'Low-level viremia%') THEN 'U'
                                      WHEN vl_perf.viral_load_perform_date >= vl_sent.viral_load_sent_date AND
                                           (vl_perf.viral_load_test_status LIKE 'Su%' OR
                                            vl_perf.viral_load_test_status LIKE 'Undet%') THEN 'S'

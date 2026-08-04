@@ -1,5 +1,5 @@
 -- $BEGIN
-CREATE TABLE IF NOT EXISTS mamba_dim_client
+CREATE TABLE IF NOT EXISTS mamba_dim_client_staging
 (
     client_id         int                                not null
         primary key,
@@ -29,8 +29,8 @@ CREATE TABLE IF NOT EXISTS mamba_dim_client
     constraint client_id
         unique (client_id)
 );
-CREATE INDEX mamba_dim_client_client_id_index ON mamba_dim_client (client_id);
-CREATE INDEX mamba_dim_client_mrn_index ON mamba_dim_client (mrn);
-CREATE INDEX mamba_dim_client_uan_index ON mamba_dim_client (uan);
+CREATE INDEX mamba_dim_client_client_id_index ON mamba_dim_client_staging (client_id);
+CREATE INDEX mamba_dim_client_mrn_index ON mamba_dim_client_staging (mrn);
+CREATE INDEX mamba_dim_client_uan_index ON mamba_dim_client_staging (uan);
 -- CREATE INDEX mamba_dim_client_care_and_treatment_enrollment_date_index ON mamba_dim_client_care_and_treatment (enrollment_date);
 -- $END
