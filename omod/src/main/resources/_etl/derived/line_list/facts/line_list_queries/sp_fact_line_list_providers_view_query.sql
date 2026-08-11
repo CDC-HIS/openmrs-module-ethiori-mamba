@@ -614,7 +614,7 @@ BEGIN
                                   THEN 'Repeat/Confirmatory Viral Load test'
 
                               WHEN
-                                  (vlperfdate.viral_load_status_inferred IS NOT NULL
+                                  (vlperfdate.VL_Sent_Date IS NOT NULL
                                       AND
                                    (f_case.pregnancy_status = 'Yes' OR f_case.breastfeeding_status = 'Yes'))
                                   THEN 'Pregnant/Breastfeeding and needs retesting'
@@ -624,72 +624,7 @@ BEGIN
                                   (vlperfdate.VL_Sent_Date IS NOT NULL)
                                   THEN 'Annual Viral Load Test'
 
-                              ELSE 'Unassigned' End                          AS vl_status_final,
-                          CASE
-
-                              WHEN
-                                  (vlperfdate.viral_load_perform_date IS NULL
-                                      AND f_case.follow_up_status = 'Restart medication')
-                                  THEN 'client restarted ART'
-
-                              WHEN
-                                  (vlperfdate.viral_load_perform_date IS NULL
-                                      AND sub_switch_date.FollowupDate IS NOt NULL
-                                      )
-                                  THEN 'Regimen Change'
-
-
-                              WHEN
-                                  (vlperfdate.viral_load_perform_date IS NULL
-                                      AND f_case.pregnancy_status = 'Yes'
-                                      AND TIMESTAMPDIFF(DAY, f_case.art_start_date,
-                                                        COALESCE(END_DATE, CURDATE())) > 90)
-                                  THEN 'First VL for Pregnant'
-
-                              WHEN
-                                  (vlperfdate.viral_load_perform_date IS NULL
-                                      AND TIMESTAMPDIFF(DAY, f_case.art_start_date,
-                                                        COALESCE(END_DATE, CURDATE())) <= 180)
-                                  THEN 'N/A'
-
-                              WHEN
-                                  (vlperfdate.viral_load_perform_date IS NULL
-                                      AND TIMESTAMPDIFF(DAY, f_case.art_start_date,
-                                                        COALESCE(END_DATE, CURDATE())) > 180)
-                                  THEN 'First VL'
-
-
-                              WHEN
-                                  (vlperfdate.viral_load_perform_date IS NOT NULL
-                                      AND vlperfdate.viral_load_perform_date < f_case.follow_up_date)
-                                      AND (f_case.follow_up_status = 'Restart medication')
-                                  THEN 'client restarted ART'
-
-                              WHEN
-                                  (vlperfdate.viral_load_perform_date IS NOT NULL
-                                      AND vlperfdate.viral_load_perform_date < sub_switch_date.FollowupDate
-                                      AND sub_switch_date.FollowupDate IS NOT NULL
-                                      )
-                                  THEN 'Regimen Change'
-
-                              WHEN
-                                  (vlperfdate.viral_load_perform_date IS NOT NULL
-                                      AND vlperfdate.viral_load_status_inferred = 'U')
-                                  THEN 'Repeat/Confirmatory Viral Load test'
-
-                              WHEN
-                                  (vlperfdate.viral_load_status_inferred IS NOT NULL
-                                      AND
-                                   (f_case.pregnancy_status = 'Yes' OR f_case.breastfeeding_status = 'Yes'))
-                                  THEN 'Pregnant/Breastfeeding and needs retesting'
-
-
-                              WHEN
-                                  (vlperfdate.viral_load_perform_date IS NOT NULL)
-                                  THEN 'Annual Viral Load Test'
-
-                              ELSE 'Unassigned' End                          AS VL_STATUS_COVERAGE
-
+                              ELSE 'Unassigned' End                          AS vl_status_final
 
                    FROM FollowUp AS f_case
                             INNER JOIN tmp_2
@@ -707,7 +642,7 @@ BEGIN
                             from tmp_3
                             where NOT EXISTS (select 1 from all_art_not_started_status where all_art_not_started_status.client_id = tmp_3.client_id)
                             union
-                            select client_id, art_start_date
+                            select client_id, art_status
                             from all_art_not_started_status),
 
 
@@ -1010,14 +945,13 @@ BEGIN
            cervical.Cervical_status,
 
            case
-
+               when tmp_3.art_start_date is NULL THEN 'Not Started ART'
                when vl_status_final = 'N/A' THEN 'Not Applicable'
                when eligiblityDate <= COALESCE(END_DATE, CURDATE())
                    THEN 'Eligible for Viral Load'
                when eligiblityDate > COALESCE(END_DATE, CURDATE())
+                   AND VL_Sent_Date <= COALESCE(END_DATE, CURDATE())
                    THEN 'Viral Load Done (Currently not Eligible)' -- "Viral Load Done"
-               when tmp_3.art_start_date is NULL and follow_up_status is null THEN 'Not Started ART'
-
                Else 'undetermined_VL' end                                    as `Viral Load Eligibility Status`
             ,
            CASE

@@ -200,11 +200,12 @@ SELECT c.client_id,
            END                                                                                                       as is_suppressed,
 
        CASE
+           WHEN lab.art_start_date IS NULL THEN 'Not Started ART'
            WHEN lfu.visit_date IS NULL THEN '-'
            WHEN lab.vl_status_final = 'N/A' THEN 'Not Applicable'
            WHEN lab.eligiblityDate <= CURDATE() THEN 'Eligible for Viral Load'
-           WHEN lab.eligiblityDate > CURDATE() THEN 'Viral Load Done (Currently not Eligible)'
-           WHEN lab.art_start_date IS NULL AND lab.follow_up_status IS NULL THEN 'Not Started ART'
+           WHEN lab.eligiblityDate > CURDATE()
+               AND lab.VL_Sent_Date <= CURDATE() THEN 'Viral Load Done (Currently not Eligible)'
            ELSE '-'
            END                                                                                                       as vl_status,
 
@@ -239,8 +240,7 @@ SELECT c.client_id,
        cxca.next_follow_up_screening_date                                                                            as next_cca_screening_date,
        ncd_fu.systolic_blood_pressure                                                                                as systolic_blood_pressure,
        ncd_fu.diastolic_blood_pressure                                                                               as diastolic_blood_pressure,
-       phrh.target_population,
-       COALESCE(c.key_population, '-')                                                       as target_population,
+       COALESCE(phrh.target_population, c.key_population, '-')                                                       as target_population,
 
        COALESCE(lfu.currently_breastfeeding_child, '-')                                                             as breast_feeding_status,
        COALESCE(disc.stages_of_disclosure, '-')                                                                     as disclosure_stage,
@@ -338,7 +338,8 @@ SELECT c.client_id,
            WHEN lfu.visit_date IS NULL THEN '-'
            WHEN lab.vl_status_final = 'N/A' THEN 'Not Applicable'
            WHEN lab.eligiblityDate <= CURDATE() THEN 'Eligible for Viral Load'
-           WHEN lab.eligiblityDate > CURDATE() THEN 'Viral Load Done (Currently not Eligible)'
+           WHEN lab.eligiblityDate > CURDATE()
+               AND lab.VL_Sent_Date <= CURDATE() THEN 'Viral Load Done (Currently not Eligible)'
            ELSE '-'
            END                                                                                                       as vl_status_dqi,
 

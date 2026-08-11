@@ -627,11 +627,12 @@ BEGIN
                END                                                                                                      AS is_suppressed,
 
            CASE
+               WHEN lab.art_start_date IS NULL THEN 'Not Started ART'
                WHEN lfu.visit_date IS NULL THEN '-'
                WHEN lab.vl_status_final = 'N/A' THEN 'Not Applicable'
                WHEN lab.eligiblityDate <= v_end THEN 'Eligible for Viral Load'
-               WHEN lab.eligiblityDate > v_end THEN 'Viral Load Done (Currently not Eligible)'
-               WHEN lab.art_start_date IS NULL AND lab.follow_up_status IS NULL THEN 'Not Started ART'
+               WHEN lab.eligiblityDate > v_end
+                   AND lab.VL_Sent_Date <= v_end THEN 'Viral Load Done (Currently not Eligible)'
                ELSE '-'
                END                                                                                                      AS vl_status,
 
@@ -760,7 +761,8 @@ BEGIN
                WHEN lfu.visit_date IS NULL THEN '-'
                WHEN lab.vl_status_final = 'N/A' THEN 'Not Applicable'
                WHEN lab.eligiblityDate <= v_end THEN 'Eligible for Viral Load'
-               WHEN lab.eligiblityDate > v_end THEN 'Viral Load Done (Currently not Eligible)'
+               WHEN lab.eligiblityDate > v_end
+                   AND lab.VL_Sent_Date <= v_end THEN 'Viral Load Done (Currently not Eligible)'
                ELSE '-'
                END                                                                                                      AS vl_status_dqi,
 
