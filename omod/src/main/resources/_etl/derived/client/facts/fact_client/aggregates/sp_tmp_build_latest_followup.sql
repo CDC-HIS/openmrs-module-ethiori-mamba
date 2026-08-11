@@ -2,11 +2,6 @@ DELIMITER //
 
 DROP PROCEDURE IF EXISTS sp_tmp_build_latest_followup;
 
--- Builds a session-scoped temp table holding one row per client with their most
--- recent follow-up encounter values, computed directly off mamba_fact_follow_up
--- (which is indexed on (client_id, follow_up_date_followup_ DESC, encounter_id DESC))
--- instead of via a shared CTE re-scanned by multiple window functions.
--- p_as_of_date = NULL means "no cutoff" (matches the ETL's full-history behavior).
 CREATE PROCEDURE sp_tmp_build_latest_followup(IN p_as_of_date DATE)
 BEGIN
     DROP TEMPORARY TABLE IF EXISTS mamba_temp_latest_followup;
