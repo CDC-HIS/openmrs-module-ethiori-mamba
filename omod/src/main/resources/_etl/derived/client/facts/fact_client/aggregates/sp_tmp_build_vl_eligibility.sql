@@ -2,16 +2,6 @@ DELIMITER //
 
 DROP PROCEDURE IF EXISTS sp_tmp_build_vl_eligibility;
 
--- Builds a session-scoped temp table with each client's viral load eligibility
--- scenario/status, in one self-contained statement queried directly off
--- mamba_fact_follow_up (indexed on client_id, follow_up_date_followup_ DESC).
--- All internal self-joins (VL sent vs. performed pairing, regimen-switch lookup,
--- latest-follow-up lookup) are resolved inside this single statement via CTEs,
--- since a TEMPORARY table cannot be referenced twice in the same query.
--- p_as_of_date = NULL means "no cutoff" (matches the ETL's full-history behavior);
--- v_end (defaulting to CURDATE() when p_as_of_date is NULL) is the reference point
--- used for all "days since"/"eligible by" date arithmetic, matching the ETL's use
--- of CURDATE() today.
 CREATE PROCEDURE sp_tmp_build_vl_eligibility(IN p_as_of_date DATE)
 BEGIN
     DECLARE v_end DATE;

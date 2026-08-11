@@ -101,16 +101,16 @@ WITH Identifiers AS (SELECT patient_id,
                              MIN(registration_date) as registration_date
                       FROM mamba_flat_encounter_registration
                       WHERE registration_date IS NOT NULL
-                      GROUP BY client_id)
+                      GROUP BY client_id),
 
-#      PHRH_Target_Population AS (SELECT *
-#                                 FROM (SELECT client_id,
-#                                              target_population,
-#                                              ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY followup_date DESC, encounter_id DESC) as rn
-#                                       FROM mamba_flat_encounter_phrh_followup
-#                                       WHERE target_population IS NOT NULL
-#                                         AND target_population != '') ranked
-#                                 WHERE rn = 1)
+      PHRH_Target_Population AS (SELECT *
+                                 FROM (SELECT client_id,
+                                              target_population,
+                                              ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY followup_date DESC, encounter_id DESC) as rn
+                                       FROM mamba_flat_encounter_phrh_followup
+                                       WHERE target_population IS NOT NULL
+                                         AND target_population != '') ranked
+                                 WHERE rn = 1)
 
 
 SELECT c.client_id,
@@ -239,7 +239,7 @@ SELECT c.client_id,
        cxca.next_follow_up_screening_date                                                                            as next_cca_screening_date,
        ncd_fu.systolic_blood_pressure                                                                                as systolic_blood_pressure,
        ncd_fu.diastolic_blood_pressure                                                                               as diastolic_blood_pressure,
-    # phrh.target_population,
+       phrh.target_population,
        COALESCE(c.key_population, '-')                                                       as target_population,
 
        COALESCE(lfu.currently_breastfeeding_child, '-')                                                             as breast_feeding_status,
@@ -385,7 +385,7 @@ FROM mamba_dim_client c
          LEFT JOIN PMTCT_CTE pmtct ON c.client_id = pmtct.client_id
          LEFT JOIN PMTCT_Discharge_CTE pmtct_dis ON c.client_id = pmtct_dis.client_id
          LEFT JOIN Registration reg ON c.client_id = reg.client_id
-        # LEFT JOIN PHRH_Target_Population phrh ON c.client_id = phrh.client_id
+         LEFT JOIN PHRH_Target_Population phrh ON c.client_id = phrh.client_id
          LEFT JOIN mamba_temp_family_planning fp ON c.client_id = fp.client_id
          LEFT JOIN mamba_temp_latest_cd4 lfu_cd4 ON c.client_id = lfu_cd4.client_id
          LEFT JOIN mamba_temp_latest_disclosure disc ON c.client_id = disc.client_id;

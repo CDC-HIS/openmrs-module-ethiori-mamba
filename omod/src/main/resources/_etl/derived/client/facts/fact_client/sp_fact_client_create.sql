@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS mamba_fact_client_staging
     days_overdue                   INT,
 
     last_vl_date                   DATE,
-    last_vl_result                 NUMERIC(10, 2),
+    last_vl_result                 INT,
     is_suppressed                  BOOLEAN,
     vl_status                      VARCHAR(100),
     vl_eligibility_date            DATE,
@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS mamba_fact_client_staging
     vl_received_date                 DATE,
     vl_received_date_ec              VARCHAR(100),
 
-    cd4_result                       NUMERIC(10, 2),
+    cd4_result                       INT,
     visitect_cd4_result              VARCHAR(255),
 
     transfer_in_date_ec              VARCHAR(100),

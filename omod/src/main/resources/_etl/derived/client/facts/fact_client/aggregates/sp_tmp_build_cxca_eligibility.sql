@@ -2,16 +2,6 @@ DELIMITER //
 
 DROP PROCEDURE IF EXISTS sp_tmp_build_cxca_eligibility;
 
--- Builds a session-scoped temp table with each client's cervical cancer screening
--- eligibility status, in one self-contained statement queried directly off
--- mamba_fact_follow_up and mamba_dim_client.
--- Replaces the previous `LEFT JOIN LATERAL (...) ON TRUE` in sp_fact_client_insert,
--- which re-evaluated a correlated subquery once per row of mamba_dim_client -- this
--- version computes the same result once and is joined normally by client_id.
--- p_as_of_date = NULL means "no cutoff" (matches the ETL's full-history behavior);
--- v_end (defaulting to CURDATE() when p_as_of_date is NULL) is the reference point
--- used for all "days since" date arithmetic and the age calculation, matching the
--- ETL's use of CURDATE() today.
 CREATE PROCEDURE sp_tmp_build_cxca_eligibility(IN p_as_of_date DATE)
 BEGIN
     DECLARE v_end DATE;

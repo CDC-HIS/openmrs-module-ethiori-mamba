@@ -2,9 +2,6 @@ DELIMITER //
 
 DROP PROCEDURE IF EXISTS sp_tmp_build_latest_disclosure;
 
--- Builds a session-scoped temp table with each client's most recent disclosure
--- stage, in one indexed pass over mamba_fact_follow_up.
--- p_as_of_date = NULL means "no cutoff" (matches the ETL's full-history behavior).
 CREATE PROCEDURE sp_tmp_build_latest_disclosure(IN p_as_of_date DATE)
 BEGIN
     DROP TEMPORARY TABLE IF EXISTS mamba_temp_latest_disclosure;

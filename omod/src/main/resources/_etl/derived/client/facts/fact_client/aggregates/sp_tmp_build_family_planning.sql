@@ -2,9 +2,6 @@ DELIMITER //
 
 DROP PROCEDURE IF EXISTS sp_tmp_build_family_planning;
 
--- Builds a session-scoped temp table with each client's most recently recorded
--- family planning method, in one indexed pass over mamba_fact_follow_up.
--- p_as_of_date = NULL means "no cutoff" (matches the ETL's full-history behavior).
 CREATE PROCEDURE sp_tmp_build_family_planning(IN p_as_of_date DATE)
 BEGIN
     DROP TEMPORARY TABLE IF EXISTS mamba_temp_family_planning;
