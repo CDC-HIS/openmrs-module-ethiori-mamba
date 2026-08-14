@@ -2,6 +2,7 @@ package org.openmrs.module.mambaetl.service;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.NonNull;
 import org.openmrs.module.mambaetl.web.resource.ReportDataResponse;
 import org.openmrs.module.mambaetl.web.resource.ReportJob;
 import org.openmrs.module.mambaetl.web.resource.ReportJobStatus;
@@ -35,7 +36,7 @@ public class ReportJobService implements ApplicationContextAware {
 	private ApplicationContext applicationContext;
 
 	@Override
-	public void setApplicationContext(ApplicationContext ctx) {
+	public void setApplicationContext(@NonNull ApplicationContext ctx) {
 		this.applicationContext = ctx;
 	}
 
