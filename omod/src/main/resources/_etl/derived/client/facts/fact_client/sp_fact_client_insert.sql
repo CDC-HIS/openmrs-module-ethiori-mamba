@@ -18,7 +18,7 @@ INSERT INTO mamba_fact_client_staging
  tpt_start_date_ec, tpt_discontinued_date_ec, tpt_completed_date_ec,
  tb_treatment_rx_status, pmtct_enrollment_status, advanced_hiv_disease,
  ncd_last_screening_date, ncd_screening_eligibility_status, ncd_screening_eligibility_date, ncd_screening_reason,
- vl_status_dqi, tpt_status_dqi, ict_screening_status_dqi, ncd_screening_status_dqi, cxca_screening_status_dqi)
+ vl_status_dqi, tpt_status_dqi, ict_screening_status_dqi, ncd_screening_status_dqi, cxca_screening_status_dqi, patient_type)
 WITH Identifiers AS (SELECT patient_id,
                             MAX(CASE WHEN pit.name = 'PHRH' THEN pi.identifier END) as phrh_code,
                             MAX(CASE WHEN pit.name = 'NCD' THEN pi.identifier END)  as ncd_code,
@@ -103,14 +103,101 @@ WITH Identifiers AS (SELECT patient_id,
                       WHERE registration_date IS NOT NULL
                       GROUP BY client_id),
 
-      PHRH_Target_Population AS (SELECT *
-                                 FROM (SELECT client_id,
-                                              target_population,
-                                              ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY followup_date DESC, encounter_id DESC) as rn
-                                       FROM mamba_flat_encounter_phrh_followup
-                                       WHERE target_population IS NOT NULL
-                                         AND target_population != '') ranked
-                                 WHERE rn = 1)
+     PHRH_Target_Population AS (SELECT *
+                                FROM (SELECT client_id,
+                                             target_population,
+                                             ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY followup_date DESC, encounter_id DESC) as rn
+                                      FROM mamba_flat_encounter_phrh_followup
+                                      WHERE target_population IS NOT NULL
+                                        AND target_population != '') ranked
+                                WHERE rn = 1),
+
+    /* Patient Type:
+       - ART is always displayed first when Intake A has HIV confirmed date.
+       - PrEP is identified by the existence of a PrEP screening encounter.
+       - PEP is identified by the existence of a PEP encounter.
+       - When both PrEP and PEP exist, their earliest service dates determine the order.
+    */
+     Patient_Type_CTE AS (
+         SELECT
+             c.client_id,
+
+             CASE
+                 /* ART exists */
+                 WHEN intake_a.hiv_confirmed_date IS NOT NULL THEN
+                     CASE
+                         /* ART + PrEP + PEP */
+                         WHEN prep.prep_date IS NOT NULL
+                             AND pep.pep_date IS NOT NULL THEN
+                             CASE
+                                 WHEN prep.prep_date <= pep.pep_date
+                                     THEN 'Chronic HIV Care (ART), Pre-Exposure Prophylaxis (PrEP), Post-Exposure Prophylaxis (PEP)'
+                                 ELSE 'Chronic HIV Care (ART), Post-Exposure Prophylaxis (PEP), Pre-Exposure Prophylaxis (PrEP)'
+                                 END
+
+                         /* ART + PrEP */
+                         WHEN prep.prep_date IS NOT NULL
+                             THEN 'Chronic HIV Care (ART), Pre-Exposure Prophylaxis (PrEP)'
+
+                         /* ART + PEP */
+                         WHEN pep.pep_date IS NOT NULL
+                             THEN 'Chronic HIV Care (ART), Post-Exposure Prophylaxis (PEP)'
+
+                         /* ART only */
+                         ELSE 'Chronic HIV Care (ART)'
+                         END
+
+                 /* No ART + PrEP + PEP */
+                 WHEN prep.prep_date IS NOT NULL
+                     AND pep.pep_date IS NOT NULL THEN
+                     CASE
+                         WHEN prep.prep_date <= pep.pep_date
+                             THEN 'Pre-Exposure Prophylaxis (PrEP), Post-Exposure Prophylaxis (PEP)'
+                         ELSE 'Post-Exposure Prophylaxis (PEP), Pre-Exposure Prophylaxis (PrEP)'
+                         END
+
+                 /* PrEP only */
+                 WHEN prep.prep_date IS NOT NULL
+                     THEN 'Pre-Exposure Prophylaxis (PrEP)'
+
+                 /* PEP only */
+                 WHEN pep.pep_date IS NOT NULL
+                     THEN 'Post-Exposure Prophylaxis (PEP)'
+
+                 ELSE NULL
+                 END AS patient_type
+
+         FROM mamba_dim_client c
+
+                  LEFT JOIN (
+             SELECT
+                 client_id,
+                 MAX(date_hiv_confirmed) AS hiv_confirmed_date
+             FROM mamba_flat_encounter_intake_a
+             WHERE date_hiv_confirmed IS NOT NULL
+             GROUP BY client_id
+         ) intake_a
+                            ON c.client_id = intake_a.client_id
+
+                  LEFT JOIN (
+             SELECT
+                 client_id,
+                 MIN(encounter_datetime) AS prep_date
+             FROM mamba_flat_encounter_pre_exposure_scree
+             WHERE encounter_id IS NOT NULL
+             GROUP BY client_id
+         ) prep
+                            ON c.client_id = prep.client_id
+
+                  LEFT JOIN (
+             SELECT
+                 client_id,
+                 MIN(encounter_datetime) AS pep_date
+             FROM mamba_flat_encounter_exposed_person_information
+             GROUP BY client_id
+         ) pep
+                            ON c.client_id = pep.client_id
+     )
 
 
 SELECT c.client_id,
@@ -151,7 +238,7 @@ SELECT c.client_id,
            WHEN lfu.follow_up_status IN ('Transferred out', 'TO') THEN 'Transferred Out'
            WHEN lfu.treatment_end_date >= CURDATE() THEN 'Active'
            ELSE COALESCE(lfu.follow_up_status, '-')
-           END                                                                                                       as current_status,
+END                                                                                                       as current_status,
 
        COALESCE(lfu.regimen, '-')                                                                                    as current_regimen,
        COALESCE(lfu.regimen_dose, '-')                                                                               as regimen_dose,
@@ -161,7 +248,7 @@ SELECT c.client_id,
            WHEN lfu.regimen LIKE '1%' THEN 'First Line'
            WHEN lfu.regimen LIKE '2%' THEN 'Second Line'
            ELSE 'Other'
-           END                                                                                                       as regimen_line,
+END                                                                                                       as regimen_line,
 
        lfu.treatment_end_date                                                                                        as tx_curr_end_date,
        CASE COALESCE(lfu.nutritional_status_of_adult, lfu.nutritional_status_of_older_child_a)
@@ -174,14 +261,14 @@ SELECT c.client_id,
            WHEN 'Overweight' THEN 'Overweight'
            WHEN 'Obese Abdomen' THEN 'Obese'
            ELSE COALESCE(lfu.nutritional_status_of_adult, lfu.nutritional_status_of_older_child_a, '-')
-           END                                                                                                       AS nutritional_status,
+END                                                                                                       AS nutritional_status,
        COALESCE(lfu.pregnancy_status, '-')                                                                           as pregnancy_status,
        CASE
            WHEN (pmtct.pmtct_start_date IS NOT NULL AND
                  (pmtct_dis.pmtct_discharge_date IS NULL OR pmtct_dis.pmtct_discharge_date < pmtct.pmtct_start_date))
                THEN 'Currently on PMTCT'
            ELSE 'Not Applicable'
-           END                                                                                                       as pmtct_status,
+END                                                                                                       as pmtct_status,
        COALESCE(fp.method_of_family_planning, '-')                                                                   as family_planning_method,
        COALESCE(lfu.who_stage, '-')                                                                                  as who_stage,
 
@@ -197,7 +284,7 @@ SELECT c.client_id,
            WHEN lab.viral_load_status_inferred = 'S' THEN 1
            WHEN lab.viral_load_status_inferred = 'U' THEN 0
            ELSE NULL
-           END                                                                                                       as is_suppressed,
+END                                                                                                       as is_suppressed,
 
        CASE
            WHEN lab.art_start_date IS NULL THEN 'Not Started ART'
@@ -207,7 +294,7 @@ SELECT c.client_id,
            WHEN lab.eligiblityDate > CURDATE()
                AND lab.VL_Sent_Date <= CURDATE() THEN 'Viral Load Done (Currently not Eligible)'
            ELSE '-'
-           END                                                                                                       as vl_status,
+END                                                                                                       as vl_status,
 
        lab.eligiblityDate                                                                                            as vl_eligibility_date,
 
@@ -217,7 +304,7 @@ SELECT c.client_id,
                THEN 'On TPT'
            WHEN ma.tpt_is_contraindicated = 1 THEN 'Contraindicated'
            ELSE 'Not Started'
-           END                                                                                                       as tpt_status,
+END                                                                                                       as tpt_status,
 
        ma.tpt_start_date                                                                                             as tpt_start_date,
        ma.tpt_completed_date                                                                                         as tpt_completed_date,
@@ -277,7 +364,7 @@ SELECT c.client_id,
                AND TIMESTAMPDIFF(YEAR, ma.tb_treatment_start_date, CURDATE()) >= 2
                AND ma.tb_treatment_completed_date IS NULL THEN 'Unknown TB Treatment Completion'
            ELSE 'Active TB Diagnosed & No RX'
-           END                                                                                                       as tb_treatment_rx_status,
+END                                                                                                       as tb_treatment_rx_status,
 
        CASE
            WHEN pmtct.pmtct_start_date IS NULL THEN NULL
@@ -285,7 +372,7 @@ SELECT c.client_id,
                 OR pmtct_dis.pmtct_discharge_date < pmtct.pmtct_start_date
                 OR pmtct_dis.pmtct_discharge_date > CURDATE() THEN 'Currently on PMTCT'
            ELSE 'Enrolled & Currently Discharged'
-           END                                                                                                       as pmtct_enrollment_status,
+END                                                                                                       as pmtct_enrollment_status,
 
        CASE
            WHEN c.date_of_birth IS NOT NULL
@@ -299,7 +386,7 @@ SELECT c.client_id,
                AND lfu.who_stage IN ('WHO stage 3 adult', 'WHO stage 3 peds',
                                      'WHO stage 4 peds', 'WHO stage 4 adult') THEN 'Yes'
            ELSE 'No'
-           END                                                                                                       as advanced_hiv_disease,
+END                                                                                                       as advanced_hiv_disease,
 
        ncd.screening_date                                                                                             as ncd_last_screening_date,
 
@@ -316,7 +403,7 @@ SELECT c.client_id,
                AND TIMESTAMPDIFF(YEAR, c.date_of_birth, CURDATE()) > 50  THEN 'Needs Rescreening Normal BG (>50 Yrs)'
            WHEN ncd.ncd_class = 'NORMAL_BP'  THEN 'Needs Rescreening Normal BP'
            ELSE 'Not Applicable'
-           END                                                                                                       as ncd_screening_eligibility_status,
+END                                                                                                       as ncd_screening_eligibility_status,
 
        ncd_fu.next_screening_date                                                                                    as ncd_screening_eligibility_date,
 
@@ -330,7 +417,7 @@ SELECT c.client_id,
            WHEN ncd.ncd_class = 'NORMAL_BG'   THEN 'Normal Blood Glucose - Needs Rescreening'
            WHEN ncd.ncd_class = 'NORMAL_BP'   THEN 'Normal Blood Pressure - Needs Rescreening'
            ELSE 'NOT APPLICABLE'
-           END                                                                                                       as ncd_screening_reason,
+END                                                                                                       as ncd_screening_reason,
 
        -- DQI corrected status columns
        CASE
@@ -341,7 +428,7 @@ SELECT c.client_id,
            WHEN lab.eligiblityDate > CURDATE()
                AND lab.VL_Sent_Date <= CURDATE() THEN 'Viral Load Done (Currently not Eligible)'
            ELSE '-'
-           END                                                                                                       as vl_status_dqi,
+END                                                                                                       as vl_status_dqi,
 
        CASE
            WHEN ma.art_start_date IS NULL THEN 'ART Not Started'
@@ -353,25 +440,27 @@ SELECT c.client_id,
            WHEN ma.tb_treatment_completed_date IS NOT NULL
                AND TIMESTAMPDIFF(YEAR, ma.tb_treatment_completed_date, CURDATE()) > 3 THEN 'Bronze 5'
            ELSE 'Not Started'
-           END                                                                                                       as tpt_status_dqi,
+END                                                                                                       as tpt_status_dqi,
 
        CASE
            WHEN ma.art_start_date IS NULL THEN 'ART Not Started'
            ELSE COALESCE(ict.ict_status, 'Not Screened')
-           END                                                                                                       as ict_screening_status_dqi,
+END                                                                                                       as ict_screening_status_dqi,
 
        CASE
            WHEN ma.art_start_date IS NULL THEN 'ART Not Started'
            ELSE COALESCE(ncd.baseline_diagnosis, CASE
                                                      WHEN ncd.client_id IS NOT NULL THEN 'Screened'
                                                      ELSE 'Not Screened' END)
-           END                                                                                                       as ncd_screening_status_dqi,
+END                                                                                                       as ncd_screening_status_dqi,
 
        CASE cxca.cxca_screening_status
            WHEN 'Confirmed CXCA (RED)' THEN 'Confirmed Cervical Cancer (Red)'
            WHEN 'Eligible (Yellow)' THEN 'Eligible for Cervical Cancer Screening/RX (Yellow)'
            ELSE COALESCE(cxca.cxca_screening_status, 'Not Applicable (Blue)')
-           END                                                                                                       as cxca_screening_status_dqi
+END                                                                                                       as cxca_screening_status_dqi,
+
+       patient_type.patient_type                                                                                      as patient_type
 
 FROM mamba_dim_client c
          LEFT JOIN mamba_temp_latest_followup lfu ON c.client_id = lfu.client_id
@@ -389,5 +478,6 @@ FROM mamba_dim_client c
          LEFT JOIN PHRH_Target_Population phrh ON c.client_id = phrh.client_id
          LEFT JOIN mamba_temp_family_planning fp ON c.client_id = fp.client_id
          LEFT JOIN mamba_temp_latest_cd4 lfu_cd4 ON c.client_id = lfu_cd4.client_id
-         LEFT JOIN mamba_temp_latest_disclosure disc ON c.client_id = disc.client_id;
+         LEFT JOIN mamba_temp_latest_disclosure disc ON c.client_id = disc.client_id
+         LEFT JOIN Patient_Type_CTE patient_type ON c.client_id = patient_type.client_id;
 -- $END

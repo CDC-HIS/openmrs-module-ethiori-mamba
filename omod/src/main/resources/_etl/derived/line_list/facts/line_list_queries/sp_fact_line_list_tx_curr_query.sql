@@ -39,7 +39,8 @@ BEGIN
                              date_viral_load_results_received    AS viral_load_perform_date,
                              viral_load_test_status,
                              CASE visitect_cd4_result WHEN 'VISITECT <=200 copies/ml' THEN 'VISITECT >200 copies/ml' ELSE visitect_cd4_result END AS visitect_cd4_result,
-                             visitect_cd4_test_date
+                             visitect_cd4_test_date,
+                             transferred_in_check_this_for_all_t transfer_in
                       FROM mamba_flat_encounter_follow_up follow_up
                                LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1
                                          ON follow_up.encounter_id = follow_up_1.encounter_id
@@ -83,6 +84,7 @@ BEGIN
                                 TB_SreeningResult,
                                 dsd_category,
                                 visitect_cd4_test_date,
+                                transfer_in,
                                 ROW_NUMBER() OVER (PARTITION BY PatientId ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
                          FROM FollowUp
                          WHERE follow_up_status IS NOT NULL
@@ -136,6 +138,27 @@ BEGIN
                                           ROW_NUMBER() over (PARTITION BY PatientId ORDER BY visitect_cd4_test_date DESC, encounter_id DESC) AS row_num
                                    FROM FollowUp
                                    WHERE visitect_cd4_test_date is not null and visitect_cd4_test_date <= follow_up_date),
+         first_follow_up AS (
+             SELECT
+                 PatientId,
+                 transfer_in,
+                 follow_up_date AS ti_follow_up_date,
+                 ROW_NUMBER() OVER (
+                     PARTITION BY PatientId
+                     ORDER BY follow_up_date, encounter_id
+                     ) AS r_n
+             FROM FollowUp
+             WHERE FollowUp.follow_up_date <= COALESCE(REPORT_END_DATE, CURDATE())
+         ),
+
+         ti_follow_up AS (
+             SELECT
+                 PatientId,
+                 ti_follow_up_date
+             FROM first_follow_up
+             WHERE r_n = 1
+               AND transfer_in = 'Yes'
+         ),
          vl_sent_date as (select * from tmp_vl_sent_date where row_num = 1),
          latestDSD AS (select * from latestDSD_tmp where row_num = 1),
          tpt_start as (select * from tmp_tpt_start where row_num = 1),
@@ -196,7 +219,9 @@ BEGIN
            next_visit_date                                                               'Next Visit Date EC.',
            tx_curr.treatment_end_date                                                    'Last TX_Curr Date',
            tx_curr.treatment_end_date                                                    'Last TX_Curr Date EC.',
-           client.mobile_no                                                           as 'Mobile No.'
+           client.mobile_no                                                           as 'Mobile No.',
+           ti_follow_up.ti_follow_up_date                                                as 'TI Date GC.',
+           ti_follow_up.ti_follow_up_date                                                as 'TI Date EC.'
     from tx_curr
              left join latestDSD on latestDSD.PatientId = tx_curr.PatientId
              left join tpt_start on tx_curr.PatientId = tpt_start.PatientId
@@ -205,6 +230,7 @@ BEGIN
              left join vl_performed_date on tx_curr.PatientId = vl_performed_date.PatientId
              left join mamba_dim_client client on tx_curr.PatientId = client.client_id
              left join visitect_cd4_result on tx_curr.PatientId = visitect_cd4_result.PatientId
+             LEFT JOIN ti_follow_up ON ti_follow_up.PatientId = tx_curr.PatientId
     order by client.patient_name;
 END //
 

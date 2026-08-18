@@ -116,7 +116,7 @@ CREATE TABLE IF NOT EXISTS mamba_fact_client_staging
     ict_screening_status_dqi         VARCHAR(100),
     ncd_screening_status_dqi         VARCHAR(100),
     cxca_screening_status_dqi        VARCHAR(100),
-
+    patient_type                     VARCHAR(100),
     last_updated                   TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     INDEX idx_uuid (patient_uuid),
