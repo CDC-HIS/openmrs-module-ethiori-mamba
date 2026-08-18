@@ -59,8 +59,8 @@ BEGIN
                                   art_start_date,
                                   ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY tpt_start_date DESC, FollowUp.encounter_id DESC) AS row_num
                            from FollowUp
-                           where tpt_start_date >= fn_ethiopian_to_gregorian_calendar(date_add(
-                                   fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'), INTERVAL -6 MONTH))
+                           where tpt_start_date >= fn_ethiopian_to_gregorian_calendar(fn_add_ethiopian_months(
+                                   fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'), -6 ,1))
                              AND tpt_start_date < REPORT_START_DATE),
          tpt_started as (select tmp_tpt_start.*
                          from tmp_tpt_start
@@ -74,9 +74,9 @@ BEGIN
                                      tpt_type,
                                      ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY tpt_completed_date DESC, FollowUp.encounter_id DESC) AS row_num
                               from FollowUp
-                              where tpt_completed_date >= fn_ethiopian_to_gregorian_calendar(date_add(
-                                      fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'), INTERVAL -6
-                                      MONTH))
+                              where tpt_completed_date >= fn_ethiopian_to_gregorian_calendar(fn_add_ethiopian_months(
+                                      fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'),-6
+                                      ,1))
                                 AND tpt_completed_date < REPORT_END_DATE),
          tpt_completed as (select tmp_tpt_complete.*,
                                   tpt_started.tpt_start_date

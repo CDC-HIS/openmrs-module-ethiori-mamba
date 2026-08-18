@@ -71,15 +71,15 @@ BEGIN
                                      i.interval_month,
                                      CASE
                                          WHEN i.interval_month = 0 THEN a.date_of_enrollment_or_booking
-                                         ELSE fn_ethiopian_to_gregorian_calendar(DATE_ADD(
+                                         ELSE fn_ethiopian_to_gregorian_calendar(fn_add_ethiopian_months(
                                                  fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'),
-                                                 INTERVAL i.interval_month MONTH))
+                                                 i.interval_month,1))
                                          END AS interval_end_date,
                                      CASE
                                          WHEN i.interval_month = 0 THEN REPORT_START_DATE
-                                         ELSE COALESCE(LAG(fn_ethiopian_to_gregorian_calendar(DATE_ADD(
+                                         ELSE COALESCE(LAG(fn_ethiopian_to_gregorian_calendar(fn_add_ethiopian_months(
                                                  fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'),
-                                                 INTERVAL i.interval_month MONTH)))
+                                                 i.interval_month,1)))
                                                            OVER (PARTITION BY a.PatientId ORDER BY i.interval_month),
                                                        REPORT_START_DATE)
                                          END AS interval_start_date
