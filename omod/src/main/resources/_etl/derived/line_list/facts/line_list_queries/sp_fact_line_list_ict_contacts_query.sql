@@ -73,7 +73,96 @@ BEGIN
                                              on contact.encounter_id = encounter.encounter_id
                                    left join mamba_dim_person_attribute attribute on encounter.uuid = attribute.value
                                    left join mamba_dim_client index_contact
-                                             on attribute.person_id = index_contact.client_id)
+                                             on attribute.person_id = index_contact.client_id),
+         FollowUp AS (SELECT follow_up.client_id,
+                             follow_up.encounter_id,
+                             date_viral_load_results_received AS viral_load_perform_date,
+                             date_of_reported_hiv_viral_load  as viral_load_sent_date,
+                             viral_load_received_,
+                             follow_up_status,
+                             follow_up_date_followup_         AS follow_up_date,
+                             art_antiretroviral_start_date       art_start_date,
+                             viral_load_test_status,
+                             hiv_viral_load                   AS viral_load_count,
+                             COALESCE(
+                                     at_3436_weeks_of_gestation,
+                                     viral_load_after_eac_confirmatory_viral_load_where_initial_v,
+                                     viral_load_after_eac_repeat_viral_load_where_initial_viral_l,
+                                     every_six_months_until_mtct_ends,
+                                     six_months_after_the_first_viral_load_test_at_postnatal_peri,
+                                     three_months_after_delivery,
+                                     at_the_first_antenatal_care_visit,
+                                     annual_viral_load_test,
+                                     second_viral_load_test_at_12_months_post_art,
+                                     first_viral_load_test_at_6_months_or_longer_post_art,
+                                     first_viral_load_test_at_3_months_or_longer_post_art
+                             )                                AS routine_viral_load_test_indication,
+                             COALESCE(repeat_or_confirmatory_vl_initial_viral_load_greater_than_10,
+                                      suspected_antiretroviral_failure
+                             )                                AS targeted_viral_load_test_indication,
+                             viral_load_test_indication,
+                             pregnancy_status,
+                             currently_breastfeeding_child    AS breastfeeding_status,
+                             antiretroviral_art_dispensed_dose_i arv_dispensed_dose,
+                             regimen,
+                             next_visit_date,
+                             treatment_end_date,
+                             date_of_event                       date_hiv_confirmed,
+                             weight_text_                     as weight,
+                             adherence,
+                             cd4_,
+                             cd4_count
+                      FROM mamba_flat_encounter_follow_up follow_up
+                               LEFT JOIN mamba_flat_encounter_follow_up_1 follow_up_1
+                                         ON follow_up.encounter_id = follow_up_1.encounter_id
+                               LEFT JOIN mamba_flat_encounter_follow_up_2 follow_up_2
+                                         ON follow_up.encounter_id = follow_up_2.encounter_id
+                               LEFT JOIN mamba_flat_encounter_follow_up_3 follow_up_3
+                                         ON follow_up.encounter_id = follow_up_3.encounter_id
+                               LEFT JOIN mamba_flat_encounter_follow_up_4 follow_up_4
+                                         ON follow_up.encounter_id = follow_up_4.encounter_id
+                               LEFT JOIN mamba_flat_encounter_follow_up_5 follow_up_5
+                                         ON follow_up.encounter_id = follow_up_5.encounter_id
+                               LEFT JOIN mamba_flat_encounter_follow_up_6 follow_up_6
+                                         ON follow_up.encounter_id = follow_up_6.encounter_id
+                               LEFT JOIN mamba_flat_encounter_follow_up_7 follow_up_7
+                                         ON follow_up.encounter_id = follow_up_7.encounter_id
+                               LEFT JOIN mamba_flat_encounter_follow_up_8 follow_up_8
+                                         ON follow_up.encounter_id = follow_up_8.encounter_id
+                               LEFT JOIN mamba_flat_encounter_follow_up_9 follow_up_9
+                                         ON follow_up.encounter_id = follow_up_9.encounter_id
+                               LEFT JOIN mamba_flat_encounter_follow_up_10 follow_up_10
+                                         ON follow_up.encounter_id = follow_up_10.encounter_id),
+         latest_follow_up_tmp AS (SELECT client_id,
+                                         follow_up_date                                                                             AS FollowupDate,
+                                         encounter_id,
+                                         follow_up_status,
+                                         adherence,
+                                         next_visit_date,
+                                         regimen,
+                                         ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
+                                  FROM FollowUp
+                                  WHERE follow_up_status IS NOT NULL
+                                    AND art_start_date IS NOT NULL
+                                    AND follow_up_date <= REPORT_END_DATE),
+         latest_follow_up AS (select * from latest_follow_up_tmp where row_num = 1),
+         vl_performed_tmp AS (SELECT FollowUp.encounter_id,
+                                          FollowUp.client_id,
+                                          FollowUp.viral_load_perform_date,
+                                          FollowUp.viral_load_test_status,
+                                          follow_up_status,
+                                          arv_dispensed_dose,
+                                          viral_load_count,
+                                          cd4_,
+                                          cd4_count,
+                                          routine_viral_load_test_indication,
+                                          targeted_viral_load_test_indication,
+                                          ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY viral_load_perform_date DESC, encounter_id DESC) AS row_num
+                                   FROM FollowUp
+                                   WHERE follow_up_status IS NOT NULL
+                                     AND art_start_date IS NOT NULL
+                                     AND viral_load_perform_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE),
+         latest_vl_performed as (select * from vl_performed_tmp where row_num = 1)
     select CONCAT_WS(' ', contact_first_name, contact_middle_name, contact_last_name) as `Contact’s Full Name`,
            elicited_date                                                              as `Elicited date GC.`,
            elicited_date                                                              as `Elicited date EC.`,
@@ -123,8 +212,20 @@ BEGIN
            index_mrn                                                                  as `MRN of Index Case`,
            CONCAT('''', index_uan)                                                    as `UAN of Index Case`,
            CONCAT_WS(' ', given_name, middle_name, family_name)                       as `Full Name of Index Case`,
+           latest_follow_up.follow_up_status                                          as `Follow up Status`,
+           latest_follow_up.next_visit_date                                           as `Next Visit Date`,
+           latest_follow_up.regimen                                                   as `Regimen`,
+           latest_follow_up.adherence                                                 as `Adherence`,
+           latest_vl.viral_load_test_status                                           as `Viral Load Test Status`,
+           COALESCE(latest_vl.routine_viral_load_test_indication,
+                    latest_vl.targeted_viral_load_test_indication)                    as `Indication`,
+           latest_vl.viral_load_count                                                 as `VL Count`,
            ict_serial_number                                                          as `ICT#`
     from contact_list
+             LEFT JOIN latest_follow_up
+                       ON latest_follow_up.client_id = contact_list.client_id
+             INNER JOIN latest_vl_performed as latest_vl
+                        ON latest_vl.client_id = contact_list.client_id
     WHERE elicited_date BETWEEN REPORT_START_DATE AND REPORT_END_DATE;
 
 END //
