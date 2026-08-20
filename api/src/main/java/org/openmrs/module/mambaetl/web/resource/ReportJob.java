@@ -1,45 +1,47 @@
 package org.openmrs.module.mambaetl.web.resource;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Future;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ReportJob {
 	
 	private final String jobId;
 	
-	private volatile ReportJobStatus status;
+	private final ReportJobStatus status;
 	
 	private final String procedureName;
 	
 	private final Instant submittedAt;
 	
-	private volatile Instant completedAt;
+	private final Instant completedAt;
 	
-	private volatile ReportDataResponse result;
+	private final ReportDataResponse result;
 	
-	private volatile String error;
+	private final String error;
 	
-	private volatile String message;
+	private final String message;
 	
-	@JsonIgnore
-	private volatile Future<?> future;
+	private final Integer totalSteps;
 	
-	private volatile Integer totalSteps;
+	private final Integer completedSteps;
 	
-	private volatile Integer completedSteps;
-	
-	public ReportJob(String jobId, String procedureName) {
+	public ReportJob(String jobId, ReportJobStatus status, String procedureName, Instant submittedAt, Instant completedAt,
+	    ReportDataResponse result, String error, String message, Integer totalSteps, Integer completedSteps) {
 		this.jobId = jobId;
+		this.status = status;
 		this.procedureName = procedureName;
-		this.submittedAt = Instant.now();
-		this.status = ReportJobStatus.PENDING;
+		this.submittedAt = submittedAt;
+		this.completedAt = completedAt;
+		this.result = result;
+		this.error = error;
+		this.message = message;
+		this.totalSteps = totalSteps;
+		this.completedSteps = completedSteps;
 	}
 	
 	public String getJobId() {
@@ -48,10 +50,6 @@ public class ReportJob {
 	
 	public ReportJobStatus getStatus() {
 		return status;
-	}
-	
-	public void setStatus(ReportJobStatus status) {
-		this.status = status;
 	}
 	
 	public String getProcedureName() {
@@ -67,79 +65,35 @@ public class ReportJob {
 		return completedAt != null ? completedAt.toString() : null;
 	}
 	
-	// Used internally for TTL comparisons — not serialized
-	@JsonIgnore
-	public Instant getCompletedAtInstant() {
-		return completedAt;
-	}
-	
-	public void setCompletedAt(Instant completedAt) {
-		this.completedAt = completedAt;
-	}
-	
-	// Present only while PENDING or RUNNING
 	public Long getElapsedMs() {
-		ReportJobStatus s = this.status;
-		if (s == ReportJobStatus.PENDING || s == ReportJobStatus.RUNNING) {
+		if (status == ReportJobStatus.PENDING || status == ReportJobStatus.RUNNING) {
 			return Instant.now().toEpochMilli() - submittedAt.toEpochMilli();
 		}
 		return null;
 	}
 	
-	// Present only when COMPLETE
 	public Integer getRowCount() {
 		return result != null ? result.getRowCount() : null;
 	}
 	
-	// Present only when COMPLETE
 	public List<Map<String, Object>> getData() {
 		return result != null ? result.getData() : null;
-	}
-	
-	public void setResult(ReportDataResponse result) {
-		this.result = result;
 	}
 	
 	public String getError() {
 		return error;
 	}
 	
-	public void setError(String error) {
-		this.error = error;
-	}
-	
 	public String getMessage() {
 		return message;
-	}
-	
-	public void setMessage(String message) {
-		this.message = message;
-	}
-	
-	@JsonIgnore
-	public Future<?> getFuture() {
-		return future;
-	}
-	
-	@JsonIgnore
-	public void setFuture(Future<?> future) {
-		this.future = future;
 	}
 	
 	public Integer getTotalSteps() {
 		return totalSteps;
 	}
 	
-	public void setTotalSteps(int totalSteps) {
-		this.totalSteps = totalSteps;
-	}
-	
 	public Integer getCompletedSteps() {
 		return completedSteps;
-	}
-	
-	public void setCompletedSteps(int completedSteps) {
-		this.completedSteps = completedSteps;
 	}
 	
 	public Integer getProgressPercent() {

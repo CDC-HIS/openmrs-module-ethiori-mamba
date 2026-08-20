@@ -17,6 +17,7 @@ import java.sql.CallableStatement;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,9 +27,16 @@ public class ReportJobService implements ApplicationContextAware {
 
 	private static final Log log = LogFactory.getLog(ReportJobService.class);
 
-	private final ConcurrentHashMap<String, ReportJob> jobs = new ConcurrentHashMap<>();
+	// Underlying stored-procedure runs, keyed by executionId.
+	private final ConcurrentHashMap<String, ReportJobExecution> executions = new ConcurrentHashMap<>();
+
+	// Every client-facing handle issued by submitJob(), keyed by handleId -> the executionId it
+	// is attached to. Several handles point at the same execution when requests get deduped.
+	private final ConcurrentHashMap<String, String> handles = new ConcurrentHashMap<>();
 
 	private final ConcurrentHashMap<String, CallableStatement> activeStatements = new ConcurrentHashMap<>();
+
+	private final ConcurrentHashMap<String, String> inFlightKeys = new ConcurrentHashMap<>();
 
 	@Autowired
 	private DynamicReportExecutorService reportExecutorService;
@@ -41,113 +49,180 @@ public class ReportJobService implements ApplicationContextAware {
 	}
 
 	public ReportJob submitJob(String procedureName, Map<String, String> params, int offset, int limit) {
-		String jobId = UUID.randomUUID().toString();
-		ReportJob job = new ReportJob(jobId, procedureName);
-		job.setMessage("Queued, waiting for executor thread");
-		jobs.put(jobId, job);
-		// Resolve OpenMRS global-property config here, in the web-request thread that has a valid
-		// OpenMRS session. The async executor thread has no OpenMRS session context, so calling
-		// Context.getAdministrationService() there can open a Hibernate session without a proper
-		// cleanup path, potentially exhausting the main connection pool under load.
+		String dedupeKey = buildDedupeKey(procedureName, params, offset, limit);
+		String handleId = UUID.randomUUID().toString();
+
+		String existingExecutionId = inFlightKeys.get(dedupeKey);
+		ReportJobExecution existingExecution = existingExecutionId != null ? executions.get(existingExecutionId) : null;
+		if (existingExecution != null && isActive(existingExecution.getStatus())) {
+			attachHandle(handleId, existingExecution);
+			log.info(
+			    "Reusing in-flight report execution " + existingExecutionId + " for duplicate request: " + dedupeKey);
+			return toDto(handleId, existingExecution);
+		}
+
+		String executionId = UUID.randomUUID().toString();
+		ReportJobExecution execution = new ReportJobExecution(executionId, procedureName, dedupeKey);
+		executions.put(executionId, execution);
+
+		String racedExecutionId = inFlightKeys.putIfAbsent(dedupeKey, executionId);
+		if (racedExecutionId != null) {
+			ReportJobExecution racedExecution = executions.get(racedExecutionId);
+			if (racedExecution != null && isActive(racedExecution.getStatus())) {
+				// Lost the race to start this execution — discard our stub and join the winner.
+				executions.remove(executionId);
+				attachHandle(handleId, racedExecution);
+				return toDto(handleId, racedExecution);
+			}
+			// Previous holder already finished — take over as the new in-flight owner.
+			inFlightKeys.put(dedupeKey, executionId);
+		}
+
+		attachHandle(handleId, execution);
+
 		int queryTimeout = reportExecutorService.getQueryTimeoutSeconds();
 		int maxRows = reportExecutorService.getMaxRows();
 		try {
 			CompletableFuture<?> future = applicationContext.getBean(ReportJobService.class)
-			        .executeJobAsync(job, params, offset, limit, queryTimeout, maxRows);
-			job.setFuture(future);
+			        .executeJobAsync(execution, params, offset, limit, queryTimeout, maxRows);
+			execution.setFuture(future);
 		}
 		catch (Exception e) {
-			log.error("Failed to queue report job " + jobId, e);
-			synchronized (job) {
-				job.setError("Failed to queue job: " + e.getMessage());
-				job.setCompletedAt(Instant.now());
-				job.setStatus(ReportJobStatus.ERROR);
-				job.setMessage("Failed to queue job");
+			log.error("Failed to queue report job " + executionId, e);
+			synchronized (execution.getLock()) {
+				execution.setError("Failed to queue job: " + e.getMessage());
+				execution.setCompletedAt(Instant.now());
+				execution.setStatus(ReportJobStatus.ERROR);
+				execution.setMessage("Failed to queue job");
 			}
+			inFlightKeys.remove(dedupeKey, executionId);
 		}
-		return job;
+		return toDto(handleId, execution);
+	}
+
+	private void attachHandle(String handleId, ReportJobExecution execution) {
+		handles.put(handleId, execution.getExecutionId());
+		execution.getSubscriberHandleIds().add(handleId);
+	}
+
+	private boolean isActive(ReportJobStatus status) {
+		return status == ReportJobStatus.PENDING || status == ReportJobStatus.RUNNING;
+	}
+
+	private ReportJob toDto(String handleId, ReportJobExecution execution) {
+		return new ReportJob(handleId, execution.getStatus(), execution.getProcedureName(), execution.getSubmittedAt(),
+		        execution.getCompletedAt(), execution.getResult(), execution.getError(), execution.getMessage(),
+		        execution.getTotalSteps(), execution.getCompletedSteps());
+	}
+
+	private String buildDedupeKey(String procedureName, Map<String, String> params, int offset, int limit) {
+		StringBuilder key = new StringBuilder(procedureName).append('|').append(offset).append('|').append(limit);
+		for (Map.Entry<String, String> entry : new TreeMap<>(params).entrySet()) {
+			key.append('|').append(entry.getKey()).append('=').append(entry.getValue());
+		}
+		return key.toString();
 	}
 
 	@Async("mambaReportExecutor")
-	public CompletableFuture<Void> executeJobAsync(ReportJob job, Map<String, String> params, int offset, int limit,
-	        int queryTimeout, int maxRows) {
-		synchronized (job) {
-			job.setStatus(ReportJobStatus.RUNNING);
-			job.setMessage("Executing stored procedure: " + job.getProcedureName());
+	public CompletableFuture<Void> executeJobAsync(ReportJobExecution execution, Map<String, String> params, int offset,
+	        int limit, int queryTimeout, int maxRows) {
+		synchronized (execution.getLock()) {
+			execution.setStatus(ReportJobStatus.RUNNING);
+			execution.setMessage("Executing stored procedure: " + execution.getProcedureName());
 		}
 		try {
 			DynamicReportExecutorService.ReportExecutionResult result = reportExecutorService.executeReport(
-			    job.getProcedureName(), params, offset, limit,
+			    execution.getProcedureName(), params, offset, limit,
 			    (completed, total) -> {
-				    synchronized (job) {
-					    job.setTotalSteps(total);
-					    job.setCompletedSteps(completed);
+				    synchronized (execution.getLock()) {
+					    execution.setTotalSteps(total);
+					    execution.setCompletedSteps(completed);
 				    }
 			    },
 			    stmt -> {
 				    if (stmt != null) {
-					    activeStatements.put(job.getJobId(), stmt);
+					    activeStatements.put(execution.getExecutionId(), stmt);
 				    } else {
-					    activeStatements.remove(job.getJobId());
+					    activeStatements.remove(execution.getExecutionId());
 				    }
 			    }, queryTimeout, maxRows);
-			synchronized (job) {
-				if (job.getStatus() != ReportJobStatus.ERROR) {
-					job.setResult(new ReportDataResponse(job.getProcedureName(), result.getData()));
-					job.setCompletedAt(Instant.now());
-					job.setStatus(ReportJobStatus.COMPLETE);
-					job.setMessage("Completed successfully");
+			synchronized (execution.getLock()) {
+				if (execution.getStatus() != ReportJobStatus.ERROR) {
+					execution.setResult(new ReportDataResponse(execution.getProcedureName(), result.getData()));
+					execution.setCompletedAt(Instant.now());
+					execution.setStatus(ReportJobStatus.COMPLETE);
+					execution.setMessage("Completed successfully");
 				}
 			}
 		}
 		catch (Exception e) {
-			log.error("Async report job failed for procedure " + job.getProcedureName(), e);
-			synchronized (job) {
-				if (job.getStatus() != ReportJobStatus.ERROR) {
-					job.setError("Stored procedure execution failed: " + e.getMessage());
-					job.setCompletedAt(Instant.now());
-					job.setStatus(ReportJobStatus.ERROR);
-					job.setMessage("Job failed");
+			log.error("Async report job failed for procedure " + execution.getProcedureName(), e);
+			synchronized (execution.getLock()) {
+				if (execution.getStatus() != ReportJobStatus.ERROR) {
+					execution.setError("Stored procedure execution failed: " + e.getMessage());
+					execution.setCompletedAt(Instant.now());
+					execution.setStatus(ReportJobStatus.ERROR);
+					execution.setMessage("Job failed");
 				}
 			}
 		}
 		finally {
-			activeStatements.remove(job.getJobId());
+			activeStatements.remove(execution.getExecutionId());
+			inFlightKeys.remove(execution.getDedupeKey(), execution.getExecutionId());
 		}
 		return CompletableFuture.completedFuture(null);
 	}
 
-	public ReportJob getJob(String jobId) {
-		return jobs.get(jobId);
+	public ReportJob getJob(String handleId) {
+		String executionId = handles.get(handleId);
+		if (executionId == null) {
+			return null;
+		}
+		ReportJobExecution execution = executions.get(executionId);
+		if (execution == null) {
+			return null;
+		}
+		return toDto(handleId, execution);
 	}
 
-	public boolean cancelJob(String jobId) {
-		ReportJob job = jobs.get(jobId);
-		if (job == null) {
+
+	public boolean cancelJob(String handleId) {
+		String executionId = handles.get(handleId);
+		if (executionId == null) {
 			return false;
 		}
-		synchronized (job) {
-			ReportJobStatus status = job.getStatus();
-			if (status == ReportJobStatus.COMPLETE || status == ReportJobStatus.ERROR) {
+		ReportJobExecution execution = executions.get(executionId);
+		if (execution == null) {
+			return false;
+		}
+		boolean shouldCancelExecution;
+		synchronized (execution.getLock()) {
+			if (!isActive(execution.getStatus())) {
 				return false;
 			}
-			if (job.getFuture() != null) {
-				job.getFuture().cancel(true);
+			handles.remove(handleId);
+			execution.getSubscriberHandleIds().remove(handleId);
+			shouldCancelExecution = execution.getSubscriberHandleIds().isEmpty();
+			if (shouldCancelExecution) {
+				if (execution.getFuture() != null) {
+					execution.getFuture().cancel(true);
+				}
+				execution.setError("Job cancelled by client");
+				execution.setCompletedAt(Instant.now());
+				execution.setStatus(ReportJobStatus.ERROR);
+				execution.setMessage("Cancelled by client");
+				inFlightKeys.remove(execution.getDedupeKey(), executionId);
 			}
-			job.setError("Job cancelled by client");
-			job.setCompletedAt(Instant.now());
-			job.setStatus(ReportJobStatus.ERROR);
-			job.setMessage("Cancelled by client");
 		}
-		// Send KILL QUERY to MySQL — must happen outside the synchronized block so it
-		// doesn't block the executor thread trying to clear the statement via the registrar.
-		CallableStatement stmt = activeStatements.remove(jobId);
-		if (stmt != null) {
-			try {
-				stmt.cancel();
-			}
-			catch (SQLException e) {
-				log.warn("Failed to cancel active DB statement for job " + jobId + ": " + e.getMessage());
+		if (shouldCancelExecution) {
+			CallableStatement stmt = activeStatements.remove(executionId);
+			if (stmt != null) {
+				try {
+					stmt.cancel();
+				}
+				catch (SQLException e) {
+					log.warn("Failed to cancel active DB statement for job " + executionId + ": " + e.getMessage());
+				}
 			}
 		}
 		return true;
@@ -157,12 +232,14 @@ public class ReportJobService implements ApplicationContextAware {
 	public void cleanupExpiredJobs() {
 		long ttlSeconds = getJobTtlSeconds();
 		Instant cutoff = Instant.now().minusSeconds(ttlSeconds);
-		jobs.entrySet().removeIf(entry -> {
-			ReportJob job = entry.getValue();
-			ReportJobStatus status = job.getStatus();
-			Instant completedAt = job.getCompletedAtInstant();
-			return (status == ReportJobStatus.COMPLETE || status == ReportJobStatus.ERROR)
-			        && completedAt != null && completedAt.isBefore(cutoff);
+		executions.entrySet().removeIf(entry -> {
+			ReportJobExecution execution = entry.getValue();
+			Instant completedAt = execution.getCompletedAt();
+			boolean expired = !isActive(execution.getStatus()) && completedAt != null && completedAt.isBefore(cutoff);
+			if (expired) {
+				handles.keySet().removeAll(execution.getSubscriberHandleIds());
+			}
+			return expired;
 		});
 	}
 
