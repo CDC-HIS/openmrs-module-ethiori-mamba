@@ -8,7 +8,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 
-
 public class ReportJobExecution {
 	
 	private final String executionId;
