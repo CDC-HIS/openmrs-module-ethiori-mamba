@@ -8,11 +8,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 
-/**
- * One underlying stored-procedure run, shared by every client-facing handle whose
- * procedure+params+paging are identical (see ReportJobService#buildDedupeKey). Several handles may
- * subscribe to the same execution; it is only actually cancelled once its last subscriber cancels.
- */
+
 public class ReportJobExecution {
 	
 	private final String executionId;
@@ -39,7 +35,7 @@ public class ReportJobExecution {
 	
 	private volatile String error;
 	
-	private volatile String message;
+	private volatile String message = "Queued, waiting for executor thread";
 	
 	private volatile Future<?> future;
 	

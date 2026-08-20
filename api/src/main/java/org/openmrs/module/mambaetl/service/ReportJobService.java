@@ -27,11 +27,8 @@ public class ReportJobService implements ApplicationContextAware {
 
 	private static final Log log = LogFactory.getLog(ReportJobService.class);
 
-	// Underlying stored-procedure runs, keyed by executionId.
 	private final ConcurrentHashMap<String, ReportJobExecution> executions = new ConcurrentHashMap<>();
 
-	// Every client-facing handle issued by submitJob(), keyed by handleId -> the executionId it
-	// is attached to. Several handles point at the same execution when requests get deduped.
 	private final ConcurrentHashMap<String, String> handles = new ConcurrentHashMap<>();
 
 	private final ConcurrentHashMap<String, CallableStatement> activeStatements = new ConcurrentHashMap<>();
@@ -148,10 +145,11 @@ public class ReportJobService implements ApplicationContextAware {
 			    }, queryTimeout, maxRows);
 			synchronized (execution.getLock()) {
 				if (execution.getStatus() != ReportJobStatus.ERROR) {
+					int rowCount = result.getData() != null ? result.getData().size() : 0;
 					execution.setResult(new ReportDataResponse(execution.getProcedureName(), result.getData()));
 					execution.setCompletedAt(Instant.now());
 					execution.setStatus(ReportJobStatus.COMPLETE);
-					execution.setMessage("Completed successfully");
+					execution.setMessage("Completed successfully — " + rowCount + " row" + (rowCount == 1 ? "" : "s"));
 				}
 			}
 		}
