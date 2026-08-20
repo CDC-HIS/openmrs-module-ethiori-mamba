@@ -6,6 +6,17 @@ CREATE PROCEDURE sp_fact_line_list_otz_query(IN REPORT_START_DATE DATE, IN REPOR
 BEGIN
 
 
+    DECLARE OTZ_MIN_AGE INT DEFAULT 10;
+    DECLARE OTZ_MAX_AGE INT DEFAULT 24;
+
+
+    IF REPORT_START_DATE IS NOT NULL AND REPORT_END_DATE IS NULL THEN
+        SET REPORT_END_DATE = CURDATE();
+    END IF;
+    IF REPORT_END_DATE IS NOT NULL AND REPORT_START_DATE IS NULL THEN
+        SET REPORT_START_DATE = '1900-01-01';
+    END IF;
+
     WITH FollowUp as (select follow_up.client_id,
                              follow_up.encounter_id,
                              date_viral_load_results_received    AS viral_load_perform_date,
@@ -70,105 +81,82 @@ BEGIN
                                LEFT JOIN mamba_flat_encounter_follow_up_10 follow_up_10
                                          ON follow_up.encounter_id = follow_up_10.encounter_id
                       ),
-         tmp_latest_follow_up as (SELECT encounter_id,
-                                         client_id,
-                                         follow_up_date,
-                                         weight,
-                                         date_hiv_confirmed,
-                                         art_start_date,
-                                         visit_type,
-                                         nutritional_status_of_adult,
-                                         nutritional_screening_result,
-                                         adherence,
-                                         next_visit_date,
-                                         arv_dispensed_dose,
-                                         regimen,
-                                         follow_up_status,
-                                         ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) AS row_num
-                                  FROM FollowUp
-                                  WHERE follow_up_status IS NOT NULL
-                                    AND art_start_date IS NOT NULL
-                                    AND follow_up_date <= COALESCE(REPORT_END_DATE, CURDATE())),
+
+         followup_ranked as (SELECT encounter_id,
+                                    client_id,
+                                    follow_up_date,
+                                    weight,
+                                    date_hiv_confirmed,
+                                    art_start_date,
+                                    visit_type,
+                                    nutritional_status_of_adult,
+                                    nutritional_screening_result,
+                                    adherence,
+                                    next_visit_date,
+                                    arv_dispensed_dose,
+                                    regimen,
+                                    follow_up_status,
+                                    viral_load_perform_date,
+                                    viral_load_sent_date,
+                                    viral_load_count,
+                                    viral_load_test_status,
+                                    otz_date,
+                                    otz_enrolled,
+                                    ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC)  AS rn_latest,
+                                    ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY viral_load_perform_date DESC, encounter_id DESC) AS rn_latest_vl,
+                                    ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY otz_date DESC, encounter_id DESC)       AS rn_otz,
+                                    ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date, encounter_id)           AS rn_oldest
+                             FROM FollowUp
+                             WHERE follow_up_status IS NOT NULL
+                               AND art_start_date IS NOT NULL
+                               AND follow_up_date <= COALESCE(REPORT_END_DATE, CURDATE())),
          latest_follow_up as (select *
-                              from tmp_latest_follow_up
-                              where row_num = 1 -- temp3
+                              from followup_ranked
+                              where rn_latest = 1
          ),
-         tmp_latest_vl_performed_date as (SELECT encounter_id,
-                                                 client_id,
-                                                 follow_up_date,
-                                                 viral_load_perform_date,
-                                                 viral_load_sent_date,
-                                                 viral_load_count,
-                                                 viral_load_test_status,
-                                                 ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY viral_load_perform_date DESC, encounter_id DESC) AS row_num
-                                          FROM FollowUp
-                                          WHERE follow_up_status IS NOT NULL
-                                            AND art_start_date IS NOT NULL
-                                            AND follow_up_date <= COALESCE(REPORT_END_DATE, CURDATE())),
          latest_vl_performed_date as (select *
-                                      from tmp_latest_vl_performed_date
-                                      where row_num = 1 -- temp6
+                                      from followup_ranked
+                                      where rn_latest_vl = 1
          ),
-         tmp_otz_date as (SELECT encounter_id,
-                                 client_id,
-                                 follow_up_date,
-                                 viral_load_perform_date,
-                                 viral_load_sent_date,
-                                 otz_date,
-                                 otz_enrolled,
-                                 ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY otz_date DESC, encounter_id DESC) AS row_num
-                          FROM FollowUp
-                          WHERE follow_up_status IS NOT NULL
-                            AND art_start_date IS NOT NULL
-                            AND follow_up_date <= COALESCE(REPORT_END_DATE, CURDATE())),
-         otz_date as (select *
-                      from tmp_otz_date
-                      where row_num = 1 -- temp9
+         otz_date as (select *,
+                             (otz_date IS NOT NULL OR otz_enrolled IS NOT NULL) AS has_otz_record
+                      from followup_ranked
+                      where rn_otz = 1
+         ),
+         otz_window as (select client_id,
+                               otz_date,
+                               fn_ethiopian_to_gregorian_calendar(fn_add_ethiopian_months(fn_gregorian_to_ethiopian_calendar(otz_date, 'Y-M-D'), -3, 1)) as vl_window_start,
+                               fn_ethiopian_to_gregorian_calendar(fn_add_ethiopian_months(fn_gregorian_to_ethiopian_calendar(otz_date, 'Y-M-D'), 1, 1))  as vl_window_end
+                        from otz_date
          ),
 -- Get baseline VL Performed date between 3 months earlier and 1 month later of enrollment date
-         tmp_otz_vl_performed_date as (SELECT FollowUp.encounter_id,
-                                              FollowUp.client_id,
-                                              FollowUp.follow_up_date,
-                                              FollowUp.viral_load_perform_date,
-                                              FollowUp.viral_load_sent_date,
-                                              FollowUp.otz_date,
-                                              FollowUp.viral_load_count,
-                                              FollowUp.viral_load_test_status,
-                                              ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY FollowUp.viral_load_perform_date DESC, FollowUp.encounter_id DESC) AS row_num
-                                       FROM FollowUp
-                                                left join otz_date as otz on FollowUp.client_id = otz.client_id
-                                       WHERE follow_up_status IS NOT NULL
-                                         AND FollowUp.art_start_date IS NOT NULL
-                                         AND FollowUp.follow_up_date <= COALESCE(REPORT_END_DATE, CURDATE())
-                                         AND FollowUp.viral_load_perform_date BETWEEN fn_ethiopian_to_gregorian_calendar(fn_add_ethiopian_months(fn_gregorian_to_ethiopian_calendar(otz.otz_date, 'Y-M-D'),  -3,1))
-                                             AND fn_ethiopian_to_gregorian_calendar(fn_add_ethiopian_months(fn_gregorian_to_ethiopian_calendar(otz.otz_date, 'Y-M-D'), 1 ,1))),
+         tmp_otz_vl_performed_date as (SELECT /*+ NO_MERGE(otz_window) */ followup_ranked.encounter_id,
+                                              followup_ranked.client_id,
+                                              followup_ranked.follow_up_date,
+                                              followup_ranked.viral_load_perform_date,
+                                              followup_ranked.viral_load_sent_date,
+                                              followup_ranked.otz_date,
+                                              followup_ranked.viral_load_count,
+                                              followup_ranked.viral_load_test_status,
+                                              ROW_NUMBER() OVER (PARTITION BY followup_ranked.client_id ORDER BY followup_ranked.viral_load_perform_date DESC, followup_ranked.encounter_id DESC) AS row_num
+                                       FROM followup_ranked
+                                                left join otz_window as otz on followup_ranked.client_id = otz.client_id
+                                       WHERE followup_ranked.viral_load_perform_date BETWEEN otz.vl_window_start
+                                             AND otz.vl_window_end),
          otz_vl_performed_date as (select *
                                    from tmp_otz_vl_performed_date
-                                   where row_num = 1 -- temp9
+                                   where row_num = 1
          ),
-
-         tmp_oldest_follow_up as (SELECT encounter_id,
-                                         client_id,
-                                         follow_up_date,
-                                         regimen,
-                                         ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date , encounter_id) AS row_num
-                                  FROM FollowUp
-                                  WHERE follow_up_status IS NOT NULL
-                                    AND art_start_date IS NOT NULL
-                                    AND follow_up_date <= COALESCE(REPORT_END_DATE, CURDATE())),
          oldest_follow_up as (select *
-                              from tmp_oldest_follow_up
-                              where row_num = 1 -- temp13
+                              from followup_ranked
+                              where rn_oldest = 1
          ),
-         tmp_curr_regimen_start as (select FollowUp.follow_up_date                                                                                     as FirstRegimenDate,
-                                           FollowUp.client_id,
-                                           ROW_NUMBER() OVER (PARTITION BY FollowUp.client_id ORDER BY FollowUp.follow_up_date, FollowUp.encounter_id) AS row_num
-                                    from FollowUp
-                                             left join latest_follow_up on FollowUp.client_id = latest_follow_up.client_id
-                                    WHERE FollowUp.follow_up_status IS NOT NULL
-                                      AND FollowUp.art_start_date IS NOT NULL
-                                      AND FollowUp.follow_up_date <= COALESCE(REPORT_END_DATE, CURDATE())
-                                      and FollowUp.regimen = latest_follow_up.regimen),
+         tmp_curr_regimen_start as (select followup_ranked.follow_up_date                                                                                     as FirstRegimenDate,
+                                           followup_ranked.client_id,
+                                           ROW_NUMBER() OVER (PARTITION BY followup_ranked.client_id ORDER BY followup_ranked.follow_up_date, followup_ranked.encounter_id) AS row_num
+                                    from followup_ranked
+                                             left join latest_follow_up on followup_ranked.client_id = latest_follow_up.client_id
+                                    WHERE followup_ranked.regimen = latest_follow_up.regimen),
          curr_regimen_start as (select * from tmp_curr_regimen_start where row_num = 1)
 
 
@@ -176,8 +164,8 @@ BEGIN
            patient_uuid                                                                        as `UUID`,
            otz.otz_date                                                                        AS EnrollementDate,
            otz.otz_date                                                                        AS `EnrollementDate EC.`,
-           otz_enrolled                                                                        AS EnrollementStatus,
-           TIMESTAMPDIFF(YEAR, dim_client.date_of_birth, COALESCE(REPORT_END_DATE, CURDATE())) as Age,
+           otz.otz_enrolled                                                                    AS EnrollementStatus,
+           dim_client.age                                                                      as Age,
            dim_client.sex                                                                      as Sex,
            latest_follow_up.weight                                                             AS Weight,
            dim_client.phone_no                                                                 AS PNumber,
@@ -221,7 +209,17 @@ BEGIN
            curr_regimen_start.FirstRegimenDate                                                 AS currentRegimenStart,
            curr_regimen_start.FirstRegimenDate                                                 AS `currentRegimenStart EC.`
     FROM latest_follow_up
-             LEFT JOIN mamba_dim_client dim_client
+             LEFT JOIN (SELECT client_id,
+                               patient_name,
+                               patient_uuid,
+                               date_of_birth,
+                               sex,
+                               phone_no,
+                               mobile_no,
+                               mrn,
+                               uan,
+                               TIMESTAMPDIFF(YEAR, date_of_birth, COALESCE(REPORT_END_DATE, CURDATE())) AS age
+                        FROM mamba_dim_client) dim_client
                        ON dim_client.client_id = latest_follow_up.client_id
              LEFT JOIN otz_vl_performed_date
                        ON otz_vl_performed_date.client_id = latest_follow_up.client_id
@@ -235,16 +233,12 @@ BEGIN
                        ON otz.client_id = latest_follow_up.client_id
     WHERE (
         (latest_follow_up.follow_up_status not in ('Dead', 'Transferred Out'))
-            OR
-        (otz.otz_date is not null OR otz.otz_enrolled is not null)
+            OR otz.has_otz_record
         )
       AND dim_client.patient_name IS NOT NULL
-
       AND (
-        (TIMESTAMPDIFF(YEAR, dim_client.date_of_birth, COALESCE(REPORT_END_DATE, CURDATE())) >= 10 AND
-         TIMESTAMPDIFF(YEAR, dim_client.date_of_birth, COALESCE(REPORT_END_DATE, CURDATE())) <= 24)
-            OR
-        (otz.otz_date is not null OR otz.otz_enrolled is not null)
+        (dim_client.age BETWEEN OTZ_MIN_AGE AND OTZ_MAX_AGE)
+            OR otz.has_otz_record
         )
       AND (
         (REPORT_START_DATE is not null and REPORT_END_DATE is not null and
