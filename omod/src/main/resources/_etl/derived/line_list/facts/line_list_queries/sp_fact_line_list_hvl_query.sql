@@ -260,6 +260,16 @@ BEGIN
                                     AND follow_up_date <= COALESCE(REPORT_END_DATE,CURDATE())
                               --      AND (cf.viral_load_perform_date IS NULL OR   follow_up_date >= cf.viral_load_perform_date)
                                   ),
+         tmp_latest_alive_restart AS (SELECT client_id,
+                                             regimen,
+                                             ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY follow_up_date DESC, encounter_id DESC) as row_num
+                                      FROM FollowUp
+                                      WHERE follow_up_status IN ('Alive', 'Restart medication')
+                                        AND follow_up_date <= COALESCE(REPORT_END_DATE,CURDATE())),
+         latest_alive_restart_regimen AS (SELECT client_id,
+                                                 regimen
+                                          FROM tmp_latest_alive_restart
+                                          WHERE row_num = 1),
          latest_follow_up as (select * from tmp_latest_follow_up where row_num = 1),
          hvl as (SELECT client.patient_uuid                                                                    as PatientGUID,
                         client.patient_name,
@@ -279,7 +289,7 @@ BEGIN
                         f_case.follow_up_date                                                                  as FollowUpDate,
                         f_case.pregnancy_status                                                                as IsPregnant,
                         f_case.dispensed_dose                                                                  as ARVDispendsedDose,
-                        f_case.regimen                                                                         as art_dose,
+                        COALESCE(latest_regimen.regimen, f_case.regimen)                                      as art_dose,
                         f_case.next_visit_date,
                         f_case.follow_up_status,
                         f_case.art_dose_end_date                                                               as art_dose_End,
@@ -289,9 +299,12 @@ BEGIN
                         vlsentdate.VL_Sent_Date,
                         vlperfdate.viral_load_ref_date,
                         sub_switch_date.switch_date                                                            as SwitchDate,
-                        date_eac1_cf.Date_EAC_Provided                                                            as date_eac_provided_1,
-                        date_eac2_cf.Date_EAC_Provided                                                            as date_eac_provided_2,
-                        date_eac3_cf.Date_EAC_Provided                                                            as date_eac_provided_3,
+                        date_eac1.Date_EAC_Provided                                                            as date_eac_provided_1,
+                        date_eac2.Date_EAC_Provided                                                            as date_eac_provided_2,
+                        date_eac3.Date_EAC_Provided                                                            as date_eac_provided_3,
+                        date_eac1_cf.Date_EAC_Provided                                                         as date_eac_provided_1_cf,
+                        date_eac2_cf.Date_EAC_Provided                                                         as date_eac_provided_2_cf,
+                        date_eac3_cf.Date_EAC_Provided                                                         as date_eac_provided_3_cf,
                         vlsentdate_cf.VL_Sent_Date                                                             as viral_load_sent_date_cf,
                         vlperfdate_cf.viral_load_performed_date                                                as viral_load_perform_date_cf,
                         vlperfdate_cf.viral_load_test_status                                                   as viral_load_status_cf,
@@ -305,6 +318,8 @@ BEGIN
                         f_case.adherence
                  FROM FollowUp AS f_case
                           INNER JOIN latest_follow_up ON f_case.encounter_id = latest_follow_up.encounter_id
+                          LEFT JOIN latest_alive_restart_regimen latest_regimen
+                                    ON f_case.client_id = latest_regimen.client_id
                           LEFT JOIN mamba_dim_client client on latest_follow_up.client_id = client.client_id
                           LEFT JOIN vl_performed_date as vlperfdate ON vlperfdate.client_id = f_case.client_id
                           LEFT JOIN tmp_vl_performed_date_cf_3 as vlperfdate_cf
@@ -395,12 +410,12 @@ BEGIN
                END                    as `Confirmatory VL Status`,
            viral_load_count_cf        as `Confirmatory VL Count`,
            COALESCE(routine_viral_load_cf,targeted_viral_load_cf)       as `Confirmatory VL Indication`,
-           date_eac_provided_1        as `Confirmatory EAC1  Date`,
-           date_eac_provided_1        as `Confirmatory EAC1  Date EC.`,
-           date_eac_provided_2        as `Confirmatory EAC2  Date`,
-           date_eac_provided_2        as `Confirmatory EAC2  Date EC.`,
-           date_eac_provided_3        as `Confirmatory EAC3  Date`,
-           date_eac_provided_3        as `Confirmatory EAC3  Date EC.`
+           date_eac_provided_1_cf     as `Confirmatory EAC1  Date`,
+           date_eac_provided_1_cf     as `Confirmatory EAC1  Date EC.`,
+           date_eac_provided_2_cf     as `Confirmatory EAC2  Date`,
+           date_eac_provided_2_cf     as `Confirmatory EAC2  Date EC.`,
+           date_eac_provided_3_cf     as `Confirmatory EAC3  Date`,
+           date_eac_provided_3_cf     as `Confirmatory EAC3  Date EC.`
     FROM hvl
     where ((viral_load_count BETWEEN 51 AND 1000 OR viral_load_count > 1000)
         OR
