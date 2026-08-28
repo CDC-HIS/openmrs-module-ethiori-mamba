@@ -78,9 +78,13 @@ BEGIN
                                          END AS interval_end_date,
                                      CASE
                                          WHEN i.interval_month = 0 THEN REPORT_START_DATE
-                                         ELSE COALESCE(LAG(fn_ethiopian_to_gregorian_calendar(fn_add_ethiopian_months(
-                                                 fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'),
-                                                 i.interval_month,1)))
+                                         ELSE COALESCE(LAG(
+                                                 CASE
+                                                     WHEN i.interval_month = 0 THEN a.art_start_date
+                                                     ELSE fn_ethiopian_to_gregorian_calendar(fn_add_ethiopian_months(
+                                                             fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'),
+                                                             i.interval_month,1))
+                                                     END)
                                                            OVER (PARTITION BY a.PatientId ORDER BY i.interval_month),
                                                        REPORT_START_DATE)
                                          END AS interval_start_date

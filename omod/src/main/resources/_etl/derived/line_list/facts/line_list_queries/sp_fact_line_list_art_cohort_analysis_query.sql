@@ -56,13 +56,13 @@ BEGIN
 
          IntervalsDef AS (SELECT 0 AS interval_month
                           UNION ALL
-                          SELECT 6
+                          SELECT 7
                           UNION ALL
-                          SELECT 12
+                          SELECT 13
                           UNION ALL
-                          SELECT 24
+                          SELECT 25
                           UNION ALL
-                          SELECT 36),
+                          SELECT 37),
 
          PatientIntervals AS (SELECT a.PatientId,
                                      a.art_start_date,
@@ -75,9 +75,13 @@ BEGIN
                                          END AS interval_end_date,
                                      CASE
                                          WHEN i.interval_month = 0 THEN REPORT_START_DATE
-                                         ELSE COALESCE(LAG(fn_ethiopian_to_gregorian_calendar(fn_add_ethiopian_months(
-                                                 fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'),
-                                                 i.interval_month ,1)))
+                                         ELSE COALESCE(LAG(
+                                                 CASE
+                                                     WHEN i.interval_month = 0 THEN a.art_start_date
+                                                     ELSE fn_ethiopian_to_gregorian_calendar(fn_add_ethiopian_months(
+                                                             fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'),
+                                                             i.interval_month ,1))
+                                                     END)
                                                            OVER (PARTITION BY a.PatientId ORDER BY i.interval_month),
                                                        REPORT_START_DATE)
                                          END AS interval_start_date
@@ -183,8 +187,8 @@ BEGIN
                                            CASE
                                                WHEN strict_regimen LIKE '4%' THEN 'On Original 1st Line'
                                                WHEN strict_regimen LIKE '1%' THEN 'On Alternate 1st Line'
-                                               WHEN (interval_month < 36 AND strict_regimen LIKE '5%') OR
-                                                    (interval_month = 36 AND strict_regimen LIKE '6%')
+                                               WHEN (interval_month < 37 AND strict_regimen LIKE '5%') OR
+                                                    (interval_month = 37 AND strict_regimen LIKE '6%')
                                                    THEN 'On 2nd Line'
                                                ELSE 'Other'
                                                END
@@ -221,64 +225,64 @@ BEGIN
            MAX(CASE WHEN co.interval_month = 0 THEN co.viral_load_count ELSE NULL END)      AS 'Latest Viral Load Count at Zero Months',
 
            -- === 6 MONTHS ===
-           MAX(CASE WHEN co.interval_month = 6 THEN co.age_at_interval ELSE NULL END)       AS 'Age at 6 Months',
-           MAX(CASE WHEN co.interval_month = 6 THEN co.regimen_line_desc ELSE NULL END)     AS 'Regimen Line at 6 Months',
-           MAX(CASE WHEN co.interval_month = 6 THEN co.final_cohort_outcome ELSE NULL END)  AS 'Outcome at 6 Months',
+           MAX(CASE WHEN co.interval_month = 7 THEN co.age_at_interval ELSE NULL END)       AS 'Age at 6 Months',
+           MAX(CASE WHEN co.interval_month = 7 THEN co.regimen_line_desc ELSE NULL END)     AS 'Regimen Line at 6 Months',
+           MAX(CASE WHEN co.interval_month = 7 THEN co.final_cohort_outcome ELSE NULL END)  AS 'Outcome at 6 Months',
            MAX(CASE
-                   WHEN co.interval_month = 6 THEN co.latest_follow_up_date
+                   WHEN co.interval_month = 7 THEN co.latest_follow_up_date
                    ELSE NULL END)                                                           AS 'Latest Follow-Up Date at 6 Months',
            MAX(CASE
-                   WHEN co.interval_month = 6 THEN co.latest_follow_up_date
+                   WHEN co.interval_month = 7 THEN co.latest_follow_up_date
                    ELSE NULL END)                                                           AS 'Latest Follow-Up Date at 6 Months EC.',
-           MAX(CASE WHEN co.interval_month = 6 THEN co.strict_regimen ELSE NULL END)        AS 'Latest Regimen at 6 Months',
-           MAX(CASE WHEN co.interval_month = 6 THEN co.ARTDoseDays ELSE NULL END)           AS 'Latest Regimen Dose Days at 6 Months',
-           MAX(CASE WHEN co.interval_month = 6 THEN co.AdherenceLevel ELSE NULL END)        AS 'Latest Adherence at 6 Months',
-           MAX(CASE WHEN co.interval_month = 6 THEN co.viral_load_count ELSE NULL END)      AS 'Latest Viral Load Count at 6 Months',
+           MAX(CASE WHEN co.interval_month = 7 THEN co.strict_regimen ELSE NULL END)        AS 'Latest Regimen at 6 Months',
+           MAX(CASE WHEN co.interval_month = 7 THEN co.ARTDoseDays ELSE NULL END)           AS 'Latest Regimen Dose Days at 6 Months',
+           MAX(CASE WHEN co.interval_month = 7 THEN co.AdherenceLevel ELSE NULL END)        AS 'Latest Adherence at 6 Months',
+           MAX(CASE WHEN co.interval_month = 7 THEN co.viral_load_count ELSE NULL END)      AS 'Latest Viral Load Count at 6 Months',
 
            -- === 12 MONTHS ===
-           MAX(CASE WHEN co.interval_month = 12 THEN co.age_at_interval ELSE NULL END)      AS 'Age at 12 Months',
-           MAX(CASE WHEN co.interval_month = 12 THEN co.regimen_line_desc ELSE NULL END)    AS 'Regimen Line at 12 Months',
-           MAX(CASE WHEN co.interval_month = 12 THEN co.final_cohort_outcome ELSE NULL END) AS 'Outcome at 12 Months',
+           MAX(CASE WHEN co.interval_month = 13 THEN co.age_at_interval ELSE NULL END)      AS 'Age at 12 Months',
+           MAX(CASE WHEN co.interval_month = 13 THEN co.regimen_line_desc ELSE NULL END)    AS 'Regimen Line at 12 Months',
+           MAX(CASE WHEN co.interval_month = 13 THEN co.final_cohort_outcome ELSE NULL END) AS 'Outcome at 12 Months',
            MAX(CASE
-                   WHEN co.interval_month = 12 THEN co.latest_follow_up_date
+                   WHEN co.interval_month = 13 THEN co.latest_follow_up_date
                    ELSE NULL END)                                                           AS 'Latest Follow-Up Date at 12 Months',
            MAX(CASE
-                   WHEN co.interval_month = 12 THEN co.latest_follow_up_date
+                   WHEN co.interval_month = 13 THEN co.latest_follow_up_date
                    ELSE NULL END)                                                           AS 'Latest Follow-Up Date at 12 Months EC.',
-           MAX(CASE WHEN co.interval_month = 12 THEN co.strict_regimen ELSE NULL END)       AS 'Latest Regimen at 12 Months',
-           MAX(CASE WHEN co.interval_month = 12 THEN co.ARTDoseDays ELSE NULL END)          AS 'Latest Regimen Dose Days at 12 Months',
-           MAX(CASE WHEN co.interval_month = 12 THEN co.AdherenceLevel ELSE NULL END)       AS 'Latest Adherence at 12 Months',
-           MAX(CASE WHEN co.interval_month = 12 THEN co.viral_load_count ELSE NULL END)     AS 'Latest Viral Load Count at 12 Months',
+           MAX(CASE WHEN co.interval_month = 13 THEN co.strict_regimen ELSE NULL END)       AS 'Latest Regimen at 12 Months',
+           MAX(CASE WHEN co.interval_month = 13 THEN co.ARTDoseDays ELSE NULL END)          AS 'Latest Regimen Dose Days at 12 Months',
+           MAX(CASE WHEN co.interval_month = 13 THEN co.AdherenceLevel ELSE NULL END)       AS 'Latest Adherence at 12 Months',
+           MAX(CASE WHEN co.interval_month = 13 THEN co.viral_load_count ELSE NULL END)     AS 'Latest Viral Load Count at 12 Months',
 
            -- === 24 MONTHS ===
-           MAX(CASE WHEN co.interval_month = 24 THEN co.age_at_interval ELSE NULL END)      AS 'Age at 24 Months',
-           MAX(CASE WHEN co.interval_month = 24 THEN co.regimen_line_desc ELSE NULL END)    AS 'Regimen Line at 24 Months',
-           MAX(CASE WHEN co.interval_month = 24 THEN co.final_cohort_outcome ELSE NULL END) AS 'Outcome at 24 Months',
+           MAX(CASE WHEN co.interval_month = 25 THEN co.age_at_interval ELSE NULL END)      AS 'Age at 24 Months',
+           MAX(CASE WHEN co.interval_month = 25 THEN co.regimen_line_desc ELSE NULL END)    AS 'Regimen Line at 24 Months',
+           MAX(CASE WHEN co.interval_month = 25 THEN co.final_cohort_outcome ELSE NULL END) AS 'Outcome at 24 Months',
            MAX(CASE
-                   WHEN co.interval_month = 24 THEN co.latest_follow_up_date
+                   WHEN co.interval_month = 25 THEN co.latest_follow_up_date
                    ELSE NULL END)                                                           AS 'Latest Follow-Up Date at 24 Months',
            MAX(CASE
-                   WHEN co.interval_month = 24 THEN co.latest_follow_up_date
+                   WHEN co.interval_month = 25 THEN co.latest_follow_up_date
                    ELSE NULL END)                                                           AS 'Latest Follow-Up Date at 24 Months EC.',
-           MAX(CASE WHEN co.interval_month = 24 THEN co.strict_regimen ELSE NULL END)       AS 'Latest Regimen at 24 Months',
-           MAX(CASE WHEN co.interval_month = 24 THEN co.ARTDoseDays ELSE NULL END)          AS 'Latest Regimen Dose Days at 24 Months',
-           MAX(CASE WHEN co.interval_month = 24 THEN co.AdherenceLevel ELSE NULL END)       AS 'Latest Adherence at 24 Months',
-           MAX(CASE WHEN co.interval_month = 24 THEN co.viral_load_count ELSE NULL END)     AS 'Latest Viral Load Count at 24 Months',
+           MAX(CASE WHEN co.interval_month = 25 THEN co.strict_regimen ELSE NULL END)       AS 'Latest Regimen at 24 Months',
+           MAX(CASE WHEN co.interval_month = 25 THEN co.ARTDoseDays ELSE NULL END)          AS 'Latest Regimen Dose Days at 24 Months',
+           MAX(CASE WHEN co.interval_month = 25 THEN co.AdherenceLevel ELSE NULL END)       AS 'Latest Adherence at 24 Months',
+           MAX(CASE WHEN co.interval_month = 25 THEN co.viral_load_count ELSE NULL END)     AS 'Latest Viral Load Count at 24 Months',
 
            -- === 36 MONTHS ===
-           MAX(CASE WHEN co.interval_month = 36 THEN co.age_at_interval ELSE NULL END)      AS 'Age at 36 Months',
-           MAX(CASE WHEN co.interval_month = 36 THEN co.regimen_line_desc ELSE NULL END)    AS 'Regimen Line at 36 Months',
-           MAX(CASE WHEN co.interval_month = 36 THEN co.final_cohort_outcome ELSE NULL END) AS 'Outcome at 36 Months',
+           MAX(CASE WHEN co.interval_month = 37 THEN co.age_at_interval ELSE NULL END)      AS 'Age at 36 Months',
+           MAX(CASE WHEN co.interval_month = 37 THEN co.regimen_line_desc ELSE NULL END)    AS 'Regimen Line at 36 Months',
+           MAX(CASE WHEN co.interval_month = 37 THEN co.final_cohort_outcome ELSE NULL END) AS 'Outcome at 36 Months',
            MAX(CASE
-                   WHEN co.interval_month = 36 THEN co.latest_follow_up_date
+                   WHEN co.interval_month = 37 THEN co.latest_follow_up_date
                    ELSE NULL END)                                                           AS 'Latest Follow-Up Date at 36 Months',
            MAX(CASE
-                   WHEN co.interval_month = 36 THEN co.latest_follow_up_date
+                   WHEN co.interval_month = 37 THEN co.latest_follow_up_date
                    ELSE NULL END)                                                           AS 'Latest Follow-Up Date at 36 Months EC.',
-           MAX(CASE WHEN co.interval_month = 36 THEN co.strict_regimen ELSE NULL END)       AS 'Latest Regimen at 36 Months',
-           MAX(CASE WHEN co.interval_month = 36 THEN co.ARTDoseDays ELSE NULL END)          AS 'Latest Regimen Dose Days at 36 Months',
-           MAX(CASE WHEN co.interval_month = 36 THEN co.AdherenceLevel ELSE NULL END)       AS 'Latest Adherence at 36 Months',
-           MAX(CASE WHEN co.interval_month = 36 THEN co.viral_load_count ELSE NULL END)     AS 'Latest Viral Load Count at 36 Months'
+           MAX(CASE WHEN co.interval_month = 37 THEN co.strict_regimen ELSE NULL END)       AS 'Latest Regimen at 36 Months',
+           MAX(CASE WHEN co.interval_month = 37 THEN co.ARTDoseDays ELSE NULL END)          AS 'Latest Regimen Dose Days at 36 Months',
+           MAX(CASE WHEN co.interval_month = 37 THEN co.AdherenceLevel ELSE NULL END)       AS 'Latest Adherence at 36 Months',
+           MAX(CASE WHEN co.interval_month = 37 THEN co.viral_load_count ELSE NULL END)     AS 'Latest Viral Load Count at 36 Months'
 
     FROM ART_Initiation ai
              JOIN mamba_dim_client dc ON ai.PatientId = dc.client_id

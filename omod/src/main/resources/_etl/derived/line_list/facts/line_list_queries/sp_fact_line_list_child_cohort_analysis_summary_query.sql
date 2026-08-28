@@ -61,9 +61,13 @@ BEGIN
                                      END AS interval_end_date,
                                  CASE
                                      WHEN i.interval_month = 0 THEN REPORT_START_DATE
-                                     ELSE COALESCE(LAG(fn_ethiopian_to_gregorian_calendar(fn_add_ethiopian_months(
-                                             fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'),
-                                             i.interval_month,1)))
+                                     ELSE COALESCE(LAG(
+                                             CASE
+                                                 WHEN i.interval_month = 0 THEN h.hei_enrollment_date
+                                                 ELSE fn_ethiopian_to_gregorian_calendar(fn_add_ethiopian_months(
+                                                         fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'),
+                                                         i.interval_month,1))
+                                                 END)
                                                        OVER (PARTITION BY h.hei_client_id ORDER BY i.interval_month),
                                                    REPORT_START_DATE)
                                      END AS interval_start_date
@@ -72,7 +76,7 @@ BEGIN
 
          CohortHeaderDates AS (SELECT interval_month,
                                       CASE
-                                          WHEN interval_month = 0 THEN REPORT_START_DATE
+                                          WHEN interval_month = 0 THEN REPORT_END_DATE
                                           ELSE fn_ethiopian_to_gregorian_calendar(fn_add_ethiopian_months(
                                                   fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'),
                                                   interval_month ,1))
@@ -220,13 +224,13 @@ BEGIN
     UNION ALL
     SELECT 'E. HEI with DNA PCR collected by 2 months of age Percentage' AS Category,
            CONCAT(CAST(IFNULL(MAX(CASE WHEN interval_month = 13 THEN count_pcr_lt_2 END), 0) AS SIGNED),
-                  ' (', ROUND(IFNULL(MAX(CASE WHEN interval_month = 13 THEN (count_pcr_lt_2 /(count_base + count_ti)) * 100 END), 0), 1), '%)') AS '12_Months',
+                  ' (', ROUND(IFNULL(MAX(CASE WHEN interval_month = 13 THEN (count_pcr_lt_2 /NULLIF((count_base + count_ti), 0)) * 100 END), 0), 1), '%)') AS '12_Months',
             CONCAT(CAST(IFNULL(MAX(CASE WHEN interval_month = 19 THEN count_pcr_lt_2 END), 0) AS SIGNED),
-                ' (', ROUND(IFNULL(MAX(CASE WHEN interval_month = 19 THEN (count_pcr_lt_2 / (count_base + count_ti)) * 100 END), 0), 1), '%)') AS '18_Months',
+                ' (', ROUND(IFNULL(MAX(CASE WHEN interval_month = 19 THEN (count_pcr_lt_2 / NULLIF((count_base + count_ti), 0)) * 100 END), 0), 1), '%)') AS '18_Months',
             CONCAT(CAST(IFNULL(MAX(CASE WHEN interval_month = 25 THEN count_pcr_lt_2 END), 0) AS SIGNED),
-                ' (', ROUND(IFNULL(MAX(CASE WHEN interval_month = 25 THEN (count_pcr_lt_2 / (count_base + count_ti)) * 100 END), 0), 1), '%)') AS '24_Months',
+                ' (', ROUND(IFNULL(MAX(CASE WHEN interval_month = 25 THEN (count_pcr_lt_2 / NULLIF((count_base + count_ti), 0)) * 100 END), 0), 1), '%)') AS '24_Months',
             CONCAT(CAST(IFNULL(MAX(CASE WHEN interval_month = 31 THEN count_pcr_lt_2 END), 0) AS SIGNED),
-                ' (', ROUND(IFNULL(MAX(CASE WHEN interval_month = 31 THEN (count_pcr_lt_2 / (count_base + count_ti)) * 100 END), 0), 1), '%)') AS '30_Months'
+                ' (', ROUND(IFNULL(MAX(CASE WHEN interval_month = 31 THEN (count_pcr_lt_2 / NULLIF((count_base + count_ti), 0)) * 100 END), 0), 1), '%)') AS '30_Months'
     FROM MonthlyStats
 
     UNION ALL
@@ -242,16 +246,16 @@ BEGIN
     SELECT 'F. HEI with DNA PCR collected between 2 and 12 months of age Percentage',
            -- 12 Months
            CONCAT(CAST(IFNULL(MAX(CASE WHEN interval_month = 13 THEN count_pcr_2_12 END), 0) AS SIGNED),
-                  ' (', ROUND(IFNULL(MAX(CASE WHEN interval_month = 13 THEN (count_pcr_2_12 / (count_base + count_ti)) * 100 END), 0), 1), '%)'),
+                  ' (', ROUND(IFNULL(MAX(CASE WHEN interval_month = 13 THEN (count_pcr_2_12 / NULLIF((count_base + count_ti), 0)) * 100 END), 0), 1), '%)'),
            -- 18 Months
            CONCAT(CAST(IFNULL(MAX(CASE WHEN interval_month = 19 THEN count_pcr_2_12 END), 0) AS SIGNED),
-                  ' (', ROUND(IFNULL(MAX(CASE WHEN interval_month = 19 THEN (count_pcr_2_12 / (count_base + count_ti)) * 100 END), 0), 1), '%)'),
+                  ' (', ROUND(IFNULL(MAX(CASE WHEN interval_month = 19 THEN (count_pcr_2_12 / NULLIF((count_base + count_ti), 0)) * 100 END), 0), 1), '%)'),
            -- 24 Months
            CONCAT(CAST(IFNULL(MAX(CASE WHEN interval_month = 25 THEN count_pcr_2_12 END), 0) AS SIGNED),
-                  ' (', ROUND(IFNULL(MAX(CASE WHEN interval_month = 25 THEN (count_pcr_2_12 / (count_base + count_ti)) * 100 END), 0), 1), '%)'),
+                  ' (', ROUND(IFNULL(MAX(CASE WHEN interval_month = 25 THEN (count_pcr_2_12 / NULLIF((count_base + count_ti), 0)) * 100 END), 0), 1), '%)'),
            -- 30 Months
            CONCAT(CAST(IFNULL(MAX(CASE WHEN interval_month = 31 THEN count_pcr_2_12 END), 0) AS SIGNED),
-                  ' (', ROUND(IFNULL(MAX(CASE WHEN interval_month = 31 THEN (count_pcr_2_12 / (count_base + count_ti)) * 100 END), 0), 1), '%)')
+                  ' (', ROUND(IFNULL(MAX(CASE WHEN interval_month = 31 THEN (count_pcr_2_12 / NULLIF((count_base + count_ti), 0)) * 100 END), 0), 1), '%)')
     FROM MonthlyStats
 
     UNION ALL

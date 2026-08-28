@@ -63,9 +63,13 @@ BEGIN
                                          END AS interval_end_date,
                                      CASE
                                          WHEN i.interval_month = 0 THEN REPORT_START_DATE
-                                         ELSE COALESCE(LAG(fn_ethiopian_to_gregorian_calendar(fn_add_ethiopian_months(
-                                                 fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'),
-                                                 i.interval_month ,1)))
+                                         ELSE COALESCE(LAG(
+                                                 CASE
+                                                     WHEN i.interval_month = 0 THEN a.date_of_enrollment_or_booking
+                                                     ELSE fn_ethiopian_to_gregorian_calendar(fn_add_ethiopian_months(
+                                                             fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'),
+                                                             i.interval_month ,1))
+                                                     END)
                                                            OVER (PARTITION BY a.PatientId ORDER BY i.interval_month),
                                                        REPORT_START_DATE)
                                          END AS interval_start_date
@@ -139,7 +143,7 @@ BEGIN
 
          CohortHeaderDates AS (SELECT interval_month,
                                       CASE
-                                          WHEN interval_month = 0 THEN REPORT_START_DATE
+                                          WHEN interval_month = 0 THEN REPORT_END_DATE
                                           ELSE fn_ethiopian_to_gregorian_calendar(fn_add_ethiopian_months(
                                                   fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'),
                                                    interval_month ,1))

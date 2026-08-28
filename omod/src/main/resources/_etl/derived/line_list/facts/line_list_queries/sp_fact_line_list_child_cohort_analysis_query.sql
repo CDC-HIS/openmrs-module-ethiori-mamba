@@ -66,9 +66,13 @@ BEGIN
                                          END AS interval_end_date,
                                      CASE
                                          WHEN i.interval_month = 0 THEN REPORT_START_DATE
-                                         ELSE COALESCE(LAG(fn_ethiopian_to_gregorian_calendar(fn_add_ethiopian_months(
-                                                 fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'),
-                                                 i.interval_month,1)))
+                                         ELSE COALESCE(LAG(
+                                                 CASE
+                                                     WHEN i.interval_month = 0 THEN h.hei_enrollment_date
+                                                     ELSE fn_ethiopian_to_gregorian_calendar(fn_add_ethiopian_months(
+                                                             fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'),
+                                                             i.interval_month,1))
+                                                     END)
                                                            OVER (PARTITION BY h.hei_client_id ORDER BY i.interval_month),
                                                        REPORT_START_DATE)
                                          END AS interval_start_date
@@ -87,7 +91,7 @@ BEGIN
                               1                          as priority
                        FROM HIEInCohortFiltered h
                                 JOIN mamba_flat_encounter_follow_up_6 f6 ON h.mother_client_id = f6.client_id
-                                LEFT JOIN mamba_flat_encounter_follow_up_4 f7 ON h.mother_client_id = f6.client_id
+                                LEFT JOIN mamba_flat_encounter_follow_up_4 f7 ON f7.encounter_id = f6.encounter_id
                        WHERE f6.follow_up_date_followup_ IS NOT NULL
 
                        UNION ALL
@@ -179,6 +183,11 @@ BEGIN
            pcr.pcr_date_2_12m                                                     AS 'PCR Date (2-12 Months)',
            pcr.pcr_date_2_12m                                                     AS 'PCR Date (2-12 Months) EC.',
            pcr.pcr_result_2_12m                                                   AS 'PCR Result (2-12 Months)',
+
+           -- 0 Months (Enrollment)
+           MAX(CASE WHEN cs.interval_month = 0 THEN cs.status ELSE NULL END)      AS 'Status at 0 Months',
+           MAX(CASE WHEN cs.interval_month = 0 THEN cs.event_date ELSE NULL END)  AS 'Latest Event Date at 0 Months',
+           MAX(CASE WHEN cs.interval_month = 0 THEN cs.event_date ELSE NULL END)  AS 'Latest Event Date at 0 Months EC.',
 
            -- 12 Months
            MAX(CASE WHEN cs.interval_month = 13 THEN cs.status ELSE NULL END)     AS 'Status at 12 Months',

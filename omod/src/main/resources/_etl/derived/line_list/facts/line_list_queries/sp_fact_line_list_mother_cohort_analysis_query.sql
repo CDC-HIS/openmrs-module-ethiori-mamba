@@ -77,16 +77,20 @@ BEGIN
                                          END AS interval_end_date,
                                      CASE
                                          WHEN i.interval_month = 0 THEN REPORT_START_DATE
-                                         ELSE COALESCE(LAG(fn_ethiopian_to_gregorian_calendar(fn_add_ethiopian_months(
-                                                 fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'),
-                                                 i.interval_month,1)))
+                                         ELSE COALESCE(LAG(
+                                                 CASE
+                                                     WHEN i.interval_month = 0 THEN a.date_of_enrollment_or_booking
+                                                     ELSE fn_ethiopian_to_gregorian_calendar(fn_add_ethiopian_months(
+                                                             fn_gregorian_to_ethiopian_calendar(REPORT_START_DATE, 'Y-M-D'),
+                                                             i.interval_month,1))
+                                                     END)
                                                            OVER (PARTITION BY a.PatientId ORDER BY i.interval_month),
                                                        REPORT_START_DATE)
                                          END AS interval_start_date
                               FROM PMTCT_ENROLLMENT a
                                        CROSS JOIN IntervalsDef i),
 
-         StrictIntervalData AS (SELECT pi.PatientId,
+         RankedIntervalData AS (SELECT pi.PatientId,
                                        pi.interval_month,
                                        pi.interval_start_date,
                                        pi.interval_end_date,
@@ -101,15 +105,31 @@ BEGIN
                                        f.ARTDoseDays,
                                        f.AdherenceLevel,
                                        f.next_visit_date,
-                                       f.current_functional_status
+                                       f.current_functional_status,
+                                       ROW_NUMBER() OVER (
+                                           PARTITION BY pi.PatientId, pi.interval_month
+                                           ORDER BY f.follow_up_date DESC
+                                           )                                 AS rn
 
                                 FROM PatientIntervals pi
                                          LEFT JOIN FollowUpEncounters f ON pi.PatientId = f.PatientId
-                                    AND f.follow_up_date BETWEEN pi.interval_start_date AND pi.interval_end_date
-                                    AND f.follow_up_date = (SELECT MAX(sub_f.follow_up_date)
-                                                            FROM FollowUpEncounters sub_f
-                                                            WHERE sub_f.PatientId = pi.PatientId
-                                                              AND sub_f.follow_up_date BETWEEN pi.interval_start_date AND pi.interval_end_date)),
+                                    AND f.follow_up_date BETWEEN pi.interval_start_date AND pi.interval_end_date),
+         StrictIntervalData AS (SELECT PatientId,
+                                       interval_month,
+                                       interval_start_date,
+                                       interval_end_date,
+                                       strict_status,
+                                       strict_tx_end_date,
+                                       strict_regimen,
+                                       strict_pregnancy,
+                                       strict_breastfeeding,
+                                       follow_up_date,
+                                       ARTDoseDays,
+                                       AdherenceLevel,
+                                       next_visit_date,
+                                       current_functional_status
+                                FROM RankedIntervalData
+                                WHERE rn = 1),
 
          StateCalculation AS (SELECT sid.*,
                                      COUNT(strict_status)
